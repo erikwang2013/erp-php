@@ -638,6 +638,36 @@ abstract class AppLocalizations {
   /// **'渠道店铺名称'**
   String get omsChannelStore;
 
+  /// No description provided for @omsChannelManual.
+  ///
+  /// In zh, this message translates to:
+  /// **'手工'**
+  String get omsChannelManual;
+
+  /// No description provided for @omsChannelWeb.
+  ///
+  /// In zh, this message translates to:
+  /// **'网页'**
+  String get omsChannelWeb;
+
+  /// No description provided for @omsChannelMobile.
+  ///
+  /// In zh, this message translates to:
+  /// **'移动端'**
+  String get omsChannelMobile;
+
+  /// No description provided for @omsChannelApi.
+  ///
+  /// In zh, this message translates to:
+  /// **'接口'**
+  String get omsChannelApi;
+
+  /// No description provided for @omsChannelMarketplace.
+  ///
+  /// In zh, this message translates to:
+  /// **'电商平台'**
+  String get omsChannelMarketplace;
+
   /// No description provided for @omsFulfillStatus.
   ///
   /// In zh, this message translates to:
@@ -1070,6 +1100,42 @@ abstract class AppLocalizations {
   /// **'已驳回'**
   String get hrLeaveStatusRejected;
 
+  /// No description provided for @hrAttendanceStatusNormal.
+  ///
+  /// In zh, this message translates to:
+  /// **'正常'**
+  String get hrAttendanceStatusNormal;
+
+  /// No description provided for @hrAttendanceStatusLate.
+  ///
+  /// In zh, this message translates to:
+  /// **'迟到'**
+  String get hrAttendanceStatusLate;
+
+  /// No description provided for @hrAttendanceStatusEarly.
+  ///
+  /// In zh, this message translates to:
+  /// **'早退'**
+  String get hrAttendanceStatusEarly;
+
+  /// No description provided for @hrAttendanceStatusMissing.
+  ///
+  /// In zh, this message translates to:
+  /// **'缺卡'**
+  String get hrAttendanceStatusMissing;
+
+  /// No description provided for @hrAttendanceStatusLeave.
+  ///
+  /// In zh, this message translates to:
+  /// **'请假'**
+  String get hrAttendanceStatusLeave;
+
+  /// No description provided for @hrAttendanceStatusTrip.
+  ///
+  /// In zh, this message translates to:
+  /// **'出差'**
+  String get hrAttendanceStatusTrip;
+
   /// No description provided for @hrLeaveApproveTitle.
   ///
   /// In zh, this message translates to:
@@ -1436,6 +1502,36 @@ abstract class AppLocalizations {
   /// **'频率'**
   String get eamFrequencyCol;
 
+  /// No description provided for @eamFrequencyDaily.
+  ///
+  /// In zh, this message translates to:
+  /// **'每日'**
+  String get eamFrequencyDaily;
+
+  /// No description provided for @eamFrequencyWeekly.
+  ///
+  /// In zh, this message translates to:
+  /// **'每周'**
+  String get eamFrequencyWeekly;
+
+  /// No description provided for @eamFrequencyMonthly.
+  ///
+  /// In zh, this message translates to:
+  /// **'每月'**
+  String get eamFrequencyMonthly;
+
+  /// No description provided for @eamFrequencyQuarterly.
+  ///
+  /// In zh, this message translates to:
+  /// **'每季度'**
+  String get eamFrequencyQuarterly;
+
+  /// No description provided for @eamFrequencyYearly.
+  ///
+  /// In zh, this message translates to:
+  /// **'每年'**
+  String get eamFrequencyYearly;
+
   /// No description provided for @eamLastDate.
   ///
   /// In zh, this message translates to:
@@ -1472,6 +1568,24 @@ abstract class AppLocalizations {
   /// **'维修类型'**
   String get eamRepairType;
 
+  /// No description provided for @eamRepairTypePreventive.
+  ///
+  /// In zh, this message translates to:
+  /// **'预防性'**
+  String get eamRepairTypePreventive;
+
+  /// No description provided for @eamRepairTypeCorrective.
+  ///
+  /// In zh, this message translates to:
+  /// **'纠正性'**
+  String get eamRepairTypeCorrective;
+
+  /// No description provided for @eamRepairTypeEmergency.
+  ///
+  /// In zh, this message translates to:
+  /// **'紧急'**
+  String get eamRepairTypeEmergency;
+
   /// No description provided for @eamFaultDescription.
   ///
   /// In zh, this message translates to:
@@ -1501,6 +1615,30 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'维修费用'**
   String get eamRepairCost;
+
+  /// No description provided for @eamRepairStatusOpen.
+  ///
+  /// In zh, this message translates to:
+  /// **'待处理'**
+  String get eamRepairStatusOpen;
+
+  /// No description provided for @eamRepairStatusInProgress.
+  ///
+  /// In zh, this message translates to:
+  /// **'维修中'**
+  String get eamRepairStatusInProgress;
+
+  /// No description provided for @eamRepairStatusCompleted.
+  ///
+  /// In zh, this message translates to:
+  /// **'已完成'**
+  String get eamRepairStatusCompleted;
+
+  /// No description provided for @eamRepairStatusCancelled.
+  ///
+  /// In zh, this message translates to:
+  /// **'已取消'**
+  String get eamRepairStatusCancelled;
 
   /// No description provided for @eamTransitionTitle.
   ///
@@ -1717,6 +1855,66 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'年'**
   String get crmAnalyticsYearUnit;
+
+  /// No description provided for @crmAnalyticsTypeCustomer.
+  ///
+  /// In zh, this message translates to:
+  /// **'客户'**
+  String get crmAnalyticsTypeCustomer;
+
+  /// No description provided for @crmAnalyticsTypeOrder.
+  ///
+  /// In zh, this message translates to:
+  /// **'订单'**
+  String get crmAnalyticsTypeOrder;
+
+  /// No description provided for @crmAnalyticsTypeRevenue.
+  ///
+  /// In zh, this message translates to:
+  /// **'营收'**
+  String get crmAnalyticsTypeRevenue;
+
+  /// No description provided for @crmAnalyticsTypeActivity.
+  ///
+  /// In zh, this message translates to:
+  /// **'活跃度'**
+  String get crmAnalyticsTypeActivity;
+
+  /// No description provided for @crmAnalyticsTypeRetention.
+  ///
+  /// In zh, this message translates to:
+  /// **'留存率'**
+  String get crmAnalyticsTypeRetention;
+
+  /// No description provided for @crmFollowMethodPhone.
+  ///
+  /// In zh, this message translates to:
+  /// **'电话'**
+  String get crmFollowMethodPhone;
+
+  /// No description provided for @crmFollowMethodVisit.
+  ///
+  /// In zh, this message translates to:
+  /// **'拜访'**
+  String get crmFollowMethodVisit;
+
+  /// No description provided for @crmFollowMethodEmail.
+  ///
+  /// In zh, this message translates to:
+  /// **'邮件'**
+  String get crmFollowMethodEmail;
+
+  /// No description provided for @crmFollowMethodMessage.
+  ///
+  /// In zh, this message translates to:
+  /// **'短信'**
+  String get crmFollowMethodMessage;
+
+  /// No description provided for @crmFollowMethodOther.
+  ///
+  /// In zh, this message translates to:
+  /// **'其他'**
+  String get crmFollowMethodOther;
 
   /// No description provided for @crmContractStatusDraft.
   ///
@@ -2359,6 +2557,12 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'默认 0'**
   String get commonDefaultZero;
+
+  /// No description provided for @commonUnspecified.
+  ///
+  /// In zh, this message translates to:
+  /// **'（不指定）'**
+  String get commonUnspecified;
 
   /// No description provided for @commonExampleAmount.
   ///
@@ -3554,6 +3758,12 @@ abstract class AppLocalizations {
   /// **'关闭'**
   String get commonClose;
 
+  /// No description provided for @commonLanguage.
+  ///
+  /// In zh, this message translates to:
+  /// **'语言'**
+  String get commonLanguage;
+
   /// No description provided for @commonEnabled.
   ///
   /// In zh, this message translates to:
@@ -4148,6 +4358,114 @@ abstract class AppLocalizations {
   /// **'检验/合格/不合格'**
   String get qualityQtySummary;
 
+  /// No description provided for @qualityResultPass.
+  ///
+  /// In zh, this message translates to:
+  /// **'合格'**
+  String get qualityResultPass;
+
+  /// No description provided for @qualityResultReject.
+  ///
+  /// In zh, this message translates to:
+  /// **'不合格'**
+  String get qualityResultReject;
+
+  /// No description provided for @qualityTypeIqc.
+  ///
+  /// In zh, this message translates to:
+  /// **'来料检验'**
+  String get qualityTypeIqc;
+
+  /// No description provided for @qualityTypeIpqc.
+  ///
+  /// In zh, this message translates to:
+  /// **'过程检验'**
+  String get qualityTypeIpqc;
+
+  /// No description provided for @qualityTypeOqc.
+  ///
+  /// In zh, this message translates to:
+  /// **'出货检验'**
+  String get qualityTypeOqc;
+
+  /// No description provided for @qualityNcStatusPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'待处理'**
+  String get qualityNcStatusPending;
+
+  /// No description provided for @qualityNcStatusProcessing.
+  ///
+  /// In zh, this message translates to:
+  /// **'处理中'**
+  String get qualityNcStatusProcessing;
+
+  /// No description provided for @qualityNcStatusClosed.
+  ///
+  /// In zh, this message translates to:
+  /// **'已关闭'**
+  String get qualityNcStatusClosed;
+
+  /// No description provided for @qualitySeverityMinor.
+  ///
+  /// In zh, this message translates to:
+  /// **'轻微'**
+  String get qualitySeverityMinor;
+
+  /// No description provided for @qualitySeverityMajor.
+  ///
+  /// In zh, this message translates to:
+  /// **'严重'**
+  String get qualitySeverityMajor;
+
+  /// No description provided for @qualitySeverityCritical.
+  ///
+  /// In zh, this message translates to:
+  /// **'致命'**
+  String get qualitySeverityCritical;
+
+  /// No description provided for @qualityDispositionPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'待处理'**
+  String get qualityDispositionPending;
+
+  /// No description provided for @qualityDispositionReturn.
+  ///
+  /// In zh, this message translates to:
+  /// **'退货'**
+  String get qualityDispositionReturn;
+
+  /// No description provided for @qualityDispositionRepair.
+  ///
+  /// In zh, this message translates to:
+  /// **'返修'**
+  String get qualityDispositionRepair;
+
+  /// No description provided for @qualityDispositionScrap.
+  ///
+  /// In zh, this message translates to:
+  /// **'报废'**
+  String get qualityDispositionScrap;
+
+  /// No description provided for @qualityDispositionAccept.
+  ///
+  /// In zh, this message translates to:
+  /// **'让步接收'**
+  String get qualityDispositionAccept;
+
+  /// No description provided for @qualityStatusPending.
+  ///
+  /// In zh, this message translates to:
+  /// **'待处理'**
+  String get qualityStatusPending;
+
+  /// No description provided for @qualityStatusCompleted.
+  ///
+  /// In zh, this message translates to:
+  /// **'已完成'**
+  String get qualityStatusCompleted;
+
   /// No description provided for @biDashboardName.
   ///
   /// In zh, this message translates to:
@@ -4207,6 +4525,36 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'类型: {type}'**
   String biChartTypeLabel(String type);
+
+  /// No description provided for @biChartTypeBar.
+  ///
+  /// In zh, this message translates to:
+  /// **'柱状'**
+  String get biChartTypeBar;
+
+  /// No description provided for @biChartTypeKpi.
+  ///
+  /// In zh, this message translates to:
+  /// **'指标'**
+  String get biChartTypeKpi;
+
+  /// No description provided for @biChartTypeLine.
+  ///
+  /// In zh, this message translates to:
+  /// **'折线'**
+  String get biChartTypeLine;
+
+  /// No description provided for @biChartTypePie.
+  ///
+  /// In zh, this message translates to:
+  /// **'饼图'**
+  String get biChartTypePie;
+
+  /// No description provided for @biChartTypeTable.
+  ///
+  /// In zh, this message translates to:
+  /// **'表格'**
+  String get biChartTypeTable;
 
   /// No description provided for @biChartConfig.
   ///
@@ -4328,6 +4676,42 @@ abstract class AppLocalizations {
   /// **'未知'**
   String get workflowStatusUnknown;
 
+  /// No description provided for @targetTypeSalesOrder.
+  ///
+  /// In zh, this message translates to:
+  /// **'销售订单'**
+  String get targetTypeSalesOrder;
+
+  /// No description provided for @targetTypePurchaseApply.
+  ///
+  /// In zh, this message translates to:
+  /// **'采购申请'**
+  String get targetTypePurchaseApply;
+
+  /// No description provided for @targetTypePurchaseOrder.
+  ///
+  /// In zh, this message translates to:
+  /// **'采购订单'**
+  String get targetTypePurchaseOrder;
+
+  /// No description provided for @targetTypeExpense.
+  ///
+  /// In zh, this message translates to:
+  /// **'费用报销'**
+  String get targetTypeExpense;
+
+  /// No description provided for @targetTypeLeave.
+  ///
+  /// In zh, this message translates to:
+  /// **'请假'**
+  String get targetTypeLeave;
+
+  /// No description provided for @targetTypeOther.
+  ///
+  /// In zh, this message translates to:
+  /// **'其他'**
+  String get targetTypeOther;
+
   /// No description provided for @workflowApproveTitle.
   ///
   /// In zh, this message translates to:
@@ -4435,6 +4819,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'标记全部已读'**
   String get notificationMarkAllRead;
+
+  /// No description provided for @notificationRead.
+  ///
+  /// In zh, this message translates to:
+  /// **'已读'**
+  String get notificationRead;
+
+  /// No description provided for @notificationUnread.
+  ///
+  /// In zh, this message translates to:
+  /// **'未读'**
+  String get notificationUnread;
 
   /// No description provided for @reportExecute.
   ///
@@ -4711,6 +5107,36 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'编辑配置'**
   String get configEdit;
+
+  /// No description provided for @configTypeString.
+  ///
+  /// In zh, this message translates to:
+  /// **'字符串'**
+  String get configTypeString;
+
+  /// No description provided for @configTypeInt.
+  ///
+  /// In zh, this message translates to:
+  /// **'整数'**
+  String get configTypeInt;
+
+  /// No description provided for @configTypeBool.
+  ///
+  /// In zh, this message translates to:
+  /// **'布尔'**
+  String get configTypeBool;
+
+  /// No description provided for @configTypeJson.
+  ///
+  /// In zh, this message translates to:
+  /// **'JSON'**
+  String get configTypeJson;
+
+  /// No description provided for @configTypeArray.
+  ///
+  /// In zh, this message translates to:
+  /// **'数组'**
+  String get configTypeArray;
 
   /// No description provided for @configSaveSuccess.
   ///
@@ -5365,6 +5791,18 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'文档列表'**
   String get dmsDocumentTitle;
+
+  /// No description provided for @dmsDocStatusDraft.
+  ///
+  /// In zh, this message translates to:
+  /// **'草稿'**
+  String get dmsDocStatusDraft;
+
+  /// No description provided for @dmsDocStatusPublished.
+  ///
+  /// In zh, this message translates to:
+  /// **'发布'**
+  String get dmsDocStatusPublished;
 
   /// No description provided for @notificationCenterTitle.
   ///

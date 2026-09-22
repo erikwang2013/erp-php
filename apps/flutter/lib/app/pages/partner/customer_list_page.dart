@@ -23,8 +23,10 @@ class _CustomerListPageState extends State<CustomerListPage> {
   String? _error;
   int _reqSeq = 0;
 
+  // 列表「等级」列与下拉共用同一份 id→名称映射：initState 一并预取（rule ③），
+  // 取不到落「-」（rule ④），裸 hashid 不上屏。
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() { super.initState(); _load(); _ensureLevels(); }
 
   /// 客户等级下拉选项：id(hashid)→名称，取自 /admin/v1/customer-level（懒加载一次）。
   Map<String, String> _levelLabels = {};
@@ -36,6 +38,7 @@ class _CustomerListPageState extends State<CustomerListPage> {
       final res = await ApiService.instance.get('/admin/v1/customer-level');
       final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
       _levelLabels = { for (final r in list) '${r['id']}': '${r['name'] ?? ''}' };
+      if (mounted) setState(() {});
       return true;
     } catch (e) {
       if (mounted) {
@@ -128,13 +131,17 @@ class _CustomerListPageState extends State<CustomerListPage> {
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
-    final levelId = r['level_id'];
+    final levelId = '${r['level_id'] ?? ''}';
+    // 等级列：下拉那份 id→名称（rule ③，CustomerController::index 只下发 level_id）；
+    // 0/空 = 无等级留空，有 id 但名称未加载/未命中落「-」（rule ④）
+    final levelName = _levelLabels[levelId];
     return {
       l10n.commonName: r['name'] ?? '',
       l10n.fieldCode: r['code'] ?? '',
-      // 列表行无等级名称关联（后端未 enrich），等级列展示原生 level_id；0=无等级留空
       l10n.fieldContact: r['contact_person'] ?? '',
-      l10n.fieldLevel: (levelId == null || '$levelId' == '0') ? '' : '$levelId',
+      l10n.fieldLevel: (levelId.isEmpty || levelId == '0')
+          ? ''
+          : ((levelName == null || levelName.isEmpty) ? '-' : levelName),
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
         IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

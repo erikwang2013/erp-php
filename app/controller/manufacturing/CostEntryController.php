@@ -78,7 +78,17 @@ class CostEntryController extends BaseController
             'eqFilters' => ['status', 'entry_type'],
             'truthyFilters' => ['order_id'],
         ]);
-        $list = array_map(fn ($item) => $this->encodeIds($item, ['id', 'order_id']), $result['list']);
+        // order_id → erp_mfg_production_order（列注释「生产工单ID」）：AbstractCrudService::list
+        // 只出本表列，工单号得按页内 order_id 反查带出 alias order_code（同 FulfillmentController::index
+        // 给 order_channel_no 的预取范式，非 join 以免动共享的 list 与 count）。孤儿外键留 null
+        $orderCodes = MfgProductionOrder::query()
+            ->whereIn('id', array_column($result['list'], 'order_id'))
+            ->pluck('code', 'id');
+        $list = array_map(function ($item) use ($orderCodes) {
+            $item['order_code'] = $orderCodes[$item['order_id']] ?? null;
+
+            return $this->encodeIds($item, ['id', 'order_id']);
+        }, $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
     }

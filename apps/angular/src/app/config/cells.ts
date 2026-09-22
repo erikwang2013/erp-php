@@ -30,7 +30,9 @@ export const textCol = (key: string, title: string, primary?: boolean): ColumnDe
   key,
   title,
   primary,
-  kind: 'text',
+  // 外键列一律按关联列渲染（cellOf 的 rel 分支）：行内有名称/关系对象或 rel 映射才出值，
+  // 全落空落「-」占位。显式写 textCol('xxx_id') 的列此前会把裸 hashid 贴到列表上
+  kind: key.endsWith('_id') ? 'rel' : 'text',
 });
 
 /** 通用业务状态徽标（0 待处理 / 1|3 完成 / 2 处理中 / 4 取消）；key 缺省 'status'，异名列（如 fulfillment_status）显式传 */

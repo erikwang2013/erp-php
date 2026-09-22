@@ -169,9 +169,9 @@ class _OpportunityListPageState extends State<OpportunityListPage> {
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.commonName: r['name'] ?? '',
-    AppL10n.current.fieldCustomer: r['customer_name'] ?? r['customer_id'] ?? '',
+    AppL10n.current.fieldCustomer: r['customer_name'] ?? '',
     AppL10n.current.crmAmount: r['estimated_amount'] ?? '',
-    AppL10n.current.crmOpportunityStage: r['stage_name'] ?? r['stage_id'] ?? '',
+    AppL10n.current.crmOpportunityStage: r['stage_name'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

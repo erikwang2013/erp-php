@@ -24,8 +24,47 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const MAX_LINES = 500; // CLAUDE.md 硬线；切片就是为这条才切的
 
-/** install.sql 覆盖不到的键：非 DB 列（服务端算出/嵌套对象）——漏了就退回英文 */
-const EXTRA_KEYS = ['default_ledger', 'shipment_code'];
+/** install.sql 覆盖不到的键：非 DB 列（服务端算出/嵌套对象）——漏了就退回英文。
+ *  「展示列」是 install.sql 列名 + 这张表：报表/动作回包的键把数组当表格、对象当键值表渲染，
+ *  每个键都会过 keyTitle，容器键（items/lines/rfq）与算出来的字段（target_total/is_lowest）全在内。 */
+const EXTRA_KEYS = [
+  'default_ledger',
+  'shipment_code',
+  'receive_code',
+  'delivery_code',
+  // 比价面板（/purchase/rfq/{id}/compare）
+  'rfq',
+  'quotes',
+  'items',
+  'is_lowest',
+  'target_total',
+  'target_amount',
+  'lowest_quote_id',
+  'quote_prices',
+  'product_code',
+  'buyer_real_name',
+  // withCount 派生的计数列（RfqController::index / RfqQuoteController::index / RoleController::index）：非 DB 列
+  'items_count',
+  'quotes_count',
+  'users_count',
+  // 工资条（/hr/salary/{id}/payslip）
+  'salary',
+  'social',
+  // 财务报表 report_data 内层
+  'lines',
+  'generated_from',
+  'voucher_count',
+  // 服务端按 FK 反查出的编号别名（与 receive_code/delivery_code 同款，select 或 pluck 带出）
+  'voucher_code',
+  'order_channel_no',
+  'carrier_service_code',
+  'receiving_code',
+  'production_order_code',
+  // ReportScheduleController::index 把 recipients 的 id 换成姓名（_names 不匹配 (name|id)$，回落驼峰）
+  'recipients_names',
+  // 比价回包的比价矩阵块
+  'matrix',
+];
 
 /** 与 columns.ts / defaults.tsx 的 HIDDEN 同集：不展示的列不要求标题 */
 const HIDDEN = new Set([

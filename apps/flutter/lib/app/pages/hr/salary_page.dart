@@ -239,14 +239,15 @@ class _SalaryPageState extends State<SalaryPage> {
     AppL10n.current.commonAction,
   ];
 
-  /// 员工列：优先 employee 关联中的姓名，缺失时回退员工ID（与 leave_page 同款）。
+  /// 员工列：employee 关联姓名（SalaryController::index 已 with('employee')，rule ②）；
+  /// 取不到落「-」—— 契约 rule ④，裸 hashid 不上屏（与 leave_page 同款）。
   static String _empLabel(Map<String, dynamic> r) {
     final emp = r['employee'];
     if (emp is Map) {
       final n = emp['name'];
       if (n != null && '$n'.isNotEmpty) return '$n';
     }
-    return '${r['employee_id'] ?? ''}';
+    return '-';
   }
 
   /// 后端 status 可能返回 int 或字符串数字，宽容解析。

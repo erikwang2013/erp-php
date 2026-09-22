@@ -23,8 +23,34 @@ class _RepairOrderPageState extends State<RepairOrderPage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 设备下拉：equipment_id 是后端 hashid 契约（EquipmentController::index 出口 encodeIds），
+  /// 手输数字/编辑态回写的 hashid 直灌 BIGINT 列都会崩；选项值=行 id(hashid)，标签取设备编码。
+  /// notify=false 供列表单元格解析用（失败仍回落原值，不打扰用户）。
+  Map<String, String> _equipments = {};
+
+  Future<bool> _ensureRefs({bool notify = true}) async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/eam/equipment', params: {'limit': '500'});
+      final options = {
+        for (final r in List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []))
+          '${r['id']}': '${r['code'] ?? r['name'] ?? r['id']}',
+      };
+      if (mounted) {
+        setState(() => _equipments = options);
+      } else {
+        _equipments = options;
+      }
+      return true;
+    } catch (e) {
+      if (notify && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() { super.initState(); _load(); _ensureRefs(notify: false); }
 
   Future<void> _load() async {
     final seq = ++_reqSeq;
@@ -41,16 +67,19 @@ class _RepairOrderPageState extends State<RepairOrderPage> {
   }
 
   Future<void> _create() async {
+    if (!await _ensureRefs() || !mounted) return;
     final l10n = AppL10n.of(context);
-    await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
+    await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(_equipments), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/eam/repair', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureRefs() || !mounted) return;
     final l10n = AppL10n.of(context);
-    await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
+    await FormDialog.show(context, title: l10n.commonEdit,
+      fields: _formFields(dropdownOptionsWithCurrent(_equipments, row['equipment_id'])), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/eam/repair/${row['id']}', data: data);
       _load(); return true;
     });
@@ -77,11 +106,15 @@ class _RepairOrderPageState extends State<RepairOrderPage> {
     });
   }
 
-  List<FormFieldConfig> _formFields() => [
+  List<FormFieldConfig> _formFields(Map<String, String> equipmentOptions) => [
     FormFieldConfig(name: 'code', label: AppL10n.current.eamRepairCode, required: true),
-    FormFieldConfig(name: 'equipment_id', label: AppL10n.current.eamEquipmentId, type: FormFieldType.number, required: true),
+    FormFieldConfig(name: 'equipment_id', label: AppL10n.current.eamEquipmentId, required: true,
+        type: FormFieldType.dropdown, options: equipmentOptions.keys.toList(), optionLabels: equipmentOptions),
     FormFieldConfig(name: 'fault_description', label: AppL10n.current.eamFaultDescription, type: FormFieldType.multiline, required: true),
-    FormFieldConfig(name: 'repair_type', label: AppL10n.current.eamRepairType, type: FormFieldType.dropdown, options: ['preventive', 'corrective', 'emergency']),
+    // 显示文案走 optionLabels（值=存储值不变），词表同本页维修类型列
+    FormFieldConfig(name: 'repair_type', label: AppL10n.current.eamRepairType, type: FormFieldType.dropdown,
+        options: ['preventive', 'corrective', 'emergency'],
+        optionLabels: {for (final v in const ['preventive', 'corrective', 'emergency']) v: _typeLabel(v)}),
     FormFieldConfig(name: 'assignee', label: AppL10n.current.eamRepairAssignee),
     FormFieldConfig(name: 'start_date', label: AppL10n.current.eamStartDate),
     FormFieldConfig(name: 'end_date', label: AppL10n.current.eamEndDate),
@@ -116,11 +149,28 @@ class _RepairOrderPageState extends State<RepairOrderPage> {
     AppL10n.current.commonAction,
   ];
 
+  /// 维修类型/状态列：值域即表单下拉 options 与 RepairOrderController::STATUS_TRANSITIONS
+  /// （open→in_progress→completed/cancelled），机读串不上屏，未知值原样回落。
+  static String _typeLabel(Object? v) => switch ('$v') {
+        'preventive' => AppL10n.current.eamRepairTypePreventive,
+        'corrective' => AppL10n.current.eamRepairTypeCorrective,
+        'emergency' => AppL10n.current.eamRepairTypeEmergency,
+        _ => '$v',
+      };
+
+  static String _statusLabel(Object? v) => switch ('$v') {
+        'open' => AppL10n.current.eamRepairStatusOpen,
+        'in_progress' => AppL10n.current.eamRepairStatusInProgress,
+        'completed' => AppL10n.current.eamRepairStatusCompleted,
+        'cancelled' => AppL10n.current.eamRepairStatusCancelled,
+        _ => '$v',
+      };
+
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.eamRepairCode: r['code'] ?? '',
-    AppL10n.current.eamEquipmentId: r['equipment_id'] ?? '',
-    AppL10n.current.eamRepairType: r['repair_type'] ?? '',
-    AppL10n.current.commonStatus: r['status'] ?? '',
+    AppL10n.current.eamEquipmentId: _equipments['${r['equipment_id']}'] ?? '-',
+    AppL10n.current.eamRepairType: _typeLabel(r['repair_type']),
+    AppL10n.current.commonStatus: _statusLabel(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       if ((r['status'] ?? 'open') == 'open')
         IconButton(icon: Icon(Icons.play_arrow, size: 18, color: AppColors.of(context).warning), tooltip: AppL10n.current.eamRepairStart,

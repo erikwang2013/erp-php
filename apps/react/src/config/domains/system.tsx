@@ -4,7 +4,7 @@
 
 import { Badge } from '@/components/ui';
 import { dateTime, money, statusText, statusTone, yesNo } from '@/lib/format';
-import { tr } from '@/lib/i18n';
+import { mapText } from '@/config/cells';
 import type { MenuGroup } from '@/config/types';
 
 /** 系统管理域：用户 / 角色 / 权限 / 配置 / 日志 */
@@ -116,7 +116,7 @@ export const systemMenus: MenuGroup[] = [
             {
               key: 'type',
               title: '类型',
-              render: (r) => tr({ 1: '目录', 2: '菜单', 3: '按钮' }[Number(r.type)] ?? '-'),
+              render: (r) => mapText(r.type, { 1: '目录', 2: '菜单', 3: '按钮' }),
             },
             { key: 'path', title: '路径' },
             { key: 'sort', title: '排序', align: 'right' },
@@ -147,11 +147,15 @@ export const systemMenus: MenuGroup[] = [
           moduleKey: 'system',
           endpoint: '/admin/v1/config',
           searchPlaceholder: '搜索配置键',
+          // erp_system_config.type（install.sql:138 `值类型: string|int|bool|json|array`，斜杠码表无中文）
+          // 译文取自本页表单自己的 options；json 表单没提供但 DDL 有，行里可能存着
+          dicts: { type: { string: '字符串', int: '整数', bool: '布尔', array: '数组', json: 'JSON' } },
           columns: [
             { key: 'group', title: '分组', primary: true },
             { key: 'key', title: '配置键' },
             { key: 'value', title: '值' },
-            { key: 'type', title: '类型' },
+            // 本页声明了 columns，推断不参与 —— 列自己带 render（cfg.dicts 只管抽屉与注册锁）
+            { key: 'type', title: '类型', render: (r) => mapText(r.type, { string: '字符串', int: '整数', bool: '布尔', array: '数组', json: 'JSON' }) },
             { key: 'description', title: '说明' },
           ],
           fields: [

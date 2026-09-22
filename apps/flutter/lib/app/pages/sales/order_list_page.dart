@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../l10n/app_l10n.dart';
 import '../../services/api_service.dart';
+import '../../utils/format.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/filter_chips_bar.dart';
@@ -47,6 +48,9 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
 
   Future<void> _create() async {
     final l10n = AppL10n.of(context);
+    // 外键选项先就位再弹窗（失败已弹提示，此处直接返回）
+    if (!await _ensureRefs()) return;
+    if (!mounted) return;
     // 明细经 FormDialog 的 child 插槽接入（表单值 Map<String,String> 装不下数组），
     // 累积结果由下面的 onSubmit 闭包捕获后塞进 payload。
     // 明细仅新建期填写：编辑态不回填 items，避免「空编辑器 + 整表替换」误清明细。
@@ -63,7 +67,9 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
-    await FormDialog.show(context, title: AppL10n.of(context).salesOrderEdit, fields: _formFields(),
+    if (!await _ensureRefs()) return;
+    if (!mounted) return;
+    await FormDialog.show(context, title: AppL10n.of(context).salesOrderEdit, fields: _formFields(row: row),
       initialData: _toEditData(row), onSubmit: (data) async {
       final payload = _buildPayload(data);
       await ApiService.instance.put('/admin/v1/sales/order/${row['id']}', data: payload);
@@ -92,15 +98,68 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
   // discount_amount/status/remark/ordered_at（无 name 列；客户名 customer_name 由列表 leftJoin 带出）
   static List<String> get _statusLabels => [AppL10n.current.salesOrderPending, AppL10n.current.salesOrderReviewed, AppL10n.current.salesOrderPartShipped, AppL10n.current.salesOrderShipped, AppL10n.current.salesOrderCancelled];
 
-  List<FormFieldConfig> _formFields() {
+  /// 外键下拉数据源：FormFieldConfig 无 remote source（FormFieldType 只有
+  /// text/number/dropdown/password/multiline），故弹窗前自己预取喂静态 options/optionLabels
+  /// —— 本工程既有惯用法，模板见 wms/pack_page.dart:68-86。
+  /// customer_id 必填；warehouse_id 可空（列 NOT NULL DEFAULT 0，空选下发 '0' 落 0）。
+  /// 两者原先都是手输 hashid，用户无从获得。
+  Map<String, String> _customers = {}, _warehouses = {};
+
+  Future<bool> _ensureRefs() async {
+    try {
+      final c = await ApiService.instance.get('/admin/v1/customer', params: {'limit': '500'});
+      final w = await ApiService.instance.get('/admin/v1/warehouse', params: {'limit': '500'});
+      _customers = _options(c, 'name');
+      // 可空外键前置空选项：下拉一旦替掉文本框，'0' 就再也填不回去（含清空场景）
+      _warehouses = _options(w, 'name', optional: true);
+      return true;
+    } catch (e) {
+      // 必填下拉取不到选项就不弹窗，避免用户面对空下拉无路可走（P1）
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      return false;
+    }
+  }
+
+  /// 列表响应 → 选项表（值=hashid，标签=名称/单号）。optional=true 时前置空选项
+  /// （值 ''，_buildPayload 归一成 '0'）供「不指定」。
+  /// 标签走 fmtText 落占位：名称键缺失/为空时贴出的会是 encodeIds 后的雪花码，对用户是噪声。
+  Map<String, String> _options(Map<String, dynamic> res, String labelKey, {bool optional = false}) => {
+    if (optional) '': AppL10n.of(context).commonUnspecified,
+    for (final r in List<Map<String, dynamic>>.from(res['data']?['list'] ?? []))
+      '${r['id']}': fmtText(r[labelKey]),
+  };
+
+  /// 编辑态：当前 FK 不在预取列表内时前置进选项 —— FormDialog 会把不在 options 里的
+  /// 预填值置 null（form_dialog.dart:80-83），提交时该外键就被静默清空了（P2）。
+  /// 返回新 map（前置孤儿项），未命中时原样返回 —— 口径同 quality/ipqc_list_page.dart::_primed。
+  /// 选项标签同样只出可读名（fmtText），没有名称就出占位短横，绝不回落 hashid 本身。
+  Map<String, String> _primed(Map<String, String> m, Map<String, dynamic> row, String idKey, String nameKey) {
+    final id = '${row[idKey] ?? ''}';
+    if (id.isEmpty || id == '0' || m.containsKey(id)) return m;
+    return {id: fmtText(row[nameKey]), ...m};
+  }
+
+  List<FormFieldConfig> _formFields({Map<String, dynamic>? row}) {
     final now = DateTime.now();
     String pad(int v) => v.toString().padLeft(2, '0');
     final defaultOrderedAt =
         '${now.year}-${pad(now.month)}-${pad(now.day)} ${pad(now.hour)}:${pad(now.minute)}:${pad(now.second)}';
+    var customers = _customers, warehouses = _warehouses;
+    if (row != null) {
+      customers = _primed(customers, row, 'customer_id', 'customer_name');
+      warehouses = _primed(warehouses, row, 'warehouse_id', 'warehouse_name');
+    }
+    // 可空外键 length>1 才算「有真选项」（1 是那枚空选项），否则退回文本框
     return [
       FormFieldConfig(name: 'code', label: AppL10n.of(context).salesOrderNo, hint: AppL10n.of(context).salesOrderCodeHint),
-      FormFieldConfig(name: 'customer_id', label: AppL10n.of(context).salesCustomerId, required: true, hint: AppL10n.of(context).salesCustomerIdHint),
-      FormFieldConfig(name: 'warehouse_id', label: AppL10n.of(context).salesWarehouseId, hint: AppL10n.of(context).salesWarehouseIdHint),
+      FormFieldConfig(name: 'customer_id', label: AppL10n.of(context).salesCustomerId, required: true,
+        type: customers.isNotEmpty ? FormFieldType.dropdown : FormFieldType.text,
+        options: customers.keys.toList(), optionLabels: customers,
+        hint: AppL10n.of(context).salesCustomerIdHint),
+      FormFieldConfig(name: 'warehouse_id', label: AppL10n.of(context).salesWarehouseId,
+        type: warehouses.length > 1 ? FormFieldType.dropdown : FormFieldType.text,
+        options: warehouses.keys.toList(), optionLabels: warehouses,
+        hint: AppL10n.of(context).salesWarehouseIdHint),
       FormFieldConfig(name: 'total_amount', label: AppL10n.of(context).salesOrderTotalAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonExampleAmount('100.00')),
       FormFieldConfig(name: 'discount_amount', label: AppL10n.of(context).salesDiscountAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonDefaultZero),
       FormFieldConfig(name: 'status', label: AppL10n.of(context).commonStatus, type: FormFieldType.dropdown,
@@ -183,8 +242,8 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.salesOrderNo: r['code'] ?? '',
-    // 列表行无 name 列，客户名由 customer_name 带出；旧响应/软删兜底回 hashid
-    AppL10n.current.partnerCustomerTitle: r['customer_name'] ?? r['customer_id'] ?? '',
+    // 列表行无 name 列，客户名由 customer_name 带出；取不到留空（不回落 customer_id hashid）
+    AppL10n.current.partnerCustomerTitle: r['customer_name'] ?? '',
     AppL10n.current.salesTotalAmount: r['total_amount'] ?? '',
     AppL10n.current.commonStatus: _chip(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [

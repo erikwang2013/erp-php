@@ -152,6 +152,42 @@ class BaseController
     }
 
     /**
+     * 模型的外键列名（$fillable 里除主键外全部 *_id），供 decodeIdFields 批量解码。
+     * 从模型声明推导而不是各控制器手写名单：新增外键列时不会漏解（漏解即 1366 → 500）。
+     *
+     * @return array<int, string>
+     */
+    protected function foreignKeyFields(Model $model): array
+    {
+        return array_values(array_filter($model->getFillable(), fn ($f) => str_ends_with((string) $f, '_id')));
+    }
+
+    /**
+     * 主表外键批量双模解码：客户端外键是列表 encodeIds 下发的 hashid 串，fill 会把它
+     * 直填 BIGINT 列（MySQL 严格模式报 1366 → 500）——「编辑即 500」的根因。
+     *
+     * 只返回请求中**带值**的字段：缺失或空串（前端下拉留空的语义）由调用方决定，
+     * store 补 0 = 未关联（列 NOT NULL DEFAULT 0）、update 不补 = 不改动（局部更新
+     * 不得把既有外键清零）；垃圾串落 0，口径同 purchase/OrderController 的可选外键。
+     *
+     * @param array<int, string> $fields
+     * @return array<string, int>
+     */
+    protected function decodeIdFields(Request $request, array $fields): array
+    {
+        $out = [];
+        foreach ($fields as $field) {
+            $raw = $request->input($field, null);
+            if ($raw === null || $raw === '') {
+                continue;
+            }
+            $out[$field] = $this->decodeFlexibleId($raw) ?? 0;
+        }
+
+        return $out;
+    }
+
+    /**
      * 批量编码数组中的 ID 字段（默认递归：任意层级的 id / *_id，见 HashidsService::encodeIds）
      */
     protected function encodeIds(array $data, array $idFields = []): array

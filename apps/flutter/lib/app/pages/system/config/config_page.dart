@@ -119,7 +119,8 @@ class ConfigPage extends GetView<ConfigController> {
                 title: Text('${c['group']}.${c['key']}', style: const TextStyle(fontWeight: FontWeight.bold)),
                 subtitle: Text(c['description'] ?? ''),
                 trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                  Chip(label: Text(c['type'] ?? 'string')), // type 为后端存储值，原样展示不翻译
+                  // 走 l10n 词表（原来只显示机读值）；`?? 'string'` 的可见回落保留
+                  Chip(label: Text(_typeLabel(c['type'] ?? 'string'))),
                   const SizedBox(width: 8),
                   Text(c['value'] ?? '', style: TextStyle(color: AppColors.of(context).primary)),
                   IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _showDialog(context, ctrl, item: c)),
@@ -154,6 +155,17 @@ class ConfigPage extends GetView<ConfigController> {
     ]);
   }
 
+  /// 值类型值域 = install.sql 列注释 `类型: string/int/bool/json/array`（DDL 无中文），
+  /// 译文取 Web 端 /system/config 同源词表、由 lead 拍板；表外值原样回落。
+  static String _typeLabel(Object? v) => switch ('$v') {
+        'string' => AppL10n.current.configTypeString,
+        'int' => AppL10n.current.configTypeInt,
+        'bool' => AppL10n.current.configTypeBool,
+        'json' => AppL10n.current.configTypeJson,
+        'array' => AppL10n.current.configTypeArray,
+        _ => '$v',
+      };
+
   Future<void> _showDialog(BuildContext context, ConfigController ctrl, {dynamic item}) async {
     final l10n = AppL10n.of(context);
     final isEdit = item != null;
@@ -172,9 +184,10 @@ class ConfigPage extends GetView<ConfigController> {
           label: l10n.fieldType,
           type: FormFieldType.dropdown,
           initialValue: 'string',
-          // 枚举与 erp_system_config.type 注释集(string|int|bool|json|array)一致;
-          // 原样英文展示(存储值),不翻译
+          // 枚举与 erp_system_config.type 注释集(string|int|bool|json|array)一致；值原样提交，
+          // 显示文案走词表（译文取自 Web 侧 /system/config 的 dicts，lead 拍板）
           options: const ['string', 'int', 'bool', 'json', 'array'],
+          optionLabels: {for (final v in const ['string', 'int', 'bool', 'json', 'array']) v: _typeLabel(v)},
         ),
         FormFieldConfig(name: 'description', label: l10n.fieldNote),
       ],

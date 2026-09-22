@@ -70,29 +70,35 @@ class ReceiveController extends BaseController
         $orderId = $request->input('order_id');
         $supplierId = $request->input('supplier_id');
 
-        $query = PurchaseReceive::with(['items', 'order', 'supplier', 'warehouse']);
+        // order_id → erp_purchase_order 的外键（install.sql 列注释「采购订单ID」）：
+        // 只下发 hashid 的话「采购订单」列无处可读，leftJoin 把单号以 order_code 带出
+        // （同 OrderController::index 的 apply_code 范式）。筛选/排序须带表名——
+        // purchase_order 同有 code/status/id/supplier_id，裸列名会 1052 ambiguous
+        $query = PurchaseReceive::with(['items', 'order', 'supplier', 'warehouse'])
+            ->leftJoin('purchase_order', 'purchase_order.id', '=', 'purchase_receive.order_id')
+            ->select('purchase_receive.*', 'purchase_order.code as order_code');
         if ($keyword) {
-            $query->where('code', 'like', "%{$keyword}%");
+            $query->where('purchase_receive.code', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
+            $query->where('purchase_receive.status', (int) $status);
         }
         if ($orderId !== null && $orderId !== '') {
             $decoded = $this->decodeFlexibleId($orderId);
             if ($decoded !== null && $decoded > 0) {
-                $query->where('order_id', $decoded);
+                $query->where('purchase_receive.order_id', $decoded);
             }
         }
         if ($supplierId !== null && $supplierId !== '') {
             $decoded = $this->decodeFlexibleId($supplierId);
             if ($decoded !== null && $decoded > 0) {
-                $query->where('supplier_id', $decoded);
+                $query->where('purchase_receive.supplier_id', $decoded);
             }
         }
 
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)->limit($limit)
-            ->orderBy('id', 'desc')->get()->map(function ($receive) {
+            ->orderBy('purchase_receive.id', 'desc')->get()->map(function ($receive) {
                 return $this->encodeIds($receive->toArray(), ['id', 'order_id', 'supplier_id', 'warehouse_id']);
             });
 

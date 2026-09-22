@@ -23,8 +23,10 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
   String? _error;
   int _reqSeq = 0;
 
+  // 列表「BOM」列与下拉共用同一份 id→名称映射：initState 一并预取（rule ③），
+  // 取不到落「-」，裸 hashid 不上屏（rule ④）。
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() { super.initState(); _load(); _ensureBoms(); }
 
   /// BOM 下拉选项：id(hashid)→名称（缺失回退编码），取自 /admin/v1/mfg/bom（懒加载一次）。
   Map<String, String> _bomLabels = {};
@@ -36,6 +38,7 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
       final res = await ApiService.instance.get('/admin/v1/mfg/bom', params: {'limit': '500'});
       final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
       _bomLabels = { for (final r in list) '${r['id']}': '${r['name'] ?? r['code'] ?? ''}' };
+      if (mounted) setState(() {});
       return true;
     } catch (e) {
       if (mounted) {
@@ -161,9 +164,16 @@ class _ProductionOrderPageState extends State<ProductionOrderPage> {
     AppL10n.current.commonAction,
   ];
 
+  /// BOM 列：列表接口不带 bom 名（ProductionController::index 无 with/join），
+  /// 用下拉那份 id→名称（rule ③）；取不到落「-」（rule ④）。
+  String _bomName(Map<String, dynamic> r) {
+    final label = _bomLabels['${r['bom_id'] ?? ''}'];
+    return (label == null || label.isEmpty) ? '-' : label;
+  }
+
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.manufacturingCode: r['code'] ?? '',
-    AppL10n.current.mfgBom: r['bom_id'] ?? '',
+    AppL10n.current.mfgBom: _bomName(r),
     AppL10n.current.manufacturingPlannedQty: r['planned_quantity'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       if ('${r['status']}' == '0')

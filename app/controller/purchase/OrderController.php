@@ -103,7 +103,9 @@ class OrderController extends BaseController
         // 非日期串落 datetime 列报 1292，两者都以 500 返回
         $validator = validator($request->all(), [
             'code' => 'nullable|string|max:50',
-            'supplier_id' => 'string',
+            // supplier_id 是必填外键（列 NOT NULL 无默认值）：只留 required（`string` = is_string()
+            // 会把数字形态的 ID 判 422，`integer` 会把 hashid 判 422），双模判定在下面 decodeFlexibleId 收口
+            'supplier_id' => 'required',
             'remark' => 'nullable|string|max:500',
             'ordered_at' => 'nullable|date',
             // status 落 TINYINT UNSIGNED（0待审核/1已审核/2部分收货/3已收货/4已取消）：
@@ -123,7 +125,9 @@ class OrderController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $supplierId = $this->decodeFlexibleId((string) $request->input('supplier_id', ''));
+        // 不套 (string) 强转：supplier_id 已无 string 规则挡数组，强转会被 webman 的 set_error_handler
+        // 升级成 ErrorException（数组转字符串）→ 未捕获 500；非标量由 decodeFlexibleId 返回 null → 422
+        $supplierId = $this->decodeFlexibleId($request->input('supplier_id', ''));
         if ($supplierId === null || $supplierId < 1) {
             return $this->fail($this->trans('Invalid supplier_id'), 422);
         }
@@ -246,7 +250,8 @@ class OrderController extends BaseController
     {
         $validator = validator($request->all(), [
             'id' => 'string',
-            'supplier_id' => 'string',
+            // supplier_id 不卡 string（同 store）：数字形态的供应商 ID 会被 is_string() 判 422，
+            // 双模判定在下面的 decodeFlexibleId 收口；局部更新不传即不动，故不加 required
             'code' => 'string|max:50',
             'remark' => 'nullable|string|max:500',
             'ordered_at' => 'nullable|date',
@@ -274,24 +279,41 @@ class OrderController extends BaseController
         try {
             DB::transaction(function () use ($request, $item, $id) {
                 $this->fillModelFromRequest($item, $request);
-                // 同 store：三个 FK 在 $fillable 内，fill 会把请求 hash 串直填列——提供时解码 int 覆写
+                // 同 store：三个 FK 都在 $fillable 内，fill 会把请求里的 hash 串与空串直填 BIGINT 列
+                // （MySQL 严格模式 1366 → 500）。未传一律不动（局部更新不得清空既有外键）；
+                // 传了即解码覆写。
                 $supplierRaw = $request->input('supplier_id', null);
-                if ($supplierRaw !== null && $supplierRaw !== '') {
-                    $supplierId = $this->decodeFlexibleId((string) $supplierRaw);
+                if ($supplierRaw === null || $supplierRaw === '') {
+                    // 未传/显式 null/空串：供应商是必填外键（列 NOT NULL 无默认值，同 store 的 required），
+                    // 清空无意义 → 维持原值。必须显式回填：fill 已把请求里的 ''/null 写进模型，
+                    // 不覆写就会以 '' 落 BIGINT 报 1366、以 null 落报 1048
+                    $item->fill(['supplier_id' => $item->getOriginal('supplier_id')]);
+                } else {
+                    // 不套 (string) 强转：数组入参经 set_error_handler 会升级成 ErrorException → 500，
+                    // 非标量由 decodeFlexibleId 返回 null → 422
+                    $supplierId = $this->decodeFlexibleId($supplierRaw);
                     if ($supplierId === null || $supplierId < 1) {
                         throw new \RuntimeException($this->trans('Invalid supplier_id'));
                     }
-                    $item->supplier_id = $supplierId;
+                    $item->fill(['supplier_id' => $supplierId]);
                 }
                 $applyId = 0;
                 foreach (['apply_id', 'warehouse_id'] as $field) {
                     $raw = $request->input($field, null);
-                    if ($raw !== null && $raw !== '') {
-                        $decoded = $this->decodeFlexibleId((string) $raw) ?? 0;
-                        $item->{$field} = $decoded;
-                        if ($field === 'apply_id') {
-                            $applyId = $decoded;
-                        }
+                    if ($raw === null) {
+                        // 未传（含显式 null）＝不改动：回填原值抹掉 fill 带进来的 null
+                        // （列 NOT NULL，null 直落报 1048）
+                        $item->fill([$field => $item->getOriginal($field)]);
+                        continue;
+                    }
+                    // 空串＝清空 → 0（列 NOT NULL DEFAULT 0），口径同 sales/OrderController::update；
+                    // 垃圾串落 0（可选外键口径），未传的字段绝不被清零。
+                    // 不强转 string：数组入参经 set_error_handler 会升级成 ErrorException → 500，
+                    // 非标量由 decodeFlexibleId 返回 null → 落 0
+                    $decoded = $raw === '' ? 0 : ($this->decodeFlexibleId($raw) ?? 0);
+                    $item->fill([$field => $decoded]);
+                    if ($field === 'apply_id') {
+                        $applyId = $decoded;
                     }
                 }
                 // 同 store：清空的日期字段下发 ''，列可空但 '' 落库报 1292，归一成 NULL

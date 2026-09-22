@@ -189,10 +189,11 @@ class _FulfillmentListPageState extends State<FulfillmentListPage> {
   }
 
   /// 详情页入口：详情页置脏返回时回传 changed=true → 刷新本列表。
+  /// 不再传 title —— order_channel_no 不在履约回包里（表无此列），原回退是
+  /// row['id']（hashid），详情页 AppBar 直接把它当标题上屏。
   Future<void> _detail(Map<String, dynamic> row) async {
     final changed = await Get.toNamed('/oms/fulfillment/detail', arguments: {
       'id': '${row['id']}',
-      'title': '${row['order_channel_no'] ?? row['id']}',
     });
     if (changed == true && mounted) _load();
   }

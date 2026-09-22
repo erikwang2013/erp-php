@@ -188,14 +188,15 @@ export struct EmployeeFormView {
                   .height(32)
                   .onClick(() => { this.formStatus = 1; })
 
+                // DDL erp_hr_employee.status 1在职/2离职/3停职：离职=2（曾写 0，0 不在码表内）
                 Button($r('app.string.employee_status_resigned'))
                   .fontSize(13)
-                  .fontColor(this.formStatus === 0 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
-                  .backgroundColor(this.formStatus === 0 ? $r('app.color.danger') : $r('app.color.surface_alt'))
+                  .fontColor(this.formStatus === 2 ? $r('app.color.text_on_primary') : $r('app.color.text_secondary'))
+                  .backgroundColor(this.formStatus === 2 ? $r('app.color.danger') : $r('app.color.surface_alt'))
                   .borderRadius(4)
                   .height(32)
                   .margin({ left: 12 })
-                  .onClick(() => { this.formStatus = 0; })
+                  .onClick(() => { this.formStatus = 2; })
               }
               .layoutWeight(1)
             }

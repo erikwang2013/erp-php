@@ -49,7 +49,8 @@ class EamInspectionController extends BaseController
         $validator = validator($request->all(), [
             'page' => 'integer',
             'limit' => 'integer',
-            'equipment_id' => 'string',
+            // equipment_id 不卡 string（同 bi/DatasetController::store 口径）：数字形态的设备
+            // ID 会被 is_string() 判成 422，双模判定统一在下面的 decodeFlexibleId 收口
             'task_date' => 'string',
             'status' => 'integer',
         ]);
@@ -105,11 +106,11 @@ class EamInspectionController extends BaseController
 
     public function store(Request $request): Response
     {
+        // 三个 ID 字段都不卡 string（同 bi/DatasetController::store 口径）：is_string() 会把
+        // 数字形态的 ID 反挡成 422，hashid 与数字一律由下面的 decodeFlexibleId 双模收口
         $validator = validator($request->all(), [
-            'equipment_id' => 'required|string',
+            'equipment_id' => 'required',
             'task_date' => 'required|date',
-            'source_plan_id' => 'string',
-            'assignee_id' => 'string',
             'remark' => 'string',
         ]);
         if ($validator->fails()) {
@@ -124,8 +125,10 @@ class EamInspectionController extends BaseController
         }
         $optional = ['source_plan_id' => 0, 'assignee_id' => 0];
         foreach (['source_plan_id' => '来源计划ID', 'assignee_id' => '负责人ID'] as $field => $label) {
-            $raw = (string) $request->input($field, '');
-            if ($raw === '') {
+            // 不先 (string) 强转：webman 的 set_error_handler 把「数组转字符串」警告升级成
+            // ErrorException → 未捕获 500；decodeFlexibleId 自身对非标量返回 null → 422
+            $raw = $request->input($field, '');
+            if ($raw === '' || $raw === null) {
                 continue;   // 选填：未传/空串 → 0（不关联）
             }
             $decoded = $this->decodeFlexibleId($raw);
@@ -205,7 +208,8 @@ class EamInspectionController extends BaseController
         $validator = validator($request->all(), [
             'id' => 'string',
             'task_date' => 'string',
-            'assignee_id' => 'string',
+            // assignee_id 不卡 string：数字形态的负责人 ID 会被 is_string() 判成 422，
+            // 双模判定在下面 decodeFlexibleId 收口
             'remark' => 'string',
         ]);
         if ($validator->fails()) {
@@ -213,8 +217,9 @@ class EamInspectionController extends BaseController
         }
         $data = $request->all();
         // assignee_id 来自前端负责人下拉（hashid）：decodeId 在 try 外对垃圾串抛异常（未捕获 → 500）→ 双模解码 + 422
+        // （不强转 string：数组入参经 set_error_handler 会升级成 ErrorException → 500，非标量由 decodeFlexibleId 返回 null → 422）
         if (array_key_exists('assignee_id', $data) && $data['assignee_id'] !== '') {
-            $assigneeId = $this->decodeFlexibleId((string) $data['assignee_id']);
+            $assigneeId = $this->decodeFlexibleId($data['assignee_id']);
             if ($assigneeId === null || $assigneeId < 1) {
                 return $this->fail('负责人ID' . $this->trans('Invalid'), 422);
             }
@@ -278,7 +283,7 @@ class EamInspectionController extends BaseController
     public function scanExecute(Request $request): Response
     {
         $validator = validator($request->all(), [
-            'equipment_id' => 'required|string',
+            'equipment_id' => 'required',
             'task_date' => 'required|date',
             'items' => 'required|array|min:1',
         ]);

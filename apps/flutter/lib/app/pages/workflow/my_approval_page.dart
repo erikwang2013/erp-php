@@ -149,6 +149,21 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
     );
   }
 
+  /// target_type 文案：后端 TARGET_REGISTRY 键 → 本地化文案；表外值直显原文
+  /// （与 approval_detail_page 同源，同 HarmonyOS ApprovalPage）。
+  String _targetTypeLabel(dynamic raw) {
+    final l = AppL10n.current;
+    return switch ('${raw ?? ''}'.trim()) {
+      'sales_order' => l.targetTypeSalesOrder,
+      'purchase_apply' => l.targetTypePurchaseApply,
+      'purchase_order' => l.targetTypePurchaseOrder,
+      'expense' => l.targetTypeExpense,
+      'leave' => l.targetTypeLeave,
+      'other' => l.targetTypeOther,
+      final v => v,
+    };
+  }
+
   String _statusText(dynamic s) {
     final l10n = AppL10n.current;
     final i = s is int ? s : int.tryParse('$s');
@@ -162,10 +177,11 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
   }
 
   /// 详情页入口：详情页动作成功后回传 changed=true → 刷新本列表。
+  /// 不再传 title：原来传的是 target_id（单据ID，show 不解码的 raw int），
+  /// 详情页 AppBar 直接把它当标题上屏；缺 title 时详情页落自己的文案标题。
   Future<void> _detail(Map<String, dynamic> row) async {
     final changed = await Get.toNamed('/approval/detail', arguments: {
       'id': '${row['id']}',
-      'title': '${row['target_id'] ?? ''}',
     });
     if (changed == true && mounted) _load();
   }
@@ -194,8 +210,10 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
     final statusVal = r['status'] is int ? r['status'] as int : int.tryParse('${r['status']}');
     final pending = statusVal == 0;
     return {
-      l10n.fieldDocType: r['target_type'] ?? '',
-      l10n.fieldDocId: r['target_id'] ?? '',
+      l10n.fieldDocType: _targetTypeLabel(r['target_type']),
+      // 单据 ID 不上屏：myApprovals 把 target_id 编成 hashid 下发，既不可读也无
+      // 可粘贴的去处（与 React/Angular 的「单据」列同样落「-」）
+      l10n.fieldDocId: '-',
       l10n.commonStatus: _chip(r['status']),
       l10n.fieldSubmitTime: fmtDateTime(r['submitted_at']),
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [

@@ -135,16 +135,21 @@ class _PurchaseApplyListPageState extends State<PurchaseApplyListPage> {
 
   List<String> _columns() => [AppL10n.current.purchaseApplyNo, AppL10n.current.purchaseApplyUserId, AppL10n.current.purchaseApplyDept, AppL10n.current.commonStatus, AppL10n.current.commonAction];
 
-  Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.purchaseApplyNo: r['code'] ?? '',
-    AppL10n.current.purchaseApplyUserId: r['apply_user_id'] ?? '',
-    AppL10n.current.purchaseApplyDept: r['department'] ?? '',
-    AppL10n.current.commonStatus: _statusChip(r['status']),
-    AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
-      IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
-      IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
-    ]),
-  };
+  Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
+    // 申请人列：ApplyController::index 已 leftJoin admin_user 带出 apply_user_name
+    // （rule ①）；取不到落「-」—— 契约 rule ④，裸 hashid 不上屏。
+    final applyUser = '${r['apply_user_name'] ?? ''}';
+    return {
+      AppL10n.current.purchaseApplyNo: r['code'] ?? '',
+      AppL10n.current.purchaseApplyUserId: applyUser.isEmpty ? '-' : applyUser,
+      AppL10n.current.purchaseApplyDept: r['department'] ?? '',
+      AppL10n.current.commonStatus: _statusChip(r['status']),
+      AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
+        IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
+        IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),
+      ]),
+    };
+  }
 
   /// 状态徽标：0待审批 橙，1已批准/3已转订单 绿，2已驳回 红，其余蓝。
   Widget _statusChip(dynamic s) {

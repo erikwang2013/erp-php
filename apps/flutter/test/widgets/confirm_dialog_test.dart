@@ -5,6 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:admin_app/app/l10n/app_l10n.dart';
 import 'package:admin_app/app/widgets/confirm_dialog.dart';
 
 void main() {
@@ -48,7 +49,9 @@ void main() {
 
       expect(find.text('确认删除'), findsWidgets); // 标题 + 确认按钮
       expect(find.text('删除后不可恢复，请谨慎操作。'), findsOneWidget);
-      expect(find.text('请输入您的密码确认'), findsOneWidget);
+      // 未传 passwordLabel 时组件取 l10n.commonPasswordConfirm（confirm_dialog.dart:115），
+      // 故断言走 l10n 取值而非抄字面量——文案改了测试不该红
+      expect(find.text(AppL10n.current.commonPasswordConfirm), findsOneWidget);
       expect(find.text('取消'), findsOneWidget);
       expect(find.byType(TextField), findsOneWidget);
     });
@@ -57,7 +60,7 @@ void main() {
       await openDialog(tester);
 
       expect(find.byType(TextField), findsOneWidget);
-      expect(find.text('请输入您的密码确认'), findsOneWidget);
+      expect(find.text(AppL10n.current.commonPasswordConfirm), findsOneWidget);
     });
   });
 

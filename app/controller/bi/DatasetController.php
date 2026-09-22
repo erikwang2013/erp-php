@@ -79,16 +79,26 @@ class DatasetController extends BaseController
 
     public function store(Request $request): Response
     {
+        // template_id 来自前端报表模板下拉（hashid 串）：required|integer 会把合法 hashid
+        // 判成 422；也不能用 string（数字 ID 反被挡回）——只留 required，双模判定统一在
+        // decodeFlexibleId 收口（同 purchase/OrderController 对 items.*.product_id 的口径）
         $validator = validator($request->all(), [
             'name' => 'required|string|max:200',
-            'template_id' => 'required|integer',
+            'template_id' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        // 必填外键不套 decodeIdFields（其口径是垃圾串落 0）：模板解不出即 422，
+        // 否则会静默写出 template_id=0 的无主数据集
+        $templateId = $this->decodeFlexibleId($request->input('template_id', ''));
+        if ($templateId === null || $templateId < 1) {
+            return $this->fail($this->trans('Invalid ID') . ': template_id', 422);
+        }
         $item = new ReportDataset();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        $item->template_id = $templateId;
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -149,7 +159,19 @@ class DatasetController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }
+        // 字段缺省＝不改动；带值则解码覆写（非空但解不出 → 422，同 store 的必填外键口径）
+        $rawTemplateId = $request->input('template_id');
+        $templateId = null;
+        if ($rawTemplateId !== null && $rawTemplateId !== '') {
+            $templateId = $this->decodeFlexibleId($rawTemplateId);
+            if ($templateId === null || $templateId < 1) {
+                return $this->fail($this->trans('Invalid ID') . ': template_id', 422);
+            }
+        }
         $this->fillModelFromRequest($item, $request);
+        if ($templateId !== null) {
+            $item->template_id = $templateId;
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

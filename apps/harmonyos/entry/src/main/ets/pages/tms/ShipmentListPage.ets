@@ -283,12 +283,19 @@ struct ShipmentListPage {
     .backgroundColor($r('app.color.bg_page'))
   }
 
-  /** 行徽章：启用 success / 停用 danger（kind 同源驱动行 icon 圆徽色） */
+  /** 行徽章：erp_tms_shipment.status DDL 0待发货/1已取件/2运输中/3已送达/4异常/5已退回
+   *  （0 未发出 neutral、1/2 途中 warning、3 已送达 success、4/5 异常态 danger） */
   private shipmentBadge(item: TmsShipmentItem): RowBadge {
-    if (item.status === 1) {
-      return new RowBadge('success', $r('app.string.status_enabled'));
+    const code: number = item.status;
+    let kind: string = 'neutral';
+    if (code === 1 || code === 2) {
+      kind = 'warning';
+    } else if (code === 3) {
+      kind = 'success';
+    } else if (code === 4 || code === 5) {
+      kind = 'danger';
     }
-    return new RowBadge('danger', $r('app.string.status_disabled'));
+    return new RowBadge(kind, L10n.str(this.getUIContext(), `shipment_status_${code}`));
   }
 
   /**

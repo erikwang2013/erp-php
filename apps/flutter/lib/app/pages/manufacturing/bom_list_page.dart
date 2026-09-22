@@ -131,10 +131,22 @@ class _BomListPageState extends State<BomListPage> {
     AppL10n.current.commonAction,
   ];
 
+  /// 产品名：BomController::index 已 with('product')（嵌套对象，rule ②），再退
+  /// `_productLabels`（下拉同一份 id→名称，rule ③）；全落空才「-」（rule ④）。
+  String _productName(Map<String, dynamic> r) {
+    final p = r['product'];
+    if (p is Map) {
+      final n = p['name'] ?? p['code'];
+      if (n != null && '$n'.isNotEmpty) return '$n';
+    }
+    final label = _productLabels['${r['product_id'] ?? ''}'];
+    return (label == null || label.isEmpty) ? '-' : label;
+  }
+
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.manufacturingName: r['name'] ?? '',
     AppL10n.current.manufacturingCode: r['code'] ?? '',
-    AppL10n.current.fieldProductId: r['product_id'] ?? '',
+    AppL10n.current.fieldProductId: _productName(r),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

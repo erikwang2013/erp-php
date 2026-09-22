@@ -279,11 +279,11 @@ export class ResourcePage implements OnInit {
   /** 关联列 id → 名称（rule 3）：endpoint → (id → 名称)，拉到即写，cols 依赖它重算 */
   readonly relLabels = signal<RelLabels>({});
 
-  /** 显式配置优先，否则从首批行数据推断（cfg.fields 供列标题与关联列取数，cfg.filters 供状态字典） */
+  /** 显式配置优先，否则从首批行数据推断（cfg.fields 供列标题与关联列取数，cfg.filters 供状态字典，cfg.dicts 供逐键值字典） */
   readonly cols = computed<ColumnDef[]>(() => {
     const cfg = this.cfg();
     if (!cfg) return [];
-    return cfg.columns ?? inferColumns(this.rows(), cfg.endpoint, cfg.fields, this.relLabels(), 8, cfg.filters);
+    return cfg.columns ?? inferColumns(this.rows(), cfg.endpoint, cfg.fields, this.relLabels(), 8, cfg.filters, cfg.dicts);
   });
 
   /** 行视图：单元格已格式化，模板不参与任何取值逻辑（折叠过滤已在 sliceLocal 完成） */
@@ -304,7 +304,9 @@ export class ResourcePage implements OnInit {
   readonly detailItems = computed(() => {
     const d = this.detail();
     // 传 cols：列配了 kind:'tags' 的字段（如 spec.attrs）在详情行渲染胶囊而非 JSON 原文
-    return d ? inferDetailItems(d, this.cols()) : [];
+    // 传 dicts：列数被 limit 截掉的枚举键（详情里才露面的 type/priority…）按 cfg.dicts 出文案
+    // 传 fields：本页字段 label —— 没有列标题的键用本页措辞（order_id 在 /oms/rma 是「关联订单」）
+    return d ? inferDetailItems(d, this.cols(), this.cfg()?.dicts, this.cfg()?.fields) : [];
   });
   /**
    * 规格属性胶囊：按 SKU 的 `spec_id` 取所属规格的 `attrs`（JSON 字符串），摊平成「键:值」一排。
@@ -376,11 +378,11 @@ export class ResourcePage implements OnInit {
   });
   readonly resultView = computed<ResultBlock[]>(() => {
     const r = this.result();
-    return r ? resultBlocks(r.data, tr(r.title)) : [];
+    return r ? resultBlocks(r.data, tr(r.title), this.cfg()?.dicts) : [];
   });
   readonly reportView = computed<ResultBlock[]>(() => {
     const r = this.report();
-    return r ? resultBlocks(r) : [];
+    return r ? resultBlocks(r, '', this.cfg()?.dicts) : [];
   });
 
   constructor() {

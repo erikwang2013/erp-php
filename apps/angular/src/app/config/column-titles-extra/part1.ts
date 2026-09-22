@@ -72,6 +72,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   buyer_id: '采购员ID', // install.sql 列注释
   buyer_message: '买家备注', // install.sql 列注释
   buyer_name: '购买方名称', // install.sql 列注释
+  buyer_real_name: '采购员', // 非 DB 列：purchase_rfq.buyer_id 的名称兄弟键；buyer_name 已被税票的购买方名称占用，故避开
   buyer_tax_no: '购买方税号', // install.sql 列注释
   campaign_id: '活动ID', // install.sql 列注释
   can_reject: '可否驳回', // install.sql 列注释
@@ -148,6 +149,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   default_value: '默认值', // install.sql 列注释
   delivered_at: '发货时间', // install.sql 列注释
   delivered_quantity: '已发数量', // install.sql 列注释
+  delivery_code: '发货单号', // 非 DB 列：服务端按 source_id 反查出的别名，纯注释种子会漏
   dependency_task_id: '前置任务ID', // install.sql 列注释
   depreciation_amount: '折旧金额', // install.sql 列注释
   dest_address_snapshot: '收件地址快照', // install.sql 列注释
@@ -210,6 +212,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   gantt_data: '甘特图数据JSON', // install.sql 列注释
   gender: '性别', // install.sql 列注释
   generated_at: '生成时间', // install.sql 列注释
+  generated_from: '数据来源', // 非 DB 列：报表 report_data.generated_from（实时算 or 快照）
   grade: '等级', // install.sql 列注释
   gross_requirement: '毛需求量', // install.sql 列注释
   height: '高度', // bi_widget 无注释
@@ -243,6 +246,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   is_base: '是否基本单位', // 裁决：两候选各一，商品单位是主用方
   is_default: '是否默认账套', // install.sql 列注释
   is_internal: '是否内部', // 原注释是纯枚举「0对外1内部备忘」，取 1 侧语义
+  is_lowest: '最低价', // 非 DB 列：比价回包算出的最低价标记
   is_primary: '是否首要联系人', // install.sql 列注释
   is_read: '是否已读', // 原注释是纯枚举「0未读1已读」，取 1 侧语义
   is_required: '必填', // install.sql 列注释
@@ -253,6 +257,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   issued_at: '出表时间', // install.sql 列注释
   issued_qty: '已发放数量', // install.sql 列注释
   item_name: '点检项名称', // install.sql 列注释
+  items: '明细', // 非 DB 列：payslip/比价等回包的明细数组
   joined_at: '加入时间', // project_member 无注释
   journal_date: '记账日期', // install.sql 列注释
   label: '显示名', // 裁决：两候选各一，与 field=字段名 区分
@@ -269,7 +274,9 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   ledger_id: '账套ID', // install.sql 列注释
   length_cm: '长', // install.sql 列注释
   line_total: '含税金额', // install.sql 列注释
+  lines: '明细行', // 非 DB 列：报表 report_data.lines（凭证按科目汇总行）
   location: '位置', // eam_equipment / eam_spare_part 无注释
+  lowest_quote_id: '最低价报价ID', // 非 DB 列：比价回包算出的最低价报价（无对应 *_name 兄弟键，affix 兜底取不到）
   match_type: '匹配方式', // install.sql 列注释
   material_cost: '材料成本', // install.sql 列注释
   material_diff: '材料成本差异', // install.sql 列注释
@@ -359,6 +366,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   postal_code: '邮编', // install.sql 列注释
   price_type: '价格类型', // install.sql 列注释
   probability: '成交概率', // install.sql 列注释
+  product_code: '商品编码', // 非 DB 列：比价矩阵补出的 product.code
   production_date: '生产日期', // install.sql 列注释
   production_order_id: '生产工单ID', // install.sql 列注释
   profit: '利润', // install.sql 列注释
@@ -371,7 +379,9 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   quotation_id: '报价单ID', // 裁决：众数
   quote_date: '报价日期', // install.sql 列注释
   quote_id: '报价ID', // install.sql 列注释
+  quote_prices: '报价单价', // 非 DB 列：比价矩阵的报价单价数组（供应商 × 单价）
   quoted_at: '报价时间', // 裁决：两候选各一，与 quote_date=报价日期 区分
+  quotes: '报价', // 非 DB 列：比价回包的报价数组
   rack: '货架', // install.sql 列注释
   rank: '职级', // install.sql 列注释
   rater_id: '评分人ID', // install.sql 列注释
@@ -379,6 +389,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   raw_data: '原始数据', // install.sql 列注释
   read_at: '阅读时间', // install.sql 列注释
   reason: '原因', // 裁决：两候选各一（请假/退货），取通用者
+  receive_code: '收货单号', // 非 DB 列：服务端按 source_id 反查出的别名，纯注释种子会漏
   received_amount: '已收金额', // install.sql 列注释
   received_qty: '累计收货数量', // install.sql 列注释
   received_quantity: '实收数量', // 裁决：两候选各一，取 ERP 习用词
@@ -393,15 +404,4 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   report_id: '合并报表ID', // install.sql 列注释
   report_month: '会计月份', // 裁决：众数
   report_year: '会计年度', // 裁决：众数
-  reported_by: '报告人', // install.sql 列注释
-  request: '请求报文', // install.sql 列注释
-  require_date: '需求日期', // install.sql 列注释
-  required: '是否必填', // install.sql 列注释
-  reserved_quantity: '预占数量', // install.sql 列注释
-  resolved_at: '解决时间', // install.sql 列注释
-  response: '响应内容', // crm_campaign_participant 无注释
-  response_summary: '响应体/错误信息摘要', // install.sql 列注释
-  resume_summary: '简历摘要', // install.sql 列注释
-  return_id: '退货单ID', // install.sql 列注释
-  return_shipment_id: 'TMS退货运单ID', // install.sql 列注释
 };

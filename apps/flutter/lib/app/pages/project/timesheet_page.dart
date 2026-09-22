@@ -125,7 +125,7 @@ class _TimesheetPageState extends State<TimesheetPage> {
         options: _userOptions.keys.toList(),
         optionLabels: _userOptions,
       ),
-      FormFieldConfig(name: 'work_date', label: l10n.fieldWorkDate, required: true, hint: 'YYYY-MM-DD'),
+      FormFieldConfig(name: 'work_date', label: l10n.fieldWorkDate, required: true, hint: l10n.commonDateFormat),
       FormFieldConfig(name: 'hours', label: l10n.fieldHours, required: true, type: FormFieldType.number),
       FormFieldConfig(name: 'description', label: l10n.fieldContent),
     ];

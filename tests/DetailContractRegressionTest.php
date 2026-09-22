@@ -10,6 +10,9 @@ namespace tests;
 
 use app\common\HashidsService;
 use app\common\SnowflakeService;
+use app\controller\eam\EamInspectionController;
+use app\controller\eam\MaintenancePlanController;
+use app\controller\eam\RepairOrderController;
 use app\controller\manufacturing\BomController;
 use app\controller\oms\FulfillmentController as OmsFulfillmentController;
 use app\controller\oms\OrderController as OmsOrderController;
@@ -22,6 +25,11 @@ use app\model\ApprovalNode;
 use app\model\ApprovalRecord;
 use app\model\ApprovalWorkflow;
 use app\model\Customer;
+use app\model\EamEquipment;
+use app\model\EamInspectionResult;
+use app\model\EamInspectionTask;
+use app\model\EamMaintenancePlan;
+use app\model\EamRepairOrder;
 use app\model\Inventory;
 use app\model\MfgBom;
 use app\model\OmsFulfillment;
@@ -303,6 +311,73 @@ class DetailContractRegressionTest extends TestCase
         }
     }
 
+    /**
+     * 回归（批2）：store 的 supplier_id 原写 `string`（is_string() 把数字形态的供应商 ID 判 422）——
+     * 与 update 侧同族的写路径缺口，只修 update 等于洞留一半。现只留 required（列 NOT NULL 无默认值，
+     * api 文档亦为 require:true），双模判定收口 decodeFlexibleId（口径同 bi/DatasetController::store）。
+     *
+     * 负控（改回缺陷即红）：规则恢复 `string` → 第 1 段断言 422 ≠ 0。
+     * 数组/缺省两段只锁「422 而非 500」的外部契约（phpunit 下没有 webman 的 set_error_handler，
+     * 对 (string) 强转不敏感），见 eam 同族注释。
+     */
+    public function testPurchaseOrderStoreAcceptsNumericAndHashidSupplierId(): void
+    {
+        $suffix = $this->randSuffix();
+        $supplierId = SnowflakeService::generate();
+        $orderIds = [];
+        try {
+            // 1. 数字形态（修复前被 string 规则判 422）
+            $resp = (new PurchaseOrderController())->store(new FakeRequest([
+                'code' => 'B2POSN-' . $suffix,
+                'supplier_id' => $supplierId,
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '数字 supplier_id 不得 422');
+            $orderIds[] = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                $supplierId,
+                (int) PurchaseOrder::where('id', end($orderIds))->value('supplier_id'),
+                '数字 supplier_id 应原样落库为裸 BIGINT'
+            );
+
+            // 2. hashid 仍能过（不得为放行数字而丢双模）
+            $resp = (new PurchaseOrderController())->store(new FakeRequest([
+                'code' => 'B2POSH-' . $suffix,
+                'supplier_id' => $this->encodeId($supplierId),
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? 'hashid supplier_id 不得 422');
+            $orderIds[] = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                $supplierId,
+                (int) PurchaseOrder::where('id', end($orderIds))->value('supplier_id'),
+                'hashid 应解码落库'
+            );
+
+            // 3. 垃圾串 422：不得退化成 (int)'abc'=0 建无主单
+            $bad = (new PurchaseOrderController())->store(new FakeRequest([
+                'code' => 'B2POSB-' . $suffix,
+                'supplier_id' => 'not-a-hashid',
+            ]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '垃圾 supplier_id 应 422');
+
+            // 4. 缺省 422（必填外键，required 或解码失败都算，不锁文案）
+            $bad = (new PurchaseOrderController())->store(new FakeRequest(['code' => 'B2POSM-' . $suffix]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '缺省 supplier_id 应 422');
+
+            // 5. 数组 422 而非 500
+            $bad = (new PurchaseOrderController())->store(new FakeRequest([
+                'code' => 'B2POSA-' . $suffix,
+                'supplier_id' => ['oops'],
+            ]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '数组 supplier_id 应 422 而非 500');
+        } finally {
+            foreach ($orderIds as $id) {
+                PurchaseOrder::where('id', $id)->forceDelete();
+            }
+        }
+    }
+
     public function testPurchaseOrderUpdatePersistsDecodedSupplierId(): void
     {
         $suffix = $this->randSuffix();
@@ -382,6 +457,276 @@ class DetailContractRegressionTest extends TestCase
 
             $row = SalesOrder::find($orderId);
             $this->assertSame($customerB, (int) $row->customer_id, 'update 落库 customer_id 应为解码后的 int');
+        } finally {
+            SalesOrder::where('id', $orderId)->forceDelete();
+        }
+    }
+
+    /**
+     * 回归：warehouse_id 也在 $fillable 内，但 store/update 原先既不校验也不解码 ——
+     * 下拉下发的 hashid 串被 fill 直填 BIGINT UNSIGNED NOT NULL DEFAULT 0 列，
+     * MySQL 严格模式报 1366 → 未捕获 QueryException → 真 HTTP 500。
+     * 编辑回填重提交（回填值就是 hashid）必然踩到，故 store/update 都要解码。
+     */
+    public function testSalesOrderStorePersistsDecodedWarehouseId(): void
+    {
+        $suffix = $this->randSuffix();
+        $customerId = SnowflakeService::generate();
+        $warehouseId = SnowflakeService::generate();
+        $orderId = null;
+        try {
+            $resp = (new SalesOrderController())->store(new FakeRequest([
+                'code' => 'B3SOW-' . $suffix,
+                'customer_id' => $this->encodeId($customerId),
+                'warehouse_id' => $this->encodeId($warehouseId),
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $orderId = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame($this->encodeId($warehouseId), $body['data']['warehouse_id'] ?? null);
+
+            $row = SalesOrder::find($orderId);
+            $this->assertSame($warehouseId, (int) $row->warehouse_id, 'store 落库 warehouse_id 应为解码后的 int（hash 串直填会 1366）');
+
+            // 缺省/空串 = 不指定 → 0（列 NOT NULL DEFAULT 0），不得把 '' 写进 BIGINT 列
+            $resp = (new SalesOrderController())->store(new FakeRequest([
+                'code' => 'B3SOW0-' . $suffix,
+                'customer_id' => $this->encodeId($customerId),
+                'warehouse_id' => '',
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $blankId = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(0, (int) SalesOrder::where('id', $blankId)->value('warehouse_id'), '空 warehouse_id 应落 0');
+            SalesOrder::where('id', $blankId)->forceDelete();
+        } finally {
+            if ($orderId !== null) {
+                SalesOrder::where('id', $orderId)->forceDelete();
+            }
+        }
+    }
+
+    public function testSalesOrderUpdatePersistsDecodedWarehouseId(): void
+    {
+        $suffix = $this->randSuffix();
+        $customerId = SnowflakeService::generate();
+        $warehouseA = SnowflakeService::generate();
+        $warehouseB = SnowflakeService::generate();
+        $orderId = SnowflakeService::generate();
+        try {
+            $order = new SalesOrder();
+            $order->id = $orderId;
+            $order->code = 'B3SOWU-' . $suffix;
+            $order->customer_id = $customerId;
+            $order->warehouse_id = $warehouseA;
+            $order->save();
+
+            $resp = (new SalesOrderController())->update(
+                new FakeRequest(['warehouse_id' => $this->encodeId($warehouseB)]),
+                $this->encodeId($orderId)
+            );
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $this->assertSame(
+                $warehouseB,
+                (int) SalesOrder::where('id', $orderId)->value('warehouse_id'),
+                'update 落库 warehouse_id 应为解码后的 int'
+            );
+
+            // 部分更新：不带 warehouse_id 的请求不得把已存值抹成 0
+            (new SalesOrderController())->update(new FakeRequest(['code' => 'B3SOWU-' . $suffix]), $this->encodeId($orderId));
+            $this->assertSame(
+                $warehouseB,
+                (int) SalesOrder::where('id', $orderId)->value('warehouse_id'),
+                '未传 warehouse_id 时不得覆写既有外键'
+            );
+        } finally {
+            SalesOrder::where('id', $orderId)->forceDelete();
+        }
+    }
+
+    /**
+     * 回归（批2）：store 的 customer_id 原写 `string`（is_string() 把数字形态的客户 ID 判 422），
+     * 且解码走 decodeIdSafe（纯 hashid：数字串抛异常 → 422，且 hashids 对某些纯数字串会解出垃圾大数
+     * ——见 decodeFlexibleId 注释）。现只留 required（列 NOT NULL 无默认值、api 文档 require:true），
+     * 双模判定收口 decodeFlexibleId（口径同 purchase/OrderController::store 的 supplier_id）。
+     *
+     * 负控（改回缺陷即红）：规则恢复 `string` 或解码退回 decodeIdSafe → 第 1 段数字分支 422 ≠ 0。
+     */
+    public function testSalesOrderStoreAcceptsNumericAndHashidCustomerId(): void
+    {
+        $suffix = $this->randSuffix();
+        $customerId = SnowflakeService::generate();
+        $orderIds = [];
+        try {
+            // 1. 数字形态（修复前被 string 规则 + decodeIdSafe 双重判 422）
+            $resp = (new SalesOrderController())->store(new FakeRequest([
+                'code' => 'B2SOSN-' . $suffix,
+                'customer_id' => $customerId,
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '数字 customer_id 不得 422');
+            $orderIds[] = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                $customerId,
+                (int) SalesOrder::where('id', end($orderIds))->value('customer_id'),
+                '数字 customer_id 应原样落库为裸 BIGINT'
+            );
+
+            // 2. hashid 仍能过（不得为放行数字而丢双模）
+            $resp = (new SalesOrderController())->store(new FakeRequest([
+                'code' => 'B2SOSH-' . $suffix,
+                'customer_id' => $this->encodeId($customerId),
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? 'hashid customer_id 不得 422');
+            $orderIds[] = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                $customerId,
+                (int) SalesOrder::where('id', end($orderIds))->value('customer_id'),
+                'hashid 应解码落库'
+            );
+
+            // 3. 垃圾串 422：不得退化成 (int)'abc'=0 建无主单
+            $bad = (new SalesOrderController())->store(new FakeRequest([
+                'code' => 'B2SOSB-' . $suffix,
+                'customer_id' => 'not-a-hashid',
+            ]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '垃圾 customer_id 应 422');
+
+            // 4. 缺省 422（必填外键；required 或解码失败都算，不锁文案）
+            $bad = (new SalesOrderController())->store(new FakeRequest(['code' => 'B2SOSM-' . $suffix]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '缺省 customer_id 应 422');
+
+            // 5. 数组 422 而非 500
+            $bad = (new SalesOrderController())->store(new FakeRequest([
+                'code' => 'B2SOSA-' . $suffix,
+                'customer_id' => ['oops'],
+            ]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '数组 customer_id 应 422 而非 500');
+        } finally {
+            foreach ($orderIds as $id) {
+                SalesOrder::where('id', $id)->forceDelete();
+            }
+        }
+    }
+
+    /**
+     * 回归（批2）：update 的 customer_id 原先只对「带值」覆写（`!== null && !== ''` 守卫），空串既不
+     * 覆写也不解码 —— fill 留在模型上的 '' 一路 save 到 BIGINT NOT NULL 列（erp_sales_order.customer_id
+     * 无默认值），MySQL 严格模式报 1366 → 未捕获 QueryException → 真 HTTP 500。与 purchase update 同型。
+     * 现口径同 purchase/OrderController::update：未传/显式 null → 不动；空串 → 回填原值（必填外键清空
+     * 无意义，但必须抹掉 fill 带进来的 ''/null）；传值 → 双模解码覆写；垃圾串 422 且不动既有值。
+     *
+     * 负控（改回缺陷即红）：空串分支恢复 `!== null && !== ''` 守卫，第 1 段断言即以 500 失败；
+     * 第 3 段（数字）对应移除的 `string` 规则。
+     */
+    public function testSalesOrderUpdateHandlesEmptyAndAbsentCustomerId(): void
+    {
+        $suffix = $this->randSuffix();
+        $customerA = SnowflakeService::generate();
+        $customerB = SnowflakeService::generate();
+        $customerC = SnowflakeService::generate();
+        $orderId = SnowflakeService::generate();
+        try {
+            $order = new SalesOrder();
+            $order->id = $orderId;
+            $order->code = 'B2SOU-' . $suffix;
+            $order->customer_id = $customerA;
+            $order->save();
+
+            // 1. 空串：不得 500，既有客户保持（修复前 '' 直落 BIGINT → 1366）
+            $resp = (new SalesOrderController())->update(
+                new FakeRequest(['customer_id' => '']),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1), '空 customer_id 不得 500');
+            $this->assertSame(
+                $customerA,
+                (int) SalesOrder::where('id', $orderId)->value('customer_id'),
+                '空 customer_id 应维持原值'
+            );
+
+            // 2. hashid：解码成裸 BIGINT 落库
+            $resp = (new SalesOrderController())->update(
+                new FakeRequest(['customer_id' => $this->encodeId($customerB)]),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1), $this->jsonBody($resp)['message'] ?? '');
+            $this->assertSame(
+                $customerB,
+                (int) SalesOrder::where('id', $orderId)->value('customer_id'),
+                'hashid 应解码成裸 BIGINT 落库'
+            );
+
+            // 3. 数字形态：update 侧 validator 原也挂 `string`（数字 ID 判 422）
+            $resp = (new SalesOrderController())->update(
+                new FakeRequest(['customer_id' => $customerC]),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1), '数字 customer_id 不得 422');
+            $this->assertSame(
+                $customerC,
+                (int) SalesOrder::where('id', $orderId)->value('customer_id'),
+                '数字 customer_id 应原样落库'
+            );
+
+            // 4. 不传：既有外键原样保持（局部更新）
+            $resp = (new SalesOrderController())->update(
+                new FakeRequest(['code' => 'B2SOU-' . $suffix]),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1));
+            $this->assertSame(
+                $customerC,
+                (int) SalesOrder::where('id', $orderId)->value('customer_id'),
+                '未传 customer_id 不得改动既有值'
+            );
+
+            // 5. 显式 null：同样按「未传」处理，不得以 null 落 NOT NULL 列（1048 → 500）
+            $resp = (new SalesOrderController())->update(
+                new FakeRequest(['customer_id' => null]),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1), '显式 null customer_id 不得 500');
+            $this->assertSame(
+                $customerC,
+                (int) SalesOrder::where('id', $orderId)->value('customer_id'),
+                '显式 null customer_id 不得改动既有值'
+            );
+
+            // 6. 垃圾串 422，且不动既有值
+            $bad = (new SalesOrderController())->update(
+                new FakeRequest(['customer_id' => 'not-a-hashid']),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '垃圾 customer_id 应 422');
+            $this->assertSame(
+                $customerC,
+                (int) SalesOrder::where('id', $orderId)->value('customer_id'),
+                '422 分支不得改动既有值'
+            );
+
+            // 7. 数组 422 而非 500
+            $bad = (new SalesOrderController())->update(
+                new FakeRequest(['customer_id' => ['oops']]),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '数组 customer_id 应 422 而非 500');
+
+            // 8. 探针（批2 观察项）：同方法内的 warehouse_id 也走 fill，显式 null 是否落 NOT NULL 列
+            $warehouseId = SnowflakeService::generate();
+            SalesOrder::where('id', $orderId)->update(['warehouse_id' => $warehouseId]);
+            $resp = (new SalesOrderController())->update(
+                new FakeRequest(['warehouse_id' => null]),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1), '显式 null warehouse_id 不得 500');
+            $this->assertSame(
+                $warehouseId,
+                (int) SalesOrder::where('id', $orderId)->value('warehouse_id'),
+                '显式 null warehouse_id 不得改动既有值'
+            );
         } finally {
             SalesOrder::where('id', $orderId)->forceDelete();
         }
@@ -886,6 +1231,54 @@ class DetailContractRegressionTest extends TestCase
         }
     }
 
+    /**
+     * 回归：POST /oms/order 的 order_id 同样是下拉下发的 hashid 串。原 validator 写
+     * `required|integer|min:1`，hashid 必被 422 挡回（该入口用下拉后 100% 不可用）；
+     * 放宽成 required 后必须自己解码 + 覆写（fill 直填 hashid 会 1366 → 500）。
+     */
+    public function testOmsOrderStoreDecodesOrderIdForeignKey(): void
+    {
+        $suffix = $this->randSuffix();
+        $ids = [];
+        $omsId = null;
+        $otherOrderId = null;
+        try {
+            $ids = $this->seedOmsOrderWithSalesCode($suffix);
+            // 另建一张销售订单：种子里的那张已被 OMS 行占用（uk_order_id）
+            $otherOrderId = SnowflakeService::generate();
+            $other = new SalesOrder();
+            $other->id = $otherOrderId;
+            $other->code = 'B7SO3-' . $suffix;
+            $other->customer_id = $ids['customer_id'];
+            $other->save();
+
+            $resp = (new OmsOrderController())->store(new FakeRequest([
+                'order_id' => $this->encodeId($otherOrderId),
+                'channel' => 'manual',
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $omsId = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                $otherOrderId,
+                (int) OmsOrder::where('id', $omsId)->value('order_id'),
+                'order_id 必须以裸 BIGINT 落库，不得把 hashid 串写进列'
+            );
+
+            // 垃圾串：边界 422，不得落到 MySQL 1366
+            $bad = (new OmsOrderController())->store(new FakeRequest(['order_id' => 'not-a-hashid']));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '垃圾 order_id 应 422');
+        } finally {
+            if ($omsId) {
+                OmsOrder::where('id', $omsId)->delete();
+            }
+            if ($otherOrderId !== null) {
+                SalesOrder::where('id', $otherOrderId)->forceDelete();
+            }
+            $this->cleanupOmsOrderSeed($ids);
+        }
+    }
+
     /* ======================== mfg bom ======================== */
 
     /**
@@ -934,6 +1327,340 @@ class DetailContractRegressionTest extends TestCase
         } finally {
             MfgBom::where('id', $bomId)->forceDelete();
             Product::where('id', $productId)->forceDelete();
+        }
+    }
+
+    /* ======================== purchase order update 外键空串 ======================== */
+
+    /**
+     * 回归：update 的三个 FK 都在 $fillable 内，fillModelFromRequest 会把请求里的空串/hash 串
+     * 直填 BIGINT 列。原先只对「带值」的字段解码覆写，空串既不被覆写也不解码 —— fill 留在模型上的
+     * '' 一路 save 到列，MySQL 严格模式报 1366 → 未捕获 QueryException → 真 HTTP 500。
+     *
+     * 口径同 sales/OrderController::update（同族已修实现）：可选外键（apply_id/warehouse_id，
+     * 列 NOT NULL DEFAULT 0）传了即覆写、空串=清空→0；必填外键 supplier_id（列 NOT NULL 无默认值，
+     * store 侧 required）空串=不改动，但同样必须回填原值抹掉 fill 带进来的 ''；未传（含显式 null）
+     * 一律不动 —— 局部更新不得清空既有外键。
+     *
+     * 负控（改回缺陷即红）：把空串分支恢复成 `$raw !== null && $raw !== ''` 守卫，第 1 段断言
+     * 即以 500（1366 Incorrect integer value）失败；第 8 段（数字 supplier_id）对应批2 去掉的
+     * update 侧 `string` 规则，规则恢复即 422 ≠ 0。
+     */
+    public function testPurchaseOrderUpdateHandlesEmptyAndAbsentForeignKeys(): void
+    {
+        $suffix = $this->randSuffix();
+        $supplierId = SnowflakeService::generate();
+        $supplierB = SnowflakeService::generate();
+        $warehouseA = SnowflakeService::generate();
+        $warehouseB = SnowflakeService::generate();
+        $orderId = SnowflakeService::generate();
+        try {
+            $order = new PurchaseOrder();
+            $order->id = $orderId;
+            $order->code = 'B9POU-' . $suffix;
+            $order->supplier_id = $supplierId;
+            $order->apply_id = 0;
+            $order->warehouse_id = $warehouseA;
+            $order->save();
+
+            // 1. 空串：可选外键清空 → 0（修复前 '' 直落 BIGINT → 1366 → 500）
+            $resp = (new PurchaseOrderController())->update(
+                new FakeRequest(['apply_id' => '', 'warehouse_id' => '']),
+                $this->encodeId($orderId)
+            );
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '空串外键不得 500');
+            $this->assertSame(
+                0,
+                (int) PurchaseOrder::where('id', $orderId)->value('warehouse_id'),
+                '空 warehouse_id 应清空为 0（口径同 sales/OrderController::update）'
+            );
+            $this->assertSame(
+                $supplierId,
+                (int) PurchaseOrder::where('id', $orderId)->value('supplier_id'),
+                '未传的 supplier_id 不得被清零'
+            );
+
+            // 2. hashid：解码成裸 BIGINT 落库
+            $resp = (new PurchaseOrderController())->update(
+                new FakeRequest(['warehouse_id' => $this->encodeId($warehouseB)]),
+                $this->encodeId($orderId)
+            );
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $this->assertSame(
+                $warehouseB,
+                (int) PurchaseOrder::where('id', $orderId)->value('warehouse_id'),
+                'hashid 应解码成裸 BIGINT 落库'
+            );
+
+            // 3. 不传：既有外键原样保持（局部更新）
+            $resp = (new PurchaseOrderController())->update(
+                new FakeRequest(['code' => 'B9POU-' . $suffix]),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1));
+            $this->assertSame(
+                $warehouseB,
+                (int) PurchaseOrder::where('id', $orderId)->value('warehouse_id'),
+                '未传 warehouse_id 不得改动既有值'
+            );
+
+            // 4. 显式 null：同样按「未传」处理，不得以 null 落 NOT NULL 列（1048 → 500）
+            $resp = (new PurchaseOrderController())->update(
+                new FakeRequest(['warehouse_id' => null]),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1), '显式 null 不得 500');
+            $this->assertSame(
+                $warehouseB,
+                (int) PurchaseOrder::where('id', $orderId)->value('warehouse_id'),
+                '显式 null 不得改动既有值'
+            );
+
+            // 5. 必填外键空串 = 不改动（列 NOT NULL 无默认值，清空无意义），同样不得 500
+            $resp = (new PurchaseOrderController())->update(
+                new FakeRequest(['supplier_id' => '']),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1), '空 supplier_id 不得 500');
+            $this->assertSame(
+                $supplierId,
+                (int) PurchaseOrder::where('id', $orderId)->value('supplier_id'),
+                '空 supplier_id 应维持原值'
+            );
+
+            // 6. 必填外键垃圾串：边界 422（与 store 同口径），不得落 0 建无主单
+            $bad = (new PurchaseOrderController())->update(
+                new FakeRequest(['supplier_id' => 'not-a-hashid']),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '垃圾 supplier_id 应 422');
+            $this->assertSame(
+                $supplierId,
+                (int) PurchaseOrder::where('id', $orderId)->value('supplier_id'),
+                '422 分支不得改动既有值'
+            );
+
+            // 7. 必填外键显式 null：按「未传」处理，不得以 null 落 NOT NULL 列（1048 → 500）
+            $resp = (new PurchaseOrderController())->update(
+                new FakeRequest(['supplier_id' => null]),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1), '显式 null supplier_id 不得 500');
+            $this->assertSame(
+                $supplierId,
+                (int) PurchaseOrder::where('id', $orderId)->value('supplier_id'),
+                '显式 null supplier_id 不得改动既有值'
+            );
+
+            // 8. 数字形态的 supplier_id：update 侧 validator 原也挂 `string`（数字 ID 判 422，同族缺口）
+            $resp = (new PurchaseOrderController())->update(
+                new FakeRequest(['supplier_id' => $supplierB]),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1), '数字 supplier_id 不得 422');
+            $this->assertSame(
+                $supplierB,
+                (int) PurchaseOrder::where('id', $orderId)->value('supplier_id'),
+                '数字 supplier_id 应原样落库'
+            );
+
+            // 9. 数组 422 而非 500（去 string 规则后数组不再被校验器挡下，由 decodeFlexibleId 收口）
+            $bad = (new PurchaseOrderController())->update(
+                new FakeRequest(['supplier_id' => ['oops']]),
+                $this->encodeId($orderId)
+            );
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '数组 supplier_id 应 422 而非 500');
+            $this->assertSame(
+                $supplierB,
+                (int) PurchaseOrder::where('id', $orderId)->value('supplier_id'),
+                '422 分支不得改动既有值'
+            );
+        } finally {
+            PurchaseOrder::where('id', $orderId)->forceDelete();
+        }
+    }
+
+    /* ======================== eam 外键双模（数字 ID 不再被 string 挡回） ======================== */
+
+    /**
+     * 回归：eam 三个控制器的 ID 校验原写 `required|string`，而 Laravel 的 string 规则即
+     * is_string() —— 数字形态的设备/负责人 ID 一律被 422 挡回，与全仓同族（quality 5 个、bi 3 个、
+     * sales/oms）的 `required` + decodeFlexibleId 双模不一致。现只留 required，双模判定收口到
+     * decodeFlexibleId：数字与 hashid 均落库为裸 BIGINT，垃圾串仍 422（不落 0 建无主行）。
+     *
+     * 负控（改回缺陷即红）：任一处恢复 `required|string`，对应断言即以 422 失败。
+     */
+    public function testEamWritePathsAcceptNumericAndHashidEquipmentId(): void
+    {
+        $suffix = $this->randSuffix();
+        $equipmentId = SnowflakeService::generate();
+        $assigneeId = SnowflakeService::generate();
+        $planIds = [];
+        $repairIds = [];
+        $taskIds = [];
+        try {
+            $equipment = new EamEquipment();
+            $equipment->id = $equipmentId;
+            $equipment->code = 'B9EQ-' . $suffix;
+            $equipment->name = '批9设备' . $suffix;
+            $equipment->save();
+
+            // 1. 保养计划 store：数字设备 ID（修复前 is_string(900…) 判 422）
+            $resp = (new MaintenancePlanController())->store(new FakeRequest([
+                'equipment_id' => $equipmentId,
+                'name' => '批9保养计划' . $suffix,
+                'frequency' => 'monthly',
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '数字 equipment_id 不得 422');
+            $planIds[] = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                $equipmentId,
+                (int) EamMaintenancePlan::where('id', end($planIds))->value('equipment_id'),
+                '数字 equipment_id 应原样落库'
+            );
+
+            // 2. 保养计划 store：hashid 仍能过
+            $resp = (new MaintenancePlanController())->store(new FakeRequest([
+                'equipment_id' => $this->encodeId($equipmentId),
+                'name' => '批9保养计划H' . $suffix,
+                'frequency' => 'monthly',
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? 'hashid equipment_id 不得 422');
+            $planIds[] = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                $equipmentId,
+                (int) EamMaintenancePlan::where('id', end($planIds))->value('equipment_id'),
+                'hashid 应解码落库'
+            );
+
+            // 3. 保养计划 store：垃圾串仍 422（不得退化成 (int)'abc'=0 建无主计划）
+            $bad = (new MaintenancePlanController())->store(new FakeRequest([
+                'equipment_id' => 'not-a-hashid',
+                'name' => '批9保养计划bad' . $suffix,
+                'frequency' => 'monthly',
+            ]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '垃圾 equipment_id 应 422');
+
+            // 4. 维修工单 store：数字设备 ID 通过、垃圾串 422
+            $resp = (new RepairOrderController())->store(new FakeRequest([
+                'code' => 'B9RO-' . $suffix,
+                'equipment_id' => $equipmentId,
+                'fault_description' => '批9故障' . $suffix,
+                'repair_type' => 'corrective',
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '数字 equipment_id 不得 422');
+            $repairIds[] = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                $equipmentId,
+                (int) EamRepairOrder::where('id', end($repairIds))->value('equipment_id'),
+                '数字 equipment_id 应原样落库'
+            );
+            $bad = (new RepairOrderController())->store(new FakeRequest([
+                'code' => 'B9ROb-' . $suffix,
+                'equipment_id' => 'not-a-hashid',
+                'fault_description' => '批9故障' . $suffix,
+                'repair_type' => 'corrective',
+            ]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '垃圾 equipment_id 应 422');
+
+            // 5. 点检任务 store：数字设备/负责人 ID（服务层校验设备存在，故先种设备行）
+            $resp = (new EamInspectionController())->store(new FakeRequest([
+                'equipment_id' => $equipmentId,
+                'task_date' => date('Y-m-d', strtotime('-1 day')),
+                'assignee_id' => $assigneeId,
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '数字 equipment_id 不得 422');
+            $taskIds[] = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                $equipmentId,
+                (int) EamInspectionTask::where('id', end($taskIds))->value('equipment_id')
+            );
+            $this->assertSame(
+                $assigneeId,
+                (int) EamInspectionTask::where('id', end($taskIds))->value('assignee_id'),
+                '数字 assignee_id 应原样落库'
+            );
+
+            // 5b. 点检任务 update：数字 assignee_id 换人（改派）
+            $resp = (new EamInspectionController())->update(
+                new FakeRequest(['assignee_id' => $equipmentId]),
+                $this->encodeId((int) end($taskIds))
+            );
+            $this->assertSame(0, (int) ($this->jsonBody($resp)['code'] ?? -1), '数字 assignee_id 不得 422');
+            $this->assertSame(
+                $equipmentId,
+                (int) EamInspectionTask::where('id', end($taskIds))->value('assignee_id'),
+                '改派应以数字 ID 落库'
+            );
+
+            // 6. 点检任务 store：hashid 仍能过、垃圾串 422（换日期避开同日重复校验）
+            $resp = (new EamInspectionController())->store(new FakeRequest([
+                'equipment_id' => $this->encodeId($equipmentId),
+                'task_date' => date('Y-m-d', strtotime('-2 days')),
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? 'hashid equipment_id 不得 422');
+            $taskIds[] = HashidsService::decode((string) ($body['data']['id'] ?? ''));
+            $this->assertSame(
+                $equipmentId,
+                (int) EamInspectionTask::where('id', end($taskIds))->value('equipment_id'),
+                'hashid 应解码落库'
+            );
+            $bad = (new EamInspectionController())->store(new FakeRequest([
+                'equipment_id' => 'not-a-hashid',
+                'task_date' => date('Y-m-d', strtotime('-3 days')),
+            ]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '垃圾 equipment_id 应 422');
+
+            // 7. 扫码点检：数字设备 ID 同样收（原 required|string 会把扫码入口判 422）
+            $resp = (new EamInspectionController())->scanExecute(new FakeRequest([
+                'equipment_id' => $equipmentId,
+                'task_date' => date('Y-m-d', strtotime('-4 days')),
+                'items' => [['item_name' => '批9点检项', 'result' => 0]],
+            ]));
+            $body = $this->jsonBody($resp);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '数字 equipment_id 不得 422');
+            $taskIds[] = HashidsService::decode((string) ($body['data']['task_id'] ?? ''));
+            $this->assertSame(
+                $equipmentId,
+                (int) EamInspectionTask::where('id', end($taskIds))->value('equipment_id'),
+                '扫码生成的临时任务应以数字 ID 落库'
+            );
+            // 8. 数组入参仍是 422 而非 500：去掉 string 规则后数组不再被校验器挡下，
+            //    由 decodeFlexibleId 对非标量返回 null → 422；生产侧不套 (string) 强转，
+            //    否则 webman 的 set_error_handler 会把「数组转字符串」警告升级成 ErrorException → 500。
+            //    注：phpunit 下没有该 handler，强转只会变 PHP warning（实测 Warnings: 1 而断言仍绿），
+            //    故这两条只锁「422」这一外部契约，不构成对强转的负控
+            $bad = (new MaintenancePlanController())->store(new FakeRequest([
+                'equipment_id' => ['oops'],
+                'name' => '批9保养计划arr' . $suffix,
+                'frequency' => 'monthly',
+            ]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '数组 equipment_id 应 422 而非 500');
+            $bad = (new EamInspectionController())->store(new FakeRequest([
+                'equipment_id' => $equipmentId,
+                'task_date' => date('Y-m-d', strtotime('-5 days')),
+                'assignee_id' => ['oops'],
+            ]));
+            $this->assertSame(422, (int) ($this->jsonBody($bad)['code'] ?? -1), '数组 assignee_id 应 422 而非 500');
+        } finally {
+            foreach ($taskIds as $id) {
+                EamInspectionResult::where('task_id', $id)->delete();
+                EamInspectionTask::where('id', $id)->delete();
+            }
+            foreach ($planIds as $id) {
+                EamMaintenancePlan::where('id', $id)->delete();
+            }
+            foreach ($repairIds as $id) {
+                EamRepairOrder::where('id', $id)->delete();
+            }
+            EamEquipment::where('id', $equipmentId)->delete();
         }
     }
 }

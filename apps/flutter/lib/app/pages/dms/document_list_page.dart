@@ -75,7 +75,9 @@ class _DocumentListPageState extends State<DocumentListPage> {
       FormFieldConfig(name: 'content', label: l10n.fieldContent, type: FormFieldType.multiline),
       FormFieldConfig(name: 'tags', label: l10n.fieldTags),
       FormFieldConfig(name: 'change_note', label: l10n.fieldChangeNote),
-      FormFieldConfig(name: 'status', label: l10n.commonStatus, type: FormFieldType.dropdown, options: ['0', '1']),
+      // 显示文案走 optionLabels（值=存储值不变），词表同本页状态列：草稿/发布
+      FormFieldConfig(name: 'status', label: l10n.commonStatus, type: FormFieldType.dropdown,
+          options: ['0', '1'], optionLabels: {for (final v in const ['0', '1']) v: _statusLabel(v)}),
     ];
   }
 
@@ -101,14 +103,22 @@ class _DocumentListPageState extends State<DocumentListPage> {
     return [l10n.fieldDocCode, l10n.fieldTitle, l10n.fieldCategory, l10n.fieldVersion, l10n.commonStatus, l10n.commonAction];
   }
 
+  /// 状态列 0/1 机读值不上屏（后端 validate `nullable|integer|between:0,1`，apidoc 0=草稿 1=发布）。
+  /// 列默认值 'draft' 同理落草稿；未知值原样回落。
+  static String _statusLabel(Object? v) => switch ('$v') {
+        '0' || 'draft' => AppL10n.current.dmsDocStatusDraft,
+        '1' => AppL10n.current.dmsDocStatusPublished,
+        _ => '$v',
+      };
+
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
     return {
       l10n.fieldDocCode: r['code'] ?? '',
       l10n.fieldTitle: r['title'] ?? '',
-      l10n.fieldCategory: r['category'] ?? '', // 展示后端类别值，与 options 同源，不翻译
+      l10n.fieldCategory: r['category'] ?? '', // 自由文本列（表单同为文本输入，非枚举），原样展示
       l10n.fieldVersion: r['version'] ?? '',
-      l10n.commonStatus: r['status'] ?? '',
+      l10n.commonStatus: _statusLabel(r['status']),
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
         IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

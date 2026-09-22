@@ -64,11 +64,13 @@ class PurchaseOrderDetailPage extends StatelessWidget {
     );
   }
 
+  /// 供应商行：supplier_name（show 已 leftJoin 带出，取不到落「-」不回退 hashid ——
+  /// 契约 rule ④，裸雪花编码上屏不可读）；supplier_id 非空 → 引用卡。
   Widget _supplierRow(BuildContext context, Map<String, dynamic> d) {
     final l = AppL10n.of(context);
     final sid = '${d['supplier_id'] ?? ''}';
     final name = '${d['supplier_name'] ?? ''}';
-    final text = name.isEmpty ? sid : name;
+    final text = name.isEmpty ? '-' : name;
     if (sid.isEmpty) return DetailRow(label: l.partnerSupplierTitle, value: text);
     return DetailRow(
       label: l.partnerSupplierTitle,

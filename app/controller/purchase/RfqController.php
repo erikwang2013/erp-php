@@ -310,6 +310,8 @@ class RfqController extends BaseController
         // 报价排序：已中标置顶，其余按总额 bcmath 升序
         $quoteArr = $quotes->map(fn ($q) => [
             'id' => (int) $q->id,
+            // getAttribute：模型无 @property，直读属性会新增 property.notFound 并破基线计数
+            'supplier_id' => (int) $q->getAttribute('supplier_id'),
             'awarded' => (int) $q->awarded,
             'amount' => (string) $q->amount,
         ])->all();
@@ -320,18 +322,41 @@ class RfqController extends BaseController
 
             return bccomp($a['amount'], $b['amount'], 4);
         });
+
+        // 名称随行下发：报价、行、采购员只带编码 id 时，比价面板上全是无法辨识的雪花串
+        // （列/单元格按前端契约 rule 1 取 `<base>_name`，这里就是那个兄弟键的来源）
+        $supplierNames = DB::table('supplier')->whereIn('id', $quotes->pluck('supplier_id')->all())
+            ->pluck('name', 'id')->all();
+        // 明细集合物化一次，矩阵与编码表共用（`$rfq->items` 的属性读次数受基线计数约束）
+        $rfqItems = $rfq->items;
+        $productIds = $rfqItems->pluck('product_id')->all();
+        $productCodes = DB::table('product')->whereIn('id', $productIds)->pluck('code', 'id')->all();
+        $productNames = DB::table('product')->whereIn('id', $productIds)->pluck('name', 'id')->all();
+        $buyerName = (string) DB::table('admin_user')->where('id', (int) $rfq->getAttribute('buyer_id'))->value('real_name');
+
         $quoteRows = array_map(fn ($q) => $this->encodeIds([
             'id' => $q['id'], 'amount' => $q['amount'],
+            'supplier_name' => $supplierNames[$q['supplier_id']] ?? '',
             'is_lowest' => $lowestId === $q['id'] ? 1 : 0,
         ]), $quoteArr);
 
-        // 行对比矩阵：询价明细 → 各供应商报价单价（键为报价 hashid）
-        $matrix = $rfq->items->map(function ($item) use ($quotes, $service) {
+        // 报价单价按报价排序展开成行（原为「hashid => 单价」的映射：键是编码后的雪花串，
+        // 面板上既无法辨识是哪家供应商，又不可能有别的消费方去反解）
+        $quoteOrder = array_column($quoteArr, 'id');
+        $quotePrices = []; // quote id => [rfq_item_id => unit_price]
+        foreach ($quotes as $quote) {
+            foreach ($quote->items as $qi) {
+                $quotePrices[(int) $quote->id][(int) $qi->rfq_item_id] = (string) $qi->unit_price;
+            }
+        }
+
+        // 行对比矩阵：询价明细 → 各供应商报价单价
+        $matrix = $rfqItems->map(function ($item) use ($service, $quoteOrder, $quotePrices, $supplierNames, $productCodes, $productNames) {
             $prices = [];
-            foreach ($quotes as $quote) {
-                $qi = $quote->items->firstWhere('rfq_item_id', (int) $item->id);
-                if ($qi) {
-                    $prices[$this->encodeId((int) $quote->id)] = (string) $qi->unit_price;
+            foreach ($quoteOrder as $qid) {
+                $unitPrice = $quotePrices[$qid][(int) $item->id] ?? null;
+                if ($unitPrice !== null) {
+                    $prices[] = ['supplier_name' => $supplierNames[$qid] ?? '', 'unit_price' => $unitPrice];
                 }
             }
             $targetAmount = $service->lineAmount((string) $item->target_price, (string) $item->quantity);
@@ -339,6 +364,8 @@ class RfqController extends BaseController
             return [
                 'rfq_item_id' => $this->encodeId((int) $item->id),
                 'product_id' => $item->product_id,
+                'product_code' => $productCodes[$item->product_id] ?? '',
+                'product_name' => $productNames[$item->product_id] ?? '',
                 'quantity' => (string) $item->quantity,
                 'unit' => $item->unit,
                 'target_price' => (string) $item->target_price,
@@ -347,8 +374,12 @@ class RfqController extends BaseController
             ];
         })->values()->all();
 
+        $rfqData = $this->encodeIds($rfq->toArray(), ['id', 'buyer_id', 'awarded_quote_id', 'auditor_id']);
+        // 键名避开 buyer_name：那个键在标题表里是税票的「购买方名称」，与询价单的采购员不是一回事
+        $rfqData['buyer_real_name'] = $buyerName;
+
         return $this->success([
-            'rfq' => $this->encodeIds($rfq->toArray(), ['id', 'buyer_id', 'awarded_quote_id', 'auditor_id']),
+            'rfq' => $rfqData,
             'target_total' => $targetTotal,
             'lowest_quote_id' => $lowestId ? $this->encodeId($lowestId) : null,
             'items' => $matrix,

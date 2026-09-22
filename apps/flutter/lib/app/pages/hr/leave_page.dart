@@ -150,14 +150,15 @@ class _LeavePageState extends State<LeavePage> {
     return d;
   }
 
-  /// 员工列：优先 employee 关联中的姓名，缺失时回退员工ID。
+  /// 员工列：employee 关联姓名（leaveIndex 已 with('employee')，rule ②）；取不到落「-」
+  /// —— 契约 rule ④，裸 hashid 不上屏。
   static String _empLabel(Map<String, dynamic> r) {
     final emp = r['employee'];
     if (emp is Map<String, dynamic>) {
       final n = emp['name'];
       if (n != null && '$n'.isNotEmpty) return '$n';
     }
-    return '${r['employee_id'] ?? ''}';
+    return '-';
   }
 
   static String _typeText(dynamic t) {

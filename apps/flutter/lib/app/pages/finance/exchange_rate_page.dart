@@ -24,8 +24,34 @@ class _ExchangeRatePageState extends State<ExchangeRatePage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 币种下拉：from/to_currency_id 是后端 hashid 契约（CurrencyController::index 出口
+  /// encodeIds，ExchangeRateController 双模解码），手输数字与编辑态回写的 hashid 都会崩；
+  /// 选项值=行 id(hashid)，标签取币种 code。预取失败返回 false，不弹必填空白下拉。
+  Map<String, String> _currencies = {};
+
+  Future<bool> _ensureRefs({bool notify = true}) async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/finance/currency', params: {'limit': '500'});
+      final options = {
+        for (final r in List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []))
+          '${r['id']}': '${r['code'] ?? r['name'] ?? r['id']}',
+      };
+      if (mounted) {
+        setState(() => _currencies = options);
+      } else {
+        _currencies = options;
+      }
+      return true;
+    } catch (e) {
+      if (notify && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() { super.initState(); _load(); _ensureRefs(notify: false); }
 
   Future<void> _load() async {
     final seq = ++_reqSeq;
@@ -41,13 +67,15 @@ class _ExchangeRatePageState extends State<ExchangeRatePage> {
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
-  List<FormFieldConfig> _formFields() {
+  List<FormFieldConfig> _formFields(Map<String, String> currencyOptions) {
     final now = DateTime.now();
     String pad(int v) => v.toString().padLeft(2, '0');
     final defaultDate = '${now.year}-${pad(now.month)}-${pad(now.day)}';
     return [
-      FormFieldConfig(name: 'from_currency_id', label: AppL10n.of(context).financeOriginCurrencyId, required: true, hint: AppL10n.of(context).financeOriginCurrencyHint),
-      FormFieldConfig(name: 'to_currency_id', label: AppL10n.of(context).financeTargetCurrencyId, required: true, hint: AppL10n.of(context).financeTargetCurrencyHint),
+      FormFieldConfig(name: 'from_currency_id', label: AppL10n.of(context).financeOriginCurrencyId, required: true,
+        type: FormFieldType.dropdown, options: currencyOptions.keys.toList(), optionLabels: currencyOptions),
+      FormFieldConfig(name: 'to_currency_id', label: AppL10n.of(context).financeTargetCurrencyId, required: true,
+        type: FormFieldType.dropdown, options: currencyOptions.keys.toList(), optionLabels: currencyOptions),
       FormFieldConfig(name: 'rate', label: AppL10n.of(context).financeRate, required: true, type: FormFieldType.number, hint: AppL10n.of(context).financeRateHint),
       FormFieldConfig(name: 'effective_date', label: AppL10n.of(context).financeEffectiveDate, required: true, initialValue: defaultDate,
         hint: AppL10n.of(context).commonDateFormat),
@@ -55,14 +83,20 @@ class _ExchangeRatePageState extends State<ExchangeRatePage> {
   }
 
   Future<void> _create() async {
-    await FormDialog.show(context, title: AppL10n.of(context).financeExchangeRateAdd, fields: _formFields(), onSubmit: (data) async {
+    if (!await _ensureRefs() || !mounted) return;
+    await FormDialog.show(context, title: AppL10n.of(context).financeExchangeRateAdd,
+      fields: _formFields(_currencies), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/finance/exchange-rate', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
-    await FormDialog.show(context, title: AppL10n.of(context).financeExchangeRateEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
+    if (!await _ensureRefs() || !mounted) return;
+    final options = dropdownOptionsWithCurrent(
+        dropdownOptionsWithCurrent(_currencies, row['from_currency_id']), row['to_currency_id']);
+    await FormDialog.show(context, title: AppL10n.of(context).financeExchangeRateEdit,
+      fields: _formFields(options), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/finance/exchange-rate/${row['id']}', data: data);
       _load(); return true;
     });
@@ -94,9 +128,13 @@ class _ExchangeRatePageState extends State<ExchangeRatePage> {
 
   List<String> _columns() => [AppL10n.current.financeOriginCurrencyId, AppL10n.current.financeTargetCurrencyId, AppL10n.current.financeRate, AppL10n.current.financeEffectiveDate, AppL10n.current.commonAction];
 
+  /// 币种列显示 code：列表行 FK 是 hashid，解不出（币种表未加载/已删）落占位，
+  /// 不把 encodeIds 后的 hashid 贴到单元格上
+  String _currencyLabel(Object? id) => _currencies['$id'] ?? '-';
+
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.financeOriginCurrencyId: r['from_currency_id'] ?? '',
-    AppL10n.current.financeTargetCurrencyId: r['to_currency_id'] ?? '',
+    AppL10n.current.financeOriginCurrencyId: _currencyLabel(r['from_currency_id']),
+    AppL10n.current.financeTargetCurrencyId: _currencyLabel(r['to_currency_id']),
     AppL10n.current.financeRate: r['rate'] ?? '',
     AppL10n.current.financeEffectiveDate: r['effective_date'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [

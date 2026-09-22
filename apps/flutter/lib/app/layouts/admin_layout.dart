@@ -262,10 +262,11 @@ class _AdminLayoutState extends State<AdminLayout> {
   }
 
   /// 语言切换（en/zh）：AppL10n.setLocale 触发全局重建。
+  /// 无 BuildContext 参数 → 文案取 AppL10n.current（与 AppL10n.locale 同源）。
   Widget _buildLangToggle() {
     final isZh = AppL10n.locale.languageCode == 'zh';
     return PopupMenuButton<String>(
-      tooltip: 'Language',
+      tooltip: AppL10n.current.commonLanguage,
       offset: const Offset(0, headerHeight),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8),

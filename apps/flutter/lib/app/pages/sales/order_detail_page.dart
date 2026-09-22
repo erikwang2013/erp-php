@@ -66,12 +66,13 @@ class SalesOrderDetailPage extends StatelessWidget {
     );
   }
 
-  /// 客户行：customer_name（无 name 时回退 hashid）；customer_id 非空 → 引用卡。
+  /// 客户行：customer_name（show 已 leftJoin 带出，取不到落「-」不回退 hashid ——
+  /// 契约 rule ④，裸雪花编码上屏不可读）；customer_id 非空 → 引用卡。
   Widget _customerRow(BuildContext context, Map<String, dynamic> d) {
     final l = AppL10n.of(context);
     final cid = '${d['customer_id'] ?? ''}';
     final name = '${d['customer_name'] ?? ''}';
-    final text = name.isEmpty ? cid : name;
+    final text = name.isEmpty ? '-' : name;
     if (cid.isEmpty) return DetailRow(label: l.partnerCustomerTitle, value: text);
     return DetailRow(
       label: l.partnerCustomerTitle,

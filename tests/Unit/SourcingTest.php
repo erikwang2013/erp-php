@@ -126,6 +126,35 @@ class SourcingTest extends TestCase
         $this->assertSame('A', SupplierAssessmentController::gradeFor('95.5'));
     }
 
+    public function testComparePanelCarriesNamesInSource(): void
+    {
+        $source = (string) file_get_contents(dirname(__DIR__, 2) . '/app/controller/purchase/RfqController.php');
+
+        // 比价面板（/purchase/rfq/{id}/compare）：外键的 `<base>_name` 兄弟随行下发，
+        // 面板上不能出现无法辨识的编码 id（前端契约 rule 1 取的就是这些兄弟键）
+        $this->assertStringContainsString("'supplier_name' => \$supplierNames[\$q['supplier_id']] ?? ''", $source);
+        $this->assertStringContainsString("'product_code' => \$productCodes[\$item->product_id] ?? ''", $source);
+        $this->assertStringContainsString("'product_name' => \$productNames[\$item->product_id] ?? ''", $source);
+        // 采购员：键避开税票的 buyer_name（标题表里那是「购买方名称」），改名后前端靠别名表取
+        $this->assertStringContainsString("\$rfqData['buyer_real_name'] = \$buyerName;", $source);
+        $this->assertStringNotContainsString("\$rfqData['buyer_name']", $source);
+        // 闭包必须 use 进两张编码表：漏了不会报错，只是 product_code/product_name 整列空
+        $this->assertStringContainsString(
+            'use ($service, $quoteOrder, $quotePrices, $supplierNames, $productCodes, $productNames)',
+            $source
+        );
+        // 报价单价：按报价顺序展开成「供应商 × 单价」数组（原为 hashid 作键的映射，面板上无从辨识）
+        $this->assertStringContainsString("'quote_prices' => \$prices", $source);
+        $this->assertStringContainsString("['supplier_name' => \$supplierNames[\$qid] ?? '', 'unit_price' => \$unitPrice]", $source);
+        // 顶层容器键：前端 keyTitle 靠标题表的非 DB 键出中文
+        foreach (["'rfq' => \$rfqData", "'target_total' => \$targetTotal", "'items' => \$matrix", "'quotes' => \$quoteRows"] as $key) {
+            $this->assertStringContainsString($key, $source);
+        }
+        // 模型无 @property：新增的属性读走 getAttribute，不破 PHPStan 基线计数
+        $this->assertStringContainsString("\$q->getAttribute('supplier_id')", $source);
+        $this->assertStringContainsString("\$rfq->getAttribute('buyer_id')", $source);
+    }
+
     public function testQuoteWriteGuardsInSource(): void
     {
         $source = (string) file_get_contents(dirname(__DIR__, 2) . '/app/controller/purchase/RfqQuoteController.php');

@@ -33,6 +33,20 @@ class FormFieldConfig {
   });
 }
 
+/// 编辑态下拉的当前值占位：`value → label` 选项表里若不含当前值（引用行已删 /
+/// 超出预取上限），把它前置为「占位项」返回一份新表；否则原样返回。
+///
+/// 与 [FormDialog.show] 的「预填值不在 options 中即置 null」是同一处约束的两面：
+/// 不前置占位项，回写型外键（hashid）会在用户未察觉时被静默清空。
+Map<String, String> dropdownOptionsWithCurrent(
+  Map<String, String> options,
+  Object? current,
+) {
+  final cur = '${current ?? ''}';
+  if (cur.isEmpty || options.containsKey(cur)) return options;
+  return {cur: cur, ...options};
+}
+
 /// Reusable form dialog: renders fields dynamically from [FormFieldConfig]
 /// list, validates required fields and returns true on successful submit.
 /// [child] 渲染在字段区与按钮之间（如权限树等富内容区）。

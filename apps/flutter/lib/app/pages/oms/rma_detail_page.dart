@@ -204,8 +204,10 @@ class _OmsRmaDetailPageState extends State<OmsRmaDetailPage> {
     final t = _asInt(d['type']);
     return [
       detailRow(d, l.detailRmaCode, 'code'),
-      _idRow(context, d, l.detailOrderRef, 'order_id'),
-      _idRow(context, d, l.partnerCustomerTitle, 'customer_id'),
+      // 原订单/客户：RmaController::show 未 join 名称兄弟键，落「-」占位（契约 rule ④）——
+      // 原走 _idRow 直出裸外键（encodeIds 后的 hashid / 未编码的 int）
+      DetailRow(label: l.detailOrderRef, value: '-'),
+      DetailRow(label: l.partnerCustomerTitle, value: '-'),
       if (t >= 1 && t <= 3)
         detailStatusRow(context, label: l.fieldType,
             text: _typeText(l, t),
@@ -229,14 +231,6 @@ class _OmsRmaDetailPageState extends State<OmsRmaDetailPage> {
         detailRow(d, l.detailReceivedAt, 'received_at', fmt: fmtDateTime),
       detailRow(d, l.detailCreatedAt, 'created_at', fmt: fmtDateTime),
     ];
-  }
-
-  /// 原始数字 id 行（无名称可 join，纯展示不回退为链接）。
-  Widget _idRow(BuildContext context, Map<String, dynamic> d, String label,
-      String key) {
-    final v = '${d[key] ?? ''}';
-    if (v.isEmpty || v == '0' || v == 'null') return const SizedBox.shrink();
-    return DetailRow(label: label, value: v);
   }
 
   int _asInt(dynamic v) => v is int ? v : (int.tryParse('$v') ?? -1);

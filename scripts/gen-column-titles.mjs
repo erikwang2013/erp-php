@@ -200,7 +200,7 @@ const CLEAN = {
   is_read: ['是否已读', '原注释是纯枚举「0未读1已读」，取 1 侧语义'],
 };
 
-/** install.sql 给不出的键：29 个无注释列 + 2 个非 DB 列（页面上实见，服务端算出/嵌套对象） */
+/** install.sql 给不出的键：29 个无注释列 + 19 个非 DB 列（页面上实见，服务端算出/嵌套对象） */
 const MANUAL = {
   response: ['响应内容', 'crm_campaign_participant 无注释'],
   completed_at: ['完成时间', 'project_task 无注释'],
@@ -233,6 +233,27 @@ const MANUAL = {
   app_secret: ['应用密钥', 'openapi_app 无注释；注释说明「仅展示一次」不适合做标题'],
   default_ledger: ['默认账簿', '非 DB 列：/finance/company/list 的嵌套对象，纯注释种子会漏'],
   shipment_code: ['运单号', '非 DB 列：服务端算出的别名，纯注释种子会漏'],
+  // 服务端算出的引用单号（与 shipment_code 同款别名，列表列 + 抽屉都可能走 keyTitle）
+  receive_code: ['收货单号', '非 DB 列：服务端按 source_id 反查出的别名，纯注释种子会漏'],
+  delivery_code: ['发货单号', '非 DB 列：服务端按 source_id 反查出的别名，纯注释种子会漏'],
+  // 比价面板（/purchase/rfq/{id}/compare 回包，showResult 渲染）：容器键与算出来的字段都不是列
+  rfq: ['询价单', '非 DB 列：比价回包的嵌套对象（询价单头）'],
+  quotes: ['报价', '非 DB 列：比价回包的报价数组'],
+  is_lowest: ['最低价', '非 DB 列：比价回包算出的最低价标记'],
+  target_total: ['目标总额', '非 DB 列：比价回包算出的目标总额'],
+  target_amount: ['目标金额', '非 DB 列：比价矩阵行金额（target_price × quantity）'],
+  lowest_quote_id: ['最低价报价ID', '非 DB 列：比价回包算出的最低价报价（无对应 *_name 兄弟键，affix 兜底取不到）'],
+  quote_prices: ['报价单价', '非 DB 列：比价矩阵的报价单价数组（供应商 × 单价）'],
+  product_code: ['商品编码', '非 DB 列：比价矩阵补出的 product.code'],
+  buyer_real_name: ['采购员', '非 DB 列：purchase_rfq.buyer_id 的名称兄弟键；buyer_name 已被税票的购买方名称占用，故避开'],
+  // 工资条（/hr/salary/{id}/payslip 回包）：头行 + 明细 + 社保三段
+  salary: ['工资条', '非 DB 列：payslip 回包的工资头行对象'],
+  social: ['社保', '非 DB 列：payslip 回包的社保段（未绑定/计算失败时为 null）'],
+  // 通用容器键与报表 report_data 内层
+  items: ['明细', '非 DB 列：payslip/比价等回包的明细数组'],
+  lines: ['明细行', '非 DB 列：报表 report_data.lines（凭证按科目汇总行）'],
+  generated_from: ['数据来源', '非 DB 列：报表 report_data.generated_from（实时算 or 快照）'],
+  voucher_count: ['凭证数', '非 DB 列：现金流量表 report_data.voucher_count'],
 };
 
 /* ── 5. 合并 ───────────────────────────────────────────────────────────────────── */

@@ -30,8 +30,31 @@ class _SalesSettlementListPageState extends State<SalesSettlementListPage> {
 
   static List<String> get _statusLabels => [AppL10n.current.salesSettlementUnsettled, AppL10n.current.salesSettlementPartSettled, AppL10n.current.salesSettlementSettled];
 
+  /// 客户列的数据源：SettlementController::index 的 format() 只带出 delivery_code，
+  /// 没有 customer_name（partner_id 被 encodeIds 成 hashid，贴列上无从辨识）。
+  /// 故按本仓既有惯用法自行预取客户表喂列表单元格——模板见 eam/maintenance_plan_page.dart:26-53
+  /// （静默失败、取不到落「-」，绝不回落 hashid）。客户表与应收记录无关联动，取一次即可。
+  Map<String, String> _customers = {};
+
+  Future<void> _loadCustomers() async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/customer', params: {'limit': '500'});
+      final options = {
+        for (final r in List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []))
+          '${r['id']}': '${r['name'] ?? r['code'] ?? r['id']}',
+      };
+      if (mounted) {
+        setState(() => _customers = options);
+      } else {
+        _customers = options;
+      }
+    } catch (_) {
+      // 解析失败静默：列表照常出，客户列落「-」
+    }
+  }
+
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() { super.initState(); _load(); _loadCustomers(); }
 
   Future<void> _load() async {
     final seq = ++_reqSeq;
@@ -154,11 +177,15 @@ class _SalesSettlementListPageState extends State<SalesSettlementListPage> {
     rightAlignColumns: [2, 3, 5],
   );
 
-  List<String> _columns() => [AppL10n.current.salesCustomerId, AppL10n.current.salesDeliveryId, AppL10n.current.salesReceivableAmount, AppL10n.current.salesReceivedAmount, AppL10n.current.commonStatus, AppL10n.current.salesSettledAt, AppL10n.current.commonAction];
+  // 首列内容已是客户名，标题随内容用「客户」而非「客户ID」（同 sales/delivery_list_page.dart:88 口径）；
+  // 发货单列仍用「发货单ID」——内容 delivery_code 是该外键的编码，非名称（同 purchaseReceiveId 先例）。
+  List<String> _columns() => [AppL10n.current.fieldCustomer, AppL10n.current.salesDeliveryId, AppL10n.current.salesReceivableAmount, AppL10n.current.salesReceivedAmount, AppL10n.current.commonStatus, AppL10n.current.salesSettledAt, AppL10n.current.commonAction];
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.salesCustomerId: r['customer_id'] ?? '',
-    AppL10n.current.salesDeliveryId: r['delivery_id'] ?? '',
+    // 关联名列上屏可读名而非裸 hashid（口径同 purchase/settlement_list_page.dart:167-172）：
+    // delivery_code 由后端 format() 带出；客户名走本页预取表，取不到留「-」，不回落 hashid。
+    AppL10n.current.fieldCustomer: _customers['${r['customer_id']}'] ?? '-',
+    AppL10n.current.salesDeliveryId: r['delivery_code'] ?? '',
     AppL10n.current.salesReceivableAmount: r['amount'] ?? '',
     AppL10n.current.salesReceivedAmount: r['received_amount'] ?? '',
     AppL10n.current.commonStatus: _chip(r['status']),

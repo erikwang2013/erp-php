@@ -11,6 +11,7 @@ import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
 import { ReceivingFormView } from './ReceivingFormView';
+import { RefOption, toRefOptions } from '../../common/RefDialog';
 import { Format } from '../../utils/Format';
 
 /**
@@ -65,8 +66,28 @@ struct ReceivingPage {
   @State formReceivedAt: string = '';
   @State formRemark: string = '';
 
+  // 表单外键下拉选项（/admin/warehouse；value = 行 id 的 hashid 串，原样回传）
+  @State warehouseRefs: Array<RefOption> = [];
+
   aboutToAppear(): void {
     this.loadData();
+    this.loadWarehouseRefs();
+  }
+
+  /** 仓库下拉数据源（失败不阻断页面：选项为空时由表单必填校验兜底） */
+  async loadWarehouseRefs(): Promise<void> {
+    try {
+      const res = await this.api.get<Record<string, Object>>('/admin/warehouse?page=1&limit=500');
+      const data = res.data as Record<string, Object>;
+      this.warehouseRefs = toRefOptions((data['list'] as Array<Object>) ?? []);
+    } catch (e) {
+      if (e instanceof Error && e.message === 'UNAUTHORIZED') {
+        router.replaceUrl({ url: 'pages/LoginPage' });
+        return;
+      }
+      const msg = e instanceof Error ? e.message : '';
+      promptAction.showToast({ message: msg !== '' ? msg : L10n.str(this.getUIContext(), 'load_failed') });
+    }
   }
 
   async loadData(isRefresh: boolean = false): Promise<void> {
@@ -110,12 +131,17 @@ struct ReceivingPage {
     this.loadData();
   }
 
-  /** 行徽章：启用 success / 停用 danger（kind 同源驱动行 icon 圆徽色） */
+  /** 行徽章：erp_wms_receiving.status DDL 0待收货/1收货中/2已完成/3已质检
+   *  （0 未开始 neutral、1 进行中 warning、2/3 完成 success） */
   private receivingBadge(item: WmsReceivingItem): RowBadge {
-    if (item.status === 1) {
-      return new RowBadge('success', $r('app.string.status_enabled'));
+    const code: number = item.status;
+    let kind: string = 'neutral';
+    if (code === 1) {
+      kind = 'warning';
+    } else if (code === 2 || code === 3) {
+      kind = 'success';
     }
-    return new RowBadge('danger', $r('app.string.status_disabled'));
+    return new RowBadge(kind, L10n.str(this.getUIContext(), `receiving_status_${code}`));
   }
 
   /**
@@ -184,7 +210,9 @@ struct ReceivingPage {
     this.isSubmitting = true;
     const body: SaveBody = {
       code: this.formCode,
-      warehouse_id: this.formWarehouseId ? Number(this.formWarehouseId) : 0,
+      // 值来自仓库下拉，即后端行的 hashid 串：原样回传（Number() 会把 hashid 折算成 NaN
+      // → JSON null → 422）；后端 ReceivingController 对 warehouse_id 走 decodeFlexibleId 双模解码
+      warehouse_id: this.formWarehouseId ? this.formWarehouseId : 0,
       asn_id: this.formAsnId ? Number(this.formAsnId) : 0,
       dock_location_id: this.formDockLocationId ? Number(this.formDockLocationId) : 0,
       status: this.formStatus,
@@ -301,7 +329,9 @@ struct ReceivingPage {
                 ListItem() {
                   ListRow({
                     title: item.code || '-',
-                    subtitle: L10n.str(this.getUIContext(), 'receiving_wh_fmt', String(item.warehouse_id ?? '-')),
+                    // 副行不再贴仓库 hashid（收货 index 未 join warehouse.name，原样上屏的是
+                    // encodeIds 后的编码；契约 rule ④ 无可读名称就不出该段 —— 空串不渲染副行）
+                    subtitle: '',
                     icon: item.code || '-',
                     badge: this.receivingBadge(item),
                     actions: [
@@ -366,6 +396,7 @@ struct ReceivingPage {
     ReceivingFormView({
       formMode: this.formMode,
       isSubmitting: this.isSubmitting,
+      warehouseRefs: this.warehouseRefs,
       formCode: this.formCode,
       formWarehouseId: this.formWarehouseId,
       formAsnId: this.formAsnId,

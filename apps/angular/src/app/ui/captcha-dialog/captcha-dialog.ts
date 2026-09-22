@@ -224,7 +224,10 @@ export class CaptchaDialog implements OnDestroy {
    */
   private async verify(payload: VerifyPayload): Promise<void> {
     const c = this.challenge();
-    if (!c || this.busy()) return;
+    // verified()：已通过后不得再发校验。挑战一次性消费，晚到的提交（旋转防抖定时器
+    // 400ms 后才触发、落点晚于通过的 pointerup）只会拿到 422，被当成答错弹错——
+    // 通过后必须静默丢弃，否则「验证通过」与「位置不准/验证失败」同时出现。
+    if (!c || this.busy() || this.verified()) return;
     this.busy.set(true);
     try {
       await this.captcha.submitCaptcha(c.key, c.type, payload);

@@ -48,8 +48,18 @@ struct TrackingPage {
     }
   }
 
+  /** status_code（install.sql erp_tms_tracking_event 列注释 5 值码表）→ 本地化文案；
+   *  表外值直显原文（真实数据优先，不吞不造） */
+  private statusLabel(code: string): string {
+    if (code === 'picked_up' || code === 'in_transit' || code === 'out_for_delivery'
+      || code === 'delivered' || code === 'exception') {
+      return L10n.str(this.getUIContext(), `tracking_status_${code}`);
+    }
+    return code;
+  }
+
   /** 行徽章：status_code 语义 kind（picked_up/in_transit/out_for_delivery 途中 warning、
-   *  delivered success、exception danger、未知 neutral）——label 直显原始码，不造码表文案 */
+   *  delivered success、exception danger、未知 neutral）——label 走码表文案 */
   private trackingBadge(item: Record<string, Object>): RowBadge {
     const code = (item['status_code'] as string) ?? '';
     let kind: string = 'neutral';
@@ -60,7 +70,7 @@ struct TrackingPage {
     } else if (code === 'picked_up' || code === 'in_transit' || code === 'out_for_delivery') {
       kind = 'warning';
     }
-    return new RowBadge(kind, code);
+    return new RowBadge(kind, this.statusLabel(code));
   }
 
   /** 副行：发生地点 · 事件时间（raw 展示不造键） */
@@ -99,11 +109,11 @@ struct TrackingPage {
                 ForEach(this.items, (item: Record<string, Object>, index: number) => {
                   ListItem() {
                     ListRow({
-                      // TmsTrackingEvent 实列无 name/code：标题=事件描述，徽章=status_code，
-                      // 副行=地点 · 时间（shipment_id 有 show 可跳留待批6）
-                      title: ((item['description'] as string) || (item['status_code'] as string) || '-') as string,
+                      // TmsTrackingEvent 实列无 name/code：标题=事件描述（缺描述回退状态文案），
+                      // 徽章/圆徽=status_code 码表文案，副行=地点 · 时间（shipment_id 有 show 可跳留待批6）
+                      title: ((item['description'] as string) || this.statusLabel((item['status_code'] as string) ?? '') || '-') as string,
                       subtitle: this.rowSubtitle(item),
-                      icon: (item['status_code'] as string) || '-',
+                      icon: this.statusLabel((item['status_code'] as string) ?? '') || '-',
                       badge: this.trackingBadge(item),
                       isLast: index === this.items.length - 1
                     })

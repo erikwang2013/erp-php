@@ -239,9 +239,10 @@ struct PurchaseOrderDetailPage {
                   }
                   .width('100%')
 
-                  // apply_id/warehouse_id 是 hashid 串（后端 encodeIds 编码）：走 num() 会得 NaN 显示 '-'
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_apply'), value: this.hint(this.row['apply_id']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_warehouse'), value: this.hint(this.row['warehouse_id']) })
+                  // 外键只出名称兄弟（契约 rule ①②③④）：apply_code 由 show leftJoin 带出；
+                  // 仓库 show 未带兄弟键，落「-」——裸 hashid 上屏既不可读也不可粘贴
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_apply'), value: this.hint(this.row['apply_code']) })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_warehouse'), value: '-' })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_total'), value: this.fmtMoney(this.row['total_amount']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_ordered_at'), value: this.hint(this.row['ordered_at']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'purchase_d_remark'), value: this.hint(this.row['remark']) })

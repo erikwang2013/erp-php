@@ -72,29 +72,35 @@ class DeliveryController extends BaseController
         $orderId = $request->input('order_id');
         $customerId = $request->input('customer_id');
 
-        $query = SalesDelivery::with(['items', 'order', 'customer', 'warehouse']);
+        // order_id → erp_sales_order 的外键（install.sql 列注释「销售订单ID」）：
+        // 只下发 hashid 的话「销售订单」列无处可读，leftJoin 把单号以 order_code 带出
+        // （同 OrderController::index 的 apply_code 范式）。筛选/排序须带表名——
+        // sales_order 同有 code/status/id/customer_id/warehouse_id，裸列名会 1052 ambiguous
+        $query = SalesDelivery::with(['items', 'order', 'customer', 'warehouse'])
+            ->leftJoin('sales_order', 'sales_order.id', '=', 'sales_delivery.order_id')
+            ->select('sales_delivery.*', 'sales_order.code as order_code');
         if ($keyword) {
-            $query->where('code', 'like', "%{$keyword}%");
+            $query->where('sales_delivery.code', 'like', "%{$keyword}%");
         }
         if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
+            $query->where('sales_delivery.status', (int) $status);
         }
         if ($orderId !== null && $orderId !== '') {
             $decoded = $this->decodeIdSafe($orderId);
             if ($decoded !== null && $decoded > 0) {
-                $query->where('order_id', $decoded);
+                $query->where('sales_delivery.order_id', $decoded);
             }
         }
         if ($customerId !== null && $customerId !== '') {
             $decoded = $this->decodeIdSafe($customerId);
             if ($decoded !== null && $decoded > 0) {
-                $query->where('customer_id', $decoded);
+                $query->where('sales_delivery.customer_id', $decoded);
             }
         }
 
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)->limit($limit)
-            ->orderBy('id', 'desc')->get()->map(function ($delivery) {
+            ->orderBy('sales_delivery.id', 'desc')->get()->map(function ($delivery) {
                 return $this->encodeIds($delivery->toArray(), ['id', 'order_id', 'customer_id', 'warehouse_id']);
             });
 

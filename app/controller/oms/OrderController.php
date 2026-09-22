@@ -92,18 +92,27 @@ class OrderController extends BaseController
 
     public function store(Request $request): Response
     {
-        // 实列校验：code 为幻列（无此列，提交即丢弃），真实唯一身份 = order_id（uk_order_id）
-        $validator = validator($request->all(), ['order_id' => 'required|integer|min:1']);
+        // 实列校验：code 为幻列（无此列，提交即丢弃），真实唯一身份 = order_id（uk_order_id）。
+        // order_id 是关联销售订单外键，客户端下发 hashid 串 —— 用 integer 规则会把它 422 挡回，
+        // 故只校必填，解码交给 decodeFlexibleId（往返校验；垃圾串 422 而非静默落 0）
+        $validator = validator($request->all(), ['order_id' => 'required']);
         if ($validator->fails()) {
             return $this->fail($this->trans('Sales order ID (order_id) cannot be empty'), 422);
         }
-        if (OmsOrder::where('order_id', (int) $request->input('order_id'))->exists()) {
+        $orderId = $this->decodeFlexibleId($request->input('order_id'));
+        if ($orderId === null || $orderId < 1) {
+            return $this->fail($this->trans('Invalid sales order ID (order_id)'), 422);
+        }
+        if (OmsOrder::where('order_id', $orderId)->exists()) {
             return $this->fail($this->trans('An OMS extension record already exists for this sales order'), 422);
         }
 
         $item = new OmsOrder();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 解码 int 须在 fill 之后覆写：order_id 在 $fillable 内，Eloquent 的 integer cast 只在
+        // 读取时生效，写库走原值——hashid 串直填 BIGINT 列报 1366 → 未捕获 QueryException → 500
+        $item->fill(['order_id' => $orderId]);
 
         $item->save();
 

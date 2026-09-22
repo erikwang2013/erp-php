@@ -390,11 +390,19 @@
     },
     {
       "name": "status_ff_0",
-      "value": "Pending"
+      "value": "Unassigned"
     },
     {
       "name": "status_ff_1",
-      "value": "In fulfillment"
+      "value": "Assigned"
+    },
+    {
+      "name": "status_ff_2",
+      "value": "Picking"
+    },
+    {
+      "name": "status_ff_3",
+      "value": "Packed"
     },
     {
       "name": "status_ff_4",
@@ -861,10 +869,6 @@
       "value": "No receiving docs yet"
     },
     {
-      "name": "receiving_wh_fmt",
-      "value": "Warehouse ID: %1$s"
-    },
-    {
       "name": "receiving_form_add",
       "value": "New Receiving Doc"
     },
@@ -897,6 +901,22 @@
       "value": "Status"
     },
     {
+      "name": "receiving_status_0",
+      "value": "Pending Receipt"
+    },
+    {
+      "name": "receiving_status_1",
+      "value": "Receiving"
+    },
+    {
+      "name": "receiving_status_2",
+      "value": "Completed"
+    },
+    {
+      "name": "receiving_status_3",
+      "value": "Inspected"
+    },
+    {
       "name": "receiving_receiver_id",
       "value": "Receiver ID"
     },
@@ -914,7 +934,7 @@
     },
     {
       "name": "receiving_warehouse_id_hint",
-      "value": "Warehouse numeric ID (required)"
+      "value": "Tap to choose a warehouse (required)"
     },
     {
       "name": "receiving_asn_id_hint",
@@ -953,10 +973,6 @@
       "value": "No putaway docs yet"
     },
     {
-      "name": "putaway_wh_strategy_fmt",
-      "value": "Warehouse ID: %1$s · Strategy: %2$s"
-    },
-    {
       "name": "putaway_form_add",
       "value": "New Putaway Doc"
     },
@@ -985,6 +1001,18 @@
       "value": "Status"
     },
     {
+      "name": "putaway_status_0",
+      "value": "Pending Putaway"
+    },
+    {
+      "name": "putaway_status_1",
+      "value": "Putting Away"
+    },
+    {
+      "name": "putaway_status_2",
+      "value": "Completed"
+    },
+    {
       "name": "putaway_strategy",
       "value": "Putaway Strategy"
     },
@@ -1002,7 +1030,7 @@
     },
     {
       "name": "putaway_warehouse_id_hint",
-      "value": "Warehouse numeric ID (required)"
+      "value": "Tap to choose a warehouse (required)"
     },
     {
       "name": "putaway_receiving_id_hint",
@@ -1103,6 +1131,30 @@
     {
       "name": "shipment_status",
       "value": "Status"
+    },
+    {
+      "name": "shipment_status_0",
+      "value": "Ready to Ship"
+    },
+    {
+      "name": "shipment_status_1",
+      "value": "Picked Up"
+    },
+    {
+      "name": "shipment_status_2",
+      "value": "In Transit"
+    },
+    {
+      "name": "shipment_status_3",
+      "value": "Delivered"
+    },
+    {
+      "name": "shipment_status_4",
+      "value": "Exception"
+    },
+    {
+      "name": "shipment_status_5",
+      "value": "Returned"
     },
     {
       "name": "shipment_shipping_label_url",
@@ -1345,6 +1397,10 @@
       "value": "Resigned"
     },
     {
+      "name": "employee_status_suspended",
+      "value": "Suspended"
+    },
+    {
       "name": "freight_rate_list_title",
       "value": "Freight Rates"
     },
@@ -1355,6 +1411,26 @@
     {
       "name": "tracking_list_title",
       "value": "Tracking"
+    },
+    {
+      "name": "tracking_status_picked_up",
+      "value": "Picked Up"
+    },
+    {
+      "name": "tracking_status_in_transit",
+      "value": "In Transit"
+    },
+    {
+      "name": "tracking_status_out_for_delivery",
+      "value": "Out for Delivery"
+    },
+    {
+      "name": "tracking_status_delivered",
+      "value": "Delivered"
+    },
+    {
+      "name": "tracking_status_exception",
+      "value": "Exception"
     },
     {
       "name": "attendance_list_title",
@@ -1398,7 +1474,7 @@
     },
     {
       "name": "production_bom_id_hint",
-      "value": "Enter the BOM numeric ID (required)"
+      "value": "Tap to choose a BOM (required)"
     },
     {
       "name": "production_bom_id_required",
@@ -1410,7 +1486,7 @@
     },
     {
       "name": "production_warehouse_id_hint",
-      "value": "Warehouse numeric ID, leave blank for 0"
+      "value": "Tap to choose a warehouse; blank = 0"
     },
     {
       "name": "production_planned_quantity",
@@ -1427,6 +1503,22 @@
     {
       "name": "production_status",
       "value": "Status"
+    },
+    {
+      "name": "production_status_0",
+      "value": "Pending Production"
+    },
+    {
+      "name": "production_status_1",
+      "value": "In Production"
+    },
+    {
+      "name": "production_status_2",
+      "value": "Completed"
+    },
+    {
+      "name": "production_status_3",
+      "value": "Cancelled"
     },
     {
       "name": "production_planned_start",
@@ -2069,6 +2161,34 @@
       "value": "Store"
     },
     {
+      "name": "oms_channel_manual",
+      "value": "Manual"
+    },
+    {
+      "name": "oms_channel_web",
+      "value": "Web"
+    },
+    {
+      "name": "oms_channel_mobile",
+      "value": "Mobile"
+    },
+    {
+      "name": "oms_channel_api",
+      "value": "API"
+    },
+    {
+      "name": "oms_channel_marketplace",
+      "value": "Marketplace"
+    },
+    {
+      "name": "oms_channel_edi",
+      "value": "EDI"
+    },
+    {
+      "name": "oms_channel_pos",
+      "value": "POS"
+    },
+    {
       "name": "oms_d_code",
       "value": "Order No."
     },
@@ -2095,6 +2215,18 @@
     {
       "name": "oms_d_priority",
       "value": "Priority"
+    },
+    {
+      "name": "oms_priority_1",
+      "value": "Highest"
+    },
+    {
+      "name": "oms_priority_5",
+      "value": "Normal"
+    },
+    {
+      "name": "oms_priority_9",
+      "value": "Lowest"
     },
     {
       "name": "oms_d_seller",
@@ -2139,6 +2271,22 @@
     {
       "name": "pack_status_2",
       "value": "Completed"
+    },
+    {
+      "name": "pack_type_box",
+      "value": "Box"
+    },
+    {
+      "name": "pack_type_bag",
+      "value": "Bag"
+    },
+    {
+      "name": "pack_type_pallet",
+      "value": "Pallet"
+    },
+    {
+      "name": "pack_type_envelope",
+      "value": "Envelope"
     },
     {
       "name": "payment_status_0",

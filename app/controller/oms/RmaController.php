@@ -50,20 +50,26 @@ class RmaController extends BaseController
         $keyword = $request->input('keyword', '');
         $status = $request->input('status');
 
-        $query = OmsRma::query();
+        // order_id 是 erp_sales_order 的外键（表单下拉取 /admin/v1/sales/order 的 id，
+        // RmaService::refund 也按 SalesOrder::where('id', order_id) 取订单总额）：
+        // 只下发 hashid 的话「关联订单」列无处可读，leftJoin 把单号以 order_code 带出。
+        // 筛选/排序三处必须带表名——sales_order 同有 code/status/id，裸列名会 1052 ambiguous
+        $query = OmsRma::query()
+            ->leftJoin('sales_order', 'sales_order.id', '=', 'oms_rma.order_id')
+            ->select('oms_rma.*', 'sales_order.code as order_code');
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
-                $q->where('code', 'like', "%{$keyword}%");
+                $q->where('oms_rma.code', 'like', "%{$keyword}%");
             });
         }
 
         if ($status !== null && $status !== '') {
-            $query->where('status', (int) $status);
+            $query->where('oms_rma.status', (int) $status);
         }
 
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')
+            ->limit($limit)->orderBy('oms_rma.id', 'desc')
             ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'order_id', 'customer_id', 'return_shipment_id']));
 
         return $this->successPage($list, $total, $page, $limit);

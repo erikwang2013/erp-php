@@ -206,7 +206,7 @@ class _ExpenseListPageState extends State<ExpenseListPage> {
     return {
       l.fieldCode: r['code'] ?? '',
       l.purchaseApplyUserId: r['apply_user_name'] ?? '',
-      l.financeSubjectId: r['account_name'] ?? r['account_id'] ?? '',
+      l.financeSubjectId: r['account_name'] ?? '',
       l.financeAmount: '${r['amount'] ?? 0}',
       l.commonStatus: _statusChip(r['status']),
       l.commonAction: Row(

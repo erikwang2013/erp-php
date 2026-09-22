@@ -109,8 +109,10 @@ class _FollowListPageState extends State<FollowListPage> {
       options: _customerOptions.keys.toList(),
       optionLabels: _customerOptions,
     ),
+    // 跟进方式：值=存储值原样提交，显示文案走词表（与 Web 端 domains/crm.ts `{phone:'电话',…}` 逐字一致）
     FormFieldConfig(name: 'method', label: AppL10n.current.fieldMethod, type: FormFieldType.dropdown,
-      options: const ['phone', 'visit', 'email', 'message', 'other']),
+      options: const ['phone', 'visit', 'email', 'message', 'other'],
+      optionLabels: {for (final v in const ['phone', 'visit', 'email', 'message', 'other']) v: _methodLabel(v)}),
     FormFieldConfig(name: 'content', label: AppL10n.current.crmFollowContent, type: FormFieldType.multiline),
   ];
 
@@ -131,9 +133,20 @@ class _FollowListPageState extends State<FollowListPage> {
 
   List<String> _columns() => [AppL10n.current.fieldCustomer, AppL10n.current.fieldMethod, AppL10n.current.crmFollowContent, AppL10n.current.commonAction];
 
+  /// 跟进方式值域 = Web 端同列字典（domains/crm.ts:144-145，DDL 无中文；
+  /// `message=短信` 由 lead 裁定四端统一），机读串不上屏，表外值原样回落。
+  static String _methodLabel(Object? v) => switch ('$v') {
+        'phone' => AppL10n.current.crmFollowMethodPhone,
+        'visit' => AppL10n.current.crmFollowMethodVisit,
+        'email' => AppL10n.current.crmFollowMethodEmail,
+        'message' => AppL10n.current.crmFollowMethodMessage,
+        'other' => AppL10n.current.crmFollowMethodOther,
+        _ => '$v',
+      };
+
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
-    AppL10n.current.fieldCustomer: r['customer_name'] ?? r['customer_id'] ?? '',
-    AppL10n.current.fieldMethod: r['method'] ?? '', // method 为后端存储值（phone/visit/email/message/other），原样展示不翻译
+    AppL10n.current.fieldCustomer: r['customer_name'] ?? '',
+    AppL10n.current.fieldMethod: _methodLabel(r['method']),
     AppL10n.current.crmFollowContent: r['content'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),

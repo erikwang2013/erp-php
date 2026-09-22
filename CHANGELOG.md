@@ -2,6 +2,47 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.3 (2026-09-22)
+
+**枚举文案 · 关联名收尾批（v1.19.2 续批）**：上一批把「状态列的取值来源」「外键兜底值」定死，这一批把同两类问题在**另外三处出口**补齐 —— Web 两端的**详情抽屉 / 动作结果面板**（列里翻了、抽屉里还是码）、**移动端列表**（Flutter / HarmonyOS 的枚举列仍是裸码、关联列仍是裸 hashid）、以及**派生非 DB 列**（`items_count`/`quotes_count` 这类 `withCount` 键此前驼峰化上屏，即用户报的 `itemsCount`、`quotesCount`；`awarded` 中标标记、`issue_status` 发票开具状态同属这一类）。Web 两端各补 78 处 `cfg.dicts`（48 页单行形态 + 4 处多行块，文案逐字抄自 `install.sql` 该列注释，两端逐页对齐）；后端补 20 余处关联名产出方与 6 类双模外键解码；新增 4 道门禁、扩写 3 道，其中 `check-fe-detail-items.mjs` 新增 **140 页全页面扫**（真配置 × 真引擎渲染，喂 DDL 全量数值型外键列的超集哨兵，共 19320 个哨兵）。范围仍只含缺陷修复与既有能力接线：**0 个新增控制器、0 个新增路由、0 个新增数据表**。
+
+### 修复 · 两端的枚举文案（★契约变化：字典挂法）
+- **`cfg.dicts` 对「已显式声明 columns 的键」静默失效**：显式列走 `cellOf`/`columnCell`，字典根本没被查 —— 于是「列表列是文案、详情抽屉是码」。改法两条：字典挂列上（Angular `kind:'map'` + `dict`、React `render: mapText`），`cfg.dicts` 继续供详情抽屉与动作结果面板；两端共 78 处新增（`apps/angular/src/app/config/domains/*.ts`、`apps/react/src/config/domains/*.ts`）
+- **`textCol('xxx_id')` 一律按关联列渲染**（`kind: '_id' 结尾 → rel`）：显式声明成文本列的外键此前把裸 hashid 贴上列表
+- **`enabled`/`is_*` 17 列按列名识别布尔**（DDL 注释常为空，`is_bool` 只能按名判）：`0/1` → 否/是，语义特异的表（`is_read` 未读/已读）由页面 dicts 覆盖
+- **`awarded` 中标标记**（`erp_purchase_rfq_quote.awarded`）改走 `未中标/已中标`；**`issue_status` 发票开具状态**（`erp_finance_invoice`）补 `未开具/已开具/已红冲`
+
+### 修复 · 派生非 DB 列的标题（用户报的 `itemsCount` / `quotesCount`）
+- 两端标题表补 **38 个**非 DB 键（两端逐键一致），漏登记时的上屏形状正是驼峰化：`items_count` 明细行数、`quotes_count` 报价数、`users_count` 用户数、`voucher_code` 凭证号、`receiving_code` 收货单号、`production_order_code` 工单编码、`order_channel_no` 渠道订单号、`carrier_service_code` 服务编码、`recipients_names` 接收人、比价回包块（`matrix`/`rfq`/`target_amount`/`target_total`）等，各条注释都标了产出方与依据列（Angular `column-titles.ts` + 两端 `column-titles-extra/part*.ts`，React 的非 DB 键在 `lib/defaults.tsx`；`check-column-titles.mjs` 守两端一致）
+
+### 修复 · 关联名（后端补产出方）
+- **品质五页**：IQC `receiving_code`/`product_name`/`standard_name`、IPQC `production_order_code`/`workstation_name`/…、OQC `delivery_code`/…、检验标准 `product_name`、不良品 `product_name`（`source_id` 是多态外键，无法 leftJoin，前端落「-」）
+- **采购**：询价单 index 补 `buyer_real_name`（`real_name` 原先只在 `::compare` 产；键名避开 `buyer_name` —— 那在标题表里是税票的「购买方名称」）、报价/明细补 `supplier_name`/`product_name`、结算补 `supplier_name`、收货与销售发货及 RMA 的「关联订单」以 `order_code` leftJoin 带出、制造三页（领料/报工/成本录入）按页内 `order_id` 反查同款别名
+- **商品**：补 `category_name`
+
+### 修复 · 移动端（Flutter / HarmonyOS）
+- **Flutter 50 页**：枚举列从裸码改文案（每页一个 `_xLabel` switch，末臂 `'$v'` 兜底），外键列改名称（`_warehouseName`/`_productName`/`_bomName`…），l10n 新增 73 条 × zh/en 两份
+- **HarmonyOS 21 文件**：`string.json` 两份各 +162 键（`receiving_status_*`/`putaway_status_*`/`shipment_status_*` 等）；新增 `common/RefDialog.ets`（引用只读弹层 + 表单外键选择三件套）；WMS/TMS/OMS/mfg 各页接上
+
+### 修复 · 后端双模外键（hashid / 数字一律收口）
+- **BI 三页写路径**（看板/数据集/图表）与 **EAM 三页**：外键出参是 hashid 串，直填 BIGINT 列报 1366 —— `store`/`update` 统一走 `decodeIdFields`（缺省/空串＝不改动或不指定），必填外键解不出即 422（不套 `decodeIdFields`，否则会静默写出 `template_id=0` 的孤儿行）
+- **不再用 `required|string` 卡 ID**：`is_string()` 会把数字形态的 ID 判成 422，双模判定统一在 `decodeFlexibleId` 收口；`decodeIdFields` 上提到 `BaseController` 供 bi 复用
+
+### 新增
+- 门禁（新增 4 道）：`scripts/check-fe-enum-text.mjs`（132 断言：两端真引擎渲染枚举文案 + 抽屉 + React 真身 import）、`check-fe-captcha-single-submit.mjs`（验证码一次作答只提交一次）、`check-flutter-quality-fk.mjs`（5 个质量页：后端解码 + join 关联键 + 前端下拉/前置）、`check-harmonyos-enum.mjs`（字面量引用的 526 键两边都有）
+- 门禁（扩写 3 道）：`check-fe-detail-items.mjs` 新增 I 段 140 页全页面扫、`check-flutter-settlement-fields.mjs` 加两页收集/上送/后端认三方一致与判别子自检、`check-column-titles.mjs` 覆盖新增的 38 个非 DB 键
+- 测试：`tests/DetailContractRegressionTest.php` 28 例（详情契约、双模外键、`order_code` 别名、BOM 嵌套编码）、`BiModuleTest`/`EamModuleTest`/`Unit/SourcingTest` 各 +1（双模外键、不卡 `string`、比价面板带名）、Flutter 三个测试文件共 16 例
+
+### 待办 / 已知遗留（本轮未修）
+- **后端外键名缺口 8 处**（形状都是「index 里补一行 map 查询」、键名落默认兄弟）：`/finance/bill`、`/finance/payment` 的 `bank_account_id`（无 `bank_account_name` 产出方）、`/inventory/transfer` 的 `from_/to_warehouse_id`、`/sales/settlement` 的 `receipt_payment_id`、`/system/permission` 的 `parent_id`（index 的 select 是列子集，补 `parent_name` 即被默认兄弟接上）、`/tms/freight-invoice` 的 `carrier_id`/`shipment_id`（`shipment_code` 只在 `tms/TrackingController:68` 产，还需登记别名 `shipment_id → shipment_code`）
+- **`erp_dms_document.status` 是 `VARCHAR(20) DEFAULT 'draft'`，页面 dict 却写 `{0:'草稿',1:'发布'}`**：数值字典落在字符串列上永不命中，列表显示 `draft` 原文（`domains/mgmt.ts:418`）
+- **`/finance/receipt`、`/finance/payment` 的 `method` 表单只给 `bank/cash/other` 三值**，而 DDL 注释是 `cash/bank/wechat/alipay`、本页词典是五值（含微信/支付宝）—— 后端不校验该字段（只 `string`），故不报错，属选项缺口
+- 三处**编造的前缀状态字典**（`purchase`/`sales`/`crm` 模块通用档）在 140 页里一次也没被查到（不可达），删除前要先改 `check-fe-detail-items.mjs:96/:122` 的故意断言
+- `COMMON_STATUS[2]='处理中'` 的裁决未落：全库码 2 出现 58 次、无一处该文案，被 `check-fe-enum-text.mjs:325` 锁住
+- **DDL 通道扫描未做**：本批字典文案逐页人工抄 `install.sql` 列注释，没有「DDL 注释 ↔ 词典」的自动对差门禁
+- **`approved_by`/`assigned_to` 这类 `_by` 外键**：前端已跳过裸编码值（落「-」），后端仍无姓名产出方 —— 补产出方还是接受「-」未裁决
+- React `strStatus` 与 Angular 的状态文案兜底口径有观感差异（未统一）
+
 ## v1.19.2 (2026-09-22)
 
 **状态与关联批**：从界面往回查，把「状态显示成数字/错文案」和「关联显示成裸 hashid」两类展示问题，以及「状态列有、改状态的入口没有」的死胡同补齐。**55 个列表页带状态筛选、其中 23 个的推断状态列此前吃的是按域粗分的兜底字典**（`mfg`/`hr`/`oms` 等一律落 `0待处理 1已生效 2处理中`），改为一律取本资源自己的状态筛选项——筛选下拉里写着「已失效」、列里却写「处理中」的错档至此消失（另 32 个已显式声明状态列、2 个非数字档，本就不受影响）；详情抽屉与列表同源，一并修好。流转入口补了 6 处（采购申请 批准/驳回、录用 Offer 接受/拒绝、招聘候选人 推进/淘汰、费用报销 批准、记账凭证 审核、BOM 生效），并把采购订单 ↔ 采购申请这条断掉的关联接通。范围只含缺陷修复与既有能力的接线：**0 个新增控制器、0 个新增路由、0 个新增数据表**；另修两处「本机必现、CI 不现」的坑：验证码内存 fatal（背景图目录指向 20MP 原图，约半数请求 500，见「验证码背景图内存」）与集成测试隔离（同一测试库复跑必红，见「集成测试隔离」），未修项见文末。

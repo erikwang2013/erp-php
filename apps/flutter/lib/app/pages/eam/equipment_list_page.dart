@@ -23,6 +23,30 @@ class _EquipmentListPageState extends State<EquipmentListPage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 部门下拉：department_id 是后端 hashid 契约（DepartmentController::index 出口 encodeIds），
+  /// 手输数字/编辑态回写的 hashid 直灌 BIGINT 列都会崩；选项值=行 id(hashid)，标签取部门名。
+  /// 该字段可空（空=不指定，后端 normalizeFkData 按「不修改」处理），失败不阻断弹窗。
+  Map<String, String> _departments = {};
+
+  Future<void> _ensureRefs() async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/hr/department');
+      final options = {
+        for (final r in List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []))
+          '${r['id']}': '${r['name'] ?? r['code'] ?? r['id']}',
+      };
+      if (mounted) {
+        setState(() => _departments = options);
+      } else {
+        _departments = options;
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+    }
+  }
+
   @override
   void initState() { super.initState(); _load(); }
 
@@ -41,16 +65,21 @@ class _EquipmentListPageState extends State<EquipmentListPage> {
   }
 
   Future<void> _create() async {
+    await _ensureRefs();
+    if (!mounted) return;
     final l10n = AppL10n.of(context);
-    await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
+    await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(_departments), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/eam/equipment', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    await _ensureRefs();
+    if (!mounted) return;
     final l10n = AppL10n.of(context);
-    await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
+    await FormDialog.show(context, title: l10n.commonEdit,
+      fields: _formFields(dropdownOptionsWithCurrent(_departments, row['department_id'])), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/eam/equipment/${row['id']}', data: data);
       _load(); return true;
     });
@@ -66,14 +95,15 @@ class _EquipmentListPageState extends State<EquipmentListPage> {
     });
   }
 
-  List<FormFieldConfig> _formFields() => [
+  List<FormFieldConfig> _formFields(Map<String, String> departmentOptions) => [
     FormFieldConfig(name: 'code', label: AppL10n.current.eamEquipmentCode, required: true),
     FormFieldConfig(name: 'name', label: AppL10n.current.eamEquipmentName, required: true),
     FormFieldConfig(name: 'model', label: AppL10n.current.eamModel),
     FormFieldConfig(name: 'serial_number', label: AppL10n.current.eamSerialNumber),
     FormFieldConfig(name: 'category', label: AppL10n.current.eamCategory),
     FormFieldConfig(name: 'location', label: AppL10n.current.eamLocation),
-    FormFieldConfig(name: 'department_id', label: AppL10n.current.eamDepartmentId, type: FormFieldType.number),
+    FormFieldConfig(name: 'department_id', label: AppL10n.current.eamDepartmentId,
+        type: FormFieldType.dropdown, options: departmentOptions.keys.toList(), optionLabels: departmentOptions),
     FormFieldConfig(name: 'purchase_date', label: AppL10n.current.eamPurchaseDate),
     FormFieldConfig(name: 'warranty_expiry', label: AppL10n.current.eamWarrantyExpiry),
     FormFieldConfig(name: 'status', label: AppL10n.current.commonStatus, type: FormFieldType.dropdown, options: const ['0', '1'], optionLabels: {'0': AppL10n.current.commonDisabled, '1': AppL10n.current.commonEnabled}),

@@ -88,8 +88,12 @@ class ProductController extends BaseController
                 }
             }
             unset($item['prices']);
+            // 分类名随行下发：列上只有 category_id（编码后的雪花串）时用户无法辨识是哪一类
+            // （与 purchase_return 的 receive_code / sales_settlement 的 delivery_code 同款口径）
+            $categoryName = (string) ($item['category']['name'] ?? '');
 
-            return $this->encodeIds($item, ['id', 'category_id', 'brand_id']) + ['price' => $price];
+            return $this->encodeIds($item, ['id', 'category_id', 'brand_id'])
+                + ['price' => $price, 'category_name' => $categoryName];
         }, $result['list']);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);

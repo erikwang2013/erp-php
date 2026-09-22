@@ -3,7 +3,8 @@
  */
 
 import { COLUMN_TITLES } from '../../config/column-titles';
-import type { ColumnDef, FieldSource, FilterDef, FormField, Row } from '../../config/types';
+import type { ColumnDef, DictMap, FieldSource, FilterDef, FormField, Row } from '../../config/types';
+import { tr } from '../../core/i18n.service';
 import {
   date,
   dateTime,
@@ -59,8 +60,17 @@ const isStatus = (k: string): boolean => k === 'status' || k === 'state' || k.en
 const isInt = (k: string): boolean =>
   /(quantity|qty|count|num|days|hours|age|stock|weight|width|height|length)/.test(k) && !isMoney(k);
 
+/**
+ * 布尔开关列名：`enabled` 与 `is_*`（是否X）。install.sql 里这 17 列全是 TINYINT 0/1，
+ * 但列注释常为空（`erp_finance_tax_rate.enabled` 就是），按注释识别不出来 —— 列名是唯一线索。
+ */
+const isBool = (k: string): boolean => k === 'enabled' || /^is_[a-z_]+$/.test(k);
+
+/** 「是否X」的通用文案（DDL 里统一 0=否 1=是）；语义特异的表（is_read=未读/已读）由页面 dicts 覆盖 */
+const BOOL_DICT: Record<number, string> = { 0: '否', 1: '是' };
+
 /** 常见状态字典（按资源前缀细化，未命中走通用档 COMMON_STATUS） */
-const STATUS_DICTS: Record<string, Record<number | string, string>> = {
+const STATUS_DICTS: DictMap = {
   purchase: { 0: '草稿', 1: '待审核', 2: '已审核', 3: '已完成', 4: '已取消' },
   sales: { 0: '草稿', 1: '待审核', 2: '已审核', 3: '已完成', 4: '已取消' },
   crm: { 0: '未开始', 1: '跟进中', 2: '已报价', 3: '赢单', 4: '输单' },
@@ -77,9 +87,19 @@ function dictFromFilter(filter?: FilterDef): Record<number | string, string> | u
   return Object.keys(dict).length > 0 ? dict : undefined;
 }
 
-/** 键名 → 列标题：字段 label 优先，命中词典用中文，否则驼峰化（与 React keyTitle 同源） */
+/** 键名 → 列标题：字段 label 优先，命中词典用中文，否则回落到对端词条、最后驼峰化（与 React keyTitle 同源） */
 export function keyTitle(k: string, label?: string): string {
   const zh = label ?? COLUMN_TITLES[k];
+  // `*_name` / `*_id` 未收录时回落到对端条目（如 supplier_name 取 supplier_id 的「供应商」）。
+  // React 侧一直有这条，Angular 侧缺了 —— 同一份回包在两端一个出中文、一个出 supplierName
+  if (!zh) {
+    const affix = /^(.+)_(name|id)$/.exec(k);
+    if (affix) {
+      const base = affix[1];
+      const other = COLUMN_TITLES[`${base}_${affix[2] === 'name' ? 'id' : 'name'}`] ?? COLUMN_TITLES[base];
+      if (other) return other;
+    }
+  }
   return zh ?? k.replace(/_([a-z])/g, (_m: string, c: string) => c.toUpperCase());
 }
 
@@ -89,10 +109,32 @@ export type RelLabels = Record<string, Record<string, string>>;
 /** 非规范别名：`*_id` → 行内实际承载名称的字段（可扩充；未列出的走 `<base>_name`） */
 const NAME_ALIAS: Record<string, string> = {
   partner_id: 'party_name',
-  apply_user_id: 'employee_name',
+  // 费用报销/采购申请 → 申请人姓名（ExpenseController::index:83、ApplyController::index:57 起行内补 apply_user_name）。
+  // 原值 employee_name 全仓无产出方（install.sql 无此列，唯一出现处是 BankPayrollService 读取的入参数组），
+  // 别名指过去等于没指 —— 详情抽屉里「申请人」还会多出一行「-」（兄弟键没被认作名称，裸外键不跳过）
+  apply_user_id: 'apply_user_name',
   stage_id: 'stage_name',
   // 采购订单 → 采购申请单号（OrderController::index leftJoin purchase_apply 带出的 apply_code）
   apply_id: 'apply_code',
+  // 采购/销售结算 → 收货单号、发货单号（SettlementController::format 按 source_id 反查带出）
+  receive_id: 'receive_code',
+  delivery_id: 'delivery_code',
+  // 询价单比价面板 → 采购员姓名（RfqController::compare；buyer_name 键属税票的购买方名称，不能复用）
+  buyer_id: 'buyer_real_name',
+  // 来料检验 → 收货单号（IncomingCheckController::index leftJoin purchase_receive 带出的 receiving_code）
+  receiving_id: 'receiving_code',
+  // 单号 alias 全仓统一叫 order_code（无一处产出 order_name）：purchase/ReceiveController:79、
+  // sales/DeliveryController:81、oms/RmaController:59 走 leftJoin as order_code；
+  // manufacturing 的 WorkReport:98 / MaterialIssue:87 / CostEntry:88 走行内反查。
+  // 缺这条时默认找 order_name（不存在）→ 6 个页面的单号列全落「-」
+  order_id: 'order_code',
+  // 询价单明细 → 询价单号（RfqQuoteController::index:63 行内补 rfq_no；全仓无 rfq_name）
+  rfq_id: 'rfq_no',
+  // 过程检验 → 工单编码（ProcessCheckController::index leftJoin mfg_production_order 带出的 production_order_code）
+  production_order_id: 'production_order_code',
+  // 项目/部门负责人 → 姓名（ProjectController::index:95、DepartmentController::index:261 行内补 manager_name；
+  // 两页都没写显式 columns，缺别名时多出一列「负责人 -」，与真正的姓名列同名并存）
+  manager_user_id: 'manager_name',
 };
 
 /** 关系对象里取名称：name → title → label → code；空对象/数组取不到（不给 [object Object]） */
@@ -111,6 +153,18 @@ function inlineRelName(row: Row, idKey: string, stem: string): string {
   const n = row[NAME_ALIAS[idKey] ?? `${stem}_name`];
   if (n !== null && n !== undefined && n !== '' && typeof n !== 'object') return String(n);
   return relName(row[stem]);
+}
+
+/**
+ * 行内「外键键」判别 —— 不止 `_id` 后缀。DDL 里 `_by` 全是 actor 外键
+ * （install.sql: created_by×6、approved_by×3、reported_by、changed_by、audited_by），
+ * `assigned_to` 是用户外键；同后缀另有 `valid_to`（DATE，install.sql:3858），
+ * 故 `_to` 按值形状区分：编码后的外键 ID 是纯数字/数字串，日期串不是。
+ */
+function isRelKey(k: string, v: unknown): boolean {
+  if (k === 'id' || k.startsWith('__')) return false;
+  if (k.endsWith('_id') || k.endsWith('_by')) return true;
+  return k.endsWith('_to') && /^\d+$/.test(String(v ?? ''));
 }
 
 /**
@@ -150,6 +204,7 @@ export function relSources(rows: Row[], fields: FormField[] = []): FieldSource[]
  * @param fields cfg.fields —— 其中的 label 优先做列标题（契约 A）
  * @param labels OptionSource 加载好的 id→名称映射（rule 3；未加载到就退回原值）
  * @param filter 本资源的状态筛选，其选项即状态字典（见 dictFromFilter）
+ * @param dicts cfg.dicts —— 逐键值字典，优先于状态筛选与前缀/通用档（见 types.ts）
  */
 export function inferColumns(
   rows: Row[],
@@ -158,6 +213,7 @@ export function inferColumns(
   labels: RelLabels = {},
   limit = 8,
   filter?: FilterDef,
+  dicts?: DictMap,
 ): ColumnDef[] {
   const sample = rows.slice(0, 3);
   const labelOf = new Map<string, string>();
@@ -231,7 +287,15 @@ export function inferColumns(
       title: titleOf(k),
       primary: k === 'code' || k === 'no' || k === 'name',
     };
-    if (isStatus(k)) cols.push({ ...base, kind: 'status', dict });
+    // 显式逐键字典优先于按字段名的识别：status 键仍走 status 支（保住徽标与色带），
+    // 只把字典换成 cfg 里的真枚举；其余枚举键（type/priority/is_lowest…）走 map 支出文案
+    const kd = dicts?.[k];
+    if (isStatus(k)) cols.push({ ...base, kind: 'status', dict: kd ?? dict });
+    else if (kd) cols.push({ ...base, kind: 'map', dict: kd });
+    // 布尔开关：enabled 走启用/禁用徽标（与 cells.enabledCol 同文案），is_* 走 否/是。
+    // 必须排在 isMoney/isInt 之前 —— is_taxable 命中 isMoney 的 `tax`、is_managed 命中 isInt 的 `age`
+    else if (k === 'enabled') cols.push({ ...base, kind: 'enabled' });
+    else if (isBool(k)) cols.push({ ...base, kind: 'map', dict: BOOL_DICT });
     else if (isMoney(k)) cols.push({ ...base, kind: 'money', align: 'right' });
     else if (isDate(k)) cols.push({ ...base, kind: 'datetime' });
     else if (isInt(k)) cols.push({ ...base, kind: 'int', align: 'right' });
@@ -291,8 +355,14 @@ export function toggleCollapsed(cur: ReadonlySet<string>, key: string): Set<stri
 export function inferDetailItems(
   row: Row,
   cols: ColumnDef[] = [],
+  dicts?: DictMap,
+  fields?: FormField[],
 ): { k: string; v: string; tone?: BadgeTone; tags?: string[] }[] {
   const byKey = new Map(cols.map((c) => [c.key, c]));
+  // 本页字段声明的措辞：列数被 limit 截掉、或本页写了显式 columns 的键，抽屉里没有列标题可用，
+  // 只能落到全局 COLUMN_TITLES —— 于是「同一个键在不同页语义不同」时必错（order_id 全局「生产工单」，
+  // 但 /oms/rma 是「关联订单」）。这里把本页 fields 的 label 插在 keyTitle 之前兜底
+  const fieldLabel = new Map((fields ?? []).map((f) => [f.key, f.label]));
   const items: { k: string; v: string; tone?: BadgeTone; tags?: string[] }[] = [];
   for (const [k, v] of Object.entries(row)) {
     if (k === 'id' || k.startsWith('__')) continue;
@@ -305,23 +375,42 @@ export function inferDetailItems(
       items.push({ k: col.title, v: cell.text, tone: cell.tone, tags: cell.tags });
       continue;
     }
-    // 裸外键：名称兄弟（rule 1）或关系对象列（rule 2）已经在别处承担了名称，这里不再出行
-    if (k.endsWith('_id')) {
+    // 裸外键：名称兄弟（rule 1/别名）或关系对象列（rule 2）已经在别处承担了名称，这里不再出行。
+    // 兄弟既可能是已声明的列，也可能是行里的标量键（抽屉会把它作为自己那行渲染出来，否则
+    // 同一份名称会「兄弟一行 + 外键一行」重复出两次）
+    if (isRelKey(k, v)) {
       const stem = k.slice(0, -'_id'.length);
-      if (byKey.has(NAME_ALIAS[k] ?? `${stem}_name`) || byKey.has(stem)) continue;
+      const nameKey = NAME_ALIAS[k] ?? `${stem}_name`;
+      const sv = row[nameKey];
+      const siblingScalar = sv !== null && sv !== undefined && sv !== '' && typeof sv !== 'object';
+      if (byKey.has(nameKey) || byKey.has(stem) || siblingScalar) continue;
     }
-    const cell = col ? cellOf(col, row) : fallbackCell(k, v);
-    items.push({ k: col?.title ?? keyTitle(k), v: cell.text, tone: cell.tone, tags: cell.tags });
+    const cell = col ? cellOf(col, row) : fallbackCell(k, v, dicts, row);
+    items.push({
+      k: col?.title ?? fieldLabel.get(k) ?? keyTitle(k),
+      v: cell.text,
+      tone: cell.tone,
+      tags: cell.tags,
+    });
   }
   return items;
 }
 
 /** cols 未覆盖的键的兜底取数，识别口径与 inferColumns 一致 */
-function fallbackCell(k: string, v: unknown): Cell {
-  // 裸外键：cols 没覆盖到它（资源写了显式 columns，或名称兄弟被截断）时给占位。
-  // 关联名取得到的话，早就以 `*_name` 列或关系对象列的形式进来了；剩下的原值是编码后的
-  // 雪花 ID，贴出来只是噪声——详情页出现裸 ID 正是这一条漏的
-  if (k.endsWith('_id')) return { text: text(undefined) };
+function fallbackCell(k: string, v: unknown, dicts?: DictMap, row?: Row): Cell {
+  // 逐键字典先于字段名识别：列数被 limit 截掉的枚举键（第 9 列起的 type/priority…）
+  // 只能走这条兜底，没有字典就在这里裸出 0/1
+  const kd = dicts?.[k];
+  if (kd) return { text: mapText(v, kd) };
+  // 布尔开关：与 inferColumns 同口径（列数被 limit 截掉的开关键只能走这条兜底）
+  if (k === 'enabled') return { text: yesNo(v), tone: Number(v) === 0 ? 'd' : 's' };
+  if (isBool(k)) return { text: mapText(v, BOOL_DICT) };
+  // 裸外键：`_id`/`_by`/`assigned_to` 这类键存的都是编码后的 ID（旧口径只认 `_id`，
+  // 于是 approved_by 被当普通文本贴出来，正是用户报的「详情页显示 ID 值」）。
+  // 行里有名称兄弟（含 NAME_ALIAS 别名）就出名称，取不到才落占位——裸 ID 贴出来只是噪声
+  if (isRelKey(k, v)) {
+    return { text: text(row ? inlineRelName(row, k, k.slice(0, -3)) || undefined : undefined) };
+  }
   if (isStatus(k)) return { text: statusText(v), tone: statusTone(v) };
   if (isDate(k)) return { text: dateTime(v) };
   if (isMoney(k)) return { text: money(v) };
@@ -346,8 +435,19 @@ const RESULT_MAX_DEPTH = 4;
 const isPlainObject = (v: unknown): v is Row => !!v && typeof v === 'object' && !Array.isArray(v);
 
 /** 单元格文本：日期/金额按列名格式化，其余 text 兜底；对象/数组降级 JSON（绝不出 [object Object]） */
-function cellText(k: string, v: unknown): string {
+function cellText(
+  k: string,
+  v: unknown,
+  row?: Row,
+  dicts?: DictMap,
+): string {
   if (isPlainObject(v) || Array.isArray(v)) return JSON.stringify(v) ?? '';
+  // 外键：同行有 `<base>_name`（含别名）或 `<base>` 关系对象时出名称，两条都落空落「-」。
+  // 动作/报表回包里的编码 id 贴到面板上既是英文键又是裸 hashid，没有任何可粘贴的去处
+  if (row && k.endsWith('_id')) return text(inlineRelName(row, k, k.slice(0, -3)));
+  // 逐键字典（cfg.dicts）与列/详情同源：比价面板的 status/is_lowest 是裸 0/1 时在此收口
+  const kd = dicts?.[k];
+  if (kd) return mapText(v, kd);
   return isDate(k) ? dateTime(v) : isMoney(k) ? money(v) : text(v);
 }
 
@@ -355,49 +455,65 @@ function cellText(k: string, v: unknown): string {
  * 任意 JSON → 渲染分块（动作结果弹窗与报表对象页共用）：
  * 对象 → 键值表 + 值里的对象/数组递归成嵌套块；对象数组 → 表格（列取各行键并集，按首现序）；
  * 标量数组 → 顿号连接的一行。
+ *
+ * @param dicts cfg.dicts —— 回包里的键与本资源同名的枚举（比价面板的 status/is_lowest）出文案
  */
-export function resultBlocks(data: unknown, title = ''): ResultBlock[] {
+export function resultBlocks(
+  data: unknown,
+  title = '',
+  dicts?: DictMap,
+): ResultBlock[] {
   const out: ResultBlock[] = [];
-  walkResult(data, title, 0, out);
+  walkResult(data, title, 0, out, dicts);
   return out;
 }
 
-function walkResult(v: unknown, title: string, depth: number, out: ResultBlock[]): void {
+function walkResult(
+  v: unknown,
+  title: string,
+  depth: number,
+  out: ResultBlock[],
+  dicts?: DictMap,
+): void {
   // 超过夹顶深度不再递归，但也不静默丢数据：降级成一行 JSON
   if (depth > RESULT_MAX_DEPTH) {
-    if (title) out.push({ title, depth, head: [], cells: [], kv: [{ k: title, v: cellText('', v) }] });
+    if (title) out.push({ title, depth, head: [], cells: [], kv: [{ k: title, v: cellText('', v, undefined, dicts) }] });
     return;
   }
   if (Array.isArray(v)) {
     const rows = v.filter(isPlainObject);
     if (rows.length && rows.length === v.length) {
-      const head: string[] = [];
-      for (const r of rows) for (const k of Object.keys(r)) if (!head.includes(k)) head.push(k);
+      // 列键取各行键并集（按首现序，跳过 id）：表头出标题（keyTitle），
+      // 单元格按同一 key 序取数 —— 二者必须用同一份 keys 才对齐
+      const keys: string[] = [];
+      for (const r of rows) for (const k of Object.keys(r)) if (k !== 'id' && !keys.includes(k)) keys.push(k);
       out.push({
         title,
         depth,
-        head,
-        cells: rows.slice(0, RESULT_MAX_ROWS).map((r) => head.map((k) => cellText(k, r[k]))),
+        head: keys.map((k) => keyTitle(k)),
+        cells: rows.slice(0, RESULT_MAX_ROWS).map((r) => keys.map((k) => cellText(k, r[k], r, dicts))),
         kv: [],
       });
       return;
     }
-    if (title) out.push({ title, depth, head: [], cells: [], kv: [{ k: title, v: v.map((x) => cellText('', x)).join('、') }] });
+    if (title) out.push({ title, depth, head: [], cells: [], kv: [{ k: title, v: v.map((x) => cellText('', x, undefined, dicts)).join('、') }] });
     return;
   }
   if (!isPlainObject(v)) {
-    if (title) out.push({ title, depth, head: [], cells: [], kv: [{ k: title, v: cellText('', v) }] });
+    if (title) out.push({ title, depth, head: [], cells: [], kv: [{ k: title, v: cellText('', v, undefined, dicts) }] });
     return;
   }
   const kv: { k: string; v: string }[] = [];
   const nested: [unknown, string][] = [];
   for (const [k, val] of Object.entries(v)) {
     if (k === 'id' || k.startsWith('__')) continue;
-    if (isPlainObject(val) || Array.isArray(val)) nested.push([val, k]);
-    else kv.push({ k: keyTitle(k), v: cellText(k, val) });
+    // 嵌套块的分块标题就是它那一行的键（items/rfq/quotes），模板只做 `| tr` —— 以中文为键，
+    // 原样传下去就是英文键上屏；与 kv 同一口径先过 keyTitle
+    if (isPlainObject(val) || Array.isArray(val)) nested.push([val, keyTitle(k)]);
+    else kv.push({ k: keyTitle(k), v: cellText(k, val, v, dicts) });
   }
   if (kv.length || !nested.length) out.push({ title, depth, head: [], cells: [], kv });
-  for (const [val, k] of nested) walkResult(val, k, depth + 1, out);
+  for (const [val, k] of nested) walkResult(val, k, depth + 1, out, dicts);
 }
 
 /* spec-attrs:start —— 解析器无依赖、纯函数；scripts/check-ng-spec-attrs.mjs 抽取本段真身自检 */
@@ -514,6 +630,17 @@ export interface Cell {
   depth?: number;
 }
 
+/**
+ * 值 → 字典文案：命中过 `tr`（词典词条要出当前语种），表外值原样直出
+ * （真实数据优先，与 HarmonyOS 同口径）。空值给空串，由调用方决定占位。
+ * 与 React `config/cells.tsx` 的 mapText 逐字同义。
+ */
+function mapText(v: unknown, dict: Record<number | string, string>): string {
+  if (v === null || v === undefined || v === '') return '';
+  const hit = dict[String(v)];
+  return hit === undefined ? String(v) : tr(hit);
+}
+
 /** 按 kind 取单元格 —— 与 React cells.tsx / DataTable 默认渲染逐支对应 */
 export function cellOf(c: ColumnDef, row: Row): Cell {
   const v = take(row, c.key);
@@ -559,16 +686,15 @@ export function cellOf(c: ColumnDef, row: Row): Cell {
       cell.text = hit !== undefined && hit !== '' ? hit : '-';
       break;
     }
-    case 'map': {
-      if (v === null || v === undefined || v === '') break;
-      // 对象键按字符串存：数字字典与字符串字典（draft…）都命中这一支
-      const hit = c.dict?.[String(v)];
-      cell.text = hit !== undefined ? hit : String(v);
+    case 'map':
+      cell.text = mapText(v, c.dict ?? {});
       break;
-    }
     default:
-      // 裸列：直出（text 类走 '-' 兜底，见 format.text）
-      cell.text = String(v ?? '');
+      // 裸列：直出（text 类走 '-' 兜底，见 format.text）。
+      // 外键键没有 kind（配置里手写的 `{ key: 'level_id', title: '等级' }`）时也落「-」占位：
+      // 直出的是 encodeIds 后的 hashid，界面上没有可粘贴的去处 —— 与 React DataTable 的
+      // `c.key.endsWith('_id') ? fkText(...)` 兜底同口径（rule 4）
+      cell.text = c.key !== 'id' && c.key.endsWith('_id') ? '-' : String(v ?? '');
       break;
   }
   return cell;

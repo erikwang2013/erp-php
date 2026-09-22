@@ -34,8 +34,9 @@ class FulfillmentDetailPage extends StatelessWidget {
           DetailCard(title: l.detailBasicInfo, children: [
             _refRow(context, d, l.partnerWarehouseTitle, 'warehouse_name',
                 'warehouse_id', 'warehouse'),
-            _refRow(context, d, l.detailOrderRef, 'oms_order_id', 'oms_order_id',
-                'order'),
+            // show 只 join 了 warehouse.name：OMS 订单无名称兄弟键（列表页的
+            // order_channel_no 来自 index，不在 show 回包里）→ nameKey 传 null 落「-」
+            _refRow(context, d, l.detailOrderRef, null, 'oms_order_id', 'order'),
             detailStatusRow(context, label: l.commonStatus,
                 text: _taskText(l, _asInt(d['status'])),
                 bg: AppColors.of(context).primaryBg,
@@ -69,11 +70,13 @@ class FulfillmentDetailPage extends StatelessWidget {
   }
 
   /// 名称/id 行：名称优先，id 非空时整行链接到引用卡。
+  /// [nameKey] 为 null = 该 show 未 join 名称兄弟键（如 oms_order_id）→ 落「-」；
+  /// 名称取不到也不回落裸 hashid（契约 rule ④，引用卡里看得到单据本身）。
   Widget _refRow(BuildContext context, Map<String, dynamic> d, String label,
-      String nameKey, String idKey, String resource) {
+      String? nameKey, String idKey, String resource) {
     final id = '${d[idKey] ?? ''}';
-    final name = '${d[nameKey] ?? ''}';
-    final text = name.isEmpty ? id : name;
+    final name = nameKey == null ? '' : '${d[nameKey] ?? ''}';
+    final text = name.isEmpty ? '-' : name;
     if (id.isEmpty) return DetailRow(label: label, value: text);
     return DetailRow(
       label: label,
@@ -83,6 +86,7 @@ class FulfillmentDetailPage extends StatelessWidget {
   }
 
   /// 可选任务 id（>0 才显示；0/null 隐藏）→ 引用卡。
+  /// 值不贴 hashid：WMS/TMS 任务号在引用卡里（show 未带 code 兄弟键），本行只做入口。
   Widget _optionalRefRow(BuildContext context, Map<String, dynamic> d,
       String label, String idKey, String resource) {
     final id = '${d[idKey] ?? ''}';
@@ -90,7 +94,7 @@ class FulfillmentDetailPage extends StatelessWidget {
     if (id.isEmpty || (i != null && i <= 0)) return const SizedBox.shrink();
     return DetailRow(
       label: label,
-      value: id,
+      value: '-',
       onTap: () => showReferenceCard(context, resource: resource, id: id),
     );
   }

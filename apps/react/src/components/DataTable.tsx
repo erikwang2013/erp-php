@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { Btn, Empty, SkeletonRows } from '@/components/ui';
 import type { Row } from '@/config/types';
 import { useTr } from '@/lib/i18n';
+import { fkText } from '@/lib/relation';
 import { rowKey } from '@/lib/tree';
 
 /**
@@ -165,7 +166,13 @@ export function DataTable<T extends Record<string, unknown>>({
                     {c.indent && row['__depth'] !== undefined && (
                       <TreeCaret row={row} collapsed={collapsed} onToggle={onToggleCollapse} />
                     )}
-                    {c.render ? c.render(row) : String(take(row, c.key) ?? '-')}
+                    {/* 无 render 的兜底：外键列走关联名（取不到落「-」），其余直出。
+                        显式写了 textCol('xxx_id') 的列此前会把裸 hashid 贴到列表上 */}
+                    {c.render
+                      ? c.render(row)
+                      : c.key.endsWith('_id')
+                        ? fkText(row, c.key)
+                        : String(take(row, c.key) ?? '-')}
                   </td>
                 ))}
               </tr>

@@ -50,17 +50,22 @@ class NonconformityController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         [$page, $limit] = $this->pageParams($request);
-        $query = QualityNonconformity::query();
+        // 商品名 leftJoin 带出（同 sales/OrderController::index 口径），否则列表只能上屏裸 hashid。
+        // product 与主表同有 code/status 列，where/orderBy 一并限定来源，否则 JOIN 后报 1052 列歧义。
+        // source_id 是多态外键（source_type 决定指向 iqc/ipqc/oqc 三张表），无法 leftJoin，前端落「-」。
+        $query = QualityNonconformity::query()
+            ->leftJoin('product', 'product.id', '=', 'quality_nonconformity.product_id')
+            ->select('quality_nonconformity.*', 'product.name as product_name');
         $keyword = $request->input('keyword', '');
         if ($keyword) {
-            $query->where('code', 'like', "%{$keyword}%")->orWhere('defect_type', 'like', "%{$keyword}%");
+            $query->where('quality_nonconformity.code', 'like', "%{$keyword}%")->orWhere('quality_nonconformity.defect_type', 'like', "%{$keyword}%");
         }
         $status = $request->input('status');
         if ($status !== null && $status !== '') {
-            $query->where('status', (int)$status);
+            $query->where('quality_nonconformity.status', (int)$status);
         }
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray(), ['id', 'source_id', 'product_id']));
+        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('quality_nonconformity.id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray(), ['id', 'source_id', 'product_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -94,6 +99,11 @@ class NonconformityController extends BaseController
         $item = new QualityNonconformity();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 外键（列表 encodeIds 下发的 hashid 串）须解码后再落库：fill 直填 BIGINT 列报 1366。
+        // source_id 也是客户端来的 ID（多态指向 iqc/ipqc/oqc 记录），同样走双模解码。
+        // 未提供/空串（前端留空下发 ''）落 0 = 未关联（列 NOT NULL DEFAULT 0）
+        $fks = $this->foreignKeyFields($item);
+        $item->fill($this->decodeIdFields($request, $fks) + array_fill_keys($fks, 0));
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -153,6 +163,8 @@ class NonconformityController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         $this->fillModelFromRequest($item, $request);
+        // 同 store：外键提供时解码覆写（hashid 直填 BIGINT 列报 1366）；缺省/空串=不改动
+        $item->fill($this->decodeIdFields($request, $this->foreignKeyFields($item)));
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

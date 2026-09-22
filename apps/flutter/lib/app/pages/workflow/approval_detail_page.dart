@@ -8,7 +8,8 @@
 //   POST /approval/{id}/withdraw
 // 动作成功刷新本页并置脏；PopScope 返回时回传 changed=true。target_ref 命中
 // 登记域（sales_order→销售订单、purchase_order→采购订单）→「查看单据」跳转
-// 对应详情页；否则 target_id 原样展示。
+// 对应详情页；否则单据行落「-」——show 的 encodeIds 显式列表不含 target_id，
+// 原样上屏的是裸雪花 ID（契约 rule ④）。
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../l10n/app_l10n.dart';
@@ -189,6 +190,8 @@ class _ApprovalDetailPageState extends State<ApprovalDetailPage> {
   }
 
   /// target 单据跳转（target_ref 命中登记域时显示）。
+  /// 不再传 title：原来是 target_id（show 不解码的 raw int）当单据标题，
+  /// 目的页 AppBar 会印出纯数字 ID；缺 title 时目的页落自己的文案标题。
   Widget? _viewDocButton(Map<String, dynamic> d) {
     final l = AppL10n.of(context);
     final route = _targetRoute['${d['target_type'] ?? ''}'];
@@ -197,8 +200,7 @@ class _ApprovalDetailPageState extends State<ApprovalDetailPage> {
     return FilledButton.tonalIcon(
       icon: const Icon(Icons.open_in_new, size: 18),
       label: Text(l.detailViewDoc),
-      onPressed: () => Get.toNamed(route,
-          arguments: {'id': ref, 'title': '${d['target_id'] ?? ''}'}),
+      onPressed: () => Get.toNamed(route, arguments: {'id': ref}),
     );
   }
 
@@ -251,8 +253,10 @@ class _ApprovalDetailPageState extends State<ApprovalDetailPage> {
       detailRow(d, l.detailCurrentNode, 'current_node_name'),
       detailRow(d, l.detailSubmittedBy,
           'submitter_name'), // show 未 join submitter 名时回退 hashid
-      detailRow(d, l.fieldDocType, 'target_type'),
-      detailRow(d, l.fieldDocId, 'target_id'),
+      DetailRow(label: l.fieldDocType, value: _targetTypeLabel(d['target_type'])),
+      // 单据 ID 不上屏：registry 内类型的下钻走上面的「查看单据」按钮（target_ref）；
+      // registry 外无 ref，显示裸 int 没有任何用处
+      DetailRow(label: l.fieldDocId, value: '-'),
       detailStatusRow(context, label: l.commonStatus,
           text: _statusText(_asInt(d['status'])),
           bg: _chipColor(context, _asInt(d['status'])).$1,
@@ -328,6 +332,21 @@ class _ApprovalDetailPageState extends State<ApprovalDetailPage> {
   }
 
   int _asInt(dynamic v) => v is int ? v : (int.tryParse('$v') ?? -1);
+
+  /// target_type 文案：后端 TARGET_REGISTRY 键 → 本地化文案；表外值直显原文
+  /// （不落「-」——真实数据优先，与 HarmonyOS ApprovalPage/ApprovalDetailPage 同源）。
+  String _targetTypeLabel(dynamic raw) {
+    final l = AppL10n.current;
+    return switch ('${raw ?? ''}'.trim()) {
+      'sales_order' => l.targetTypeSalesOrder,
+      'purchase_apply' => l.targetTypePurchaseApply,
+      'purchase_order' => l.targetTypePurchaseOrder,
+      'expense' => l.targetTypeExpense,
+      'leave' => l.targetTypeLeave,
+      'other' => l.targetTypeOther,
+      final v => v,
+    };
+  }
 
   /// 状态文案走 AppL10n.current（与 my_approval_page 同源）。
   String _statusText(int s) {

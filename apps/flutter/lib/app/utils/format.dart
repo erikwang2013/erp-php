@@ -32,3 +32,11 @@ String fmtDate(dynamic v) {
   final s = fmtDateTime(v);
   return s.isEmpty ? '' : s.substring(0, 10);
 }
+
+/// 可读名兜底：null/空串落占位短横（与 Angular/React `core/format.ts::text` 同语义）。
+/// 用于「本该有可读名」的展示位（关联名、下拉选项标签……）——
+/// 回落原始 id 会把 encodeIds 后的雪花码贴上屏，对用户只是噪声。
+String fmtText(dynamic v) {
+  final s = v == null ? '' : '$v';
+  return s.isEmpty ? '-' : s;
+}

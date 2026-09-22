@@ -70,13 +70,21 @@ class _NotificationPageState extends State<NotificationPage> {
     return [l10n.fieldTitle, l10n.fieldContent, l10n.fieldTime, l10n.commonStatus];
   }
 
+  /// 状态列 = 已读/未读：erp_notification 无 status 列（install.sql 列注释 `is_read ... 0未读1已读`），
+  /// 旧实现读 `r['status']` 恒取不到值，该列常年空白。未知值原样回落。
+  static String _statusLabel(Object? v) => switch ('$v') {
+        '0' => AppL10n.current.notificationUnread,
+        '1' => AppL10n.current.notificationRead,
+        _ => '$v',
+      };
+
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
     return {
       l10n.fieldTitle: r['title'] ?? '',
       l10n.fieldContent: r['content'] ?? '',
       l10n.fieldTime: fmtDateTime(r['created_at']),
-      l10n.commonStatus: r['status'] ?? '', // 0/1 原始值直显，非翻译内容
+      l10n.commonStatus: _statusLabel(r['is_read']),
     };
   }
 }

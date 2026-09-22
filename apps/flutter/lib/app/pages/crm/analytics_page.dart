@@ -42,8 +42,10 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
     final l10n = AppL10n.current;
     await FormDialog.show(context, title: l10n.crmAnalyticsGenerate, fields: [
       FormFieldConfig(name: 'name', label: l10n.crmAnalyticsReportName, required: true),
+      // 显示文案走 optionLabels（值=存储值原样提交），词表同本页类型列
       FormFieldConfig(name: 'type', label: l10n.crmAnalyticsReportType, required: true, type: FormFieldType.dropdown,
-          options: const ['customer', 'order', 'revenue', 'activity', 'retention']),
+          options: const ['customer', 'order', 'revenue', 'activity', 'retention'],
+          optionLabels: {for (final v in const ['customer', 'order', 'revenue', 'activity', 'retention']) v: _typeLabel(v)}),
       FormFieldConfig(name: 'period_year', label: l10n.crmAnalyticsYear, required: true, type: FormFieldType.number),
       FormFieldConfig(name: 'period_value', label: l10n.crmAnalyticsPeriodValue, required: true, type: FormFieldType.number),
       FormFieldConfig(name: 'period_type', label: l10n.crmAnalyticsPeriodType, required: true, type: FormFieldType.dropdown,
@@ -98,12 +100,25 @@ class _CrmAnalyticsPageState extends State<CrmAnalyticsPage> {
     ],
   );
 
-  // 报表行（erp_crm_analytics_report）无 code 列（幻键已移除），次列展示真实 type（后端存储值）
+  // 报表行（erp_crm_analytics_report）无 code 列（幻键已移除），次列展示真实 type
   List<String> _columns() => [AppL10n.current.crmAnalyticsReportName, AppL10n.current.crmAnalyticsReportType];
+
+  /// 类型列值域 = install.sql 列注释 `类型: customer/order/revenue/activity/retention`，
+  /// 机读串不上屏，未知值原样回落。
+  /// 中文与 Web 端逐字对齐（营收/活跃度/留存率）：`activity` 不译「活动」——
+  /// `campaign.type` 的 event=活动 在同模块会撞词。
+  static String _typeLabel(Object? v) => switch ('$v') {
+        'customer' => AppL10n.current.crmAnalyticsTypeCustomer,
+        'order' => AppL10n.current.crmAnalyticsTypeOrder,
+        'revenue' => AppL10n.current.crmAnalyticsTypeRevenue,
+        'activity' => AppL10n.current.crmAnalyticsTypeActivity,
+        'retention' => AppL10n.current.crmAnalyticsTypeRetention,
+        _ => '$v',
+      };
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.crmAnalyticsReportName: r['name'] ?? '',
-    AppL10n.current.crmAnalyticsReportType: r['type'] ?? '',
+    AppL10n.current.crmAnalyticsReportType: _typeLabel(r['type']),
   };
 
 }

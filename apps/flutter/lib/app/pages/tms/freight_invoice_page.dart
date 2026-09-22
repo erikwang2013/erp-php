@@ -27,6 +27,22 @@ class _FreightInvoicePageState extends State<FreightInvoicePage> {
   void initState() {
     super.initState();
     _load();
+    _ensureCarrierNames();
+  }
+
+  /// 列表「承运商」列的名称来源：与下拉同一端点（rule ③）。
+  Map<String, String> _carrierNames = {};
+
+  Future<void> _ensureCarrierNames() async {
+    if (_carrierNames.isNotEmpty) return;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/tms/carrier', params: {'limit': '500'});
+      final rows = List<Map<String, dynamic>>.from(res['data']?['list'] ?? []);
+      final m = {for (final c in rows) '${c['id']}': '${c['name'] ?? ''}'};
+      if (mounted) setState(() => _carrierNames = m);
+    } catch (_) {
+      // 失败降级：列显示「-」，页面其余部分照常
+    }
   }
 
   Future<void> _load() async {
@@ -235,7 +251,6 @@ class _FreightInvoicePageState extends State<FreightInvoicePage> {
     ],
   );
 
-  // 列表接口不 join 承运商名：承运商列按原值（hashid）展示。
   List<String> _columns() => [
     AppL10n.of(context).commonCode,
     AppL10n.of(context).tmsCarrierTitle,
@@ -245,9 +260,12 @@ class _FreightInvoicePageState extends State<FreightInvoicePage> {
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
+    // 承运商列：与下拉同一端点那份 id→名称（rule ③；FreightInvoiceController::index
+    // 只下发 carrier_id）；取不到落「-」（rule ④），裸 hashid 不上屏。
+    final carrier = _carrierNames['${r['carrier_id'] ?? ''}'];
     return {
       l.commonCode: r['code'] ?? '',
-      l.tmsCarrierTitle: r['carrier_id'] ?? '',
+      l.tmsCarrierTitle: (carrier == null || carrier.isEmpty) ? '-' : carrier,
       l.fieldAmount: r['amount'] ?? '',
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,

@@ -295,6 +295,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get omsChannelStore => '渠道店铺名称';
 
   @override
+  String get omsChannelManual => '手工';
+
+  @override
+  String get omsChannelWeb => '网页';
+
+  @override
+  String get omsChannelMobile => '移动端';
+
+  @override
+  String get omsChannelApi => '接口';
+
+  @override
+  String get omsChannelMarketplace => '电商平台';
+
+  @override
   String get omsFulfillStatus => '履约状态';
 
   @override
@@ -513,6 +528,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get hrLeaveStatusRejected => '已驳回';
 
   @override
+  String get hrAttendanceStatusNormal => '正常';
+
+  @override
+  String get hrAttendanceStatusLate => '迟到';
+
+  @override
+  String get hrAttendanceStatusEarly => '早退';
+
+  @override
+  String get hrAttendanceStatusMissing => '缺卡';
+
+  @override
+  String get hrAttendanceStatusLeave => '请假';
+
+  @override
+  String get hrAttendanceStatusTrip => '出差';
+
+  @override
   String get hrLeaveApproveTitle => '批准请假';
 
   @override
@@ -700,6 +733,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get eamFrequencyCol => '频率';
 
   @override
+  String get eamFrequencyDaily => '每日';
+
+  @override
+  String get eamFrequencyWeekly => '每周';
+
+  @override
+  String get eamFrequencyMonthly => '每月';
+
+  @override
+  String get eamFrequencyQuarterly => '每季度';
+
+  @override
+  String get eamFrequencyYearly => '每年';
+
+  @override
   String get eamLastDate => '上次保养日期';
 
   @override
@@ -718,6 +766,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get eamRepairType => '维修类型';
 
   @override
+  String get eamRepairTypePreventive => '预防性';
+
+  @override
+  String get eamRepairTypeCorrective => '纠正性';
+
+  @override
+  String get eamRepairTypeEmergency => '紧急';
+
+  @override
   String get eamFaultDescription => '故障描述';
 
   @override
@@ -731,6 +788,18 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get eamRepairCost => '维修费用';
+
+  @override
+  String get eamRepairStatusOpen => '待处理';
+
+  @override
+  String get eamRepairStatusInProgress => '维修中';
+
+  @override
+  String get eamRepairStatusCompleted => '已完成';
+
+  @override
+  String get eamRepairStatusCancelled => '已取消';
 
   @override
   String get eamTransitionTitle => '状态流转';
@@ -847,6 +916,36 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get crmAnalyticsYearUnit => '年';
+
+  @override
+  String get crmAnalyticsTypeCustomer => '客户';
+
+  @override
+  String get crmAnalyticsTypeOrder => '订单';
+
+  @override
+  String get crmAnalyticsTypeRevenue => '营收';
+
+  @override
+  String get crmAnalyticsTypeActivity => '活跃度';
+
+  @override
+  String get crmAnalyticsTypeRetention => '留存率';
+
+  @override
+  String get crmFollowMethodPhone => '电话';
+
+  @override
+  String get crmFollowMethodVisit => '拜访';
+
+  @override
+  String get crmFollowMethodEmail => '邮件';
+
+  @override
+  String get crmFollowMethodMessage => '短信';
+
+  @override
+  String get crmFollowMethodOther => '其他';
 
   @override
   String get crmContractStatusDraft => '草稿';
@@ -1170,6 +1269,9 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get commonDefaultZero => '默认 0';
+
+  @override
+  String get commonUnspecified => '（不指定）';
 
   @override
   String commonExampleAmount(String amount) {
@@ -1786,6 +1888,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get commonClose => '关闭';
 
   @override
+  String get commonLanguage => '语言';
+
+  @override
   String get commonEnabled => '启用';
 
   @override
@@ -2091,6 +2196,60 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qualityQtySummary => '检验/合格/不合格';
 
   @override
+  String get qualityResultPass => '合格';
+
+  @override
+  String get qualityResultReject => '不合格';
+
+  @override
+  String get qualityTypeIqc => '来料检验';
+
+  @override
+  String get qualityTypeIpqc => '过程检验';
+
+  @override
+  String get qualityTypeOqc => '出货检验';
+
+  @override
+  String get qualityNcStatusPending => '待处理';
+
+  @override
+  String get qualityNcStatusProcessing => '处理中';
+
+  @override
+  String get qualityNcStatusClosed => '已关闭';
+
+  @override
+  String get qualitySeverityMinor => '轻微';
+
+  @override
+  String get qualitySeverityMajor => '严重';
+
+  @override
+  String get qualitySeverityCritical => '致命';
+
+  @override
+  String get qualityDispositionPending => '待处理';
+
+  @override
+  String get qualityDispositionReturn => '退货';
+
+  @override
+  String get qualityDispositionRepair => '返修';
+
+  @override
+  String get qualityDispositionScrap => '报废';
+
+  @override
+  String get qualityDispositionAccept => '让步接收';
+
+  @override
+  String get qualityStatusPending => '待处理';
+
+  @override
+  String get qualityStatusCompleted => '已完成';
+
+  @override
   String get biDashboardName => '看板名称';
 
   @override
@@ -2123,6 +2282,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String biChartTypeLabel(String type) {
     return '类型: $type';
   }
+
+  @override
+  String get biChartTypeBar => '柱状';
+
+  @override
+  String get biChartTypeKpi => '指标';
+
+  @override
+  String get biChartTypeLine => '折线';
+
+  @override
+  String get biChartTypePie => '饼图';
+
+  @override
+  String get biChartTypeTable => '表格';
 
   @override
   String get biChartConfig => '配置JSON';
@@ -2189,6 +2363,24 @@ class AppLocalizationsZh extends AppLocalizations {
   String get workflowStatusUnknown => '未知';
 
   @override
+  String get targetTypeSalesOrder => '销售订单';
+
+  @override
+  String get targetTypePurchaseApply => '采购申请';
+
+  @override
+  String get targetTypePurchaseOrder => '采购订单';
+
+  @override
+  String get targetTypeExpense => '费用报销';
+
+  @override
+  String get targetTypeLeave => '请假';
+
+  @override
+  String get targetTypeOther => '其他';
+
+  @override
   String get workflowApproveTitle => '通过审批';
 
   @override
@@ -2245,6 +2437,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get notificationMarkAllRead => '标记全部已读';
+
+  @override
+  String get notificationRead => '已读';
+
+  @override
+  String get notificationUnread => '未读';
 
   @override
   String get reportExecute => '执行';
@@ -2417,6 +2615,21 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get configEdit => '编辑配置';
+
+  @override
+  String get configTypeString => '字符串';
+
+  @override
+  String get configTypeInt => '整数';
+
+  @override
+  String get configTypeBool => '布尔';
+
+  @override
+  String get configTypeJson => 'JSON';
+
+  @override
+  String get configTypeArray => '数组';
 
   @override
   String get configSaveSuccess => '保存成功';
@@ -2754,6 +2967,12 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get dmsDocumentTitle => '文档列表';
+
+  @override
+  String get dmsDocStatusDraft => '草稿';
+
+  @override
+  String get dmsDocStatusPublished => '发布';
 
   @override
   String get notificationCenterTitle => '通知中心';

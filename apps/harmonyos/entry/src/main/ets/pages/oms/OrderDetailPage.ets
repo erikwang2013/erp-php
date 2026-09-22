@@ -29,6 +29,9 @@ interface FulfillmentRow {
   oms_order_id: string;
 }
 
+/** 渠道取值（install.sql erp_oms_order.channel 列注释），表外值不查键、直显原文 */
+const OMS_CHANNELS: string[] = ['manual', 'web', 'mobile', 'api', 'marketplace', 'edi', 'pos'];
+
 @Entry
 @Component
 struct OrderDetailPage {
@@ -71,9 +74,9 @@ struct OrderDetailPage {
   }
 
   /** 履约状态（oms_order 域 0..5）：0未分配/1已分配/2拣货中/3已打包/4已发货/5已签收；
-   *  后端生命周期仅产出 0/1/4/5，其余码直出数字（与列表页同口径） */
+   *  全码表覆盖（表单可手录 0..3），表外码直出数字（与列表页同口径） */
   private ffLabel(code: number): string {
-    if (code === 0 || code === 1 || code === 4 || code === 5) {
+    if (code >= 0 && code <= 5) {
       return L10n.str(this.getUIContext(), `status_ff_${code}`);
     }
     return String(code);
@@ -91,6 +94,24 @@ struct OrderDetailPage {
 
   private payLabel(code: number): string {
     return L10n.str(this.getUIContext(), `payment_status_${code}`);
+  }
+
+  /** 优先级（erp_oms_order.priority 1=最高 5=正常 9=最低）；表外值直显原文 */
+  private priorityLabel(v: Object): string {
+    const code: number = Number(v);
+    if (code === 1 || code === 5 || code === 9) {
+      return L10n.str(this.getUIContext(), `oms_priority_${code}`);
+    }
+    return this.hint(v);
+  }
+
+  /** 渠道（erp_oms_order.channel manual/web/mobile/api/marketplace/edi/pos）；表外值直显原文 */
+  private channelLabel(v: Object): string {
+    const s: string = this.hint(v);
+    if (OMS_CHANNELS.includes(s)) {
+      return L10n.str(this.getUIContext(), `oms_channel_${s}`);
+    }
+    return s;
   }
 
   private hint(v: Object): string {
@@ -225,16 +246,18 @@ struct OrderDetailPage {
                 .margin({ bottom: 12 })
 
                 Column({ space: 16 }) {
+                  // 单号即关联销售订单的 code（show leftJoin 别名下发）；order_id 无名称兄弟键，
+                  // 落「-」占位：上屏的是 encodeIds 后的 hashid 串（oms_order 表无 code 列可替）
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_code'), value: this.hint(this.row['code']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_order'), value: this.hint(this.row['order_id']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_channel'), value: this.hint(this.row['channel']) })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_order'), value: '-' })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_channel'), value: this.channelLabel(this.row['channel']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_channel_no'), value: this.hint(this.row['channel_order_no']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_channel_store'), value: this.hint(this.row['channel_store']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_shipping_method'), value: this.hint(this.row['shipping_method']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_shipping_fee'), value: this.fmtMoney(this.row['shipping_fee']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_buyer'), value: this.hint(this.row['buyer_message']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_seller'), value: this.hint(this.row['seller_note']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_priority'), value: this.hint(this.row['priority']) })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_priority'), value: this.priorityLabel(this.row['priority']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_hold'), value: this.hint(this.row['hold_until']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'oms_d_created'), value: this.hint(Format.dateTime(this.row['created_at'])) })
                 }

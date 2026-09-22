@@ -118,12 +118,20 @@ struct EmployeeListPage {
     this.loadData();
   }
 
-  /** 行徽章：在职 success / 离职 danger（kind 同源驱动行 icon 圆徽色） */
+  /** 行徽章：erp_hr_employee.status DDL 1在职/2离职/3停职；
+   *  表外码（含历史表单写入的 0）直出数字落 neutral，不冒充离职 */
   private empBadge(item: HrEmployeeItem): RowBadge {
-    if (item.status === 1) {
+    const code: number = item.status;
+    if (code === 1) {
       return new RowBadge('success', $r('app.string.employee_status_active'));
     }
-    return new RowBadge('danger', $r('app.string.employee_status_resigned'));
+    if (code === 2) {
+      return new RowBadge('danger', $r('app.string.employee_status_resigned'));
+    }
+    if (code === 3) {
+      return new RowBadge('warning', $r('app.string.employee_status_suspended'));
+    }
+    return new RowBadge('neutral', String(code));
   }
 
   /**

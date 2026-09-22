@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:admin_app/app/l10n/app_l10n.dart';
 import 'package:admin_app/app/pages/system/config/config_page.dart';
 import 'package:admin_app/app/services/api_service.dart';
 
@@ -78,16 +79,21 @@ void main() {
       expect(find.text('值'), findsOneWidget);
       expect(find.text('说明'), findsOneWidget);
 
-      // type 枚举下拉:string|int|bool|json|array(erp_system_config.type 注释集)。
-      // 页内列表 Chip 与弹框下拉均含 'string',取弹框内(后一个)
-      await tester.tap(find.text('string').last);
+      // type 枚举下拉:string|int|bool|json|array(erp_system_config.type 注释集),
+      // 提交值不变、显示文案走 optionLabels 词表(字符串/整数/布尔/JSON/数组)。
+      final l10n = AppL10n.current;
+      // 页内列表 Chip 与弹框下拉均显示「字符串」,取弹框内(后一个)
+      await tester.tap(find.text(l10n.configTypeString).last);
       await tester.pumpAndSettle();
       // 菜单项与页内 type Chip 文案共存,用 findsWidgets 断言出现
-      for (final t in ['int', 'bool', 'json', 'array']) {
+      for (final t in [l10n.configTypeInt, l10n.configTypeBool, l10n.configTypeJson, l10n.configTypeArray]) {
         expect(find.text(t), findsWidgets, reason: '下拉菜单应含 $t');
       }
-      // 选中 int 关闭菜单,再取消关闭弹框
-      await tester.tap(find.text('int').last);
+      // 机读值不上屏(否则 optionLabels 没接上,上面几条会假绿)
+      expect(find.text('json'), findsNothing);
+      expect(find.text('array'), findsNothing);
+      // 选中 整数 关闭菜单,再取消关闭弹框
+      await tester.tap(find.text(l10n.configTypeInt).last);
       await tester.pumpAndSettle();
       await tester.tap(find.text('取消'));
       await tester.pump();
@@ -132,7 +138,9 @@ void main() {
           reason: '编辑时 group 禁止修改(uk_group_key)');
       expect(tester.widget<TextField>(dialogField(1)).enabled, isFalse,
           reason: '编辑时 key 禁止修改');
-      expect(find.text('string'), findsWidgets); // 页内 Chip + 类型下拉预填
+      // 页内 Chip(site.name = string)+ 类型下拉预填,都显示词表文案
+      expect(find.text(AppL10n.current.configTypeString), findsWidgets);
+      expect(find.text('string'), findsNothing); // 机读值不上屏
 
       await tester.tap(find.text('取消'));
       await tester.pump();

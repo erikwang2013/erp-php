@@ -390,11 +390,19 @@
     },
     {
       "name": "status_ff_0",
-      "value": "待分配"
+      "value": "未分配"
     },
     {
       "name": "status_ff_1",
-      "value": "履约中"
+      "value": "已分配"
+    },
+    {
+      "name": "status_ff_2",
+      "value": "拣货中"
+    },
+    {
+      "name": "status_ff_3",
+      "value": "已打包"
     },
     {
       "name": "status_ff_4",
@@ -861,10 +869,6 @@
       "value": "暂无收货数据"
     },
     {
-      "name": "receiving_wh_fmt",
-      "value": "仓库ID: %1$s"
-    },
-    {
       "name": "receiving_form_add",
       "value": "新增收货单"
     },
@@ -897,6 +901,22 @@
       "value": "状态"
     },
     {
+      "name": "receiving_status_0",
+      "value": "待收货"
+    },
+    {
+      "name": "receiving_status_1",
+      "value": "收货中"
+    },
+    {
+      "name": "receiving_status_2",
+      "value": "已完成"
+    },
+    {
+      "name": "receiving_status_3",
+      "value": "已质检"
+    },
+    {
       "name": "receiving_receiver_id",
       "value": "收货人ID"
     },
@@ -914,7 +934,7 @@
     },
     {
       "name": "receiving_warehouse_id_hint",
-      "value": "仓库数字ID（必填）"
+      "value": "点击选择仓库（必填）"
     },
     {
       "name": "receiving_asn_id_hint",
@@ -953,10 +973,6 @@
       "value": "暂无上架数据"
     },
     {
-      "name": "putaway_wh_strategy_fmt",
-      "value": "仓库ID: %1$s · 策略: %2$s"
-    },
-    {
       "name": "putaway_form_add",
       "value": "新增上架单"
     },
@@ -985,6 +1001,18 @@
       "value": "状态"
     },
     {
+      "name": "putaway_status_0",
+      "value": "待上架"
+    },
+    {
+      "name": "putaway_status_1",
+      "value": "上架中"
+    },
+    {
+      "name": "putaway_status_2",
+      "value": "已完成"
+    },
+    {
       "name": "putaway_strategy",
       "value": "上架策略"
     },
@@ -1002,7 +1030,7 @@
     },
     {
       "name": "putaway_warehouse_id_hint",
-      "value": "仓库数字ID（必填）"
+      "value": "点击选择仓库（必填）"
     },
     {
       "name": "putaway_receiving_id_hint",
@@ -1103,6 +1131,30 @@
     {
       "name": "shipment_status",
       "value": "状态"
+    },
+    {
+      "name": "shipment_status_0",
+      "value": "待发货"
+    },
+    {
+      "name": "shipment_status_1",
+      "value": "已取件"
+    },
+    {
+      "name": "shipment_status_2",
+      "value": "运输中"
+    },
+    {
+      "name": "shipment_status_3",
+      "value": "已送达"
+    },
+    {
+      "name": "shipment_status_4",
+      "value": "异常"
+    },
+    {
+      "name": "shipment_status_5",
+      "value": "已退回"
     },
     {
       "name": "shipment_shipping_label_url",
@@ -1345,6 +1397,10 @@
       "value": "离职"
     },
     {
+      "name": "employee_status_suspended",
+      "value": "停职"
+    },
+    {
       "name": "freight_rate_list_title",
       "value": "运费费率"
     },
@@ -1355,6 +1411,26 @@
     {
       "name": "tracking_list_title",
       "value": "物流轨迹"
+    },
+    {
+      "name": "tracking_status_picked_up",
+      "value": "已取件"
+    },
+    {
+      "name": "tracking_status_in_transit",
+      "value": "运输中"
+    },
+    {
+      "name": "tracking_status_out_for_delivery",
+      "value": "派送中"
+    },
+    {
+      "name": "tracking_status_delivered",
+      "value": "已送达"
+    },
+    {
+      "name": "tracking_status_exception",
+      "value": "异常"
     },
     {
       "name": "attendance_list_title",
@@ -1398,7 +1474,7 @@
     },
     {
       "name": "production_bom_id_hint",
-      "value": "请输入BOM数字ID（必填）"
+      "value": "点击选择 BOM（必填）"
     },
     {
       "name": "production_bom_id_required",
@@ -1410,7 +1486,7 @@
     },
     {
       "name": "production_warehouse_id_hint",
-      "value": "仓库数字ID，留空为0"
+      "value": "点击选择仓库，留空为 0"
     },
     {
       "name": "production_planned_quantity",
@@ -1427,6 +1503,22 @@
     {
       "name": "production_status",
       "value": "状态"
+    },
+    {
+      "name": "production_status_0",
+      "value": "待生产"
+    },
+    {
+      "name": "production_status_1",
+      "value": "生产中"
+    },
+    {
+      "name": "production_status_2",
+      "value": "已完成"
+    },
+    {
+      "name": "production_status_3",
+      "value": "已取消"
     },
     {
       "name": "production_planned_start",
@@ -2069,6 +2161,34 @@
       "value": "店铺"
     },
     {
+      "name": "oms_channel_manual",
+      "value": "手工"
+    },
+    {
+      "name": "oms_channel_web",
+      "value": "网页"
+    },
+    {
+      "name": "oms_channel_mobile",
+      "value": "移动端"
+    },
+    {
+      "name": "oms_channel_api",
+      "value": "接口"
+    },
+    {
+      "name": "oms_channel_marketplace",
+      "value": "电商平台"
+    },
+    {
+      "name": "oms_channel_edi",
+      "value": "EDI"
+    },
+    {
+      "name": "oms_channel_pos",
+      "value": "POS"
+    },
+    {
       "name": "oms_d_code",
       "value": "单号"
     },
@@ -2095,6 +2215,18 @@
     {
       "name": "oms_d_priority",
       "value": "优先级"
+    },
+    {
+      "name": "oms_priority_1",
+      "value": "最高"
+    },
+    {
+      "name": "oms_priority_5",
+      "value": "正常"
+    },
+    {
+      "name": "oms_priority_9",
+      "value": "最低"
     },
     {
       "name": "oms_d_seller",
@@ -2139,6 +2271,22 @@
     {
       "name": "pack_status_2",
       "value": "已完成"
+    },
+    {
+      "name": "pack_type_box",
+      "value": "纸箱"
+    },
+    {
+      "name": "pack_type_bag",
+      "value": "袋子"
+    },
+    {
+      "name": "pack_type_pallet",
+      "value": "托盘"
+    },
+    {
+      "name": "pack_type_envelope",
+      "value": "信封"
     },
     {
       "name": "payment_status_0",

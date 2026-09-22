@@ -241,8 +241,10 @@ struct SalesOrderDetailPage {
                   }
                   .width('100%')
 
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'sales_d_quotation'), value: this.num(this.row['quotation_id']) })
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'sales_d_warehouse'), value: this.num(this.row['warehouse_id']) })
+                  // 报价单/仓库 show 未下发名称兄弟键（sales_order 只有 quotation_id/warehouse_id）：
+                  // 落「-」占位 —— 原样上屏的是裸外键值（num() 读到 3 这种明文 ID）
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'sales_d_quotation'), value: '-' })
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'sales_d_warehouse'), value: '-' })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'sales_d_total'), value: this.fmtMoney(this.row['total_amount']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'sales_d_discount'), value: this.fmtMoney(this.row['discount_amount']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'sales_d_ordered_at'), value: this.hint(this.row['ordered_at']) })

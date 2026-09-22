@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../services/api_service.dart';
+import '../../utils/format.dart';
 import '../../theme/app_tokens.dart';
 import '../../widgets/data_table_wrapper.dart';
 import '../../widgets/status_badge.dart';
@@ -69,6 +70,9 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
   }
 
   Future<void> _create() async {
+    // 必填外键（order_id）选项先就位再弹窗（失败已弹提示，此处直接返回）
+    if (!await _ensureOrders()) return;
+    if (!mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).omsAddOrder,
@@ -83,10 +87,12 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureOrders()) return;
+    if (!mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).omsEditOrder,
-      fields: _formFields(),
+      fields: _formFields(row: row),
       initialData: _toEditData(row),
       onSubmit: (data) async {
         final payload = _buildPayload(data);
@@ -118,8 +124,52 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     );
   }
 
-  /// 创建履约：填写发货仓库ID，调用 POST /admin/oms/order/{id}/fulfill。
+  /// 外键下拉数据源：FormFieldConfig 无 remote source（FormFieldType 只有
+  /// text/number/dropdown/password/multiline），弹窗前自己预取喂静态 options/optionLabels
+  /// —— 本工程既有惯用法，模板见 wms/pack_page.dart:68-86。原先两处都是手输 hashid。
+  /// 选项不在 initState 拉：本页首屏只列订单，弹窗打开前才需要这份数据（也免得测试/离线
+  /// 环境为一个没打开的弹窗发请求）。
+  final Map<String, String> _orders = {}, _warehouses = {};
+
+  /// 预取单个外键列表；失败返回 false（已弹提示）—— 必填写不进选项的空下拉
+  /// 会让用户既选不了也提交不了，宁可不弹窗。
+  /// 选项标签走 fmtText 落占位：名称键缺失/为空时贴出的会是 encodeIds 后的雪花码，对用户是噪声。
+  Future<bool> _ensureRef(Map<String, String> target, String path, String labelKey) async {
+    try {
+      final res = await ApiService.instance.get(path, params: {'limit': '500'});
+      target
+        ..clear()
+        ..addAll({
+          for (final r in List<Map<String, dynamic>>.from(res['data']?['list'] ?? []))
+            '${r['id']}': fmtText(r[labelKey]),
+        });
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
+  Future<bool> _ensureOrders() => _ensureRef(_orders, '/admin/v1/sales/order', 'code');
+  Future<bool> _ensureWarehouses() => _ensureRef(_warehouses, '/admin/v1/warehouse', 'name');
+
+  /// 编辑态：当前 FK 不在预取列表内时前置进选项 —— FormDialog 会把不在 options 里的
+  /// 预填值置 null（form_dialog.dart:80-83），提交时该外键就被静默清空了（P2）。
+  /// 返回新 map（前置孤儿项），未命中时原样返回 —— 口径同 quality/ipqc_list_page.dart::_primed。
+  /// 选项标签同样只出可读名（fmtText），没有名称就出占位短横，绝不回落 hashid 本身。
+  Map<String, String> _primed(Map<String, String> m, Map<String, dynamic> row, String idKey, String nameKey) {
+    final id = '${row[idKey] ?? ''}';
+    if (id.isEmpty || id == '0' || m.containsKey(id)) return m;
+    return {id: fmtText(row[nameKey]), ...m};
+  }
+
+  /// 创建履约：选择发货仓库，调用 POST /admin/oms/order/{id}/fulfill。
   Future<void> _fulfill(Map<String, dynamic> row) async {
+    if (!await _ensureWarehouses()) return;
+    if (!mounted) return;
     await FormDialog.show(
       context,
       title: AppL10n.of(context).omsFulfillCreate,
@@ -128,6 +178,9 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
           name: 'warehouse_id',
           label: AppL10n.of(context).omsWarehouseId,
           required: true,
+          // 无可选项就退回文本框（退化成改动前的手输），不留空下拉
+          type: _warehouses.isNotEmpty ? FormFieldType.dropdown : FormFieldType.text,
+          options: _warehouses.keys.toList(), optionLabels: _warehouses,
           hint: AppL10n.of(context).omsWarehouseIdHint,
         ),
       ],
@@ -154,6 +207,17 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     'edi',
     'pos',
   ];
+
+  /// 渠道值域与文案 = Web 端同列字典 OMS_ORDER_CHANNEL（domains/fulfill.ts:48-56）。
+  /// `edi`/`pos` 是语言中立值（EDI/POS 本就不译），走末臂原样回落，不另造中文。
+  static String _channelLabel(Object? v) => switch ('$v') {
+        'manual' => AppL10n.current.omsChannelManual,
+        'web' => AppL10n.current.omsChannelWeb,
+        'mobile' => AppL10n.current.omsChannelMobile,
+        'api' => AppL10n.current.omsChannelApi,
+        'marketplace' => AppL10n.current.omsChannelMarketplace,
+        _ => '$v',
+      };
 
   /// 状态/优先级下拉文案（数字前缀与后端枚举一致，label 走 l10n）。
   List<String> get _fulfillmentLabels {
@@ -190,13 +254,18 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     '9 - ${AppL10n.of(context).omsPriorityLow}',
   ];
 
-  List<FormFieldConfig> _formFields() {
+  List<FormFieldConfig> _formFields({Map<String, dynamic>? row}) {
     final l = AppL10n.of(context);
+    var orders = _orders;
+    if (row != null) orders = _primed(orders, row, 'order_id', 'code');
     return [
       FormFieldConfig(
         name: 'order_id',
         label: l.omsOrderId,
         required: true,
+        // 无可选项就退回文本框（退化成改动前的手输），不留空下拉
+        type: orders.isNotEmpty ? FormFieldType.dropdown : FormFieldType.text,
+        options: orders.keys.toList(), optionLabels: orders,
         hint: l.omsOrderIdHint,
       ),
       FormFieldConfig(
@@ -204,6 +273,7 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
         label: l.omsChannel,
         type: FormFieldType.dropdown,
         options: _channelOptions,
+        optionLabels: {for (final v in _channelOptions) v: _channelLabel(v)},
         initialValue: 'manual',
       ),
       FormFieldConfig(name: 'channel_order_no', label: l.omsChannelOrderNo),
@@ -369,7 +439,7 @@ class _OmsOrderListPageState extends State<OmsOrderListPage> {
     final l = AppL10n.of(context);
     return {
       l.omsChannelOrderNo: r['channel_order_no'] ?? '',
-      l.omsChannel: r['channel'] ?? '',
+      l.omsChannel: _channelLabel(r['channel']),
       l.omsFulfillStatus: _fulfillChip(r['fulfillment_status']),
       l.omsPaymentStatus: _payChip(r['payment_status']),
       l.commonAction: Row(

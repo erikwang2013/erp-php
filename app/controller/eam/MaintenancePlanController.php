@@ -45,7 +45,8 @@ class MaintenancePlanController extends BaseController
             'page' => 'integer',
             'limit' => 'integer',
             'keyword' => 'string',
-            'equipment_id' => 'string',
+            // equipment_id 不卡 string（同 bi/DatasetController::store 口径）：数字形态的设备
+            // ID 会被 is_string() 判成 422，双模判定统一在下面的 decodeFlexibleId 收口
             'status' => 'integer',
         ]);
         if ($validator->fails()) {
@@ -94,9 +95,11 @@ class MaintenancePlanController extends BaseController
 
     public function store(Request $request): Response
     {
-        // equipment_id 来自前端设备下拉（hashid）：原 required|integer 会把合法 hashid 判成 422
+        // equipment_id 来自前端设备下拉（hashid）：原 required|integer 会把合法 hashid 判成 422；
+        // 也不能用 string（is_string() 会把数字 ID 反挡成 422）——只留 required，
+        // 双模判定统一在下面 decodeFlexibleId 收口（口径同 bi/DatasetController::store）
         $validator = validator($request->all(), [
-            'equipment_id' => 'required|string',
+            'equipment_id' => 'required',
             'name' => 'required|string|max:200',
             'frequency' => 'required|string|max:50',
         ]);

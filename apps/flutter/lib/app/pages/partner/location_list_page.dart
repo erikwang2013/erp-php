@@ -140,7 +140,7 @@ class _LocationListPageState extends State<LocationListPage> {
       l10n.commonName: r['name'] ?? '',
       l10n.fieldCode: r['code'] ?? '',
       // 仓库列：后端已按 warehouse_id 补名称；旧幻列 warehouse 恒空
-      l10n.fieldWarehouse: '${r['warehouse_name'] ?? r['warehouse_id'] ?? ''}',
+      l10n.fieldWarehouse: '${r['warehouse_name'] ?? ''}',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
         IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

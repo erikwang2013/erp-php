@@ -224,9 +224,15 @@ class _OmsOrderDetailPageState extends State<OmsOrderDetailPage> {
         l.commonOpSuccess,
       );
     } catch (e) {
+      // 行校验抛的是本地化文案（Exception(l.xxx)）→ 去掉 Exception: 前缀原样显示；
+      // API/网络失败走 friendlyError —— 直接 `'$e'` 在中文界面下贴的是 Dio 的英文原文
+      final raw = '$e';
+      final msg = raw.startsWith('Exception: ')
+          ? raw.substring('Exception: '.length)
+          : ApiService.friendlyError(e);
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('$e')));
+            .showSnackBar(SnackBar(content: Text(msg)));
       }
     } finally {
       // showDialog future 在 pop 时即完成，但路由退场动画期间 TextField 仍
@@ -241,11 +247,41 @@ class _OmsOrderDetailPageState extends State<OmsOrderDetailPage> {
     }
   }
 
+  /// 履约弹窗的仓库下拉：FormFieldConfig 无 remote source，弹窗前预取喂静态
+  /// options/optionLabels（模板 wms/pack_page.dart:68-86）。选项不在 initState 拉 ——
+  /// 本页首屏只读详情。同一弹窗在列表页也有一处入口（oms/order_list_page.dart::_fulfill），
+  /// 两处必须同改，否则另一入口仍收裸 hashid。
+  Map<String, String> _warehouses = {};
+
+  Future<bool> _ensureWarehouses() async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/warehouse', params: {'limit': '500'});
+      _warehouses = {
+        for (final r in List<Map<String, dynamic>>.from(res['data']?['list'] ?? []))
+          '${r['id']}': fmtText(r['name']),
+      };
+      return true;
+    } catch (e) {
+      // 必填下拉取不到选项就不弹窗，避免用户面对空下拉无路可走
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   Future<void> _fulfill() async {
     final l = AppL10n.of(context);
+    if (!await _ensureWarehouses()) return;
+    if (!mounted) return;
     final ok = await FormDialog.show(context, title: l.omsFulfillCreate, fields: [
       FormFieldConfig(name: 'warehouse_id', label: l.omsWarehouseId,
-          required: true, hint: l.omsWarehouseIdHint),
+          required: true,
+          // 无可选项就退回文本框（退化成改动前的手输），不留空下拉
+          type: _warehouses.isNotEmpty ? FormFieldType.dropdown : FormFieldType.text,
+          options: _warehouses.keys.toList(), optionLabels: _warehouses,
+          hint: l.omsWarehouseIdHint),
     ], onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/oms/order/$_id/fulfill',
           data: {'warehouse_id': data['warehouse_id']?.trim()});

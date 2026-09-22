@@ -186,12 +186,3 @@ Widget detailStatusRow(BuildContext context,
 DetailRow detailRow(Map<String, dynamic> data, String label, String key,
         {String Function(dynamic)? fmt}) =>
     DetailRow(label: label, value: fmt == null ? '${data[key] ?? ''}' : fmt(data[key]));
-
-/// 关联对象展示：优先取关联关系（order.code / supplier.name 等）名称，否则回退原始 ID。
-String detailRelName(Map<String, dynamic> data, String relKey, String idKey) {
-  final rel = data[relKey];
-  if (rel is Map && (rel['name'] ?? rel['code'] ?? '') != '') {
-    return '${rel['name'] ?? rel['code']}';
-  }
-  return '${data[idKey] ?? ''}';
-}

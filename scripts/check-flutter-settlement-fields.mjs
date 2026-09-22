@@ -60,8 +60,9 @@ function storeRules(be) {
   return out;
 }
 
-/** 返回该页面所有问题（空数组 = 通过）。expectPrefetch=false 时不查第 3 条。 */
-function auditPage(fe, be, { expectPrefetch }) {
+/** 返回该页面所有问题（空数组 = 通过）。expectPrefetch=false 时不查第 3 条；
+ *  refs 为该页的 [预取端点, 承接选项的字段名] 清单（销售/采购两页的端点不同）。 */
+function auditPage(fe, be, { expectPrefetch, refs = [] }) {
   const problems = [];
   const fields = fieldNames(fe);
   const sent = payloadKeys(fe);
@@ -82,11 +83,9 @@ function auditPage(fe, be, { expectPrefetch }) {
     if (!accepted.includes(k)) problems.push(`上送了后端 validator 不认的 ${k} → 静默丢弃`);
   }
   if (expectPrefetch) {
-    for (const ep of ['/admin/v1/sales/delivery', '/admin/v1/finance/receipt']) {
+    for (const [ep, src] of refs) {
       const re = new RegExp(`'${ep}',\\s*params: \\{[^}]*'status': '1'`);
       if (!re.test(fe)) problems.push(`预取 ${ep} 未带 status=1 → 下拉含必然被拒的选项`);
-    }
-    for (const src of ['_deliveries', '_receipts']) {
       if (!fe.includes(`options: ${src}.keys.toList(), optionLabels: ${src}`)) {
         problems.push(`必填外键未接 ${src} 的 options/optionLabels → 下拉无选项`);
       }
@@ -99,8 +98,10 @@ function auditPage(fe, be, { expectPrefetch }) {
 }
 
 const PAGES = [
-  { name: '销售结算', fe: 'apps/flutter/lib/app/pages/sales/settlement_list_page.dart', be: 'app/controller/sales/SettlementController.php', expectPrefetch: true },
-  { name: '采购结算', fe: 'apps/flutter/lib/app/pages/purchase/settlement_list_page.dart', be: 'app/controller/purchase/SettlementController.php', expectPrefetch: false },
+  { name: '销售结算', fe: 'apps/flutter/lib/app/pages/sales/settlement_list_page.dart', be: 'app/controller/sales/SettlementController.php', expectPrefetch: true,
+    refs: [['/admin/v1/sales/delivery', '_deliveries'], ['/admin/v1/finance/receipt', '_receipts']] },
+  { name: '采购结算', fe: 'apps/flutter/lib/app/pages/purchase/settlement_list_page.dart', be: 'app/controller/purchase/SettlementController.php', expectPrefetch: true,
+    refs: [['/admin/v1/purchase/receive', '_receives'], ['/admin/v1/finance/payment', '_payments']] },
 ];
 
 let fails = 0;
@@ -124,5 +125,5 @@ const goodProblems = auditPage(fixtureGood, fixtureBe, { expectPrefetch: false }
 ok('自检：夹具（缺 b / 多 c）被报出', badProblems.some((x) => x.includes('b')) && badProblems.some((x) => x.includes('c')));
 ok('自检：合规夹具无问题（判别子不过宽）', goodProblems.length === 0, goodProblems.join('；'));
 
-console.log(fails ? `\n${fails} 项失败` : '\n全部通过（两页收集/上送/后端认三方一致 + 销售页预取带 status=1 且外键接上下拉 + 判别子自检）');
+console.log(fails ? `\n${fails} 项失败` : '\n全部通过（两页收集/上送/后端认三方一致 + 两页预取带 status=1 且外键接上下拉 + 判别子自检）');
 process.exit(fails ? 1 : 0);

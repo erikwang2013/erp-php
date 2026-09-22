@@ -4,12 +4,14 @@
 
 // 表单视图（自 ReceivingPage.buildForm 抽出，行为与样式不变）。
 // 8 个表单字段用 @Link 双向绑定父页状态；保存/取消走回调，业务逻辑仍留在父页。
+// warehouse_id 由手输数字 ID 改为引用选择（选项由父页预取，见 warehouseRefs）。
 // 用法：ReceivingFormView({ formMode: this.formMode, isSubmitting: this.isSubmitting,
-//   formCode: this.formCode, ...8 项..., onSubmit: () => { this.save(); },
-//   onCancel: () => { this.showForm = false; } })
+//   warehouseRefs: this.warehouseRefs, formCode: this.formCode, ...8 项...,
+//   onSubmit: () => { this.save(); }, onCancel: () => { this.showForm = false; } })
 
 import { L10n } from '../../utils/L10n';
 import { DetailCard } from '../../common/DetailCard';
+import { RefOption, pickRef, refLabel } from '../../common/RefDialog';
 
 @Component
 export struct ReceivingFormView {
@@ -23,6 +25,8 @@ export struct ReceivingFormView {
   @Link formRemark: string;
   @Prop formMode: string = 'create';
   @Prop isSubmitting: boolean = false;
+  // 仓库下拉选项（父页预取 /admin/warehouse；value = 行 hashid，原样回传）
+  @Prop warehouseRefs: Array<RefOption> = [];
   onSubmit: () => void = () => {};
   onCancel: () => void = () => {};
 
@@ -56,11 +60,30 @@ export struct ReceivingFormView {
               .fontColor($r('app.color.text_primary'))
               .width(80)
 
-              TextInput({ placeholder: $r('app.string.receiving_warehouse_id_hint'), text: this.formWarehouseId })
-                .fontSize(15)
-                .type(InputType.Number)
-                .onChange((v: string) => { this.formWarehouseId = v; })
-                .layoutWeight(1)
+              // 外键改引用选择（值 = /admin/warehouse 行 id 的 hashid 串，后端 decodeFlexibleId 双模解码）；
+              // 禁用输入框纯展示 + 覆盖层拾取，与 FormDialog 的 select 同款（禁键盘不弹起）
+              Stack() {
+                TextInput({ placeholder: $r('app.string.receiving_warehouse_id_hint'), text: refLabel(this.warehouseRefs, this.formWarehouseId) })
+                  .fontSize(15)
+                  .height(44)
+                  .enabled(false)
+                  .width('100%')
+
+                Row() {
+                  Text('▾')
+                    .fontSize(12)
+                    .fontColor($r('app.color.text_hint'))
+                }
+                .width('100%')
+                .height(44)
+                .padding({ right: 12 })
+                .justifyContent(FlexAlign.End)
+                .onClick(() => {
+                  pickRef($r('app.string.receiving_warehouse_id'), this.warehouseRefs,
+                    (v: string) => { this.formWarehouseId = v; });
+                })
+              }
+              .layoutWeight(1)
             }
             .width('100%')
             .constraintSize({ minHeight: 56 })

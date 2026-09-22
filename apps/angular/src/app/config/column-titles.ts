@@ -35,6 +35,9 @@ const BASE: Record<string, string> = {
   bom_id: 'BOM',
   brand_id: '品牌',
   candidate_id: '候选人',
+  // 非 DB 列：FreightRateController::index 按 carrier_service_id 反查 tms_carrier_service.code
+  // （沿用该列 install.sql 注释原词，与本表其它别名同款，不另造第二条说法）
+  carrier_service_code: '服务编码',
   carrier_service_id: '承运商服务',
   category: '工单分类',
   category_id: '分类',
@@ -88,6 +91,8 @@ const BASE: Record<string, string> = {
   inspected_qty: '检验数量',
   interview_date: '面试日期',
   issue_date: '出票日期',
+  // withCount 派生的非 DB 列（RfqController::index / RfqQuoteController::index）：漏了就驼峰化上屏
+  items_count: '明细行数',
   job_id: '应聘职位',
   job_title: '职位名称',
   key: '配置键',
@@ -98,6 +103,8 @@ const BASE: Record<string, string> = {
   logo: 'LOGO 地址',
   manager: '负责人',
   manager_user_id: '负责人',
+  // 非 DB 列：比价回包（RfqController::compare）的比价矩阵块，嵌套对象标题 = 回包键
+  matrix: '比价矩阵',
   max_quantity: '最大库存阈值',
   method: '收款方式',
   min_quantity: '最小库存阈值',
@@ -107,6 +114,8 @@ const BASE: Record<string, string> = {
   note: '备注',
   offered_salary: 'Offer 薪资',
   onboard_date: '入职日期',
+  // 非 DB 列：FulfillmentController::index 按 oms_order_id 带出 oms_order.channel_order_no
+  order_channel_no: '渠道订单号',
   order_id: '生产工单',
   order_no: '订单号',
   overtime: '加班费',
@@ -128,17 +137,25 @@ const BASE: Record<string, string> = {
   price: '单价',
   priority: '优先级',
   product_id: '产品',
+  // 非 DB 列：ProcessCheckController::index leftJoin mfg_production_order.code
+  // （沿用该列 install.sql 注释原词「工单编码」，词典里已有该条，不另造第二条）
+  production_order_code: '工单编码',
   project_id: '所属项目',
   purchase_amount: '购置金额',
   purchase_date: '购置日期',
   qualified_qty: '合格数量',
   quantity: '数量',
+  quotes_count: '报价数',
   rate: '汇率值',
   real_name: '姓名',
   receipt_payment_id: '付款单',
   receive_date: '收料日期',
   receive_id: '收货单',
   received_at: '收款日期',
+  // 非 DB 列：IncomingCheckController::index leftJoin purchase_receive.code
+  receiving_code: '收货单号',
+  // 非 DB 列：ReportScheduleController::index 把 recipients 的 id 换成姓名（Flutter 同用「接收人」）
+  recipients_names: '接收人',
   remark: '备注',
   repair_type: '维修类型',
   report_date: '报工日期',
@@ -186,8 +203,13 @@ const BASE: Record<string, string> = {
   useful_life: '使用年限',
   user_id: '用户',
   username: '用户名',
+  // 角色权限页的列标题与它同字（RoleController::index/show 的 withCount('users')）；
+  // 兜底档：列配置若被删，详情行也不会显出 usersCount
+  users_count: '用户数',
   valid_from: '生效日期',
   value: '值',
+  // 非 DB 列：SubsidiaryLedgerController::index 按 voucher_id 反查 finance_voucher.code
+  voucher_code: '凭证号',
   warehouse_id: '仓库',
   work_date: '工作日期',
   workstation_id: '工作站',

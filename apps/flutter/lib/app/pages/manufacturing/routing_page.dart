@@ -23,8 +23,10 @@ class _RoutingPageState extends State<RoutingPage> {
   String? _error;
   int _reqSeq = 0;
 
+  // 列表「商品/工作站」列与下拉共用同一份 id→名称映射：initState 一并预取（rule ③），
+  // 取不到落「-」，裸 hashid 不上屏（rule ④）。
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() { super.initState(); _load(); _ensureRefs(); }
 
   /// 商品下拉选项：id(hashid)→名称（缺失回退编码），取自 /admin/v1/product（懒加载一次）。
   Map<String, String> _productLabels = {};
@@ -50,6 +52,7 @@ class _RoutingPageState extends State<RoutingPage> {
             '${r['id']}': '${r['name'] ?? r['code'] ?? ''}',
         };
       }
+      if (mounted) setState(() {});
       return true;
     } catch (e) {
       if (mounted) {
@@ -153,11 +156,18 @@ class _RoutingPageState extends State<RoutingPage> {
     AppL10n.current.commonAction,
   ];
 
+  /// 外键列取关联名：RoutingController::index 不带名称，用下拉那份 id→名称（rule ③）；
+  /// 取不到（含下拉为补行而填的裸 id）落「-」（rule ④）。
+  String _label(dynamic id, Map<String, String> map) {
+    final v = map['$id'];
+    return (v == null || v.isEmpty || v == '$id') ? '-' : v;
+  }
+
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.manufacturingName: r['name'] ?? '',
-    AppL10n.current.fieldProductId: r['product_id'] ?? '',
+    AppL10n.current.fieldProductId: _label(r['product_id'], _productLabels),
     AppL10n.current.manufacturingSeq: r['seq'] ?? '',
-    AppL10n.current.fieldWorkstationId: r['workstation_id'] ?? '',
+    AppL10n.current.fieldWorkstationId: _label(r['workstation_id'], _workstationLabels),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

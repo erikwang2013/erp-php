@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace tests;
 
+use app\controller\eam\EamInspectionController;
 use app\controller\eam\EquipmentController;
 use app\controller\eam\MaintenancePlanController;
 use app\controller\eam\RepairOrderController;
@@ -161,11 +162,33 @@ class EamModuleTest extends TestCase
 
     public function testMaintenancePlanStoreValidation(): void
     {
-        $rules = ['equipment_id' => 'required|integer', 'name' => 'required|string|max:200', 'frequency' => 'required|string|max:50'];
+        // equipment_id 的真实规则是 required（既不是 required|integer —— 会把 hashid 判 422，
+        // 也不是 required|string —— is_string() 会把数字 ID 反判 422）：双模判定在
+        // decodeFlexibleId 收口（口径同 bi/DatasetController::store）
+        $rules = ['equipment_id' => 'required', 'name' => 'required|string|max:200', 'frequency' => 'required|string|max:50'];
         $this->assertTrue(validator(['name' => '季度保养', 'frequency' => 'monthly'], $rules)->fails(), '缺少 equipment_id 应失败');
         $this->assertTrue(validator(['equipment_id' => 1, 'frequency' => 'monthly'], $rules)->fails(), '缺少 name 应失败');
         $this->assertTrue(validator(['equipment_id' => 1, 'name' => '季度保养'], $rules)->fails(), '缺少 frequency 应失败');
-        $this->assertFalse(validator(['equipment_id' => 1, 'name' => '季度保养', 'frequency' => 'monthly'], $rules)->fails(), '合法输入应通过');
+        $this->assertFalse(validator(['equipment_id' => 1, 'name' => '季度保养', 'frequency' => 'monthly'], $rules)->fails(), '数字 equipment_id 应通过校验');
+        $this->assertFalse(validator(['equipment_id' => 'kO8aQ1', 'name' => '季度保养', 'frequency' => 'monthly'], $rules)->fails(), 'hashid equipment_id 应通过校验');
+    }
+
+    /**
+     * 生产代码契约：eam 三个控制器的 ID 校验不得挂 string（数字 ID → 422），
+     * 双模收口一律走 decodeFlexibleId。
+     */
+    public function testEamIdRulesDoNotUseStringRule(): void
+    {
+        foreach ([MaintenancePlanController::class, RepairOrderController::class, EamInspectionController::class] as $class) {
+            $source = (string) file_get_contents((string) (new \ReflectionClass($class))->getFileName());
+            // 键是 'equipment_id'/'assignee_id'，闭引号紧贴 _id：模式若写成 /'_id'/ 则永不可能命中
+            // （引号后是 equipment 而不是 _id），断言恒真 = 假绿。故从 _id 起匹配。
+            $this->assertSame(
+                0,
+                preg_match_all("/_id' => '[^']*string/", $source),
+                "{$class} 的 ID 字段不得挂 string 规则（is_string() 会把数字 ID 判成 422）"
+            );
+        }
     }
 
     public function testSparePartStoreValidation(): void

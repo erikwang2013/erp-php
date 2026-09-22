@@ -5,6 +5,7 @@
 import { Badge } from '@/components/ui';
 import { dateTime, money, statusText, statusTone, yesNo } from '@/lib/format';
 import type { BadgeTone } from '@/lib/format';
+import { tr } from '@/lib/i18n';
 import type { Column } from '@/components/DataTable';
 import type { FieldOption, FilterDef } from '@/config/types';
 
@@ -99,6 +100,16 @@ export const strStatus = (
     },
   } as Column<CellRow>,
 });
+
+/**
+ * 字典列取值（对齐 Angular cellOf 的 kind:'map' 支）：机读串 → 文案。
+ * 字典命中 = 词典词条，过 tr 出当前语种；表外值原样直出（真实数据优先，不落 '-'）。
+ */
+export const mapText = (v: unknown, dict: Record<string, string>): string => {
+  if (v === null || v === undefined || v === '') return '';
+  const hit = dict[String(v)];
+  return hit === undefined ? String(v) : tr(hit);
+};
 
 /** 启用/禁用下拉选项 */
 export const ON_OFF = [

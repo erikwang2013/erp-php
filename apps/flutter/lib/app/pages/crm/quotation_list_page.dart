@@ -158,7 +158,7 @@ class _CrmQuotationListPageState extends State<CrmQuotationListPage> {
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.crmCode: r['code'] ?? '',
-    AppL10n.current.fieldCustomer: r['customer_name'] ?? r['customer_id'] ?? '',
+    AppL10n.current.fieldCustomer: r['customer_name'] ?? '',
     AppL10n.current.crmAmount: r['total_amount'] ?? '',
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: Icon(Icons.handshake, size: 18, color: AppColors.of(context).primary),

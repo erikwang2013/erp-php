@@ -13,6 +13,9 @@
  *     界面上没有任何可粘贴的去处，贴出来只是噪声；
  *   - `*_id` 的名称兄弟已成列时，裸外键不再单独出一行。
  *
+ * 「枚举/计数值不上屏」另有一支：scripts/check-fe-enum-text.mjs（我的审批 `target_type`、
+ * withCount 计数列标题、`awarded` 0/1）—— 同源不变量不同，拆开各自守。
+ *
  * 做法：跑 **Angular 端真身**（apps/angular/.../resource-page/columns.ts 的 inferColumns /
  * cellOf / inferDetailItems 是纯函数，可直接 import）；React 端对应实现是 .tsx（含 JSX，
  * Node 擦不掉类型也转不了 JSX），按本仓既有约定只做**静态接线检查**（同 check-fe-edit-seq.mjs）。
@@ -23,8 +26,9 @@
  * 用法：node scripts/check-fe-detail-items.mjs —— 全过退出码 0，任一失败退出码 1。
  */
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { registerHooks } from 'node:module';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 // columns.ts 是 TS：Node 22.6+ 需带类型擦除开关。缺开关时自己重启一次，
@@ -67,7 +71,7 @@ const ok = (name, pass, extra = '') => {
 };
 
 const NG = new URL('../apps/angular/src/app/pages/resource-page/columns.ts', import.meta.url).href;
-const { cellOf, inferColumns, inferDetailItems, keyTitle } = await import(NG);
+const { cellOf, inferColumns, inferDetailItems, keyTitle, resultBlocks } = await import(NG);
 
 /* ── 夹具：采购订单列表行（后端 index 会 leftJoin supplier 带出 supplier_name） ── */
 
@@ -161,6 +165,20 @@ eq(
   '-',
 );
 
+// 显式 columns 里手写的「裸对象列」（配置写 `{ key: 'level_id', title: '等级' }`，没有 kind）：
+// 以前落 cellOf 的 default 支直出 row[k]（encodeIds 后的 hashid），列上就出现一串雪花编码。
+// 守 default 支的 `*_id` 兜底 —— 与 React DataTable 的 fkText 兜底同口径（客户等级 是实测漏点）
+eq(
+  '裸对象外键列（无 kind）落占位（不是裸 hashid）',
+  cellOf({ key: 'level_id', title: '等级' }, { level_id: 'HASH_LEVEL' }).text,
+  '-',
+);
+eq(
+  '主键 id 列不受兜底影响（仍直出）',
+  cellOf({ key: 'id', title: 'ID' }, { id: 'HASH_ORDER' }).text,
+  'HASH_ORDER',
+);
+
 console.log('── C. 外键三条解析途径 ──');
 
 // 途径 2：`<base>` 关系对象（with 预加载）
@@ -213,10 +231,12 @@ ok('id / __ 前缀 / 嵌套对象都不出行', wiredItems.length === 1 && wired
 console.log('── E. React 端接线（静态） ──');
 
 const REACT_PAGE = readFileSync(new URL('../apps/react/src/components/ResourcePage.tsx', import.meta.url), 'utf8');
+// 尾参不写死（`[,)]`）：本脚本守的是「detail/cols 有没有传」，后面再接 cfg.dicts 之类
+// 的追加参数不该判红；完整实参表由 scripts/check-fe-enum-text.mjs:364 钉住。
 ok(
   'ResourcePage 详情把列传给 inferDetailItems（详情与列表同源）',
-  /inferDetailItems\(\s*detail\s*,\s*cols\s*\)/.test(REACT_PAGE),
-  '未找到 inferDetailItems(detail, cols)',
+  /inferDetailItems\(\s*detail\s*,\s*cols\s*[,)]/.test(REACT_PAGE),
+  '未找到 inferDetailItems(detail, cols, …)',
 );
 
 const REACT_DEFAULTS = readFileSync(new URL('../apps/react/src/lib/defaults.tsx', import.meta.url), 'utf8');
@@ -232,8 +252,211 @@ ok(
 );
 ok(
   'React ResourcePage 把 cfg.filters 传进 inferColumns（状态字典与 Angular 同源）',
-  /inferColumns\(\s*rows\s*,\s*cfg\.endpoint\s*,\s*cfg\.fields\s*,\s*\d+\s*,\s*cfg\.filters\s*\)/.test(REACT_PAGE),
-  '未找到 inferColumns(..., cfg.filters)',
+  /inferColumns\(\s*rows\s*,\s*cfg\.endpoint\s*,\s*cfg\.fields\s*,\s*\d+\s*,\s*cfg\.filters\s*[,)]/.test(REACT_PAGE),
+  '未找到 inferColumns(..., cfg.filters, …)',
+);
+
+console.log('── F. 动作/报表回包（resultBlocks 真身） ──');
+
+/* 比价面板夹具：询价单头 + 行对比矩阵 + 报价表（RfqController::compare 的回包形状） */
+const COMPARE = {
+  rfq: { id: 'HASH_RFQ', code: 'RFQ1', buyer_id: 'HASH_BUYER', buyer_real_name: '张三', status: 1 },
+  target_total: '300.00',
+  lowest_quote_id: 'HASH_LQ',
+  items: [
+    {
+      rfq_item_id: 'HASH_ITEM',
+      product_id: 'HASH_P',
+      product_code: 'P-0001',
+      product_name: '演示成品',
+      quantity: '10',
+      unit: '个',
+      target_price: '10',
+      target_amount: '100.00',
+    },
+  ],
+  quotes: [{ amount: '95.00', supplier_name: '宁波某某供应商', is_lowest: 1 }],
+};
+const blocks = resultBlocks(COMPARE);
+const titles = blocks.map((b) => b.title);
+const blockBy = (t) => blocks.find((b) => b.title === t);
+const headOf = (t) => blockBy(t)?.head ?? [];
+
+ok('回包不出现裸外键/主键 hashid', !JSON.stringify(blocks).includes('HASH_'), JSON.stringify(blocks));
+ok(
+  '嵌套块标题过 keyTitle（items/rfq/quotes 不带英文键上屏）',
+  ['明细', '询价单', '报价'].every((t) => titles.includes(t)),
+  titles.join(' | '),
+);
+ok(
+  '矩阵列标题命中标题表（目标金额/商品编码）',
+  headOf('明细').includes('目标金额') && headOf('明细').includes('商品编码'),
+  JSON.stringify(headOf('明细')),
+);
+ok('报价表列标题命中标题表（供应商/最低价）', headOf('报价').includes('供应商') && headOf('报价').includes('最低价'), JSON.stringify(headOf('报价')));
+// 别名表：buyer_id → buyer_real_name（buyer_name 键属税票的购买方名称，撞名会出「购买方名称 → 张三」）
+eq('询价单头：采购员出 buyer_real_name（别名）', blockBy('询价单')?.kv.find((x) => x.k === '采购员ID')?.v, '张三');
+// 无名称兄弟键的外键（lowest_quote_id）：按契约落占位，不回落裸 hashid
+eq('无兄弟键的外键落占位', blocks[0].kv.find((x) => x.k === '最低价报价ID')?.v, '-');
+
+console.log('── G. 两端别名表一致 + React 接线（静态） ──');
+
+const aliasOf = (src, name) => {
+  const body = src.slice(src.indexOf(name + ':'), src.indexOf('};', src.indexOf(name + ':')));
+  return Object.fromEntries([...body.matchAll(/^\s*([a-z0-9_]+):\s*'([a-z0-9_]+)',/gm)].map((m) => [m[1], m[2]]));
+};
+const REL = aliasOf(readFileSync(new URL(NG), 'utf8'), 'NAME_ALIAS');
+const REACT_REL = readFileSync(new URL('../apps/react/src/lib/relation.ts', import.meta.url), 'utf8');
+ok(
+  '两端别名表逐键逐值相同（Angular NAME_ALIAS = React REL_ALIAS）',
+  JSON.stringify(aliasOf(REACT_REL, 'REL_ALIAS')) === JSON.stringify(REL),
+  `react=${JSON.stringify(aliasOf(REACT_REL, 'REL_ALIAS'))} ng=${JSON.stringify(REL)}`,
+);
+
+const REACT_DT = readFileSync(new URL('../apps/react/src/components/DataTable.tsx', import.meta.url), 'utf8');
+ok(
+  'DataTable 的 `*_id` 兜底走 fkText（不是 String(take(...))）',
+  /key\.endsWith\('_id'\)[\s\S]{0,80}fkText\(row, c\.key\)/.test(REACT_DT),
+  '未找到 fkText(row, c.key) 兜底',
+);
+const REACT_FF = readFileSync(new URL('../apps/react/src/components/FormFields.tsx', import.meta.url), 'utf8');
+ok('ResultView 两处（数组列 / 对象行）都走 fkText', (REACT_FF.match(/fkText\(/g) ?? []).length >= 2, 'ResultView 里 fkText 调用不足 2 处');
+
+console.log('── H. 移动端：详情行/导航标题不落裸外键（静态） ──');
+
+// HarmonyOS（ArkTS）与 Flutter（Dart）在本机没有 DOM/运行时可跑，按本仓约定做静态接线检查
+// （同 E/G 组的 React 端）。守的是同一类缺陷：外键原值（encodeIds 后的 hashid 串、或未编码的
+// 明文 int）被当作字段值上屏 —— 「详情页显示ID值」的移动端形态。
+const collect = (dir, ext, out) => {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) collect(p, ext, out);
+    else if (e.name.endsWith(ext)) out.push(p);
+  }
+};
+const ETS = [];
+const DART = [];
+collect(fileURLToPath(new URL('../apps/harmonyos/entry/src/main/ets', import.meta.url)), '.ets', ETS);
+collect(fileURLToPath(new URL('../apps/flutter/lib', import.meta.url)), '.dart', DART);
+
+/** 逐行匹配，命中即报（含文件:行号，便于直接改） */
+const hitLines = (files, re) =>
+  files.flatMap((f) =>
+    readFileSync(f, 'utf8')
+      .split('\n')
+      .map((line, i) => ({ f: f.slice(f.indexOf('/apps/') + 1), n: i + 1, line: line.trim() }))
+      .filter((x) => re.test(x.line)),
+  );
+
+// 详情行：外键只出名称兄弟键/关系对象（后端 leftJoin 带出），没有就落「-」占位
+const detailHits = hitLines(ETS, /DetailRow\(\{[^}]*\[['"][a-z_]+_id['"]\]/).concat(
+  hitLines(DART, /(detailRow|DetailRow)\(.*\[['"][a-z_]+_id['"]\]/),
+);
+ok('详情行不把外键当字段值（ArkTS + Dart）', detailHits.length === 0, JSON.stringify(detailHits));
+
+// 导航标题：原来把单据ID当 title 传给详情页，AppBar 直接印出纯数字 ID
+const titleHits = hitLines(ETS, /(title|subtitle): *[^,]*\[['"][a-z_]+_id['"]\]/).concat(
+  hitLines(DART, /'title':.*\[['"][a-z_]+_id['"]\]/),
+);
+ok('行标题/导航标题不从外键取值（回落文案标题）', titleHits.length === 0, JSON.stringify(titleHits));
+
+// 辅助函数体内的变量形态：`value: id` / `name.isEmpty ? id : name`。
+// 上面两条判别子只认字面量 `['xxx_id']`，helper 里传进来的是变量（如
+// FulfillmentDetailPage._optionalRefRow 的 `value: id`）—— 归零后由本条守住。
+const fallbackHits = hitLines(DART, /value: *id\b|\.isEmpty *\? *id\b/);
+ok('详情行辅助函数不回落裸 id（Dart 变量形态）', fallbackHits.length === 0, JSON.stringify(fallbackHits));
+
+// 列表单元格里的 `名称 ?? 外键 id` 兜底：名称取不到时贴出的是 encodeIds 后的 hashid
+// （销售/采购/报价/CRM 列表的客户列、费用科目、仓库列等 9 处，2026-09-22 归零）
+const idFallbackRe = /\?\? *[A-Za-z_][A-Za-z0-9_]*\[['"][a-z_]+_id['"]\]/;
+const idFallbackHits = hitLines(DART, idFallbackRe).concat(hitLines(ETS, idFallbackRe));
+ok('列表单元格不回落裸外键（?? 取 *_id）', idFallbackHits.length === 0, JSON.stringify(idFallbackHits));
+
+// 行标题/副行直接拼外键属性（ArkTS 形态：`subtitle: ... + String(item.warehouse_id ?? '-')`）。
+// 判别子用 `.*`（不能用 `[^,]*`：L10n.str(ctx, 'key', …) 的逗号在属性之前会截断匹配 —— 窄判别子
+// 会静默漏报，2026-09-22 负控时踩过）。Dart 侧的等价形态（`['xxx_id']` 下标）由上面两条覆盖
+const attrHits = hitLines(ETS, /(title|subtitle):.*\b[A-Za-z_][A-Za-z0-9_]*\.[a-z_]+_id\b/);
+ok('行标题/副行不拼外键属性（ArkTS）', attrHits.length === 0, JSON.stringify(attrHits));
+
+console.log('── I. 全页面扫：外键裸值 / 标签落原始键（140 页真配置 × 真引擎） ──');
+
+/* 上面各节是夹具驱动（点状），这一节是面状：把 8 个域的**真配置**逐页取出来，按生产口径
+ * （`cfg.columns ?? inferColumns(...)`）渲染抽屉，喂一行「外键＝编码后 ID」形状的合成行，断言两件事：
+ *   ① 任何 `*_id`/`*_by`/数字 `*_to` 键的原值都不得作为值上屏（无名称兄弟时落「-」占位）；
+ *   ② 标签不得回落成原始键（含驼峰：`account_name` → `accountName`）—— 用户报的「中文语言下还是英文」。
+ * 合成行会造出集合键的假行（ng-titles 的探针陷阱①），但假行的标签走标题表、值不是外键形状，
+ * 两条断言都不受影响；真出现即为「显式声明 columns 的页绕过了兜底」这类真缺陷。 */
+const DOMAINS = ['trade', 'goods', 'fulfill', 'mfg', 'finance', 'crm', 'mgmt', 'system'];
+const allPages = [];
+for (const d of DOMAINS) {
+  const menus = (await import(new URL(`../apps/angular/src/app/config/domains/${d}.ts`, import.meta.url).href))[
+    `${d}Menus`
+  ];
+  const walk = (list) =>
+    list.forEach((x) => {
+      if (x.path && x.cfg) allPages.push(x);
+      if (x.children) walk(x.children);
+    });
+  walk(menus);
+}
+const fkShape = (k, v) =>
+  k !== 'id' && !k.startsWith('__') && (k.endsWith('_id') || k.endsWith('_by') || (k.endsWith('_to') && /^\d+$/.test(String(v ?? ''))));
+const sweepLeaks = [];
+let sentinelCount = 0;
+// 只喂配置声明的键是不够的：`approved_by`/`assigned_to` 这类外键**从不出现在 cfg.columns/fields 里**，
+// 只在后端行里 —— 上一版扫器因此对 `_by` 类完全失明（变异控制：把 isRelKey 退回只认 `_id`，扫器照样全绿）。
+// 故从 DDL 取**全部数值型 FK 列名**做超集喂入（页面用不到也无害；真出现裸值即是一处活体）。
+const fkCols = [
+  ...new Set(
+    [...readFileSync(new URL('../database/install.sql', import.meta.url), 'utf8').matchAll(
+      /^\s+`([a-z_]+)`\s+(?:BIGINT|INT|SMALLINT)\b/gm,
+    )]
+      .map((m) => m[1])
+      .filter((k) => k.endsWith('_id') || k.endsWith('_by') || k.endsWith('_to')),
+  ),
+];
+for (const m of allPages) {
+  const keys = new Set([
+    ...Object.keys(m.cfg.dicts ?? {}),
+    ...(m.cfg.columns ?? []).map((c) => c.key),
+    ...(m.cfg.fields ?? []).map((f) => f.key),
+    ...[m.cfg.filters].filter(Boolean).map((f) => f.key),
+  ]);
+  const row = { id: 'H', code: 'X-1' };
+  const sentinel = new Map();
+  let i = 0;
+  for (const k of [...keys, ...fkCols]) {
+    if (k === 'id' || k in row) continue;
+    const fkish = k.endsWith('_id') || k.endsWith('_by') || k.endsWith('_to');
+    const raw = fkish ? `41000000000000${String(i).padStart(2, '0')}` : `值${i}`;
+    row[k] = raw;
+    if (fkShape(k, raw)) sentinel.set(k, raw);
+    i++;
+  }
+  const cols = m.cfg.columns ?? inferColumns([row], m.cfg.endpoint, m.cfg.fields, {}, 8, m.cfg.filters, m.cfg.dicts);
+  const items = inferDetailItems(row, cols, m.cfg.dicts, m.cfg.fields);
+  const vals = items.map((x) => String(x.v));
+  const labels = items.map((x) => String(x.k));
+  for (const [k, raw] of sentinel) {
+    sentinelCount++;
+    if (vals.includes(raw)) sweepLeaks.push(`${m.path} ${k} 裸值上屏`);
+  }
+  for (const k of keys) {
+    // 集合键是合成行的假行走廊（`role_ids` 在 erp_admin_user 里根本没有这列，角色走 with('roles')；
+    // `items` 由 index 的 with 决定），标签断言对它们无意义 —— 2026-09-22 变异控制时正是它造出唯一假阳
+    if (k === 'id' || k.endsWith('_ids') || ['items', 'roles', 'permissions', 'children'].includes(k)) continue;
+    const camel = k.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+    if (labels.includes(k) || labels.includes(camel)) {
+      sweepLeaks.push(`${m.path} 标签落原始键 ${k}`);
+    }
+  }
+}
+ok(
+  `外键裸值 / 原始键标签全页扫：${allPages.length} 页 / ${sentinelCount} 个外键哨兵 / ${allPages.reduce((n, m) => n + (m.cfg.columns?.length ?? m.cfg.fields?.length ?? 0), 0)} 个页面键`,
+  sweepLeaks.length === 0 && sentinelCount > 0,
+  sweepLeaks.length === 0
+    ? `哨兵数为 ${sentinelCount}（0 说明合成行没造出外键键，断言空转）`
+    : sweepLeaks.slice(0, 8).join('；') + (sweepLeaks.length > 8 ? ` …共 ${sweepLeaks.length} 处` : ''),
 );
 
 console.log(fails === 0 ? '\n全部通过' : `\n${fails} 例失败`);

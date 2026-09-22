@@ -91,6 +91,10 @@ class DashboardController extends BaseController
         $item = new BiDashboard();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 外键（列表 encodeIds 下发的 hashid 串）须解码后再落库：fill 直填 BIGINT 列报 1366。
+        // 未提供/空串（前端下拉留空下发 ''）落 0 = 不指定（列 NOT NULL DEFAULT 0）
+        $fks = $this->foreignKeyFields($item);
+        $item->fill($this->decodeIdFields($request, $fks) + array_fill_keys($fks, 0));
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -158,6 +162,8 @@ class DashboardController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         $this->fillModelFromRequest($item, $request);
+        // 同 store：外键提供时解码覆写（hashid 直填 BIGINT 列报 1366）；缺省/空串=不改动
+        $item->fill($this->decodeIdFields($request, $this->foreignKeyFields($item)));
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

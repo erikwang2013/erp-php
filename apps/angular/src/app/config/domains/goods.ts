@@ -23,13 +23,15 @@ export const goodsMenus: MenuGroup[] = [
         path: '/product/product',
         cfg: res('商品管理', '/admin/v1/product', {
           deleteNeedsPassword: true,
+          // erp_product.status 注释「状态: 0=禁用 1=启用」
+          dicts: { status: { 1: '启用', 0: '禁用' } },
           // 显式列出列：inferColumns 按行键顺序取前 8 列，而 erp_product 的列序是
           // category_id/brand_id/code/name/barcode/spec/unit/image —— 正好占满 8 格，
           // 后端追加的 price 与 description/status 永远进不了列表（列不存在，不是空白）
           columns: [
             textCol('name', '商品名称', true),
             textCol('code', '商品编码'),
-            textCol('category_id', '分类'),
+            textCol('category_name', '分类'),
             textCol('spec', '规格型号'),
             textCol('unit', '单位'),
             moneyCol('price', '价格'),
@@ -67,6 +69,8 @@ export const goodsMenus: MenuGroup[] = [
         path: '/product/category',
         cfg: res('商品分类', '/admin/v1/category', {
           deleteNeedsPassword: true,
+          // erp_category.status 注释「状态: 0=禁用 1=启用」
+          dicts: { status: { 1: '启用', 0: '禁用' } },
           fields: [{ key: 'name', label: '分类名称', required: true }],
         }),
       },
@@ -75,6 +79,8 @@ export const goodsMenus: MenuGroup[] = [
         path: '/product/brand',
         cfg: res('品牌管理', '/admin/v1/brand', {
           deleteNeedsPassword: true,
+          // erp_brand.status 注释「状态: 0=禁用 1=启用」
+          dicts: { status: { 1: '启用', 0: '禁用' } },
           fields: [
             { key: 'name', label: '品牌名称', required: true },
             { key: 'logo', label: 'LOGO 地址' },
@@ -89,6 +95,8 @@ export const goodsMenus: MenuGroup[] = [
         path: '/product/spec',
         cfg: res('商品规格', '/admin/v1/spec', {
           deleteNeedsPassword: true,
+          // erp_product_spec.status 注释「状态: 0=禁用 1=启用」
+          dicts: { status: { 1: '启用', 0: '禁用' } },
           // 显式列出列：inferColumns 只按行数据键推断，无法得知 attrs 该渲染成胶囊
           columns: [
             { key: 'name', title: '规格名称', primary: true },
@@ -126,6 +134,8 @@ export const goodsMenus: MenuGroup[] = [
           endpoint: '/admin/v1/supplier',
           deleteNeedsPassword: true,
           filters: ST_FILTER,
+          // erp_supplier.status 注释「状态: 0=禁用 1=启用」
+          dicts: { status: { 1: '启用', 0: '禁用' } },
           columns: [
             { key: 'name', title: '供应商', primary: true },
             { key: 'code', title: '编码' },
@@ -158,10 +168,15 @@ export const goodsMenus: MenuGroup[] = [
           endpoint: '/admin/v1/customer',
           deleteNeedsPassword: true,
           filters: ST_FILTER,
+          // erp_customer.status 注释「状态: 0=禁用 1=启用」；
+          // credit_frozen 注释「信用冻结: 0=正常 1=冻结(阻断一切新销售单据)」
+          dicts: { status: { 1: '启用', 0: '禁用' }, credit_frozen: { 0: '正常', 1: '冻结' } },
           columns: [
             { key: 'name', title: '客户', primary: true },
             { key: 'code', title: '编码' },
-            { key: 'level_id', title: '等级' },
+            // 裸对象列没有 kind：cellOf 落 default 支直出 row['level_id']（encodeIds 后的 hashid）。
+            // 客户列表未 join customer_level（后端无 level_name），走 textCol → rel 支落「-」占位
+            textCol('level_id', '等级'),
             { key: 'contact_person', title: '联系人' },
             { key: 'phone', title: '电话' },
             moneyCol('credit_limit', '信用额度'),
@@ -188,6 +203,8 @@ export const goodsMenus: MenuGroup[] = [
         path: '/partner/warehouse',
         cfg: res('仓库管理', '/admin/v1/warehouse', {
           deleteNeedsPassword: true,
+          // erp_warehouse.status 注释「状态: 0=禁用 1=启用」
+          dicts: { status: { 1: '启用', 0: '禁用' } },
           fields: [
             { key: 'name', label: '仓库名称', required: true },
             { key: 'code', label: '仓库编码', required: true, help: '后端 NOT NULL，留空直接 500' },
@@ -203,6 +220,8 @@ export const goodsMenus: MenuGroup[] = [
         path: '/partner/location',
         cfg: res('库位管理', '/admin/v1/location', {
           deleteNeedsPassword: true,
+          // erp_location.status 注释「状态: 0=禁用 1=启用」
+          dicts: { status: { 1: '启用', 0: '禁用' } },
           fields: [
             { key: 'warehouse_id', label: '所属仓库', source: { endpoint: '/admin/v1/warehouse' } },
             { key: 'code', label: '库位编码' },

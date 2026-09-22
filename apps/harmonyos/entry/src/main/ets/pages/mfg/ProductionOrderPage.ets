@@ -11,6 +11,7 @@ import { TopBar, TopBarAction } from '../../common/TopBar';
 import { ConfirmDialog } from '../../common/FormDialog';
 import { ListRow, RowBadge, RowAction, ListSectionHeader } from '../../common/ListRow';
 import { ProductionOrderFormView } from './ProductionOrderFormView';
+import { RefOption, toRefOptions } from '../../common/RefDialog';
 
 /**
  * 生产工单列表项（与后端 /admin/mfg/production 返回字段对齐）
@@ -64,8 +65,46 @@ struct ProductionOrderPage {
   @State formPlannedEnd: string = '';
   @State formRemark: string = '';
 
+  // 表单外键下拉选项（value = 行 id 的 hashid 串，原样回传）
+  @State bomRefs: Array<RefOption> = [];
+  @State warehouseRefs: Array<RefOption> = [];
+
   aboutToAppear(): void {
     this.loadData();
+    this.loadBomRefs();
+    this.loadWarehouseRefs();
+  }
+
+  /** BOM 下拉数据源（失败不阻断页面：选项为空时由表单必填校验兜底） */
+  async loadBomRefs(): Promise<void> {
+    try {
+      const res = await this.api.get<Record<string, Object>>('/admin/mfg/bom?page=1&limit=500');
+      const data = res.data as Record<string, Object>;
+      this.bomRefs = toRefOptions((data['list'] as Array<Object>) ?? []);
+    } catch (e) {
+      if (e instanceof Error && e.message === 'UNAUTHORIZED') {
+        router.replaceUrl({ url: 'pages/LoginPage' });
+        return;
+      }
+      const msg = e instanceof Error ? e.message : '';
+      promptAction.showToast({ message: msg !== '' ? msg : L10n.str(this.getUIContext(), 'load_failed') });
+    }
+  }
+
+  /** 仓库下拉数据源（失败不阻断页面：留空即为 0，后端取缺省） */
+  async loadWarehouseRefs(): Promise<void> {
+    try {
+      const res = await this.api.get<Record<string, Object>>('/admin/warehouse?page=1&limit=500');
+      const data = res.data as Record<string, Object>;
+      this.warehouseRefs = toRefOptions((data['list'] as Array<Object>) ?? []);
+    } catch (e) {
+      if (e instanceof Error && e.message === 'UNAUTHORIZED') {
+        router.replaceUrl({ url: 'pages/LoginPage' });
+        return;
+      }
+      const msg = e instanceof Error ? e.message : '';
+      promptAction.showToast({ message: msg !== '' ? msg : L10n.str(this.getUIContext(), 'load_failed') });
+    }
   }
 
   async loadData(isRefresh: boolean = false): Promise<void> {
@@ -180,8 +219,10 @@ struct ProductionOrderPage {
     this.isSubmitting = true;
     const body: SaveBody = {
       code: this.formCode,
-      bom_id: this.formBomId ? Number(this.formBomId) : 0,
-      warehouse_id: this.formWarehouseId ? Number(this.formWarehouseId) : 0,
+      // 值来自下拉，即后端行的 hashid 串：原样回传（Number() 会把 hashid 折算成 NaN
+      // → JSON null/0）；后端 ProductionController 对两列均双模解码（bom_id 必填 / warehouse_id 可选）
+      bom_id: this.formBomId ? this.formBomId : 0,
+      warehouse_id: this.formWarehouseId ? this.formWarehouseId : 0,
       planned_quantity: this.formPlannedQuantity ? Number(this.formPlannedQuantity) : 0,
       status: this.formStatus,
       planned_start: this.formPlannedStart,
@@ -272,12 +313,19 @@ struct ProductionOrderPage {
     .backgroundColor($r('app.color.bg_page'))
   }
 
-  /** 行徽章：启用 success / 停用 danger（kind 同源驱动行 icon 圆徽色） */
+  /** 行徽章：erp_mfg_production_order.status DDL 0待生产/1生产中/2已完成/3已取消
+   *  （0 未开工 neutral、1 进行中 warning、2 完成 success、3 取消 danger） */
   private productionBadge(item: MfgProductionItem): RowBadge {
-    if (item.status === 1) {
-      return new RowBadge('success', $r('app.string.status_enabled'));
+    const code: number = item.status;
+    let kind: string = 'neutral';
+    if (code === 1) {
+      kind = 'warning';
+    } else if (code === 2) {
+      kind = 'success';
+    } else if (code === 3) {
+      kind = 'danger';
     }
-    return new RowBadge('danger', $r('app.string.status_disabled'));
+    return new RowBadge(kind, L10n.str(this.getUIContext(), `production_status_${code}`));
   }
 
   /**
@@ -302,7 +350,9 @@ struct ProductionOrderPage {
                 ListItem() {
                   ListRow({
                     title: item.code || '-',
-                    subtitle: L10n.str(this.getUIContext(), 'production_bom_id') + ': ' + String(item.bom_id ?? '-'),
+                    // 副行不再贴 BOM hashid（生产工单 index 未 join bom，回包里 bom_id 是
+                    // encodeIds 后的编码；契约 rule ④ 无可读名称就不出该段 —— 空串不渲染副行）
+                    subtitle: '',
                     icon: item.code || '-',
                     badge: this.productionBadge(item),
                     actions: [
@@ -367,6 +417,8 @@ struct ProductionOrderPage {
     ProductionOrderFormView({
       formMode: this.formMode,
       isSubmitting: this.isSubmitting,
+      bomRefs: this.bomRefs,
+      warehouseRefs: this.warehouseRefs,
       formCode: this.formCode,
       formBomId: this.formBomId,
       formWarehouseId: this.formWarehouseId,

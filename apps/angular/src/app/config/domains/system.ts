@@ -170,11 +170,15 @@ export const systemMenus: MenuGroup[] = [
           moduleKey: 'system',
           endpoint: '/admin/v1/config',
           searchPlaceholder: '搜索配置键',
+          // erp_system_config.type（install.sql:138 `值类型: string|int|bool|json|array`，斜杠码表无中文）
+          // 译文取自本页表单自己的 options；json 表单没提供但 DDL 有，行里可能存着
+          dicts: { type: { string: '字符串', int: '整数', bool: '布尔', array: '数组', json: 'JSON' } },
           columns: [
             { key: 'group', title: '分组', primary: true },
             { key: 'key', title: '配置键' },
             { key: 'value', title: '值' },
-            { key: 'type', title: '类型' },
+            // 本页声明了 columns，推断不参与 —— 列自己带 kind+dict（cfg.dicts 只管抽屉与注册锁）
+            { key: 'type', title: '类型', kind: 'map', dict: { string: '字符串', int: '整数', bool: '布尔', array: '数组', json: 'JSON' } },
             { key: 'description', title: '说明' },
           ],
           fields: [

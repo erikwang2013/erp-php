@@ -3,11 +3,11 @@
  */
 
 import { dateCol, docStatus, moneyCol, statusCol, textCol } from '../cells';
-import { res, type MenuGroup } from '../types';
+import { res, type DictMap, type MenuGroup } from '../types';
 
 import type { ActionDef } from '../types';
 
-/** 单据列基线：编号 | 状态 | 创建时间（WMS/TMS 各表无金额列） */
+/** 单据列基线：编号 | 状态 | 创建时间（WMS/TMS 各表无金额列）；dicts 供详情抽屉的枚举键（同 cfg.dicts） */
 const doc = (
   moduleKey: string,
   title: string,
@@ -15,6 +15,7 @@ const doc = (
   st: ReturnType<typeof docStatus>,
   action?: ActionDef | ActionDef[],
   columns?: { key: string; title: string }[],
+  dicts?: DictMap,
 ) =>
   res(title, endpoint, {
     moduleKey,
@@ -22,6 +23,7 @@ const doc = (
     filters: st.filter,
     actions: action ? (Array.isArray(action) ? action : [action]) : undefined,
     columns: columns ?? [textCol('code', '编号', true), statusCol(st.dict), dateCol('created_at', '创建时间')],
+    dicts,
   });
 
 /** OMS 订单状态筛选：erp_oms_order 无 status 列，后端按关联销售订单 status 过滤（同销售订单枚举） */
@@ -41,6 +43,18 @@ const PACK = docStatus(['待打包', '打包中', '已完成']);
 const SHIPMENT = docStatus(['待发货', '已取件', '运输中', '已送达', '异常', '已退回']);
 const FREIGHT = docStatus(['待审核', '已确认', '已付款']);
 
+/** erp_oms_order.channel 渠道: manual/web/mobile/api/marketplace/edi/pos（列是 textCol，字典须挂在列上才生效；
+ *  EDI/POS 是语言中立值，与 HarmonyOS string.json 的 oms_channel_edi/oms_channel_pos 逐字同文案） */
+const OMS_ORDER_CHANNEL: Record<string, string> = {
+  manual: '手工',
+  web: '网页',
+  mobile: '移动端',
+  api: '接口',
+  marketplace: '电商平台',
+  edi: 'EDI',
+  pos: 'POS',
+};
+
 export const fulfillMenus: MenuGroup[] = [
   {
     label: '订单管理',
@@ -57,7 +71,14 @@ export const fulfillMenus: MenuGroup[] = [
           deleteNeedsPassword: true,
           filters: OMS_STATUS.filter,
           // 表无 code/金额列：单号取关联销售订单 code（后端 leftJoin 别名），运费列 shipping_fee
-          columns: [textCol('code', '订单号', true), textCol('channel', '渠道'), textCol('channel_order_no', '渠道单号'), moneyCol('shipping_fee', '运费'), statusCol(OMS_FULFILL.dict, 'fulfillment_status'), dateCol('created_at', '下单时间')],
+          columns: [textCol('code', '订单号', true), { key: 'channel', title: '渠道', kind: 'map', dict: OMS_ORDER_CHANNEL }, textCol('channel_order_no', '渠道单号'), moneyCol('shipping_fee', '运费'), statusCol(OMS_FULFILL.dict, 'fulfillment_status'), dateCol('created_at', '下单时间')],
+          // 列没覆盖的枚举键只在详情抽屉露面，逐键字典取自 install.sql 该列注释（禁止跨表复用）
+          dicts: {
+            // erp_oms_order.priority：优先级: 1=最高 5=正常 9=最低
+            priority: { 1: '最高', 5: '正常', 9: '最低' },
+            // erp_oms_order.payment_status：支付状态: 0=待支付 1=已支付 2=部分退款 3=已退款
+            payment_status: { 0: '待支付', 1: '已支付', 2: '部分退款', 3: '已退款' },
+          },
           actions: [
             {
               label: '库存分配',
@@ -107,6 +128,8 @@ export const fulfillMenus: MenuGroup[] = [
           deleteNeedsPassword: true,
           filters: RMA.filter,
           columns: [textCol('code', '编号', true), moneyCol('refund_amount', '退款金额'), statusCol(RMA.dict), dateCol('created_at', '创建时间')],
+          // erp_oms_rma.type：类型: 1=退货 2=换货 3=维修（列不在 columns 里，只有详情抽屉看得到）
+          dicts: { type: { 1: '退货', 2: '换货', 3: '维修' } },
           // erp_oms_rma.customer_id NOT NULL 无默认；type 枚举取 install.sql 列注释 1=退货 2=换货 3=维修
           // code 后端有 empty() 自生成兜底，但 store 的 validator 目前仍 'code' => 'required'（be-create 在放宽），故留可选输入框过渡
           fields: [
@@ -127,7 +150,9 @@ export const fulfillMenus: MenuGroup[] = [
           ],
         },
       },
-      { label: '渠道管理', path: '/oms/channel', cfg: res('销售渠道', '/admin/v1/oms/channel', { moduleKey: 'oms', deleteNeedsPassword: true, fields: [{ key: 'code', label: '渠道编码', required: true }, { key: 'name', label: '渠道名称', required: true }] }) },
+      // erp_channel.status：状态: 0=禁用 1=启用（不写 columns 的推断页，不给字典就落通用档误标「已生效」）
+      // erp_channel.type：类型: direct/marketplace/edi/pos（改前裸出 direct；与 erp_oms_order.channel 不同表，禁止跨表复用）
+      { label: '渠道管理', path: '/oms/channel', cfg: res('销售渠道', '/admin/v1/oms/channel', { moduleKey: 'oms', deleteNeedsPassword: true, fields: [{ key: 'code', label: '渠道编码', required: true }, { key: 'name', label: '渠道名称', required: true }], dicts: { status: { 1: '启用', 0: '禁用' }, type: { direct: '直销', marketplace: '电商平台', edi: 'EDI', pos: 'POS' } } }) },
     ],
   },
   {
@@ -136,9 +161,12 @@ export const fulfillMenus: MenuGroup[] = [
     moduleKey: 'wms',
     children: [
       // erp_wms_zone 真实列：warehouse_id/code/name 均 NOT NULL 无默认
-      { label: '库区管理', path: '/wms/zone', cfg: res('库区管理', '/admin/v1/wms/zone', { moduleKey: 'wms', deleteNeedsPassword: true, fields: [{ key: 'warehouse_id', label: '所属仓库', required: true, source: { endpoint: '/admin/v1/warehouse' } }, { key: 'code', label: '库区编码', required: true }, { key: 'name', label: '库区名称', required: true }] }) },
+      // 逐键字典：erp_wms_zone.type 类型: 1=收货区 2=存储区 3=拣货区 4=打包区 5=发货区 6=退货区 7=质检区
+      //           erp_wms_zone.status 状态: 0=禁用 1=启用（type 改前裸出数字 1；status 改前落通用档误标「已生效」）
+      { label: '库区管理', path: '/wms/zone', cfg: res('库区管理', '/admin/v1/wms/zone', { moduleKey: 'wms', deleteNeedsPassword: true, fields: [{ key: 'warehouse_id', label: '所属仓库', required: true, source: { endpoint: '/admin/v1/warehouse' } }, { key: 'code', label: '库区编码', required: true }, { key: 'name', label: '库区名称', required: true }], dicts: { type: { 1: '收货区', 2: '存储区', 3: '拣货区', 4: '打包区', 5: '发货区', 6: '退货区', 7: '质检区' }, status: { 1: '启用', 0: '禁用' } } }) },
       // erp_wms_location 无 code/name/warehouse_id 列：所属库位指 erp_location（/admin/v1/location），库区指 erp_wms_zone
-      { label: '库位管理', path: '/wms/location', cfg: res('库位管理', '/admin/v1/wms/location', { moduleKey: 'wms', deleteNeedsPassword: true, fields: [{ key: 'location_id', label: '所属库位', required: true, source: { endpoint: '/admin/v1/location' } }, { key: 'zone_id', label: '库区', required: true, source: { endpoint: '/admin/v1/wms/zone' } }, { key: 'bin', label: '货位' }, { key: 'barcode', label: '条码' }] }) },
+      // 逐键字典：erp_wms_location.status 状态: 1=可用 0=禁用（改前落通用档误标「已生效/待处理」；与其它表的「启用」不同名，禁止跨表复用）
+      { label: '库位管理', path: '/wms/location', cfg: res('库位管理', '/admin/v1/wms/location', { moduleKey: 'wms', deleteNeedsPassword: true, fields: [{ key: 'location_id', label: '所属库位', required: true, source: { endpoint: '/admin/v1/location' } }, { key: 'zone_id', label: '库区', required: true, source: { endpoint: '/admin/v1/wms/zone' } }, { key: 'bin', label: '货位' }, { key: 'barcode', label: '条码' }], dicts: { status: { 1: '可用', 0: '禁用' } } }) },
       {
         label: '预到货 ASN',
         path: '/wms/asn',
@@ -188,7 +216,10 @@ export const fulfillMenus: MenuGroup[] = [
           // confirmPutaway 要求 status===1（0=待上架 1=上架中 2=已完成）
           { label: '开始上架', icon: 'play', path: (r) => (Number(r.status) === 0 ? `/admin/v1/wms/putaway/${String(r.id)}/start` : null), message: '已开始上架' },
           { label: '上架完成', icon: 'check', path: (r) => (Number(r.status) === 1 ? `/admin/v1/wms/putaway/${String(r.id)}/complete` : null), message: '上架已完成' },
-        ], [textCol('code', '编号', true), statusCol(PUTAWAY.dict), dateCol('completed_at', '完成时间')]),
+        ], [textCol('code', '编号', true), statusCol(PUTAWAY.dict), dateCol('completed_at', '完成时间')], {
+          // erp_wms_putaway_task.strategy 上架策略: fifo/lifo/zone_fixed/abc（列不在 columns 里，只有详情抽屉看得到）
+          strategy: { fifo: '先进先出', lifo: '后进先出', zone_fixed: '固定货位', abc: 'ABC分类' },
+        }),
       },
       {
         label: '波次管理',
@@ -214,6 +245,10 @@ export const fulfillMenus: MenuGroup[] = [
             },
           ],
           message: '波次已释放',
+        }, undefined, {
+          // erp_wms_wave.type 类型: 1=拣货波次 2=发货波次；erp_wms_wave.priority 优先级: 1=最高 5=正常
+          type: { 1: '拣货波次', 2: '发货波次' },
+          priority: { 1: '最高', 5: '正常' },
         }),
       },
       {
@@ -242,7 +277,12 @@ export const fulfillMenus: MenuGroup[] = [
             ],
             message: '拣货已确认',
           },
-        ]),
+        ], undefined, {
+          // erp_wms_pick_task.type 类型: 1=按单拣货 2=批量拣货 3=分区拣货 4=波次拣货
+          // erp_wms_pick_task.priority 优先级: 1=最高 5=正常
+          type: { 1: '按单拣货', 2: '批量拣货', 3: '分区拣货', 4: '波次拣货' },
+          priority: { 1: '最高', 5: '正常' },
+        }),
       },
       {
         label: '打包管理',
@@ -251,7 +291,10 @@ export const fulfillMenus: MenuGroup[] = [
           // completePack 要求 status===1；{id}/start 是 startTask（按仓库新建走 /wms/pack/start）
           { label: '开始打包', icon: 'play', path: (r) => (Number(r.status) === 0 ? `/admin/v1/wms/pack/${String(r.id)}/start` : null), message: '已开始打包' },
           { label: '打包完成', icon: 'check', path: (r) => (Number(r.status) === 1 ? `/admin/v1/wms/pack/${String(r.id)}/complete` : null), message: '打包已完成' },
-        ], [textCol('code', '编号', true), statusCol(PACK.dict), dateCol('completed_at', '完成时间')]),
+        ], [textCol('code', '编号', true), statusCol(PACK.dict), dateCol('completed_at', '完成时间')], {
+          // erp_wms_pack_task.package_type 包装类型: box/bag/pallet/envelope（与 HarmonyOS string.json 的 pack_type_* 逐字同文案）
+          package_type: { box: '纸箱', bag: '袋子', pallet: '托盘', envelope: '信封' },
+        }),
       },
     ],
   },
@@ -260,10 +303,16 @@ export const fulfillMenus: MenuGroup[] = [
     icon: 'truck',
     moduleKey: 'tms',
     children: [
-      { label: '承运商', path: '/tms/carrier', cfg: res('承运商', '/admin/v1/tms/carrier', { moduleKey: 'tms', deleteNeedsPassword: true, fields: [{ key: 'name', label: '承运商名称', required: true }, { key: 'code', label: '承运商编码', required: true }] }) },
+      // erp_tms_carrier.status 状态: 0=禁用 1=启用（推断页，不给字典就落通用档误标「已生效」）
+      // erp_tms_carrier.type 类型: express/ltl/ftl/air/ocean/rail；erp_tms_carrier.api_provider API供应商: custom/shippo/afterShip/17track
+      // （api_provider 的 shippo/afterShip/17track 是供应商名，保持拉丁原文）
+      { label: '承运商', path: '/tms/carrier', cfg: res('承运商', '/admin/v1/tms/carrier', { moduleKey: 'tms', deleteNeedsPassword: true, fields: [{ key: 'name', label: '承运商名称', required: true }, { key: 'code', label: '承运商编码', required: true }], dicts: { status: { 1: '启用', 0: '禁用' }, type: { express: '快递', ltl: '零担', ftl: '整车', air: '空运', ocean: '海运', rail: '铁路' }, api_provider: { custom: '自定义', shippo: 'Shippo', afterShip: 'AfterShip', '17track': '17TRACK' } } }) },
       // erp_tms_carrier_service.carrier_id NOT NULL 无默认
-      { label: '运输服务', path: '/tms/service', cfg: res('运输服务', '/admin/v1/tms/service', { moduleKey: 'tms', deleteNeedsPassword: true, fields: [{ key: 'carrier_id', label: '承运商', required: true, source: { endpoint: '/admin/v1/tms/carrier', labelKey: 'name' } }, { key: 'name', label: '服务名称', required: true }, { key: 'code', label: '编码' }] }) },
-      { label: '运费费率', path: '/tms/freight-rate', cfg: res('运费费率', '/admin/v1/tms/freight-rate', { moduleKey: 'tms', deleteNeedsPassword: true, fields: [{ key: 'carrier_service_id', label: '承运商服务', required: true, source: { endpoint: '/admin/v1/tms/service', labelKey: 'name' } }, { key: 'valid_from', label: '生效日期', required: true, type: 'date' }] }) },
+      // erp_tms_carrier_service.status 状态: 0=禁用 1=启用（改前落通用档误标「已生效」）
+      // erp_tms_carrier_service.type 服务类型: standard/express/overnight/2day/economy（与 erp_tms_carrier.type 不同表，禁止跨表复用）
+      { label: '运输服务', path: '/tms/service', cfg: res('运输服务', '/admin/v1/tms/service', { moduleKey: 'tms', deleteNeedsPassword: true, fields: [{ key: 'carrier_id', label: '承运商', required: true, source: { endpoint: '/admin/v1/tms/carrier', labelKey: 'name' } }, { key: 'name', label: '服务名称', required: true }, { key: 'code', label: '编码' }], dicts: { status: { 1: '启用', 0: '禁用' }, type: { standard: '标准', express: '加急', overnight: '次日达', '2day': '两日达', economy: '经济' } } }) },
+      // erp_tms_freight_rate.status 状态: 0=禁用 1=启用（改前落通用档误标「已生效」；该表无 type 列）
+      { label: '运费费率', path: '/tms/freight-rate', cfg: res('运费费率', '/admin/v1/tms/freight-rate', { moduleKey: 'tms', deleteNeedsPassword: true, fields: [{ key: 'carrier_service_id', label: '承运商服务', required: true, source: { endpoint: '/admin/v1/tms/service', labelKey: 'name' } }, { key: 'valid_from', label: '生效日期', required: true, type: 'date' }], dicts: { status: { 1: '启用', 0: '禁用' } } }) },
       {
         label: '运单管理',
         path: '/tms/shipment',
@@ -292,7 +341,9 @@ export const fulfillMenus: MenuGroup[] = [
           ],
         },
       },
-      { label: '物流轨迹', path: '/tms/tracking', cfg: res('物流轨迹', '/admin/v1/tms/tracking', { moduleKey: 'tms', deleteNeedsPassword: true }) },
+      // erp_tms_tracking_event.status_code 状态码: picked_up/in_transit/out_for_delivery/delivered/exception
+      // （改前裸出 picked_up；键不以 _status 结尾，走的是 kind:'map' 支；与 HarmonyOS string.json 的 tracking_status_* 逐字同文案）
+      { label: '物流轨迹', path: '/tms/tracking', cfg: res('物流轨迹', '/admin/v1/tms/tracking', { moduleKey: 'tms', deleteNeedsPassword: true, dicts: { status_code: { picked_up: '已取件', in_transit: '运输中', out_for_delivery: '派送中', delivered: '已送达', exception: '异常' } } }) },
       {
         label: '运费发票',
         path: '/tms/freight-invoice',

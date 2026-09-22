@@ -58,10 +58,22 @@ class _AttendancePageState extends State<AttendancePage> {
     AppL10n.current.hrRemark,
   ];
 
+  /// 状态列为 TINYINT 枚举直传（install.sql 列注释：1=正常 2=迟到 3=早退 4=缺卡 5=请假 6=出差），
+  /// 机读值不上屏；未知值原样回落。口径同 eam/equipment_list_page.dart::_statusLabel。
+  static String _statusLabel(Object? v) => switch ('$v') {
+        '1' => AppL10n.current.hrAttendanceStatusNormal,
+        '2' => AppL10n.current.hrAttendanceStatusLate,
+        '3' => AppL10n.current.hrAttendanceStatusEarly,
+        '4' => AppL10n.current.hrAttendanceStatusMissing,
+        '5' => AppL10n.current.hrAttendanceStatusLeave,
+        '6' => AppL10n.current.hrAttendanceStatusTrip,
+        _ => '$v',
+      };
+
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.hrEmpName: r['name'] ?? '',
     AppL10n.current.hrDate: r['date'] ?? '',
-    AppL10n.current.commonStatus: r['status'] ?? '',
+    AppL10n.current.commonStatus: _statusLabel(r['status']),
     AppL10n.current.hrRemark: r['remark'] ?? '',
   };
 }

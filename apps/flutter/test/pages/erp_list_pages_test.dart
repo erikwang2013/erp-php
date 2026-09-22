@@ -196,7 +196,7 @@ void main() {
           'code': 0,
           'data': {
             'list': [
-              {'id': 10, 'target_type': '采购订单', 'target_id': 'PO-88', 'status': 0, 'submitted_at': '2026-08-26 10:00:00'},
+              {'id': 10, 'target_type': 'purchase_order', 'target_id': 'PO88hashid', 'status': 0, 'submitted_at': '2026-08-26 10:00:00'},
             ],
             'total': 1,
           },
@@ -206,8 +206,10 @@ void main() {
       await pump(tester, const MyApprovalPage());
 
       expect(find.text('单据类型'), findsOneWidget);
+      // target_type 机器串走本地化文案（raw 是 purchase_order）
       expect(find.text('采购订单'), findsOneWidget);
-      expect(find.text('PO-88'), findsOneWidget);
+      // 单据列不贴 hashid（myApprovals 下发的 target_id）
+      expect(find.text('PO88hashid'), findsNothing);
       expect(find.text('审批中'), findsOneWidget);
       expect(find.byTooltip('通过'), findsOneWidget);
       expect(find.byTooltip('驳回'), findsOneWidget);

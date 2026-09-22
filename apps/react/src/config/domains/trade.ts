@@ -6,6 +6,7 @@ import {
   dateCol,
   docStatus,
   intCol,
+  mapText,
   moneyCol,
   statusCol,
   textCol,
@@ -38,6 +39,8 @@ const PORDER = docStatus(['待审核', '已审核', '部分收货', '已收货',
 const PRECEIVE = docStatus(['待入库', '已入库']);
 const PRETURN = docStatus(['待出库', '已出库']);
 const RFQ = docStatus(['草稿', '已发布', '已中标', '已关闭', '已取消']);
+/** 报价中标标记（erp_purchase_rfq_quote.awarded TINYINT 0/1）：值走文案，不裸出 0/1 */
+const AWARDED: Record<string, string> = { 0: '未中标', 1: '已中标' };
 const QUOTATION = docStatus(['草稿', '已报价', '已转订单', '已失效']);
 const SORDER = docStatus(['待审核', '已审核', '部分发货', '已发货', '已取消']);
 const SDELIVERY = docStatus(['待出库', '已出库']);
@@ -200,9 +203,11 @@ export const tradeMenus: MenuGroup[] = [
           moduleKey: 'purchase',
           endpoint: '/admin/v1/purchase/settlement',
           deleteNeedsPassword: true,
+          // 详情抽屉里 type 裸出 1/2（erp_finance_ar_ap.type「类型: 1=应收 2=应付」）
+          dicts: { type: { 1: '应收', 2: '应付' } },
           // 后端 select finance_ar_ap.*：无单号/供应商名/总额列，金额列名 amount
           columns: [
-            textCol('receive_id', '收货单'),
+            textCol('receive_code', '收货单'),
             moneyCol('amount', '应付金额'),
             moneyCol('paid_amount', '已结'),
             statusCol(SETTLE.dict),
@@ -224,6 +229,10 @@ export const tradeMenus: MenuGroup[] = [
           endpoint: '/admin/v1/purchase/rfq',
           deleteNeedsPassword: true,
           filters: RFQ.filter,
+          // 比价面板（RfqController::compare 回包）里 rfq.status 裸出 0..4、quotes[].is_lowest 出 0/1：
+          // status 复用本页枚举（erp_purchase_rfq.status「状态: 0=草稿 1=已发布(询价中) 2=已中标 3=已关闭 4=已取消」），
+          // is_lowest 不是表列，是控制器按最低报价算出来的标记
+          dicts: { status: RFQ.dict, is_lowest: { 0: '否', 1: '是' } },
           // 表无 code（真列 rfq_no）、无供应商名（supplier_range 为说明文本）
           columns: [
             textCol('rfq_no', '询价单号', true),
@@ -280,11 +289,15 @@ export const tradeMenus: MenuGroup[] = [
         cfg: res('供应商报价', '/admin/v1/purchase/rfq-quote', {
           moduleKey: 'purchase',
           deleteNeedsPassword: true,
+          // 列表没这一列、抽屉里 status 裸出 0/1（erp_purchase_rfq_quote.status「状态: 0=有效 1=已作废」）
+          dicts: { status: { 0: '有效', 1: '已作废' } },
           // 供应商名/询价单号由 index() 批量带出（原出参只有 hashid 与金额，列表读不出归属）
           columns: [
             textCol('rfq_no', '询价单号'),
             textCol('supplier_name', '供应商'),
             moneyCol('amount', '报价总额'),
+            // 中标标记：0/1 裸出数字（如「中标标记 1」）→ 走值文案
+            { key: 'awarded', title: '中标标记', render: (r) => mapText(r.awarded, AWARDED) },
             dateCol('quote_date', '报价日期'),
             dateCol('valid_until', '有效期至'),
           ],
@@ -337,7 +350,8 @@ export const tradeMenus: MenuGroup[] = [
       // 更新接口只写 remark，这四项标 createOnly（编辑态隐藏）—— 凭订单/客户/仓库/明细都是派生或历史值。
       { label: '销售发货', path: '/sales/delivery', cfg: { title: '销售发货', moduleKey: 'sales', endpoint: '/admin/v1/sales/delivery', deleteNeedsPassword: true, filters: SDELIVERY.filter, columns: [textCol('code', '编号', true), textCol('customer.name', '客户'), statusCol(SDELIVERY.dict), dateCol('delivered_at', '发货日期')], fields: [{ key: 'order_id', label: '销售订单', required: true, createOnly: true, source: { endpoint: '/admin/v1/sales/order', labelKey: 'code' } }, { key: 'customer_id', label: '客户', required: true, createOnly: true, source: { endpoint: '/admin/v1/customer' } }, { key: 'warehouse_id', label: '仓库', required: true, createOnly: true, source: { endpoint: '/admin/v1/warehouse' } }, { key: 'items', label: '发货明细', type: 'items', required: true, createOnly: true, itemFields: [{ key: 'product_id', label: '商品', required: true, source: { endpoint: '/admin/v1/product' } }, { key: 'order_item_id', label: '订单明细行', help: '留空即按商品自动匹配本单明细行' }, { key: 'quantity', label: '数量', required: true, type: 'number' }, { key: 'price', label: '单价', required: true, type: 'number' }] }, { key: 'remark', label: '备注', type: 'textarea', full: true }] } },
       { label: '销售退货', path: '/sales/return', cfg: { title: '销售退货', moduleKey: 'sales', endpoint: '/admin/v1/sales/return', deleteNeedsPassword: true, filters: SRETURN.filter, columns: docCols('客户', 'customer_name', SRETURN), fields: [{ key: 'delivery_id', label: '发货单', required: true, source: { endpoint: '/admin/v1/sales/delivery', labelKey: 'code' } }, { key: 'customer_id', label: '客户', required: true, source: { endpoint: '/admin/v1/customer' } }, { key: 'warehouse_id', label: '退货仓库', required: true, source: { endpoint: '/admin/v1/warehouse' } }, { key: 'total_amount', label: '退货金额', type: 'number' }] } },
-      { label: '销售结算', path: '/sales/settlement', cfg: { title: '销售结算', moduleKey: 'sales', endpoint: '/admin/v1/sales/settlement', deleteNeedsPassword: true, columns: [textCol('delivery_id', '发货单'), moneyCol('amount', '应收金额'), moneyCol('received_amount', '已收'), statusCol(SETTLE.dict), dateCol('settled_at', '结算时间')], fields: [{ key: 'delivery_id', label: '发货单', required: true, source: { endpoint: '/admin/v1/sales/delivery', labelKey: 'code' } }, { key: 'receipt_payment_id', label: '收款单', required: true, source: { endpoint: '/admin/v1/finance/receipt', labelKey: 'code' } }, { key: 'amount', label: '核销金额', required: true, type: 'number' }] } },
+      // 抽屉 type 与采购结算同表同列（erp_finance_ar_ap.type「类型: 1=应收 2=应付」），本页恒为 1
+      { label: '销售结算', path: '/sales/settlement', cfg: { title: '销售结算', moduleKey: 'sales', endpoint: '/admin/v1/sales/settlement', deleteNeedsPassword: true, dicts: { type: { 1: '应收', 2: '应付' } }, columns: [textCol('delivery_code', '发货单'), moneyCol('amount', '应收金额'), moneyCol('received_amount', '已收'), statusCol(SETTLE.dict), dateCol('settled_at', '结算时间')], fields: [{ key: 'delivery_id', label: '发货单', required: true, source: { endpoint: '/admin/v1/sales/delivery', labelKey: 'code' } }, { key: 'receipt_payment_id', label: '收款单', required: true, source: { endpoint: '/admin/v1/finance/receipt', labelKey: 'code' } }, { key: 'amount', label: '核销金额', required: true, type: 'number' }] } },
     ],
   },
   {
@@ -346,10 +360,30 @@ export const tradeMenus: MenuGroup[] = [
     moduleKey: 'inventory',
     children: [
       { label: '实时库存', path: '/inventory/stock', cfg: res('实时库存', '/admin/v1/inventory', { deleteNeedsPassword: true }) },
-      { label: '库存流水', path: '/inventory/flow', cfg: res('库存流水', '/admin/v1/inventory/flow', { deleteNeedsPassword: true }) },
+      // 方向列/来源类型列推断不出文案：方向裸出 1/2（erp_inventory_flow.direction「方向: 1=入库 2=出库」）；
+      // 来源类型出机器串 —— install.sql 该列注释只有「来源单据类型」、没有枚举清单，逐字抄
+      // app/service/inventory/TraceService.php:214-227 的 sourceLabel()（default 分支=原样直出，与 mapText 同义）
+      {
+        label: '库存流水',
+        path: '/inventory/flow',
+        cfg: res('库存流水', '/admin/v1/inventory/flow', {
+          deleteNeedsPassword: true,
+          dicts: {
+            direction: { 1: '入库', 2: '出库' },
+            source_type: {
+              wms_putaway: '上架单', purchase_receive: '采购收货单', sales_delivery: '销售发货单',
+              oms_order: 'OMS订单', oms_rma: '售后退货单', mfg_production_finish: '生产完工单',
+              mfg_material_issue_item: '生产领料单', mfg_subcontract_receive: '委外收货单', mfg_subcontract_issue_item: '委外发料单',
+            },
+          },
+        }),
+      },
       { label: '库存调拨', path: '/inventory/transfer', cfg: { title: '库存调拨', moduleKey: 'inventory', endpoint: '/admin/v1/inventory/transfer', deleteNeedsPassword: true, filters: TRANSFER.filter, columns: [textCol('code', '编号', true), statusCol(TRANSFER.dict), dateCol('transferred_at', '调拨时间'), dateCol('created_at', '创建时间')], fields: [{ key: 'from_warehouse_id', label: '调出仓库', required: true, source: { endpoint: '/admin/v1/warehouse' } }, { key: 'to_warehouse_id', label: '调入仓库', required: true, source: { endpoint: '/admin/v1/warehouse' } }, { key: 'code', label: '调拨单号' }, { key: 'remark', label: '备注', type: 'textarea', full: true }] } },
-      { label: '盘点任务', path: '/inventory/check', cfg: { title: '盘点任务', moduleKey: 'inventory', endpoint: '/admin/v1/inventory/check', deleteNeedsPassword: true, filters: CHECK.filter, fields: [{ key: 'warehouse_id', label: '仓库', required: true, source: { endpoint: '/admin/v1/warehouse' } }, { key: 'code', label: '盘点单号' }] } },
-      { label: '库存预警', path: '/inventory/alert', cfg: res('库存预警', '/admin/v1/inventory/alert', { deleteNeedsPassword: true, fields: [{ key: 'product_id', label: '产品', required: true, source: { endpoint: '/admin/v1/product' } }, { key: 'sku_id', label: 'SKU ID', placeholder: '0=全部' }, { key: 'warehouse_id', label: '仓库', source: { endpoint: '/admin/v1/warehouse' } }, { key: 'min_quantity', label: '最小库存阈值', type: 'number' }, { key: 'max_quantity', label: '最大库存阈值', type: 'number' }, { key: 'enabled', label: '是否启用', type: 'select', defaultValue: 1, options: [{ label: '启用', value: 1 }, { label: '禁用', value: 0 }] }] }) },
+      // 盘点类型裸出 1/2（erp_check_task.type「类型: 1=计划盘点 2=动态盘点」）；
+      // status 已由 filters（CHECK 枚举 = 表注释 0=待盘点 1=已盘点 2=已处理）提供，不重复登记
+      { label: '盘点任务', path: '/inventory/check', cfg: { title: '盘点任务', moduleKey: 'inventory', endpoint: '/admin/v1/inventory/check', deleteNeedsPassword: true, filters: CHECK.filter, dicts: { type: { 1: '计划盘点', 2: '动态盘点' } }, fields: [{ key: 'warehouse_id', label: '仓库', required: true, source: { endpoint: '/admin/v1/warehouse' } }, { key: 'code', label: '盘点单号' }] } },
+      // 启用标记裸出 0/1（erp_inventory_alert_rule.enabled「是否启用: 0=禁用 1=启用」）
+      { label: '库存预警', path: '/inventory/alert', cfg: res('库存预警', '/admin/v1/inventory/alert', { deleteNeedsPassword: true, dicts: { enabled: { 0: '禁用', 1: '启用' } }, fields: [{ key: 'product_id', label: '产品', required: true, source: { endpoint: '/admin/v1/product' } }, { key: 'sku_id', label: 'SKU ID', placeholder: '0=全部' }, { key: 'warehouse_id', label: '仓库', source: { endpoint: '/admin/v1/warehouse' } }, { key: 'min_quantity', label: '最小库存阈值', type: 'number' }, { key: 'max_quantity', label: '最大库存阈值', type: 'number' }, { key: 'enabled', label: '是否启用', type: 'select', defaultValue: 1, options: [{ label: '启用', value: 1 }, { label: '禁用', value: 0 }] }] }) },
       { label: '批次效期预警', path: '/inventory/expiry', cfg: res('批次效期预警', '/admin/v1/trace/expiry', { moduleKey: 'inventory', canDelete: false, params: { days: 90 } }) },
     ],
   },

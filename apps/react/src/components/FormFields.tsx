@@ -2,14 +2,16 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { DataTable, type Column } from '@/components/DataTable';
 import { Btn, DescList, Field, Input, Modal, Select, Textarea } from '@/components/ui';
-import type { FieldOption, FieldSource, FormField, Row } from '@/config/types';
+import type { DictMap, FieldOption, FieldSource, FormField, Row } from '@/config/types';
+import { mapText } from '@/config/cells';
 import { keyTitle } from '@/lib/defaults';
 import { date, dateTime, text } from '@/lib/format';
 import { useTr } from '@/lib/i18n';
 import { fetchRows, loadOptions } from '@/lib/options';
+import { fkText } from '@/lib/relation';
 import { useToast } from '@/lib/toast';
 import { buildTree, EMPTY_TREE, toggleSubtree, type TreeData, type TreeNode } from '@/lib/tree';
 
@@ -430,8 +432,18 @@ function ItemsInput({
   );
 }
 
+/**
+ * 结果面板单元格：本资源 cfg.dicts 声明了该键的枚举就出文案（与列表列/详情抽屉同源），
+ * 否则递归交给 ResultView（对象/数组继续拆块）。比价面板的 status/is_lowest 在此收口。
+ */
+function resultCell(k: string, v: unknown, dicts?: DictMap): ReactNode {
+  const kd = dicts?.[k];
+  if (kd) return <>{mapText(v, kd)}</>;
+  return <ResultView data={v} dicts={dicts} />;
+}
+
 /** 动作/报表返回数据渲染：数组→表格、对象→键值表，嵌套递归 */
-export function ResultView({ data }: { data: unknown }) {
+export function ResultView({ data, dicts }: { data: unknown; dicts?: DictMap }) {
   const t = useTr();
   if (data === null || data === undefined || data === '') return <span className="muted">-</span>;
   if (Array.isArray(data)) {
@@ -450,11 +462,13 @@ export function ResultView({ data }: { data: unknown }) {
         </div>
       );
     }
-    const keys = [...new Set(rows.flatMap((r) => Object.keys(r)))];
+    const keys = [...new Set(rows.flatMap((r) => Object.keys(r)))].filter((k) => k !== 'id');
     const cols: Column<Row>[] = keys.map((k) => ({
       key: k,
       title: keyTitle(k),
-      render: (r) => <ResultView data={r[k]} />,
+      // 外键列取同行的关联名（契约 rule 1/2），取不到落「-」——报表/动作回包里
+      // 的 id 是给接口用的，贴到面板上既是英文键又是裸 hashid
+      render: (r) => (k.endsWith('_id') ? <>{fkText(r, k)}</> : resultCell(k, r[k], dicts)),
     }));
     return <DataTable columns={cols} rows={rows} showPager={false} />;
   }
@@ -463,7 +477,10 @@ export function ResultView({ data }: { data: unknown }) {
       <DescList
         items={Object.entries(data as Row)
           .filter(([k]) => k !== 'id')
-          .map(([k, v]) => ({ k: keyTitle(k), v: <ResultView data={v} /> }))}
+          .map(([k, v]) => ({
+            k: keyTitle(k),
+            v: k.endsWith('_id') ? <>{fkText(data as Row, k)}</> : resultCell(k, v, dicts),
+          }))}
       />
     );
   }

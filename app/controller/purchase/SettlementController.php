@@ -10,6 +10,8 @@ namespace app\controller\purchase;
 use app\admin\controller\BaseController;
 use app\model\FinanceArAp;
 use app\model\FinanceSettlement;
+use app\model\PurchaseReceive;
+use app\model\Supplier;
 use app\service\finance\FinanceService;
 use support\Container;
 use support\Request;
@@ -78,6 +80,8 @@ class SettlementController extends BaseController
             ->limit($limit)->orderBy('finance_ar_ap.id', 'desc')->get();
 
         $settledAtMap = [];
+        $receiveCodes = [];
+        $supplierNames = [];
         if (!$list->isEmpty()) {
             // 先 get() 取分组行再 Collection::pluck：Query::pluck 会替换 select 导致 MAX 聚合丢失
             $settledAtMap = FinanceSettlement::whereIn('ar_ap_id', $list->pluck('id'))
@@ -86,9 +90,18 @@ class SettlementController extends BaseController
                 ->get()
                 ->pluck('settled_at', 'ar_ap_id')
                 ->all();
+            // 行补引用单号：表只有 source_id（裸雪花），列上直接贴 hashid 用户无法辨识
+            // （与销售结算的 delivery_code、采购退货的 receive_code 同款口径）
+            $receiveCodes = PurchaseReceive::query()
+                ->whereIn('id', $list->pluck('source_id')->all())
+                ->pluck('code', 'id')->all();
+            // 供应商名同理：partner_id 编码成 hashid 后列上无可读性（与 ReturnController 同款）
+            $supplierNames = Supplier::query()
+                ->whereIn('id', $list->pluck('partner_id')->all())
+                ->pluck('name', 'id')->all();
         }
 
-        $rows = $list->map(fn (FinanceArAp $item) => $this->format($item, $settledAtMap[$item->id] ?? null))->values();
+        $rows = $list->map(fn (FinanceArAp $item) => $this->format($item, $settledAtMap[$item->id] ?? null, $receiveCodes, $supplierNames))->values();
 
         return $this->success(['list' => $rows, 'total' => $total, 'page' => $page, 'limit' => $limit]);
     }
@@ -270,11 +283,15 @@ class SettlementController extends BaseController
         return $this->success([], $this->trans('Deleted successfully'));
     }
 
-    private function format(FinanceArAp $item, ?string $settledAt): array
+    private function format(FinanceArAp $item, ?string $settledAt, array $receiveCodes = [], array $supplierNames = []): array
     {
         $data = $item->toArray();
         $data['supplier_id'] = $item->partner_id;
+        $data['supplier_name'] = $supplierNames[$data['supplier_id']] ?? '';
         $data['receive_id'] = $item->source_id;
+        // 用 $data['receive_id'] 取值而非再读一次 $item->source_id：
+        // phpstan-baseline 该 property.notFound 的 count 是 1，多读一次会破基线
+        $data['receive_code'] = $receiveCodes[$data['receive_id']] ?? '';
         $data['paid_amount'] = $item->settled_amount;
         $settled = bc_norm($item->settled_amount);
         $data['status'] = bccomp($settled, bc_norm($item->amount), 4) >= 0 ? 2 : (bccomp($settled, '0', 4) > 0 ? 1 : 0);

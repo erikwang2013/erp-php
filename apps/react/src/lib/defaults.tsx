@@ -6,10 +6,11 @@ import type { ReactNode } from 'react';
 import type { Column } from '@/components/DataTable';
 import { Badge } from '@/components/ui';
 import { COLUMN_TITLES_EXTRA } from '@/config/column-titles-extra';
-import type { FieldSource, FilterDef, FormField, Row } from '@/config/types';
-import { dateTime, money, statusText, statusTone, text } from '@/lib/format';
+import type { DictMap, FieldSource, FilterDef, FormField, Row } from '@/config/types';
+import { mapText } from '@/config/cells';
+import { dateTime, money, statusText, statusTone, text, yesNo } from '@/lib/format';
 import { tr } from '@/lib/i18n';
-import { optionLabel } from '@/lib/options';
+import { fkText, isRelKey, nameKeyOf, REL_ALIAS, relationValue } from '@/lib/relation';
 
 /**
  * 列配置推断。
@@ -47,6 +48,9 @@ const TITLES: Record<string, string> = {
   bom_id: 'BOM',
   brand_id: '品牌',
   candidate_id: '候选人',
+  // 非 DB 列：FreightRateController::index 按 carrier_service_id 反查 tms_carrier_service.code
+  // （沿用该列 install.sql 注释原词，与本表其它别名同款，不另造第二条说法）
+  carrier_service_code: '服务编码',
   carrier_service_id: '承运商服务',
   category: '工单分类',
   category_id: '分类',
@@ -100,6 +104,8 @@ const TITLES: Record<string, string> = {
   inspected_qty: '检验数量',
   interview_date: '面试日期',
   issue_date: '出票日期',
+  // withCount 派生的非 DB 列（RfqController::index / RfqQuoteController::index）：漏了就驼峰化上屏
+  items_count: '明细行数',
   job_id: '应聘职位',
   job_title: '职位名称',
   key: '配置键',
@@ -110,6 +116,8 @@ const TITLES: Record<string, string> = {
   logo: 'LOGO 地址',
   manager: '负责人',
   manager_user_id: '负责人',
+  // 非 DB 列：比价回包（RfqController::compare）的比价矩阵块，嵌套对象标题 = 回包键
+  matrix: '比价矩阵',
   max_quantity: '最大库存阈值',
   method: '收款方式',
   min_quantity: '最小库存阈值',
@@ -119,6 +127,8 @@ const TITLES: Record<string, string> = {
   note: '备注',
   offered_salary: 'Offer 薪资',
   onboard_date: '入职日期',
+  // 非 DB 列：FulfillmentController::index 按 oms_order_id 带出 oms_order.channel_order_no
+  order_channel_no: '渠道订单号',
   order_id: '生产工单',
   order_no: '订单号',
   overtime: '加班费',
@@ -140,17 +150,25 @@ const TITLES: Record<string, string> = {
   price: '单价',
   priority: '优先级',
   product_id: '产品',
+  // 非 DB 列：ProcessCheckController::index leftJoin mfg_production_order.code
+  // （沿用该列 install.sql 注释原词「工单编码」，词典里已有该条，不另造第二条）
+  production_order_code: '工单编码',
   project_id: '所属项目',
   purchase_amount: '购置金额',
   purchase_date: '购置日期',
   qualified_qty: '合格数量',
   quantity: '数量',
+  quotes_count: '报价数',
   rate: '汇率值',
   real_name: '姓名',
   receipt_payment_id: '付款单',
   receive_date: '收料日期',
   receive_id: '收货单',
   received_at: '收款日期',
+  // 非 DB 列：IncomingCheckController::index leftJoin purchase_receive.code
+  receiving_code: '收货单号',
+  // 非 DB 列：ReportScheduleController::index 把 recipients 的 id 换成姓名（Flutter 同用「接收人」）
+  recipients_names: '接收人',
   remark: '备注',
   repair_type: '维修类型',
   report_date: '报工日期',
@@ -198,8 +216,13 @@ const TITLES: Record<string, string> = {
   useful_life: '使用年限',
   user_id: '用户',
   username: '用户名',
+  // 角色权限页的列标题与它同字（RoleController::index/show 的 withCount('users')）；
+  // 兜底档：列配置若被删，详情行也不会显出 usersCount
+  users_count: '用户数',
   valid_from: '生效日期',
   value: '值',
+  // 非 DB 列：SubsidiaryLedgerController::index 按 voucher_id 反查 finance_voucher.code
+  voucher_code: '凭证号',
   warehouse_id: '仓库',
   work_date: '工作日期',
   workstation_id: '工作站',
@@ -232,6 +255,16 @@ const isInt = (k: string) =>
   /(quantity|qty|count|num|days|hours|age|stock|weight|width|height|length)/.test(k) &&
   !isMoney(k);
 
+/**
+ * 布尔开关列名：`enabled` 与 `is_*`（是否X）。install.sql 里这 17 列全是 TINYINT 0/1，
+ * 但列注释常为空（`erp_finance_tax_rate.enabled` 就是），按注释识别不出来 —— 列名是唯一线索。
+ * （与 Angular columns.ts 的 isBool 同口径）
+ */
+const isBool = (k: string) => k === 'enabled' || /^is_[a-z_]+$/.test(k);
+
+/** 「是否X」的通用文案（DDL 里统一 0=否 1=是）；语义特异的表（is_read=未读/已读）由页面 dicts 覆盖 */
+const BOOL_DICT: Record<number, string> = { 0: '否', 1: '是' };
+
 /** 常见状态字典（按资源前缀细化，未命中走通用档） */
 const STATUS_DICTS: Record<string, Record<number, string>> = {
   purchase: { 0: '草稿', 1: '待审核', 2: '已审核', 3: '已完成', 4: '已取消' },
@@ -262,50 +295,11 @@ export function keyTitle(k: string): string {
   return k.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase());
 }
 
-/** 外键 → 名称兄弟键的非规范别名（结构可扩充） */
-const REL_ALIAS: Record<string, string> = {
-  partner_id: 'party_name',
-  apply_user_id: 'employee_name',
-  stage_id: 'stage_name',
-  // 采购订单 → 采购申请单号（OrderController::index leftJoin purchase_apply 带出的 apply_code）
-  apply_id: 'apply_code',
-};
-
-const isObj = (v: unknown): v is Row =>
-  typeof v === 'object' && v !== null && !Array.isArray(v);
-
-/**
- * 关联列取值，顺序固定：① `<base>_name` 兄弟 → ② `<base>` 嵌套关系对象
- * → ③ fields.source 远程选项 → ④ 原值（后端补 hashid 后这里就是编码占位）。
- */
-function relationValue(
-  row: Row,
-  idKey: string,
-  nameKey?: string,
-  src?: FieldSource,
-): unknown {
-  if (nameKey) {
-    const n = row[nameKey];
-    if (n !== null && n !== undefined && n !== '') return n;
-  }
-  const o = row[idKey.slice(0, -3)];
-  if (isObj(o)) {
-    const n = o.name ?? o.title ?? o.label ?? o.code;
-    if (n !== null && n !== undefined && n !== '') return n;
-  }
-  if (src) {
-    const n = optionLabel(src, row[idKey]);
-    if (n) return n;
-  }
-  // 关联名取不到（无 `*_name` 兄弟、无关系对象、选项未加载/未命中）时给 undefined，
-  // 由 text() 落成「-」占位：裸 hashid 在任何页面都没有可粘贴的去处，贴出来只是噪声。
-  return undefined;
-}
-
 /**
  * 从行样本推断列定义。
  * fields 用于两处：`{key,label}` 给出本页列标题；`{key,source}` 给出外键的远程名称源。
  * filter 是本资源的状态筛选，其选项即状态字典（见 dictFromFilter）。
+ * dicts 是 cfg.dicts —— 逐键值字典，优先于状态筛选与前缀/通用档（见 config/types.ts）。
  */
 export function inferColumns(
   rows: Row[],
@@ -313,6 +307,7 @@ export function inferColumns(
   fields?: FormField[],
   limit = 8,
   filter?: FilterDef,
+  dicts?: DictMap,
 ): Column<Row>[] {
   const sample = rows.slice(0, 3);
   const present = new Set<string>();
@@ -385,10 +380,21 @@ export function inferColumns(
       };
     }
 
+    // 显式逐键字典优先于按字段名的识别：status 键仍走徽标支，只把字典换成 cfg 里的真枚举；
+    // 其余枚举键（type/priority/is_lowest…）按 mapText 出文案（与 Angular kind:'map' 同源）
+    const kd = dicts?.[k];
     if (isStatus(k)) {
       render = (row) => (
-        <Badge text={statusText(row[k], dict)} tone={statusTone(row[k])} solid />
+        <Badge text={statusText(row[k], kd ?? dict)} tone={statusTone(row[k])} solid />
       );
+    } else if (kd) {
+      render = (row) => mapText(row[k], kd);
+      // 布尔开关：enabled 走启用/禁用徽标（与 cells.enabledCol 同文案），is_* 走 否/是。
+      // 必须排在 isMoney/isInt 之前 —— is_taxable 命中 isMoney 的 `tax`、is_managed 命中 isInt 的 `age`
+    } else if (k === 'enabled') {
+      render = (row) => <Badge text={yesNo(row[k])} tone={Number(row[k]) === 0 ? 'd' : 's'} />;
+    } else if (isBool(k)) {
+      render = (row) => mapText(row[k], BOOL_DICT);
     } else if (isMoney(k)) {
       align = 'right';
       render = (row) => money(row[k]);
@@ -422,32 +428,54 @@ export function inferColumns(
 export function inferDetailItems(
   row: Row,
   cols: Column<Row>[] = [],
+  dicts?: DictMap,
+  fields?: FormField[],
 ): { k: string; v: ReactNode }[] {
   const byKey = new Map(cols.filter((c) => c.key !== '__actions').map((c) => [c.key, c]));
+  // 本页字段声明的措辞：列数被 limit 截掉、或本页写了显式 columns 的键，抽屉里没有列标题可用，
+  // 只能落到全局 TITLES —— 于是「同一个键在不同页语义不同」时必错（order_id 全局「生产工单」，
+  // 但 /oms/rma 是「关联订单」）。这里把本页 fields 的 label 插在 keyTitle 之前兜底
+  const fieldLabel = new Map((fields ?? []).map((f) => [f.key, f.label]));
   return Object.entries(row)
     .filter(([k, v]) => {
       if (k === 'id' || k.startsWith('__')) return false;
       if (v !== null && typeof v === 'object') return false;
-      // 名称兄弟已成一列 → 裸外键不出行（该列渲染的就是这个外键的名称）
-      const stem = k.endsWith('_id') ? k.slice(0, -3) : '';
-      if (stem && byKey.has(REL_ALIAS[k] ?? `${stem}_name`)) return false;
+      // 名称兄弟已成一列、或已是行里的标量键（抽屉会把它作为自己那行渲染）→ 裸外键不出行，
+      // 否则同一份名称会「兄弟一行 + 外键一行」重复出两次
+      if (isRelKey(k, v)) {
+        const nameKey = nameKeyOf(k);
+        if (nameKey && byKey.has(nameKey)) return false;
+        const sv = row[nameKey ?? ''];
+        if (sv !== null && sv !== undefined && sv !== '' && typeof sv !== 'object') return false;
+      }
       return true;
     })
     .map(([k, v]) => {
       const col = byKey.get(k);
+      const pageLabel = fieldLabel.get(k);
       return {
-        k: col?.title ?? keyTitle(k),
-        v: col?.render ? col.render(row) : fallbackValue(k, v),
+        // 配置里声明的标题是中文原文，而详情抽屉不像 Angular 模板那样对标签再过 `| tr`：
+        // 不过一遍的话 en 下**已声明列**的标签露中文（keyTitle 那条路本来就在 tr）。
+        // 优先级：列标题 > 本页字段 label（order_id 在 /oms/rma 是「关联订单」）> 全局词条
+        k: col?.title ? tr(col.title) : pageLabel ? tr(pageLabel) : keyTitle(k),
+        v: col?.render ? col.render(row) : fallbackValue(k, v, dicts, row),
       };
     });
 }
 
 /** cols 未覆盖的键（列数被 limit 截断、非首批样本字段）的兜底渲染，识别口径同 inferColumns */
-function fallbackValue(k: string, v: unknown): ReactNode {
-  // 裸外键：cols 没覆盖到它（资源写了显式 columns，或名称兄弟被截断）时给占位。
-  // 关联名取得到的话，早就以 `*_name` 列或关系对象列的形式进来了；剩下的原值是编码后的
-  // 雪花 ID，贴出来只是噪声——详情页出现裸 ID 正是这一条漏的
-  if (k.endsWith('_id')) return text(undefined);
+function fallbackValue(k: string, v: unknown, dicts?: DictMap, row?: Row): ReactNode {
+  // 逐键字典先于字段名识别：列数被 limit 截掉的枚举键（第 9 列起的 type/priority…）
+  // 只能走这条兜底，没有字典就在这里裸出 0/1
+  const kd = dicts?.[k];
+  if (kd) return mapText(v, kd);
+  // 布尔开关：与 inferColumns 同口径（列数被 limit 截掉的开关键只能走这条兜底）
+  if (k === 'enabled') return <Badge text={yesNo(v)} tone={Number(v) === 0 ? 'd' : 's'} />;
+  if (isBool(k)) return mapText(v, BOOL_DICT);
+  // 裸外键：`_id`/`_by`/`assigned_to` 这类键存的都是编码后的 ID（旧口径只认 `_id`，
+  // 于是 approved_by 被当普通文本贴出来）。行里有名称兄弟（含 REL_ALIAS 别名）就出名称，
+  // 取不到落 `-` 占位——裸 ID 贴出来只是噪声
+  if (isRelKey(k, v)) return fkText(row ?? {}, k);
   if (isStatus(k)) return <Badge text={statusText(v)} tone={statusTone(v)} />;
   if (isDate(k)) return dateTime(v);
   if (isMoney(k)) return money(v);

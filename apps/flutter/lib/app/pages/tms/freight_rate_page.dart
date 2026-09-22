@@ -154,8 +154,8 @@ class _FreightRatePageState extends State<FreightRatePage> {
       FormFieldConfig(name: 'per_kg_rate', label: l.tmsFreightPerKgRate, type: FormFieldType.number),
       FormFieldConfig(name: 'fuel_surcharge_pct', label: l.tmsFreightFuelSurchargePct, type: FormFieldType.number),
       FormFieldConfig(name: 'currency', label: l.tmsFreightCurrency),
-      FormFieldConfig(name: 'valid_from', label: l.financeEffectiveDate, required: true, hint: 'YYYY-MM-DD'),
-      FormFieldConfig(name: 'valid_to', label: l.tmsFreightValidTo, hint: 'YYYY-MM-DD'),
+      FormFieldConfig(name: 'valid_from', label: l.financeEffectiveDate, required: true, hint: l.commonDateFormat),
+      FormFieldConfig(name: 'valid_to', label: l.tmsFreightValidTo, hint: l.commonDateFormat),
       FormFieldConfig(
         name: 'status',
         label: l.commonStatus,

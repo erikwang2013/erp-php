@@ -176,7 +176,7 @@ class _SalesQuotationListPageState extends State<SalesQuotationListPage> {
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.salesQuotationNo: r['code'] ?? '',
-    AppL10n.current.fieldCustomer: r['customer_name'] ?? r['customer_id'] ?? '',
+    AppL10n.current.fieldCustomer: r['customer_name'] ?? '',
     AppL10n.current.salesQuotationAmount: r['total_amount'] ?? '',
     AppL10n.current.commonStatus: _chip(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [

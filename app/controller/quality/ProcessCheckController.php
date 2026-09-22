@@ -50,17 +50,25 @@ class ProcessCheckController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         [$page, $limit] = $this->pageParams($request);
-        $query = QualityIpcqRecord::query();
+        // 关联名 leftJoin 带出（同 sales/OrderController::index 口径）：生产工单取 code（工单编码），
+        // 商品/工作站/检验标准取 name —— 否则列表只能上屏裸 hashid。主表与被关联表同有 code 列，
+        // where/orderBy 一并限定来源，否则 JOIN 后报 1052 列歧义。
+        $query = QualityIpcqRecord::query()
+            ->leftJoin('mfg_production_order', 'mfg_production_order.id', '=', 'quality_ipqc_record.production_order_id')
+            ->leftJoin('product', 'product.id', '=', 'quality_ipqc_record.product_id')
+            ->leftJoin('mfg_workstation', 'mfg_workstation.id', '=', 'quality_ipqc_record.workstation_id')
+            ->leftJoin('quality_inspection_standard', 'quality_inspection_standard.id', '=', 'quality_ipqc_record.standard_id')
+            ->select('quality_ipqc_record.*', 'mfg_production_order.code as production_order_code', 'product.name as product_name', 'mfg_workstation.name as workstation_name', 'quality_inspection_standard.name as standard_name');
         $keyword = $request->input('keyword', '');
         if ($keyword) {
-            $query->where('code', 'like', "%{$keyword}%");
+            $query->where('quality_ipqc_record.code', 'like', "%{$keyword}%");
         }
         $result = $request->input('result', '');
         if ($result !== '') {
-            $query->where('result', $result);
+            $query->where('quality_ipqc_record.result', $result);
         }
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray(), ['id', 'production_order_id', 'product_id', 'workstation_id', 'standard_id']));
+        $list = $query->offset(($page - 1) * $limit)->limit($limit)->orderBy('quality_ipqc_record.id', 'desc')->get()->map(fn ($i) => $this->encodeIds($i->toArray(), ['id', 'production_order_id', 'product_id', 'workstation_id', 'standard_id']));
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -94,6 +102,10 @@ class ProcessCheckController extends BaseController
         $item = new QualityIpcqRecord();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        // 外键（列表 encodeIds 下发的 hashid 串）须解码后再落库：fill 直填 BIGINT 列报 1366。
+        // 未提供/空串（前端下拉留空下发 ''）落 0 = 未关联（列 NOT NULL DEFAULT 0）
+        $fks = $this->foreignKeyFields($item);
+        $item->fill($this->decodeIdFields($request, $fks) + array_fill_keys($fks, 0));
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -153,6 +165,8 @@ class ProcessCheckController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
         $this->fillModelFromRequest($item, $request);
+        // 同 store：外键提供时解码覆写（hashid 直填 BIGINT 列报 1366）；缺省/空串=不改动
+        $item->fill($this->decodeIdFields($request, $this->foreignKeyFields($item)));
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

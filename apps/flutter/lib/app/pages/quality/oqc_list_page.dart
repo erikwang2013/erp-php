@@ -40,8 +40,52 @@ class _OqcListPageState extends State<OqcListPage> {
     } catch (e) { if (mounted) setState(() { _loading = false; _error = ApiService.friendlyError(e); }); }
   }
 
+  /// 外键下拉数据源：值=行 id（hashid，符合对外契约），文案=可读名。
+  Map<String, String> _deliveries = {};
+  Map<String, String> _products = {};
+  Map<String, String> _standards = {};
+
+  Future<Map<String, String>> _refOptions(String path, String nameKey) async {
+    final res = await ApiService.instance.get(path, params: {'limit': '500'});
+    final list = List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []);
+    return {
+      for (final r in list) '${r['id']}': '${r[nameKey] ?? r['code'] ?? r['id']}',
+    };
+  }
+
+  /// 编辑态把当前值前置进选项：预取只取前 500 行，关联行在 500 之外时
+  /// FormDialog 会把不在 options 的预填值置 null（form_dialog.dart:60-76），
+  /// 可空外键会被静默清空。0=未关联不补（该值本就不该出现在下拉里）。
+  Map<String, String> _primed(Map<String, String> m, Map<String, dynamic> row, String idKey, String nameKey) {
+    final id = '${row[idKey] ?? ''}';
+    if (id.isEmpty || id == '0' || m.containsKey(id)) return m;
+    return {id: '${row[nameKey] ?? id}', ...m};
+  }
+
+  /// 预取三张关联表；失败返回 false（提示后不弹表单）——空下拉会让用户以为无处可选，
+  /// 口径同 wms/pack_page.dart::_ensureRefs。
+  Future<bool> _ensureRefs({Map<String, dynamic>? row}) async {
+    try {
+      _deliveries = await _refOptions('/admin/v1/sales/delivery', 'code');
+      _products = await _refOptions('/admin/v1/product', 'name');
+      _standards = await _refOptions('/admin/v1/quality/standard', 'name');
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+    if (row != null) {
+      _deliveries = _primed(_deliveries, row, 'delivery_id', 'delivery_code');
+      _products = _primed(_products, row, 'product_id', 'product_name');
+      _standards = _primed(_standards, row, 'standard_id', 'standard_name');
+    }
+    return true;
+  }
+
   Future<void> _create() async {
     final l10n = AppL10n.current;
+    if (!await _ensureRefs() || !mounted) return;
     await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/quality/oqc', data: data);
       _load(); return true;
@@ -50,6 +94,7 @@ class _OqcListPageState extends State<OqcListPage> {
 
   Future<void> _edit(Map<String, dynamic> row) async {
     final l10n = AppL10n.current;
+    if (!await _ensureRefs(row: row) || !mounted) return;
     await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/quality/oqc/${row['id']}', data: data);
       _load(); return true;
@@ -68,17 +113,21 @@ class _OqcListPageState extends State<OqcListPage> {
     final l10n = AppL10n.current;
     return [
       FormFieldConfig(name: 'code', label: l10n.fieldInspectNo, required: true),
-      FormFieldConfig(name: 'delivery_id', label: l10n.fieldDeliveryId, type: FormFieldType.number),
-      FormFieldConfig(name: 'product_id', label: l10n.fieldProductId, type: FormFieldType.number),
-      FormFieldConfig(name: 'standard_id', label: l10n.fieldInspectionStdId, type: FormFieldType.number),
+      // 外键改为下拉（原先手输数字，等于逼用户抄 hashid）：值=hashid，后端 decodeIdFields 解码
+      FormFieldConfig(name: 'delivery_id', label: l10n.fieldDeliveryId, type: FormFieldType.dropdown, options: _deliveries.keys.toList(), optionLabels: _deliveries),
+      FormFieldConfig(name: 'product_id', label: l10n.fieldProductId, type: FormFieldType.dropdown, options: _products.keys.toList(), optionLabels: _products),
+      FormFieldConfig(name: 'standard_id', label: l10n.fieldInspectionStdId, type: FormFieldType.dropdown, options: _standards.keys.toList(), optionLabels: _standards),
       FormFieldConfig(name: 'inspected_qty', label: l10n.fieldInspectedQty, type: FormFieldType.number),
       FormFieldConfig(name: 'passed_qty', label: l10n.fieldPassedQty, type: FormFieldType.number),
       FormFieldConfig(name: 'rejected_qty', label: l10n.fieldRejectedQty, type: FormFieldType.number),
       // 检验结果 options 为后端存储值（pass/reject），不参与翻译
-      FormFieldConfig(name: 'result', label: l10n.fieldInspectResult, type: FormFieldType.dropdown, options: ['pass', 'reject']),
+      // 显示文案走 optionLabels（提交值仍是 pass/reject），词表同本页结果列：合格/不合格
+      FormFieldConfig(name: 'result', label: l10n.fieldInspectResult, type: FormFieldType.dropdown,
+          options: ['pass', 'reject'], optionLabels: {for (final v in const ['pass', 'reject']) v: _resultLabel(v)}),
       FormFieldConfig(name: 'inspector', label: l10n.fieldInspector),
       FormFieldConfig(name: 'remark', label: l10n.fieldRemark),
-      FormFieldConfig(name: 'status', label: l10n.commonStatus, type: FormFieldType.dropdown, options: ['0', '1']),
+      FormFieldConfig(name: 'status', label: l10n.commonStatus, type: FormFieldType.dropdown,
+          options: ['0', '1'], optionLabels: {for (final v in const ['0', '1']) v: _statusLabel(v)}),
     ];
   }
 
@@ -101,17 +150,35 @@ class _OqcListPageState extends State<OqcListPage> {
 
   List<String> _columns() {
     final l10n = AppL10n.current;
-    return [l10n.fieldInspectNo, l10n.fieldDeliveryId, l10n.fieldProductId, l10n.qualityQtySummary, l10n.fieldResult, l10n.fieldInspector, l10n.commonAction];
+    return [l10n.fieldInspectNo, l10n.fieldDeliveryId, l10n.fieldProductName, l10n.qualityQtySummary, l10n.fieldResult, l10n.fieldInspector, l10n.commonAction];
   }
+
+  /// 结果列值域 = install.sql 列注释 `检验结果: pass=合格 reject=不合格`，机读串不上屏。
+  static String _resultLabel(Object? v) => switch ('$v') {
+        'pass' => AppL10n.current.qualityResultPass,
+        'reject' => AppL10n.current.qualityResultReject,
+        _ => '$v',
+      };
+
+  /// 状态（仅表单下拉，列表无该列）值域 = install.sql 列注释
+  /// `状态: 0=待处理 1=已完成`（erp_quality_oqc_record:4190）——
+  /// 与 nonconformity 的 0/1/2 域不是同一张表，词表不共用。
+  static String _statusLabel(Object? v) => switch ('$v') {
+        '0' => AppL10n.current.qualityStatusPending,
+        '1' => AppL10n.current.qualityStatusCompleted,
+        _ => '$v',
+      };
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l10n = AppL10n.current;
     return {
       l10n.fieldInspectNo: r['code'] ?? '',
-      l10n.fieldDeliveryId: r['delivery_id'] ?? '',
-      l10n.fieldProductId: r['product_id'] ?? '',
+      // 发货单号/商品名由后端 leftJoin 带出；关联行缺失/未关联（FK=0）落「-」——裸 hashid 不上屏
+      l10n.fieldDeliveryId: r['delivery_code'] ?? '-',
+      // 列内容就是商品名，标题随内容用「商品名称」而非「商品ID」
+      l10n.fieldProductName: r['product_name'] ?? '-',
       l10n.qualityQtySummary: '${r['inspected_qty'] ?? 0}/${r['passed_qty'] ?? 0}/${r['rejected_qty'] ?? 0}',
-      l10n.fieldResult: r['result'] ?? '', // result 为后端值（pass/reject），原样展示不翻译
+      l10n.fieldResult: _resultLabel(r['result']),
       l10n.fieldInspector: r['inspector'] ?? '',
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
         IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),

@@ -91,10 +91,11 @@ struct FulfillmentListPage {
                 ForEach(this.items, (item: Record<string, Object>, index: number) => {
                   ListItem() {
                     ListRow({
-                      // OmsFulfillment 实列无 name/code：标题=发货仓库（join 带出），副行=oms 订单 hashid
-                      title: ((item['warehouse_name'] as string) || (item['oms_order_id'] as string) || '-') as string,
-                      subtitle: item['warehouse_name'] != null ? ((item['oms_order_id'] as string) ?? '') : '',
-                      icon: ((item['warehouse_name'] as string) || (item['oms_order_id'] as string) || '-') as string,
+                      // OmsFulfillment 实列无 name/code：标题=发货仓库（join 带出），无名称落「-」；
+                      // 副行/圆徽不再贴 oms 订单 hashid（不可读；ListRow 空副行不渲染）
+                      title: ((item['warehouse_name'] as string) || '-') as string,
+                      subtitle: '',
+                      icon: ((item['warehouse_name'] as string) || '') as string,
                       badge: this.ffBadge(item),
                       actions: [
                         new RowAction($r('app.string.act_view_detail'), 'primary', (): void => {

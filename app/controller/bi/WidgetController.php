@@ -83,17 +83,30 @@ class WidgetController extends BaseController
 
     public function store(Request $request): Response
     {
+        // dashboard_id 来自前端看板行（hashid 串）：required|integer 会把合法 hashid 判成 422
+        //（图表管理弹窗此前恒失败）；也不能用 string（数字 ID 反被挡回）——只留 required，
+        // 双模判定统一在 decodeFlexibleId 收口
         $validator = validator($request->all(), [
-            'dashboard_id' => 'required|integer',
+            'dashboard_id' => 'required',
             'name' => 'required|string|max:200',
             'type' => 'required|string|max:50',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
+        // 必填外键 dashboard_id 解不出即 422（不套 decodeIdFields：其口径是垃圾串落 0，
+        // 会写出挂空看板的孤儿图表）
+        $dashboardId = $this->decodeFlexibleId($request->input('dashboard_id', ''));
+        if ($dashboardId === null || $dashboardId < 1) {
+            return $this->fail($this->trans('Invalid ID') . ': dashboard_id', 422);
+        }
+        // dataset_id 同为下拉 hashid（可空：留空/未填＝不绑定数据集 → 0）
+        $fkIds = $this->decodeIdFields($request, ['dataset_id']);
         $item = new BiWidget();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
+        $item->dashboard_id = $dashboardId;
+        $item->dataset_id = $fkIds['dataset_id'] ?? 0;
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
@@ -156,7 +169,12 @@ class WidgetController extends BaseController
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
         }
+        // 字段缺省＝不改动（局部更新不得把既有外键清零），带值则解码覆写
+        $fkIds = $this->decodeIdFields($request, ['dashboard_id', 'dataset_id']);
         $this->fillModelFromRequest($item, $request);
+        if ($fkIds !== []) {
+            $item->fill($fkIds);
+        }
         $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));

@@ -24,8 +24,35 @@ class _DatasetListPageState extends State<DatasetListPage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 报表模板下拉：template_id 是后端 hashid 契约（ReportController::index 出口 encodeIds，
+  /// 落库列 report_dataset.template_id NOT NULL）；手输数字与编辑态回写的 hashid 都会崩
+  /// （前者落错模板、后者 1366）。选项值=行 id(hashid)，标签取模板名。
+  /// 该字段必填：预取失败返回 false，不弹空白必填下拉。
+  Map<String, String> _templates = {};
+
+  Future<bool> _ensureRefs({bool notify = true}) async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/report', params: {'limit': '500'});
+      final options = {
+        for (final r in List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []))
+          '${r['id']}': '${r['name'] ?? r['code'] ?? r['id']}',
+      };
+      if (mounted) {
+        setState(() => _templates = options);
+      } else {
+        _templates = options;
+      }
+      return true;
+    } catch (e) {
+      if (notify && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() { super.initState(); _load(); _ensureRefs(notify: false); }
 
   Future<void> _load() async {
     final seq = ++_reqSeq;
@@ -42,17 +69,20 @@ class _DatasetListPageState extends State<DatasetListPage> {
   }
 
   Future<void> _create() async {
+    if (!await _ensureRefs() || !mounted) return;
     final l10n = AppL10n.current;
-    await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
+    await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(_templates), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/bi/dataset', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    if (!await _ensureRefs() || !mounted) return;
+    final options = dropdownOptionsWithCurrent(_templates, row['template_id']);
     final l10n = AppL10n.current;
     // generated_at 为时间列，后端下发 ISO-UTC；输入框回填本地 `Y-m-d H:i:s`
-    await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(),
+    await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(options),
       initialData: {...row, 'generated_at': fmtDateTime(row['generated_at'])}, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/bi/dataset/${row['id']}', data: data);
       _load(); return true;
@@ -67,10 +97,11 @@ class _DatasetListPageState extends State<DatasetListPage> {
     });
   }
 
-  List<FormFieldConfig> _formFields() {
+  List<FormFieldConfig> _formFields(Map<String, String> templateOptions) {
     final l10n = AppL10n.current;
     return [
-      FormFieldConfig(name: 'template_id', label: l10n.biTemplateId, type: FormFieldType.number, required: true),
+      FormFieldConfig(name: 'template_id', label: l10n.biTemplateId, required: true,
+          type: FormFieldType.dropdown, options: templateOptions.keys.toList(), optionLabels: templateOptions),
       FormFieldConfig(name: 'name', label: l10n.biDatasetName, required: true),
       FormFieldConfig(name: 'query_sql', label: l10n.biQuerySql),
       FormFieldConfig(name: 'rows_count', label: l10n.biRowCount, type: FormFieldType.number),
@@ -106,7 +137,7 @@ class _DatasetListPageState extends State<DatasetListPage> {
     final l10n = AppL10n.current;
     return {
       l10n.biDatasetName: r['name'] ?? '',
-      l10n.biTemplateId: r['template_id'] ?? '',
+      l10n.biTemplateId: _templates['${r['template_id']}'] ?? '-',
       l10n.biRowCount: r['rows_count'] ?? '',
       l10n.biGeneratedAt: fmtDateTime(r['generated_at']),
       l10n.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [

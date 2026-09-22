@@ -342,7 +342,9 @@ void main() {
       await tester.tap(find.widgetWithText(ElevatedButton, '确定'));
       await settle(tester);
       expect(posts, isEmpty);
-      expect(find.textContaining('商品ID须为正整数'), findsOneWidget);
+      // 精确匹配（非 textContaining）：行校验文案必须原样上屏，
+      // 带上 `Exception: ` 前缀即为回归
+      expect(find.text('商品ID须为正整数'), findsOneWidget);
       await drainSnackBars(tester); // 到期退场，避免排队遮蔽下一条断言
 
       // 空行 + 非法数量行 → 拦截
@@ -354,7 +356,7 @@ void main() {
       await tester.tap(find.widgetWithText(ElevatedButton, '确定'));
       await settle(tester);
       expect(posts, isEmpty);
-      expect(find.textContaining('分配数量须为正数'), findsOneWidget);
+      expect(find.text('分配数量须为正数'), findsOneWidget);
       await drainSnackBars(tester); // 到期退场，避免排队遮蔽成功提示
 
       // 合法行 → POST body 为原始数字 int/double（非 String，防 PHP TypeError）

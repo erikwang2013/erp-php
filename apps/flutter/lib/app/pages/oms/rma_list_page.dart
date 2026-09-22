@@ -28,6 +28,22 @@ class _RmaListPageState extends State<RmaListPage> {
   void initState() {
     super.initState();
     _load();
+    _ensureCustomerNames();
+  }
+
+  /// 列表「客户」列的名称来源：与下拉同一端点（rule ③）。
+  Map<String, String> _customerNames = {};
+
+  Future<void> _ensureCustomerNames() async {
+    if (_customerNames.isNotEmpty) return;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/customer', params: {'limit': '500'});
+      final rows = List<Map<String, dynamic>>.from(res['data']?['list'] ?? []);
+      final m = {for (final c in rows) '${c['id']}': '${c['name'] ?? ''}'};
+      if (mounted) setState(() => _customerNames = m);
+    } catch (_) {
+      // 失败降级：列显示「-」，页面其余部分照常
+    }
   }
 
   Future<void> _load() async {
@@ -243,8 +259,6 @@ class _RmaListPageState extends State<RmaListPage> {
     ],
   );
 
-  // 列表接口不 join 客户名：客户列按原值（hashid）展示，与 Web 两端列集
-  // （编号/退款金额/状态）保持一致取向。
   List<String> _columns() => [
     AppL10n.of(context).commonCode,
     AppL10n.of(context).fieldCustomer,
@@ -254,9 +268,12 @@ class _RmaListPageState extends State<RmaListPage> {
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
+    // 客户列：与下拉同一端点那份 id→名称（rule ③；RmaController::index 只下发
+    // customer_id）；取不到落「-」（rule ④），裸 hashid 不上屏。
+    final cname = _customerNames['${r['customer_id'] ?? ''}'];
     return {
       l.commonCode: r['code'] ?? '',
-      l.fieldCustomer: r['customer_id'] ?? '',
+      l.fieldCustomer: (cname == null || cname.isEmpty) ? '-' : cname,
       l.omsRmaRefundAmount: r['refund_amount'] ?? '',
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,

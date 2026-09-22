@@ -27,6 +27,7 @@ class _InventoryCheckListPageState extends State<InventoryCheckListPage> {
   void initState() {
     super.initState();
     _load();
+    _ensureWarehouseNames();
   }
 
   Future<void> _load() async {
@@ -210,7 +211,21 @@ class _InventoryCheckListPageState extends State<InventoryCheckListPage> {
     ],
   );
 
-  // 列表接口不 join 仓库名：仓库列按原值（hashid）展示，与 eam/mfg 各页对 FK 的处理一致。
+  /// 列表「仓库」列的名称来源：与下拉同一端点（rule ③）。
+  Map<String, String> _warehouseNames = {};
+
+  Future<void> _ensureWarehouseNames() async {
+    if (_warehouseNames.isNotEmpty) return;
+    try {
+      final res = await ApiService.instance.get('/admin/v1/warehouse', params: {'limit': '500'});
+      final rows = List<Map<String, dynamic>>.from(res['data']?['list'] ?? []);
+      final m = {for (final w in rows) '${w['id']}': '${w['name'] ?? ''}'};
+      if (mounted) setState(() => _warehouseNames = m);
+    } catch (_) {
+      // 失败降级：列显示「-」，页面其余部分照常
+    }
+  }
+
   List<String> _columns() => [
     AppL10n.of(context).commonCode,
     AppL10n.of(context).fieldWarehouse,
@@ -219,9 +234,13 @@ class _InventoryCheckListPageState extends State<InventoryCheckListPage> {
 
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) {
     final l = AppL10n.of(context);
+    // 仓库列：与下拉同一端点那份 id→名称（rule ③；CheckTaskController::index 只下发
+    // warehouse_id）；取不到落「-」（rule ④），裸 hashid 不上屏。
+    final wid = '${r['warehouse_id'] ?? ''}';
+    final wname = _warehouseNames[wid];
     return {
       l.commonCode: r['code'] ?? '',
-      l.fieldWarehouse: r['warehouse_id'] ?? '',
+      l.fieldWarehouse: (wname == null || wname.isEmpty) ? '-' : wname,
       l.commonAction: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

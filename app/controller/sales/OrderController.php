@@ -98,7 +98,9 @@ class OrderController extends BaseController
         // 表无 name 列（erp_sales_order 仅 code/customer_id 等，见 install.sql），仅校验真实列
         $validator = validator($request->all(), [
             'code' => 'nullable|string|max:50',
-            'customer_id' => 'string',
+            // customer_id 是必填外键（列 NOT NULL 无默认值）：只留 required（`string` = is_string()
+            // 会把数字形态的 ID 判 422，`integer` 会把 hashid 判 422），双模判定在下面 decodeFlexibleId 收口
+            'customer_id' => 'required',
             'status' => 'integer',
             // 明细（录入路径，与 purchase/OrderController、RfqController 同一口径）：product_id 为
             // hashid 串，不能用 integer 规则挡回；解码在 buildItems 里做，垃圾串在那里抛 422
@@ -113,8 +115,12 @@ class OrderController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
-        // customer_id 入参为 hashid 串（缺省/无效 → 422）；解码 int 供信用控制并覆写落库
-        $customerId = $this->decodeIdSafe((string) $request->input('customer_id', ''));
+        // customer_id 入参为 hashid 串或数字 ID（缺省/无效 → 422）；解码 int 供信用控制并覆写落库。
+        // 原 decodeIdSafe 是纯 hashid 解码：数字形态的 ID 抛异常 → 422（与 purchase store 同族缺口），
+        // 且 hashids 对某些纯数字串会解出垃圾大数（见 decodeFlexibleId 注释）→ 改用双模 + 往返校验。
+        // 不套 (string) 强转：数组入参经 set_error_handler 会升级成 ErrorException → 500，
+        // 非标量由 decodeFlexibleId 返回 null → 422
+        $customerId = $this->decodeFlexibleId($request->input('customer_id', ''));
         if ($customerId === null || $customerId < 1) {
             return $this->fail($this->trans('Invalid customer_id'), 422);
         }
@@ -162,6 +168,9 @@ class OrderController extends BaseController
                 $item->fill(['code' => $code]);
                 // 解码 int 须在 fill 之后覆写：customer_id 非 guarded，先赋会被请求里的 hash 串直填覆写（崩/脏数据）
                 $item->customer_id = $customerId;
+                // warehouse_id 在 $fillable 内且列 NOT NULL DEFAULT 0：缺省/空串/hashid 经
+                // decodeFlexibleId 归一（垃圾串落 0 而非 1366 崩），口径同 purchase/OrderController
+                $item->fill(['warehouse_id' => $this->decodeFlexibleId((string) $request->input('warehouse_id', '0')) ?? 0]);
                 // 带明细时主表金额以明细汇总为准（覆盖入参）：与 purchase/OrderController、RfqService
                 // 同一口径，避免「明细 200 / 主表 0」这类无法对账的单
                 if ($lines !== []) {
@@ -261,7 +270,8 @@ class OrderController extends BaseController
     {
         $validator = validator($request->all(), [
             'id' => 'string',
-            'customer_id' => 'string',
+            // customer_id 不卡 string（同 store）：数字形态的客户 ID 会被 is_string() 判 422，
+            // 双模判定在下面的 decodeFlexibleId 收口；局部更新不传即不动，故不加 required
             'code' => 'string',
             'status' => 'integer',
             // 同 store：明细整表替换（提供 items 才动明细，不提供即「不改动」，
@@ -285,14 +295,29 @@ class OrderController extends BaseController
         try {
             DB::transaction(function () use ($request, $item, $id) {
                 $this->fillModelFromRequest($item, $request);
-                // 同 store：customer_id 非 guarded，fill 会把请求 hash 串直填列——提供时解码 int 覆写（部分更新）
+                // 同 store：customer_id 非 guarded，fill 会把请求里的 hash 串与空串直填 BIGINT 列
+                // （MySQL 严格模式 1366 → 500）。未传（含显式 null）一律不动（局部更新不得清空既有外键）；
+                // 空串＝必填外键清空无意义 → 维持原值（必须显式回填：fill 已把 ''/null 写进模型）；
+                // 传值即解码覆写（hashid 与数字双模），垃圾串 422。口径同 purchase/OrderController::update
                 $customerRaw = $request->input('customer_id', null);
-                if ($customerRaw !== null && $customerRaw !== '') {
-                    $customerId = $this->decodeIdSafe((string) $customerRaw);
+                if ($customerRaw === null || $customerRaw === '') {
+                    $item->fill(['customer_id' => $item->getOriginal('customer_id')]);
+                } else {
+                    $customerId = $this->decodeFlexibleId($customerRaw);
                     if ($customerId === null || $customerId < 1) {
                         throw new \RuntimeException($this->trans('Invalid customer_id'));
                     }
-                    $item->customer_id = $customerId;
+                    $item->fill(['customer_id' => $customerId]);
+                }
+                // 同 store：warehouse_id 在 $fillable 内，fill 会把请求 hash 串/空串直填 BIGINT 列
+                // （1366）；未传/显式 null 一律不动（局部更新不得清空既有外键。显式 null 必须显式回填：
+                // fill 已把 null 写进模型，不覆写会以 null 落 NOT NULL 列报 1048 → 500），
+                // 空串即「清空」→ 0（列 NOT NULL DEFAULT 0）
+                $warehouseRaw = $request->input('warehouse_id', null);
+                if ($warehouseRaw === null) {
+                    $item->fill(['warehouse_id' => $item->getOriginal('warehouse_id')]);
+                } else {
+                    $item->fill(['warehouse_id' => $this->decodeFlexibleId((string) $warehouseRaw) ?? 0]);
                 }
 
                 if (!$request->has('items')) {

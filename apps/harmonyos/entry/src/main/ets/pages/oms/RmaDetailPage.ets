@@ -261,7 +261,8 @@ struct RmaDetailPage {
                 .margin({ bottom: 12 })
 
                 Column({ space: 16 }) {
-                  DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_order'), value: this.hint(this.row['order_id']) })
+                  // 原订单无名称兄弟键（RmaController::show 未 join sales_order）→ 落「-」占位
+                  DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_order'), value: '-' })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_reason'), value: this.hint(this.row['reason']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_refund'), value: this.fmtMoney(this.row['refund_amount']) })
                   DetailRow({ label: L10n.str(this.getUIContext(), 'rma_d_fee'), value: this.fmtMoney(this.row['return_shipping_fee']) })

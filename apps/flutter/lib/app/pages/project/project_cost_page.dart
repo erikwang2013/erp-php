@@ -28,8 +28,10 @@ class _ProjectCostPageState extends State<ProjectCostPage> {
   Map<String, String> _taskOptions = {};
   Map<String, String> _employeeOptions = {};
 
+  // 列表「项目」列与下拉共用同一份 id→名称映射：initState 一并预取（rule ③），
+  // 取不到落「-」（rule ④），裸 hashid 不上屏。
   @override
-  void initState() { super.initState(); _load(); }
+  void initState() { super.initState(); _load(); _loadProjectNames(); }
 
   Future<void> _load() async {
     final seq = ++_reqSeq;
@@ -54,6 +56,13 @@ class _ProjectCostPageState extends State<ProjectCostPage> {
     } catch (_) {
       return {};
     }
+  }
+
+  /// 列表项目列的名称来源：/admin/v1/project 的 id→名称（ProjectCostController::index
+  /// 不带项目名，rule ③）；名下取不到名称时不写 hashid 当名称用。
+  Future<void> _loadProjectNames() async {
+    final m = await _options('/admin/v1/project', (r) => '${r['name'] ?? ''}');
+    if (mounted && m.isNotEmpty) setState(() => _projectOptions = m);
   }
 
   /// 弹窗前预取三个外键；编辑行的原值不在最新列表时补一行裸 id（否则回填被置空）。
@@ -119,7 +128,7 @@ class _ProjectCostPageState extends State<ProjectCostPage> {
         options: _projectOptions.keys.toList(),
         optionLabels: _projectOptions,
       ),
-      FormFieldConfig(name: 'work_date', label: l10n.fieldOccurDate, required: true, hint: 'YYYY-MM-DD'),
+      FormFieldConfig(name: 'work_date', label: l10n.fieldOccurDate, required: true, hint: l10n.commonDateFormat),
       FormFieldConfig(
         name: 'category',
         label: l10n.fieldCostCategory,
@@ -190,7 +199,6 @@ class _ProjectCostPageState extends State<ProjectCostPage> {
     ],
   );
 
-  /// 列表接口不 join 项目名：项目列按原值（hashid）展示，与 eam/mfg 各页对 FK 的处理一致。
   List<String> _columns() {
     final l10n = AppL10n.current;
     return [l10n.fieldProject, l10n.fieldOccurDate, l10n.fieldCostCategory, l10n.fieldAmount, l10n.commonAction];
@@ -203,8 +211,12 @@ class _ProjectCostPageState extends State<ProjectCostPage> {
       '2': l10n.projectCostMaterial,
       '3': l10n.projectCostOther,
     }['${r['category']}'] ?? '${r['category'] ?? ''}';
+    // 项目列：下拉那份 id→名称（rule ③）；未加载/未命中（含下拉为补行填的裸 id）落「-」
+    final projectId = '${r['project_id'] ?? ''}';
+    final projectName = _projectOptions[projectId];
     return {
-      l10n.fieldProject: r['project_id'] ?? '',
+      l10n.fieldProject:
+          (projectName == null || projectName.isEmpty || projectName == projectId) ? '-' : projectName,
       l10n.fieldOccurDate: r['work_date'] ?? '',
       l10n.fieldCostCategory: category,
       l10n.fieldAmount: r['cost'] ?? '',

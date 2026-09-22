@@ -169,8 +169,8 @@ struct OrderListPage {
   }
 
   /**
-   * 履约状态码 → 本地化文案；后端生命周期仅产出 0/1/4/5，
-   * 其余码值（含表单手工 2/3）直出数字，后端新语义时补映射
+   * 履约状态码 → 本地化文案（0..5 全码表，与详情页同口径）；
+   * 表外码直出数字，后端新语义时补映射
    */
   private ffLabel(ui: UIContext, code: number): string {
     if (code === 0) {
@@ -178,6 +178,12 @@ struct OrderListPage {
     }
     if (code === 1) {
       return L10n.str(ui, 'status_ff_1');
+    }
+    if (code === 2) {
+      return L10n.str(ui, 'status_ff_2');
+    }
+    if (code === 3) {
+      return L10n.str(ui, 'status_ff_3');
     }
     if (code === 4) {
       return L10n.str(ui, 'status_ff_4');

@@ -23,6 +23,32 @@ class _SparePartPageState extends State<SparePartPage> {
   String? _error;
   int _reqSeq = 0;
 
+  /// 设备下拉：equipment_id 是后端 hashid 契约（EquipmentController::index 出口 encodeIds），
+  /// 手输数字/编辑态回写的 hashid 直灌 BIGINT 列都会崩；选项值=行 id(hashid)，标签取设备编码。
+  /// 该字段可空（空=不关联），预取失败仍弹窗（非必填，不阻断录入）。
+  Map<String, String> _equipments = {};
+
+  Future<bool> _ensureRefs() async {
+    try {
+      final res = await ApiService.instance.get('/admin/v1/eam/equipment', params: {'limit': '500'});
+      final options = {
+        for (final r in List<Map<String, dynamic>>.from((res['data'] ?? {})['list'] ?? []))
+          '${r['id']}': '${r['code'] ?? r['name'] ?? r['id']}',
+      };
+      if (mounted) {
+        setState(() => _equipments = options);
+      } else {
+        _equipments = options;
+      }
+      return true;
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(ApiService.friendlyError(e))));
+      }
+      return false;
+    }
+  }
+
   @override
   void initState() { super.initState(); _load(); }
 
@@ -41,16 +67,21 @@ class _SparePartPageState extends State<SparePartPage> {
   }
 
   Future<void> _create() async {
+    await _ensureRefs();
+    if (!mounted) return;
     final l10n = AppL10n.of(context);
-    await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(), onSubmit: (data) async {
+    await FormDialog.show(context, title: l10n.commonAdd, fields: _formFields(_equipments), onSubmit: (data) async {
       await ApiService.instance.post('/admin/v1/eam/spare-part', data: data);
       _load(); return true;
     });
   }
 
   Future<void> _edit(Map<String, dynamic> row) async {
+    await _ensureRefs();
+    if (!mounted) return;
     final l10n = AppL10n.of(context);
-    await FormDialog.show(context, title: l10n.commonEdit, fields: _formFields(), initialData: row, onSubmit: (data) async {
+    await FormDialog.show(context, title: l10n.commonEdit,
+      fields: _formFields(dropdownOptionsWithCurrent(_equipments, row['equipment_id'])), initialData: row, onSubmit: (data) async {
       await ApiService.instance.put('/admin/v1/eam/spare-part/${row['id']}', data: data);
       _load(); return true;
     });
@@ -66,16 +97,19 @@ class _SparePartPageState extends State<SparePartPage> {
     });
   }
 
-  List<FormFieldConfig> _formFields() => [
+  List<FormFieldConfig> _formFields(Map<String, String> equipmentOptions) => [
     FormFieldConfig(name: 'code', label: AppL10n.current.eamSpareCode, required: true),
     FormFieldConfig(name: 'name', label: AppL10n.current.eamSpareName, required: true),
-    FormFieldConfig(name: 'equipment_id', label: AppL10n.current.eamEquipmentId, type: FormFieldType.number),
+    FormFieldConfig(name: 'equipment_id', label: AppL10n.current.eamEquipmentId,
+        type: FormFieldType.dropdown, options: equipmentOptions.keys.toList(), optionLabels: equipmentOptions),
     FormFieldConfig(name: 'spec', label: AppL10n.current.eamSpareSpec),
     FormFieldConfig(name: 'unit', label: AppL10n.current.eamUnit),
     FormFieldConfig(name: 'stock_qty', label: AppL10n.current.eamStockQty, type: FormFieldType.number),
     FormFieldConfig(name: 'min_stock', label: AppL10n.current.eamMinStock, type: FormFieldType.number),
     FormFieldConfig(name: 'location', label: AppL10n.current.eamLocation),
-    FormFieldConfig(name: 'status', label: AppL10n.current.commonStatus, type: FormFieldType.dropdown, options: ['0', '1']),
+    // 显示文案走 optionLabels（值=存储值不变），词表同本页状态列：启用/禁用
+    FormFieldConfig(name: 'status', label: AppL10n.current.commonStatus, type: FormFieldType.dropdown,
+        options: ['0', '1'], optionLabels: {for (final v in const ['0', '1']) v: _statusLabel(v)}),
   ];
 
   @override
@@ -108,13 +142,21 @@ class _SparePartPageState extends State<SparePartPage> {
     AppL10n.current.commonAction,
   ];
 
+  /// 状态列为 TINYINT 0/1（列默认 1，表单下拉 options 0/1；同域 eam/equipment_list_page
+  /// 的 0=禁用 1=启用），机读值不上屏，未知值原样回落。
+  static String _statusLabel(Object? v) => switch ('$v') {
+        '0' => AppL10n.current.commonDisabled,
+        '1' => AppL10n.current.commonEnabled,
+        _ => '$v',
+      };
+
   Map<String, dynamic> _rowToMap(Map<String, dynamic> r) => {
     AppL10n.current.eamSpareCode: r['code'] ?? '',
     AppL10n.current.eamSpareName: r['name'] ?? '',
     AppL10n.current.eamSpareSpecCol: r['spec'] ?? '',
     AppL10n.current.eamStockCol: r['stock_qty'] ?? '',
     AppL10n.current.eamMinStock: r['min_stock'] ?? '',
-    AppL10n.current.commonStatus: r['status'] ?? '',
+    AppL10n.current.commonStatus: _statusLabel(r['status']),
     AppL10n.current.commonAction: Row(mainAxisSize: MainAxisSize.min, children: [
       IconButton(icon: const Icon(Icons.edit, size: 18), onPressed: () => _edit(r)),
       IconButton(icon: Icon(Icons.delete, size: 18, color: AppColors.of(context).danger), onPressed: () => _delete(r)),

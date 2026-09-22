@@ -77,6 +77,15 @@ struct PackPage {
     return new RowBadge(kind, L10n.str(this.getUIContext(), `pack_status_${code}`));
   }
 
+  /** 包装类型（install.sql erp_wms_pack_task.package_type box/bag/pallet/envelope）→ 本地化文案；
+   *  空串回空（副行由调用方回退时间），表外值直显原文 */
+  private packTypeLabel(code: string): string {
+    if (code === 'box' || code === 'bag' || code === 'pallet' || code === 'envelope') {
+      return L10n.str(this.getUIContext(), `pack_type_${code}`);
+    }
+    return code;
+  }
+
   /** 完成打包：ConfirmDialog → POST /admin/wms/pack/{id}/complete（后端校验 status===1，零 body） */
   confirmComplete(id: string): void {
     this.dialogController = new CustomDialogController({
@@ -131,7 +140,7 @@ struct PackPage {
                   ListItem() {
                     ListRow({
                       title: item.code || item.id || '-',
-                      subtitle: item.package_type || Format.dateTime(item.created_at),
+                      subtitle: this.packTypeLabel(item.package_type) || Format.dateTime(item.created_at),
                       icon: item.code || item.id || '-',
                       badge: this.badge(item),
                       actions: item.status === 1 ? [

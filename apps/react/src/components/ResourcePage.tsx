@@ -276,7 +276,7 @@ export function ResourcePage({
   );
 
   const cols = [
-    ...(cfg.columns ?? inferColumns(rows, cfg.endpoint, cfg.fields, 8, cfg.filters)),
+    ...(cfg.columns ?? inferColumns(rows, cfg.endpoint, cfg.fields, 8, cfg.filters, cfg.dicts)),
     {
       key: '__actions',
       title: '操作',
@@ -340,7 +340,7 @@ export function ResourcePage({
         )}
 
         {report !== null ? (
-          <ResultView data={report} />
+          <ResultView data={report} dicts={cfg.dicts} />
         ) : (
           <DataTable
             columns={cols}
@@ -378,14 +378,14 @@ export function ResourcePage({
           {cfg.detail ? (
             cfg.detail(detail)
           ) : (
-            <DescList items={inferDetailItems(detail, cols)} />
+            <DescList items={inferDetailItems(detail, cols, cfg.dicts, cfg.fields)} />
           )}
         </Modal>
       )}
 
       {result && (
         <Modal title={t(result.title)} onClose={() => setResult(null)} wide>
-          <ResultView data={result.data} />
+          <ResultView data={result.data} dicts={cfg.dicts} />
         </Modal>
       )}
 

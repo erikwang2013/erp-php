@@ -4,9 +4,21 @@
 
 /** 生成物 —— 由 `scripts/gen-column-titles.mjs` 从 install.sql 列注释导出（第 2/2 片）。请勿手工编辑。 */
 export const COLUMN_TITLES_PART2: Record<string, string> = {
+  reported_by: '报告人', // install.sql 列注释
+  request: '请求报文', // install.sql 列注释
+  require_date: '需求日期', // install.sql 列注释
+  required: '是否必填', // install.sql 列注释
+  reserved_quantity: '预占数量', // install.sql 列注释
+  resolved_at: '解决时间', // install.sql 列注释
+  response: '响应内容', // crm_campaign_participant 无注释
+  response_summary: '响应体/错误信息摘要', // install.sql 列注释
+  resume_summary: '简历摘要', // install.sql 列注释
+  return_id: '退货单ID', // install.sql 列注释
+  return_shipment_id: 'TMS退货运单ID', // install.sql 列注释
   return_shipping_fee: '退货运费', // install.sql 列注释
   returned_at: '退货时间', // 裁决：众数
   revenue: '营业收入', // install.sql 列注释
+  rfq: '询价单', // 非 DB 列：比价回包的嵌套对象（询价单头）
   rfq_id: '询价单ID', // install.sql 列注释
   rfq_item_id: '询价单明细ID', // install.sql 列注释
   rfq_no: '询价单号', // install.sql 列注释
@@ -16,6 +28,7 @@ export const COLUMN_TITLES_PART2: Record<string, string> = {
   root_cause: '根本原因', // install.sql 列注释
   rows_count: '结果行数', // install.sql 列注释
   rule_id: '规则ID', // 裁决：四候选各一（预警/考勤/社保各域），取通用者
+  salary: '工资条', // 非 DB 列：payslip 回包的工资头行对象
   sampling_plan: '抽样方案', // install.sql 列注释
   scheduled_at: '计划时间', // install.sql 列注释
   scheduled_receipt: '计划接收量', // install.sql 列注释
@@ -41,6 +54,7 @@ export const COLUMN_TITLES_PART2: Record<string, string> = {
   signed_at: '签订日期', // install.sql 列注释
   sku_code: 'SKU编码', // install.sql 列注释
   sms: '短信通知', // install.sql 列注释
+  social: '社保', // 非 DB 列：payslip 回包的社保段（未绑定/计算失败时为 null）
   sort_order: '排序号', // install.sql 列注释
   source_center_id: '来源成本中心ID', // install.sql 列注释
   source_id: '来源单据ID', // 裁决：众数
@@ -68,10 +82,12 @@ export const COLUMN_TITLES_PART2: Record<string, string> = {
   supplier_range: '供应商范围', // install.sql 列注释
   symbol: '货币符号', // install.sql 列注释
   tags: '标签', // dms_document 无注释
+  target_amount: '目标金额', // 非 DB 列：比价矩阵行金额（target_price × quantity）
   target_audience: '目标受众', // install.sql 列注释
   target_center_id: '目标成本中心ID', // install.sql 列注释
   target_id: '单据ID', // install.sql 列注释
   target_price: '目标单价', // install.sql 列注释
+  target_total: '目标总额', // 非 DB 列：比价回包算出的目标总额
   target_value: '目标值描述', // install.sql 列注释
   tax_amount: '税额', // install.sql 列注释
   tax_rate_id: '税率ID', // install.sql 列注释
@@ -110,6 +126,7 @@ export const COLUMN_TITLES_PART2: Record<string, string> = {
   version: '版本', // dms_document / dms_document_version 无注释
   visible: '是否可见', // install.sql 列注释
   void_reason: '作废原因', // install.sql 列注释
+  voucher_count: '凭证数', // 非 DB 列：现金流量表 report_data.voucher_count
   voucher_date: '凭证日期', // install.sql 列注释
   voucher_id: '凭证ID', // 裁决：众数
   voucher_item_id: '凭证分录ID', // install.sql 列注释

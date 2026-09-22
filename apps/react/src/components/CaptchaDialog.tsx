@@ -141,7 +141,9 @@ export function CaptchaDialog({
   /** 三型统一校验入口；失败按类型给提示，同一 key 连败 3 次自动换新挑战 */
   const verify = useCallback(
     async (payload: VerifyPayload) => {
-      if (!challenge || busy) return;
+      // verified：已通过后不得再发校验。挑战一次性消费，晚到的提交（旋转防抖定时器、
+      // 落点晚于通过的 pointerup）只会拿到 422，被当成答错弹错——通过后必须静默丢弃。
+      if (!challenge || busy || verified) return;
       setBusy(true);
       try {
         await api('/api/v1/captcha/verify', {
@@ -180,7 +182,7 @@ export function CaptchaDialog({
         setBusy(false);
       }
     },
-    [challenge, busy, toast, t, onSuccess, onClose, loadCaptcha],
+    [challenge, busy, verified, toast, t, onSuccess, onClose, loadCaptcha],
   );
 
   /** 撤销命中半径（原图像素）：再次点击最后一个标记处 = 撤销该步 */
@@ -197,15 +199,20 @@ export function CaptchaDialog({
     const x = Math.round((e.clientX - rect.left) * sx);
     const y = Math.round((e.clientY - rect.top) * sy);
 
-    setClicks((cs) => {
-      const last = cs[cs.length - 1];
-      if (last && Math.hypot(last.x - x, last.y - y) <= UNDO_RADIUS) return cs.slice(0, -1);
-      if (cs.length >= challenge.targets.length) return cs; // 校验已触发
-      const next = [...cs, { x, y }];
-      failRef.current = 0;
-      if (next.length >= challenge.targets.length) void verify({ clicks: next });
-      return next;
-    });
+    // verify 必须在 setState 之外调用：更新器函数在 StrictMode dev 下会被 React
+    // 调用两次（react-dom 的 shouldDoubleInvokeUserFnsInHooksDEV），写在更新器里
+    // 等于一次作答发两次校验 —— 第一次通过（挑战已消费），第二次必 422，
+    // 于是「验证通过」与「位置不准」同时出现。故同步读 clicks 直接算 next。
+    const last = clicks[clicks.length - 1];
+    if (last && Math.hypot(last.x - x, last.y - y) <= UNDO_RADIUS) {
+      setClicks(clicks.slice(0, -1));
+      return;
+    }
+    if (clicks.length >= challenge.targets.length) return; // 校验已触发
+    const next = [...clicks, { x, y }];
+    failRef.current = 0;
+    setClicks(next);
+    if (next.length >= challenge.targets.length) void verify({ clicks: next });
   };
 
   /** slider：拼图块位移量（显示 px）→ 原图原生 px；scale 以拖拽起点实测为准 */

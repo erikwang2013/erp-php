@@ -47,7 +47,8 @@ struct AttendancePage {
     }
   }
 
-  /** 标题：嵌套 employee 对象名（controller index with employee；软删后 null 兜底 employee_id） */
+  /** 标题：嵌套 employee 对象名（controller index with employee）；
+   *  软删后 employee 为 null 时落「-」——原为 `#<employee_id>`，贴的是 encodeIds 后的 hashid 串 */
   private empTitle(item: Record<string, Object>): string {
     const emp = item['employee'];
     if (emp != null) {
@@ -58,8 +59,7 @@ struct AttendancePage {
         return n.length > 0 ? n : c;
       }
     }
-    const raw = item['employee_id'];
-    return raw != null ? `#${String(raw)}` : '-';
+    return '-';
   }
 
   /** 状态徽章：DDL 注释 1=正常 2=迟到 3=早退 4=缺卡 5=请假 6=出差 */

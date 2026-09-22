@@ -297,6 +297,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get omsChannelStore => 'Channel Store Name';
 
   @override
+  String get omsChannelManual => 'Manual';
+
+  @override
+  String get omsChannelWeb => 'Web';
+
+  @override
+  String get omsChannelMobile => 'Mobile';
+
+  @override
+  String get omsChannelApi => 'API';
+
+  @override
+  String get omsChannelMarketplace => 'Marketplace';
+
+  @override
   String get omsFulfillStatus => 'Fulfillment Status';
 
   @override
@@ -517,6 +532,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hrLeaveStatusRejected => 'Rejected';
 
   @override
+  String get hrAttendanceStatusNormal => 'Normal';
+
+  @override
+  String get hrAttendanceStatusLate => 'Late';
+
+  @override
+  String get hrAttendanceStatusEarly => 'Early Leave';
+
+  @override
+  String get hrAttendanceStatusMissing => 'Missing Punch';
+
+  @override
+  String get hrAttendanceStatusLeave => 'Leave';
+
+  @override
+  String get hrAttendanceStatusTrip => 'Business Trip';
+
+  @override
   String get hrLeaveApproveTitle => 'Approve Leave';
 
   @override
@@ -705,6 +738,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eamFrequencyCol => 'Frequency';
 
   @override
+  String get eamFrequencyDaily => 'Daily';
+
+  @override
+  String get eamFrequencyWeekly => 'Weekly';
+
+  @override
+  String get eamFrequencyMonthly => 'Monthly';
+
+  @override
+  String get eamFrequencyQuarterly => 'Quarterly';
+
+  @override
+  String get eamFrequencyYearly => 'Yearly';
+
+  @override
   String get eamLastDate => 'Last Maintenance Date';
 
   @override
@@ -723,6 +771,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get eamRepairType => 'Repair Type';
 
   @override
+  String get eamRepairTypePreventive => 'Preventive';
+
+  @override
+  String get eamRepairTypeCorrective => 'Corrective';
+
+  @override
+  String get eamRepairTypeEmergency => 'Emergency';
+
+  @override
   String get eamFaultDescription => 'Fault Description';
 
   @override
@@ -736,6 +793,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get eamRepairCost => 'Repair Cost';
+
+  @override
+  String get eamRepairStatusOpen => 'Open';
+
+  @override
+  String get eamRepairStatusInProgress => 'In Progress';
+
+  @override
+  String get eamRepairStatusCompleted => 'Completed';
+
+  @override
+  String get eamRepairStatusCancelled => 'Cancelled';
 
   @override
   String get eamTransitionTitle => 'Status Transition';
@@ -852,6 +921,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get crmAnalyticsYearUnit => 'Year';
+
+  @override
+  String get crmAnalyticsTypeCustomer => 'Customer';
+
+  @override
+  String get crmAnalyticsTypeOrder => 'Order';
+
+  @override
+  String get crmAnalyticsTypeRevenue => 'Revenue';
+
+  @override
+  String get crmAnalyticsTypeActivity => 'Activity';
+
+  @override
+  String get crmAnalyticsTypeRetention => 'Retention';
+
+  @override
+  String get crmFollowMethodPhone => 'Phone';
+
+  @override
+  String get crmFollowMethodVisit => 'Visit';
+
+  @override
+  String get crmFollowMethodEmail => 'Email';
+
+  @override
+  String get crmFollowMethodMessage => 'Message';
+
+  @override
+  String get crmFollowMethodOther => 'Other';
 
   @override
   String get crmContractStatusDraft => 'Draft';
@@ -1184,6 +1283,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get commonDefaultZero => 'Default 0';
+
+  @override
+  String get commonUnspecified => '(Unspecified)';
 
   @override
   String commonExampleAmount(String amount) {
@@ -1810,6 +1912,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonClose => 'Close';
 
   @override
+  String get commonLanguage => 'Language';
+
+  @override
   String get commonEnabled => 'Enabled';
 
   @override
@@ -2115,6 +2220,60 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qualityQtySummary => 'Inspected/Passed/Rejected';
 
   @override
+  String get qualityResultPass => 'Pass';
+
+  @override
+  String get qualityResultReject => 'Reject';
+
+  @override
+  String get qualityTypeIqc => 'Incoming Inspection';
+
+  @override
+  String get qualityTypeIpqc => 'In-process Inspection';
+
+  @override
+  String get qualityTypeOqc => 'Outgoing Inspection';
+
+  @override
+  String get qualityNcStatusPending => 'Pending';
+
+  @override
+  String get qualityNcStatusProcessing => 'Processing';
+
+  @override
+  String get qualityNcStatusClosed => 'Closed';
+
+  @override
+  String get qualitySeverityMinor => 'Minor';
+
+  @override
+  String get qualitySeverityMajor => 'Major';
+
+  @override
+  String get qualitySeverityCritical => 'Critical';
+
+  @override
+  String get qualityDispositionPending => 'Pending';
+
+  @override
+  String get qualityDispositionReturn => 'Return';
+
+  @override
+  String get qualityDispositionRepair => 'Repair';
+
+  @override
+  String get qualityDispositionScrap => 'Scrap';
+
+  @override
+  String get qualityDispositionAccept => 'Accept';
+
+  @override
+  String get qualityStatusPending => 'Pending';
+
+  @override
+  String get qualityStatusCompleted => 'Completed';
+
+  @override
   String get biDashboardName => 'Dashboard Name';
 
   @override
@@ -2147,6 +2306,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String biChartTypeLabel(String type) {
     return 'Type: $type';
   }
+
+  @override
+  String get biChartTypeBar => 'Bar';
+
+  @override
+  String get biChartTypeKpi => 'Metric';
+
+  @override
+  String get biChartTypeLine => 'Line';
+
+  @override
+  String get biChartTypePie => 'Pie';
+
+  @override
+  String get biChartTypeTable => 'Table';
 
   @override
   String get biChartConfig => 'Config JSON';
@@ -2213,6 +2387,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workflowStatusUnknown => 'Unknown';
 
   @override
+  String get targetTypeSalesOrder => 'Sales Order';
+
+  @override
+  String get targetTypePurchaseApply => 'Purchase Requisition';
+
+  @override
+  String get targetTypePurchaseOrder => 'Purchase Order';
+
+  @override
+  String get targetTypeExpense => 'Expense';
+
+  @override
+  String get targetTypeLeave => 'Leave';
+
+  @override
+  String get targetTypeOther => 'Other';
+
+  @override
   String get workflowApproveTitle => 'Approve';
 
   @override
@@ -2269,6 +2461,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get notificationMarkAllRead => 'Mark All as Read';
+
+  @override
+  String get notificationRead => 'Read';
+
+  @override
+  String get notificationUnread => 'Unread';
 
   @override
   String get reportExecute => 'Run';
@@ -2441,6 +2639,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get configEdit => 'Edit Setting';
+
+  @override
+  String get configTypeString => 'String';
+
+  @override
+  String get configTypeInt => 'Integer';
+
+  @override
+  String get configTypeBool => 'Boolean';
+
+  @override
+  String get configTypeJson => 'JSON';
+
+  @override
+  String get configTypeArray => 'Array';
 
   @override
   String get configSaveSuccess => 'Saved successfully';
@@ -2778,6 +2991,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dmsDocumentTitle => 'Document List';
+
+  @override
+  String get dmsDocStatusDraft => 'Draft';
+
+  @override
+  String get dmsDocStatusPublished => 'Published';
 
   @override
   String get notificationCenterTitle => 'Notifications';

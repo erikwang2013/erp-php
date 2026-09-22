@@ -145,6 +145,12 @@ export interface ColumnDef {
   rel?: Record<string, string>;
 }
 
+/**
+ * 逐键值字典：`{ 键: { 值: 文案 } }`，填的是本表列注释里的真枚举（database/install.sql）。
+ * 数字键按字符串存（`{1:'启用'}` 与 `{'1':'启用'}` 等价，见 cells.ts 的 mapText）。
+ */
+export type DictMap = Record<string, Record<number | string, string>>;
+
 export interface ResourceConfig {
   /** 页面标题 */
   title: string;
@@ -160,6 +166,12 @@ export interface ResourceConfig {
   searchPlaceholder?: string;
   /** 状态筛选胶囊（第一个选项为「全部」，value 为 null） */
   filters?: FilterDef;
+  /**
+   * 逐键值字典（见 DictMap）。推断列只按字段名认 status/state/*_status 是枚举，
+   * `type`/`priority`/`is_lowest` 这类键没有字典可查、直接裸出 0/1；而不写 columns 的推断页
+   * 又不该为了一个键把整张表的列枚举出来。列表列、详情抽屉、动作结果面板三处共用这一份。
+   */
+  dicts?: DictMap;
   /** 表单字段；缺省表示只读列表（不显示新增/编辑） */
   fields?: FormField[];
   /** 是否允许删除 */
