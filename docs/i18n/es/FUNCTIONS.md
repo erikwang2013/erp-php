@@ -576,7 +576,7 @@ Registro de horas → agregación a la tarea → acumulación en el coste del pr
 | Script de instalación de base de datos | Archivo único `database/install.sql` (227 tablas, todas las migraciones consolidadas) |
 | Páginas frontend (Flutter) | 119 (medido el 2026-09-22: archivos de página `.dart` bajo `apps/flutter/lib/app/pages/` (recursivo); no incluido en la verificación de doc-stats) |
 | Páginas frontend (HarmonyOS) | 52 (medido el 2026-09-22: archivos de página `.ets` bajo `apps/harmonyos/entry/src/main/ets/pages/` (recursivo); no incluido en la verificación de doc-stats) |
-| Pruebas unitarias | 111 archivos de prueba <!-- stats:test_files=113 --> / 1001 casos de prueba <!-- stats:tests=1025 --> / 4726 aserciones <!-- stats:assertions=4827 --> (recuento estático: número de métodos de prueba + puntos de llamada a aserciones, independiente del entorno de ejecución) |
+| Pruebas unitarias | 111 archivos de prueba <!-- stats:test_files=113 --> / 1001 casos de prueba <!-- stats:tests=1037 --> / 4726 aserciones <!-- stats:assertions=4962 --> (recuento estático: número de métodos de prueba + puntos de llamada a aserciones, independiente del entorno de ejecución) |
 
 > Las cifras anteriores se generan midiendo con `bash scripts/doc-stats.sh`; los elementos marcados con `<!-- stats:key=value -->`
 > los verifica automáticamente el CI (el job de docs en `.github/workflows/ci.yml`) contra los hechos del código; si hay desviación, se marca en rojo.

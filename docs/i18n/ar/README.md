@@ -192,7 +192,7 @@ open-erp/
 │   ├── e2e-seed.sql             # بذرة E2E/CI الدنيا
 │   └── backup/                 # سكربتات النسخ الاحتياطي/الاستعادة
 ├── docs/                       # وثائق البنية والتصميم والأمان وAPI
-├── tests/                      # اختبارات PHPUnit (<!-- stats:test_files=113 --> ملف اختبار، <!-- stats:tests=1025 --> دالة اختبار، <!-- stats:assertions=4827 --> تأكيدًا؛ والمعيار في ملحق docs/FUNCTIONS.md)
+├── tests/                      # اختبارات PHPUnit (<!-- stats:test_files=113 --> ملف اختبار، <!-- stats:tests=1037 --> دالة اختبار، <!-- stats:assertions=4962 --> تأكيدًا؛ والمعيار في ملحق docs/FUNCTIONS.md)
 ├── resource/
 │   └── translations/           # قاموس رسائل الخلفية بـ 13 لغة (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
 │       ├── zh_CN/              # الترجمة الصينية (565 مدخلًا)

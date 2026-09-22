@@ -576,7 +576,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | データベースインストールスクリプト | 単一ファイル `database/install.sql`（227 テーブル、全マイグレーション統合済み）|
 | フロントエンドページ (Flutter) | 119（2026-09-22 実測 `apps/flutter/lib/app/pages/` 配下の `.dart` ページファイル数（再帰）、doc-stats 検証対象外）|
 | フロントエンドページ (HarmonyOS) | 52（2026-09-22 実測 `apps/harmonyos/entry/src/main/ets/pages/` 配下の `.ets` ページファイル数（再帰）、doc-stats 検証対象外）|
-| ユニットテスト | 111 テストファイル <!-- stats:test_files=113 --> / 1001 テストケース <!-- stats:tests=1025 --> / 4726 アサーション <!-- stats:assertions=4827 -->（静的計数：テストメソッド数 + アサーション呼び出し点数、実行環境に依存しません）|
+| ユニットテスト | 111 テストファイル <!-- stats:test_files=113 --> / 1001 テストケース <!-- stats:tests=1037 --> / 4726 アサーション <!-- stats:assertions=4962 -->（静的計数：テストメソッド数 + アサーション呼び出し点数、実行環境に依存しません）|
 
 > 上記の数字は `bash scripts/doc-stats.sh` による実測値です。`<!-- stats:key=value -->` で注記された項目は CI
 > （`.github/workflows/ci.yml` の docs ジョブ）がコードの事実との一致を自動検証し、乖離があれば即レッドになります。

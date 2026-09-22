@@ -24,6 +24,10 @@
 - 测试：`tests/DetailContractRegressionTest.php` +1（`testListRowsCarryRemainingForeignKeyNames`，22 断言：5 个页面/7 个键 + 外键仍是 hashid + 既有 `supplier_name` 不回退 + 调拨两键不互换 + 顶级 `parent_name` 空串）
 - 负控 5 组变异（票据账户名、付款单账户名、调拨 from/to 互换、运费发票承运商名、权限父级名）逐组**变红于对应断言**（断言数 3/7/11/15/19 依次中靶）
 
+### 修复 · 文档统计标注漂移（`docs` 作业连续红，阻断发版）
+- `scripts/doc-stats.sh --check` 的 `stats:tests` / `stats:assertions` 标注自 v1.19.3 批起未随用例增长同步（标注 1025/4827 ≠ 实测 1037/4962），`docs` 作业在 8c882bb、0429d75 两次 push 上连续失败；`release` 作业 `needs: [docs, e2e, php]`，因此 **v1.19.3 与 v1.19.4 两批一直没能发出 tag / Release**
+- 按仓库自带的 `bash scripts/doc-stats.sh --fix` 自愈：26 份文档各 1 行（`docs/` + 11 国语言镜像的 README/CLAUDE/FUNCTIONS/EDITIONS），同步标注与紧邻展示值；复验 259 处标注全部一致。前几批的清单里有这一步（v1.19.0 批即「doc-stats 统计标注自愈」），最近两批漏跑
+
 ### 验证
 - CI 等效双跑（`VERIFY_DB=erp_verify` 临时库 + `TEST_DB_*` 驱动集成测试）：**1048 用例 / 7046 断言 / 2 warning / 8 skipped / 0 失败**，两遍逐字一致（含覆盖采集那一遍，三遍同数字）；相对上一批的**差异恰为本次新增用例**（+1 用例 +22 断言，同环境基线 `/tmp/relcheck.suite.log` 为 1047/7024/8，skipped 数随共享验证库的历史残留浮动、与本次改动无关）
 - 覆盖率门禁：整体 **31.47%**（门槛 30，上批 30.91%）、业务层 `app/service` **77.59%**（门槛 40），另按 CI 现行 4/10 阈值复算同样 PASS
