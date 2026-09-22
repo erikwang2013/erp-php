@@ -13,7 +13,7 @@
 |------|------|--------------|
 | Backend | webman (Workerman) PHP 8.3+, **23 business modules**, 159 controllers, 63 services, 224 models, 227 tables, 11 middleware (schema uses database/install.sql as its single source of truth) | Large all-in-one monolith; divide work by business domain to prevent single-agent context explosion |
 | Frontend | Flutter **102 menu routes** (`lib/app/config/menu_config.dart`; `main.dart`'s getPages totals 110 entries = 102 menus + login/profile + 6 detail pages) + HarmonyOS **41 pages** (`main_pages.json`), covering all modules | Two frontends maintained in parallel; dedicated frontend roles required |
-| Quality baseline | PHPUnit 1048<!-- stats:tests=1048 --> tests / 5040<!-- stats:assertions=5040 --> assertions, PHPStan + baseline, CS-Fixer, CI multi-version matrix | Discipline already in place; testing/review roles plug directly into the pipeline |
+| Quality baseline | PHPUnit 1051<!-- stats:tests=1051 --> tests / 5047<!-- stats:assertions=5047 --> assertions, PHPStan + baseline, CS-Fixer, CI multi-version matrix | Discipline already in place; testing/review roles plug directly into the pipeline |
 | Version matrix | Only the `main` branch (`lite` / `standard` / `full` have been deleted; the archived commit `eea90c0` is still in `main`'s history) | No edition branch left to sync; edition differences are traced through tags, see "Branch Strategy" in `docs/EDITIONS.md` |
 | Roadmap | P0~P3 delivered (overall score 89/100), entering daily iteration and evolution phase | Team scales by task type, not a large permanent project staff |
 | Existing facilities | `.claude/agents/` (planner / sparc / testing / swarm / consensus), `.claude-flow` (hierarchical-mesh, max 15 agents, consensus coordination), hooks + memory | Team mounts directly onto existing config; no reinvention |
@@ -83,7 +83,7 @@
 ### 3.4 Quality Gate (mandatory before commit, guarded by the reviewer)
 
 ```
-phpunit            # 1048<!-- stats:tests=1048 --> tests / 5040<!-- stats:assertions=5040 --> assertions all green; new cases submitted with changes
+phpunit            # 1051<!-- stats:tests=1051 --> tests / 5047<!-- stats:assertions=5047 --> assertions all green; new cases submitted with changes
 phpstan            # no issues beyond the baseline allowed
 php-cs-fixer       # --dry-run passes
 composer audit     # no high-severity dependency vulnerabilities

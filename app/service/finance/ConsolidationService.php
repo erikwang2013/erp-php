@@ -190,13 +190,26 @@ class ConsolidationService
             ->first();
     }
 
-    /** 版本列表：同 (company_id, year, month) 的全部历史行（新→旧） */
-    public function list(int $companyId, int $year, int $month): array
+    /**
+     * 版本列表（新→旧）。三个条件都是**有值才加**：company_id 为 null（调用方不传/空串）、
+     * year/month 为 0 时不过滤该列 —— 本方法同时被配置驱动列表页（/finance/consolidation）使用，
+     * 那页不带任何参数、预期整表下发（apps/angular/src/app/pages/resource-page/resource-page.ts:461-463）。
+     * 非法值（解不出的 company_id）在控制器侧就已 422，这里只负责「有值就加条件」。
+     */
+    public function list(?int $companyId = null, int $year = 0, int $month = 0): array
     {
-        return FinanceConsolidationReport::where('company_id', $companyId)
-            ->where('report_year', $year)->where('report_month', $month)
-            ->orderByDesc('created_at')->orderByDesc('id')
-            ->get()->all();
+        $query = FinanceConsolidationReport::query();
+        if ($companyId !== null && $companyId > 0) {
+            $query->where('company_id', $companyId);
+        }
+        if ($year > 0) {
+            $query->where('report_year', $year);
+        }
+        if ($month > 0) {
+            $query->where('report_month', $month);
+        }
+
+        return $query->orderByDesc('created_at')->orderByDesc('id')->get()->all();
     }
 
     /**

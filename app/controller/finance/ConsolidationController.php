@@ -107,14 +107,14 @@ class ConsolidationController extends BaseController
      * 版本列表（含历史已出表）
      */
     #[\erikwang2013\apidoc\annotation\Title('合并报表版本列表')]
-    #[\erikwang2013\apidoc\annotation\Desc('同一集团+期间的全部历史版本，新→旧')]
+    #[\erikwang2013\apidoc\annotation\Desc('同一集团+期间的全部历史版本，新→旧；三个条件都可缺省，缺省即不过滤（/finance/consolidation 页面不带任何参数整表下发）')]
     #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/consolidation/list')]
     #[\erikwang2013\apidoc\annotation\Method('GET')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]
     #[\erikwang2013\apidoc\annotation\Tag('财务管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'company_id', type:'string', desc:'集团组织ID(hashid)，必填')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'report_year', type:'int', desc:'报表年，必填')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'report_month', type:'int', desc:'报表月，必填')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'company_id', type:'string', desc:'集团组织ID(hashid)，可缺省；缺省/空串=不过滤，传了但解不出仍 422')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'report_year', type:'int', desc:'报表年，可缺省；缺省/0=不过滤')]
+    #[\erikwang2013\apidoc\annotation\Param(name:'report_month', type:'int', desc:'报表月 1-12，可缺省；缺省/0=不过滤')]
 
     public function list(Request $request): Response
     {
@@ -126,12 +126,21 @@ class ConsolidationController extends BaseController
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
-        $companyId = $this->decodeFlexibleId($request->input('company_id', ''));
+        // 三个条件都是「传了才过滤」：本接口同时是配置驱动列表页（/finance/consolidation）的数据源，
+        // 那页 cfg 既无 params 也无 filters（两端 finance.ts），引擎只发 page/limit ⇒ 无参必须整表下发，
+        // 否则页面一打开就是 422（前端 api.service 对 code!==0 直接抛）。
+        // 但「缺省」与「非法」是两回事：company_id 传了却解不出（含 '0'，decodeFlexibleId 的数字兜底
+        // 会把它判成 0 号组织）照旧 422 —— 静默返回空表会把打错的参数伪装成「没有数据」。
+        $companyId = null;
+        $rawCompany = $request->input('company_id', '');
+        if ($rawCompany !== null && $rawCompany !== '') {
+            $companyId = $this->decodeFlexibleId($rawCompany);
+            if ($companyId === null || $companyId < 1) {
+                return $this->fail($this->trans('Invalid company_id'), 422);
+            }
+        }
         $year = (int) $request->input('report_year', 0);
         $month = (int) $request->input('report_month', 0);
-        if ($companyId === null) {
-            return $this->fail($this->trans('company_id is required'), 422);
-        }
         $rows = (new ConsolidationService())->list($companyId, $year, $month);
         $items = [];
         foreach ($rows as $row) {

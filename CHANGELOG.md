@@ -2,6 +2,47 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.9 (2026-09-22)
+
+**合并报表页面打不开（无参 422）**：用户报「apps 中合并报表页面报错」。根因是**前后端契约对不上**，且该页**自建立起就没工作过**（后端 `629dd43` 2026-09-04、页面 `47a3a7a` 2026-09-10，**均早于本会话任何一批，非回归**）。范围只含这一处缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。
+
+### 修复 · `/finance/consolidation` 列表页一打开就 422
+- **复现（真栈 8788）**：页面 cfg（Angular 与 React **完全相同**）既无 `params` 也无 `filters` ⇒ 引擎（`resource-page.ts:451-457`）只发 `page`/`limit` ⇒ `GET /admin/v1/finance/consolidation/list` 命中 `list()` 里 `company_id` 的必填判定 ⇒ `{"code":422,"message":"company_id 必填"}`；前端 `api.service.ts:164` 对 `code !== 0` 直接抛 ⇒ 页面报错
+- **同期对照**（同一条前端注释点名的三个端点，都不带参直打）：`/finance/company/list`、`/finance/ledger/period-list` 均 `code:0` 整表下发，**只有合并报表 422** ⇒ 它是自己那一组的异类
+- **为什么判「错在后端」而不是前端**：① `resource-page.ts:462` 的注释**文档化了预期契约** ——「`{list,total}` 无 page 的那批（多组织/账套期间/**合并报表**…）照样整表下发」；② **前端结构上修不了** —— `FilterDef = {key,label,options}` 是**单键静态下拉**、`params` 是静态值，引擎无法表达「动态选集团 + 年 + 月」三个参数
+- **修法（`list()` 改成「传了才过滤，没传不过滤」）**：`company_id` 缺省/空串 ⇒ 不按集团过滤，**传了却解不出（含 `'0'`）仍 422** —— 「缺省」与「非法」是两回事，静默返回空表会把打错的参数伪装成「没有数据」；`report_year`/`report_month` 为 `0` 或未传 ⇒ 不过滤该列。`ConsolidationService::list()` 签名放宽为 `?int $companyId = null`，内部三个 `if` 各自加条件（`::where()` 一并换成 `::query()`）；apidoc 三个 `Param` 的「必填」同步改为可缺省（本仓口径：注释跟着实现改）。`validator` 三条规则、返回形状 `['list','total']`、`encodeIds`、`latest()`/`draft()`/`issue()`/`eliminations()` 均未动
+- **新增 3 条用例**（先 TDD 红后绿）：无参返回种子行、`company_id` 解不出仍 422、显式三参只返回该组合。改前 2 failures（`422 is identical to 0` / `0 is identical to 422`）；改后 `OK (6 tests, 16 assertions)`。**唯一其他调用者** `tests/Integration/F12MultiCompanyConsolidationTest.php`（`list($mainCompanyId, 2026, 8)` 期望 2 行）未受影响：`OK (4 tests, 110 assertions)`
+- **活体四条**（真栈）：无参 `code:0` / 3 行；`company_id=zzz` 与 `=0` 均 `422 Invalid company_id`；空串 = 缺省 ⇒ `code:0` / 3 行；对照 `company/list` `code:0` / 4 行
+- `phpstan-baseline.neon` 的 `FinanceConsolidationReport::where()` 条目 **`count: 2` → `1`**（`list()` 那处已是 `::query()`，实际只剩 `latest()` 1 处）。该文件 `reportUnmatchedIgnoredErrors: false` 会静默吸收多出的余量 ⇒ 不收的话「将来谁再写一个 `::where` 就不会被拦」；收紧后 PHPStan 仍 `[OK] No errors`
+
+### 记录 · 一条推翻前提的发现（影响所有真栈负控的判读）
+- **`app/process/Monitor.php:165` 只认 mtime 前进**：`if (… && $lastMtime < $file->getMTime())` 且 `:166 $lastMtime = $file->getMTime();`（`$lastMtime` 只增不减）⇒ **用 `cp -p`（保留 mtime）还原负控，永不触发 reload**，真栈会**静默继续跑旧代码**，E2E 于是给出假红/假绿
+- 实测经过：负控还原后打接口仍返回**旧文案**（带 zh 译文的「company_id 必填」），而磁盘上已是修复版且 `md5sum -c` 通过；`touch` 该文件后 worker 于 23:34:26 全部重启，同一条请求的文案从「company_id 必填」变成 `Invalid company_id`（新键未翻译）⇒ 判别子成立
+- **判据改为**：看**响应文案/内容哈希**与 worker 启动时刻，**不看「文件已改」**。凡用「摘-还原」做真栈负控，还原后必须先 `touch`（或改一次内容）再断言
+
+### 验证（独立验证方单飞，仓库零写入）
+- **全量 CI 等效 phpunit**：`Tests: 1062, Assertions: 7161, Warnings: 2, Skipped: 9` rc=0 = 上一版 `1059 / 7151 / 2 / 9` 之上 **+3 用例 / +10 断言**（Warnings 与 Skipped 数量不动）。独立佐证：`--filter ConsolidationServiceTest` = `6 tests / 16 assertions`（3 旧 + 3 新），**只跑新增那 3 条 = `3 tests / 10 assertions`**，与 `7151 → 7161` 的 +10 逐数吻合
+- **行为矩阵 20 格零不符**（复核方自建探针 + 事务回滚）：无参 / 空串 ⇒ 全表；合法 hashid 与数字串（**双模成立**）⇒ 只返该集团；`zzz` / `0` / `-1` / `abc123` / 数组 ⇒ 422；只给 year 或只给 month ⇒ 各按其过滤；`draft`/`latest` 无参仍 422（**未误伤**）。**「缺省 ≠ 非法」实测成立** —— 缺省给出全表而非静默空表
+- **HEAD 版单变量 A/B**（`git show HEAD:` 抢类名，仓库零改动）：无参与空串：HEAD `422` → 新版 `0`（本批修复）；**`company_id=0` 与 `-1`：HEAD `code:0` + 静默空表 → 新版 `422`（本批收紧）**。收紧的影响面已 grep：`/consolidation/list` 的调用点只有两端 finance.ts 的页面 cfg 各 1 处、且**不发任何参数** ⇒ **零已知调用方受影响**
+- **「不是回归」机械核过**：`list()` 与其「company_id 必填」由 `629dd43`（2026-09-04）引入、页面 cfg 由 `47a3a7a`（2026-09-10）引入，两者均早于本会话任何一批（那行文案后被 i18n 批 `b5e2286` 改写成英文 key，也不是本批）
+- **baseline 收紧真咬得住**：在真副本上再加一处 `::where()` ⇒ PHPStan rc=1、`expected to occur 1 time, but occurred 2 times`。**方向要知道**：`reportUnmatchedIgnoredErrors: false` 让它**只咬上界**（多一处必红）、**下界静默**（把最后那处也删掉不会报）—— 是该开关的既定代价，非本批缺陷
+- **15 道 node 门禁全 rc=0**；PHPStan `[OK] No errors`；CS Fixer `Found 0 of 652 files`
+- `bash scripts/doc-stats.sh --check` 曾红，**红因只有本轮 3 条新用例**（130 处 = 65 `stats:tests` + 65 `stats:assertions`，`stats:test_files` 零漂移、无第三种）。实测三个真值 = **test files 113 / tests 1051 / assertions 5047**，与文档现值精确闭合（1051−3 = 1048、5047−7 = 5040）。冻结时跑一次 `--fix` ⇒ `--check` **rc=0 / 338 处全一致**
+- **未验证（显式列出）**：① E2E 作业与前端构建未跑（本批未动 `apps/`）② `composer audit` 未重跑（沿用上批缓存口径）③ 本批冻结清单未由复核方核（它手上只有四个哈希 + `git status`）
+
+### 记录 · 「mtime 只增不减」的完整形状（复核方两层独立证明，比原先的判断更狠）
+- 代码事实：`app/process/Monitor.php:140-166` —— `static $lastMtime`（**跨调用存活**）、判据是**严格 `<`**、命中后才 `$lastMtime = $file->getMTime()` ⇒ **只增不减**
+- 纯逻辑证明（在 /tmp 上直接跑仓库真身类的逻辑，5 个 tick）：内容变了但 mtime 是「前一天」⇒ **不触发**；mtime 前进 ⇒ 触发；**mtime 前进过之后再回退到比已见最大值旧** ⇒ **仍不触发**
+- 真栈证明：临时改文案 + mtime 回退 ⇒ 响应文案不变、**worker PID 一个没变**（静默跑旧代码）；`touch` ⇒ worker 全换、文案随之改变
+- ⇒ **规则升级**：不只是「`cp -p` 还原负控会失效」，而是**任何 mtime 不前进的写入都静默无效、且不回补**（水位已被更高的值占住）。两条推论：① `checkAllFilesChange` 一旦某路径命中就 `return true` ⇒ 排在后面的监控目录要等下一秒；② **还原动作本身也必须 `touch`**
+- 复核方披露：它做真栈负控时临时改过仓库那一个文件约 8 秒，三样证据齐（操作前 `5bb43bc7…` / 负控态 `8cace411…` / 还原后 `5bb43bc7…` = 冻结哈希 + `git status` 与开局一致）；该文件现 mtime 是 23:38:5x、**内容哈希仍是冻结值**
+
+### 待办 / 已知遗留（本轮未修）
+- **`company_id=999999999` ⇒ `code:0` + 空表**：守卫只覆盖「解不出」，不覆盖「**解得出但不存在**」—— 这正是本批注释里点名的「静默空表会把打错的参数伪装成没有数据」那种形状。要真防需加一次存在性查询，属独立决策
+- 三条既有 validator/guard 语义（本批未动）：`company_id=1.5` ⇒ `code:0`（`decodeFlexibleId` 的 `is_numeric` 兜底当成 id=1）；`company_id: null`（**显式**下发 null）⇒ 422 而缺省 ⇒ 200（Laravel `string` 规则对「键存在但为 null」判失败）；`report_year=-1`/`report_month=-1` 静默=不过滤（与 0 同，但 docblock 只写了「缺省/0」）、`report_year=true` ⇒ 按年 1 过滤
+- **该页修完仍无「按集团看某个期间」的入口** —— 只能列出全部合并报表。要加筛选得动引擎（`FilterDef` 是单键静态下拉）或另做专用页，**属功能不属缺陷**
+- v1.19.8 结转：`create` 允许 `status=3`（单开窗）、8 张表的 `source_type` 仍是 `'d'`、`target_type`/`biz_type` 仍是 `'d'`、两个 `period_month` 注释未宣告 1–12、`ar_ap.type` 码表轮转（demo 质量项）、采购金额 11 对 `0.00`、真库 `erp` 不自动更新、`docs/i18n/ar/CLAUDE.md` 树过期、11 份 i18n README 形态、dms 空串、抽屉 kd 分支、移动端两键兜底
+
 ## v1.19.8 (2026-09-22)
 
 **审批轨迹 create 侧 + 演示数据两条残单批**：把 v1.19.7「待办」里的头部三条收口 —— `/purchase/apply` 的 `store()` 建单即 `status:1|2` 也落审批轨迹（与 update 侧对称）；演示数据两条残单：多态 `*_source_id` 改人工白名单、8 个「注释宣告码表而值是 0」的列按注释首个码归位。范围仍只含缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。
