@@ -32,6 +32,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   apply_id: '采购申请ID', // install.sql 列注释
   approved_at: '审批时间', // install.sql 列注释
   approved_by: '审批人ID', // install.sql 列注释
+  approved_name: '审批人', // 非 DB 列：finance/expense、oms/rma 的 approved_by 名称兄弟键
   approver_id: '审批人ID', // install.sql 列注释
   approver_type: '审批人类型', // 原注释是纯枚举「1指定人2角色3部门负责人4直属上级」
   ar_ap_id: '应收应付明细ID', // install.sql 列注释
@@ -40,6 +41,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   assessed_at: '评估日期', // install.sql 列注释
   assessor_id: '评估人ID', // install.sql 列注释
   asset_id: '资产ID', // install.sql 列注释
+  assigned_name: '指派人员', // 非 DB 列：wms/{pick,pack,putaway}-task 的 assigned_to 名称兄弟键
   assigned_to: '指派人员ID', // install.sql 列注释
   assignee: '负责人', // eam_maintenance_plan / eam_repair_order 无注释，与 assignee_id 同口径
   attempts: '已尝试次数', // install.sql 列注释
@@ -47,6 +49,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   audit_remark: '审核意见', // install.sql 列注释
   audited_at: '审核时间', // install.sql 列注释
   audited_by: '审核人ID', // install.sql 列注释
+  audited_name: '审核人', // 非 DB 列：finance/invoice 的 audited_by 名称兄弟键
   auditor_id: '审核人ID', // install.sql 列注释
   author: '作者', // dms_document 无注释
   available_hours: '可用工时', // install.sql 列注释
@@ -127,6 +130,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   coupon_type: '券类型', // install.sql 列注释
   course_id: '课程ID', // install.sql 列注释
   created_by: '创建人ID', // 裁决：众数
+  created_name: '创建人', // 非 DB 列：openapi/app、openapi/webhook 的 created_by 名称兄弟键
   credit_amount: '贷方金额', // install.sql 列注释
   credit_frozen: '信用冻结', // install.sql 列注释
   credit_over_ratio: '允许超限比例%', // install.sql 列注释
@@ -400,8 +404,4 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   reference: '摘要/流水号', // install.sql 列注释
   refund_amount: '退款金额', // install.sql 列注释
   rejected_qty: '不合格数量', // install.sql 列注释
-  report_data: '完整报表数据JSON', // 裁决：众数
-  report_id: '合并报表ID', // install.sql 列注释
-  report_month: '会计月份', // 裁决：众数
-  report_year: '会计年度', // 裁决：众数
 };

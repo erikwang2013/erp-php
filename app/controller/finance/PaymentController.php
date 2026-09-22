@@ -105,8 +105,11 @@ class PaymentController extends BaseController
     {
         // method 码表（并集口径）：cash/bank/wechat/alipay 出自 erp_finance_payment.method
         // （install.sql:1221，与 receipt 那张列注释逐字相同），other 出自两端词典 PAY_METHOD_DICTS
-        // （表单 options 逐字对齐该词典）。本字段只校验 string、无 in: 白名单，改的只是注释文字
-        $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'supplier_id' => 'required|string', 'amount' => 'required|numeric|min:0', 'bank_account_id' => 'string', 'method' => 'string', 'remark' => 'string']);
+        // （表单 options 逐字对齐该词典）—— 值域取并集 5 值，与 apidoc 的 desc 一致。
+        // 原先只校验 string（任意串落库，列表按码表渲染时表外值只能裸出），故补 in:。
+        // 依赖：本表现有 3 行 method='d' 是 install-demo.sql 的演示填充串，数据侧同批修好前，
+        // 这几行一旦在 Web 编辑弹窗保存就会被这条规则 422（弹窗会把表外值原样回送）。
+        $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'supplier_id' => 'required|string', 'amount' => 'required|numeric|min:0', 'bank_account_id' => 'string', 'method' => 'string|in:cash,bank,wechat,alipay,other', 'remark' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -188,6 +191,9 @@ class PaymentController extends BaseController
             'id' => 'string',
             'code' => 'string',
             'amount' => 'numeric',
+            // method 在 update 侧原先连规则都没有（非 null 即原样落库，下面那处 if 只挡 null）——
+            // 值域同 store（5 值并集，理由见 store 上注释）
+            'method' => 'string|in:cash,bank,wechat,alipay,other',
             'status' => 'integer',
         ]);
         if ($validator->fails()) {

@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\hr;
 
 use app\admin\controller\BaseController;
+use app\model\AdminUser;
 use app\model\HrKpiTemplate;
 use app\model\HrPerfPlan;
 use app\model\HrPerfScore;
@@ -204,6 +205,7 @@ class PerformanceController extends BaseController
             'orderBy' => [['created_at', 'desc']],
         ]);
         $list = $this->appendTemplateName($result['list']);
+        $list = $this->appendCreatorName($list);
         $list = array_map(fn ($row) => $this->encodeIds($row, ['id', 'template_id', 'created_by']), $list);
 
         return $this->success(['list' => $list, 'total' => $result['total'], 'page' => $result['page'], 'limit' => $result['limit']]);
@@ -431,6 +433,21 @@ class PerformanceController extends BaseController
 
         return array_map(static function (array $row) use ($names): array {
             $row['template_name'] = (string) ($names[(int) ($row['template_id'] ?? 0)] ?? '');
+
+            return $row;
+        }, $rows);
+    }
+
+    /** 批次行级补 created_name（创建人名，erp_admin_user.real_name）：created_by 存的是管理员雪花ID
+     * （planStore 写 request->adminId），前端取名称的键 = 本键切掉末 3 字符 + _name
+     * （created_by → created_name）。须在 encodeIds 之前调用 —— 之后 created_by 已是 hashid，查不到名。 */
+    private function appendCreatorName(array $rows): array
+    {
+        $ids = array_values(array_unique(array_map(static fn ($r) => (int) ($r['created_by'] ?? 0), $rows)));
+        $names = AdminUser::query()->whereIn('id', $ids)->pluck('real_name', 'id');
+
+        return array_map(static function (array $row) use ($names): array {
+            $row['created_name'] = (string) ($names[(int) ($row['created_by'] ?? 0)] ?? '');
 
             return $row;
         }, $rows);

@@ -19,8 +19,8 @@ const REPAIR = strStatus({ open: '待处理', in_progress: '维修中', complete
  * 非 status 形键（gender/plan/frequency/source_type…）更是连字典都没有、裸出 0/1 或机器串，
  * 全部由这里收口；列表列、详情抽屉、动作结果面板三处同源。
  */
-/** erp_hr_employee：`status` 状态: 1=在职 2=离职 3=停职；`gender` 性别: 1=男 2=女 */
-const EMPLOYEE_DICTS = { status: { 1: '在职', 2: '离职', 3: '停职' }, gender: { 1: '男', 2: '女' } };
+/** erp_hr_employee：`status` 状态: 1=在职 2=离职 3=停职；`gender` 性别: 0=未知 1=男 2=女 */
+const EMPLOYEE_DICTS = { status: { 1: '在职', 2: '离职', 3: '停职' }, gender: { 0: '未知', 1: '男', 2: '女' } };
 /** /hr/employee 筛选：值域与上面这份字典同源（1/2/3，不是 0/1 启用禁用）。
  * 曾误挂 ST_FILTER —— 筛选项宣告了码 0，字典与 DDL 注释都给不出 0 的文案，G4「声明过的码必须渲染成文案」红。 */
 const EMPLOYEE_STATUS_FILTER = {

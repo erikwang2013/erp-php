@@ -44,3 +44,15 @@ public/img/
 # .env 的人工备份：含 DB/JWT/加密密钥，与 .env 同级敏感（writeEnv 不产生此文件，纯手工残留）
 .env.back
 crud3-probe.txt
+
+# Ruflo local secrets and runtime data
+.env.local
+.env.*.local
+.claude-flow/data/
+.claude-flow/logs/
+.claude-flow/sessions/
+
+# Codex local configuration
+.codex/
+# Claude Flow runtime data
+# Environment variables

@@ -27,7 +27,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟡 **P2** Confiabilidade operacional | 1-2 semanas | Rollback de migração + backup automático + TraceId + fila com duplo driver | ✅ |
 | 🟣 **P3** Melhoria da experiência | 2-3 semanas | Painéis BI + EAM + multitenancy + DMS + 7 novas tabelas | ✅ |
 
-**Testes**: 1037 tests, 4962 assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**Testes**: 1044<!-- stats:tests=1044 --> tests, 5020<!-- stats:assertions=5020 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## Lista de funcionalidades
 

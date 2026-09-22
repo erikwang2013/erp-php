@@ -2,6 +2,77 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.6 (2026-09-22)
+
+**DDL 字典对差门禁 + 操作人关联名批**：把 v1.19.5「待办」里的三条逐条收口 —— 新增第 15 道门禁 `check-ddl-dict.mjs`（`install.sql` 列注释/默认值 ↔ 词典对差，B5）、dms `update` 补 `status` 值域、`method` 由裸 `string` 收紧为 `in:`；同时补 10 个 index 端点的操作人关联名（B7/B7b）与 `/purchase/apply` 的审批轨迹（B8）。范围仍只含缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。
+
+### 新增 · DDL 字典对差门禁（B5）
+- `scripts/check-ddl-dict.mjs`：三条判据 **A 字典宣告 ⊆ DDL 值域 / B DDL 值域 ⊆ 字典 / C DDL 默认值 ∈ 字典**。输入面只有四处：`install.sql` 列注释、`config/route.php` 的 `controller@method`（**只用于把 `use app\model\X` 解析成 `$table`，不读 validator 规则**）、模型 `$table`、Angular `domains/*.ts` 字典
+- 首跑 `rc=1`、恰好 2 处 FAIL：`/finance/{receipt,payment}` 的字典宣告了 `other` 而列注释值域里没有它（覆盖口径与白名单段 PASS）。**逐字节对 HEAD 版本复跑同样 2 处 FAIL ⇒ 既有、非本批引入**，不塞白名单
+- **已知盲区**：只读 Angular 侧字典 ⇒ React 侧漂移对这道门禁不可见
+- 跳过面已逐条复核（13 处跳过 + 1 条白名单）：**零隐藏缺陷** —— 3 处「候选表不唯一」（保守跳过是必需的：`/workflow/my .target_type` 是「字典 = registry ∪ 注释遗留」的刻意并集，任取一个候选即产假阳）、3 处「本控制器表里无此列」、7 处「端点未解析出表」（这些控制器的模型只在 service 里 `use app\model\X`，而门禁只扫控制器 import ⇒ 该页**每一个**键永久跳过，与注释写得多可读无关）
+- 按门禁结果修 3 处 `install.sql` 注释：`target_type` 补 `sales_order`、`gender` 补 `0=未知`、`erp_hr_perf_plan.created_by` 由 `erp_hr_employee.id` 改 `erp_admin_user.id`。**修注释那侧、不塞白名单**；`gender` 连带两端 `EMPLOYEE_DICTS` 加 `0:'未知'` 键（补码而非加表单字段 —— 该列 `DEFAULT 0`，原注释却从 1 起）
+- **枚举注释解析面补齐（两个新解析器）**：斜杠形（`状态: 0草稿/1上架/2下架`，只按 `/`、`|` 切 —— 标签本身含数字，按「下一个数字即下一个码」切会把 `3同事360` 切错）与连写形（`0草稿1待审批2已审批…`）。回归前这两类注释**既不解析也不计数** ⇒ 对应断言全是空转。第 5 个解析器的标签字符类 `[^\d\s=,，、;；/|()（）]+` **不含数字** ⇒ 标签一含数字整条返回 null、**引擎无从猜切点**（判不可解析至少是响的，猜错切点产的是假绿）；`looksEnumerable` 同步加两条对偶分支把被拒注释计入 `enumUnparsed` —— 否则「按约束拒掉」会重新变成静默
+- 覆盖度 `keysWithDomain` 144 → **165**：相对前三解析器基线共激活 **21 键**（斜杠 7 + 连写 14）、`enumUnparsed` 0。**「解析面 ≠ 断言面」**：另有 6 列命中但页面无字典 ⇒ 只解析不断言，别拿 165 当断言数
+- **自检上限由 `enumUnparsed <= 30` 收成 `<= 5`**：塌陷签名是 7 / 14 / 21（斜杠坏 / 连写坏 / 两者坏），原上限三者全在界内 ⇒ 解析面塌一半只多打印一行、照样绿；`keysWithDomain >= 80` 的地板也兜不住（165 → 144 仍在地板之上）—— **两个计数器互相兜不住**，是典型假绿形状
+- 已接 CI：`docs` 作业末尾 append 两个 step（`actions/setup-node@v4` 锁 `22.x` + 门禁本体），**不动 `release.needs`**（它已在 needs 里 ⇒ 门禁红照样断发版），接线以 rc=0 为前提。锁 `22.x` 而非「改写成低版本也能跑」：`module.registerHooks` 比 `--experimental-strip-types` 更晚才有、Node 20 根本没有类型擦除，改代码救不了，且要动 6 个门禁脚本共用的自举头（5 个不属本批）。**改这个 pin 的人需要重跑本门禁**
+
+### 新增 · 门禁自证升级
+- `check-column-titles.mjs` 的产出方断言由裸 `'must'` 升为 `['must', N]` 计数 pin（14 键）：**裸 `'must'` 会被静默跳过 ⇒ 此前是假绿**；现在别的车道新增产出方会红到必须改 pin 行
+- `gen-column-titles.mjs --check` 改为真逐字节比对：此前只打印计数、不读被检查的文件，三种漂移全 rc=0（假绿）。现在 `rc=0` 的含义是两端落盘物逐字节一致（543 个新键 / 543 条落盘条目 / 2 片）
+- 两端手写标题档补 `order_code: '工单编码'`（非 DB 列：mfg 三页 index 按 `order_id` 反查 `mfg_production_order.code` 带出；`purchase/receive`、`sales/delivery`、`oms/rma` 的值侧别名同为该键）—— 措辞沿用词典既有「工单编码」，不另造第二条
+
+### 修复 · 操作人关联名产出方（10 个 index 端点）
+- 4 个新键：`assigned_name`（`/wms/{pick,pack,putaway}`，`wms_*_task.assigned_to`）、`approved_name`（`/oms/rma`、`/finance/expense`、`/purchase/apply`）、`audited_name`（`/finance/invoice`）、`created_name`（`/admin/openapi`、`/admin/webhook`、`/hr/perf-plan`）
+- `/finance/expense` 另补 `apply_user_name`/`account_name`；`/admin/webhook` 的 `app_name` 同批落地
+- 口径沿用 v1.19.4：名称按**裸 ID** 查、一次 `whereIn(...)->pluck('real_name','id')` 铺行、不新增模型属性读
+- `/hr/perf-plan`（B7b）：`appendCreatorName()` 与其余端点同手法；连带修正该列注释（`created_by` 实为 `erp_admin_user.id`）
+
+### 修复 · `/purchase/apply` 审批轨迹（B8）
+- `index` 补 `leftJoin('admin_user as approver', 'approver.id', '=', 'purchase_apply.approved_by')`，行出 `apply_user_name`/`approved_name`
+- `update` 在 `status` 落到 **1 已通过 / 2 已驳回**时 `forceFill(['approved_by' => adminId, 'approved_at' => now])` —— 此前审批人/审批时间**永不落库**，列表也就恒空；不带 `status` 的 PUT 不触碰这两个字段（用例钉住）
+- `PurchaseApply` 模型注释同步：`approved_by`/`approved_at` 刻意留在 `$fillable` 之外 ⇒ 只能 `forceFill`（`fill()` 会静默丢弃）
+
+### 修复 · 值域收紧（两项后端裁决落地）
+- `/finance/{receipt,payment}` 的 store+update：`method` 由裸 `string` 改为 `string|in:cash,bank,wechat,alipay,other`
+- dms `/dms/document` 的 update：`status` 补 `nullable|integer|between:0,1`（此前客户端可 PUT 任意串、影响筛选）
+- **两条都只收紧写入**；`method` 的存量数据同批（用户裁决）：`install.sql:1202/:1221` 列注释补 `other`、`install-demo.sql` 6 条 INSERT 与真库 `erp_finance_{receipt,payment}` 各 3 行由 `'d'` 改 `'bank'`（= 该列 DDL 默认值）—— 不放行则两端编辑弹窗把存量值原样回送即 422。修完 `check-ddl-dict` 此前仅剩的 2 处 FAIL 归零。范围证明：两文件「反向替换后哈希 == 改前基线」；真库 `ROW_COUNT()` 各 3、表内余 `'d'` 为 0；只 UPDATE 这两张表，全库另 327 处 `'d'` 系统性占位未清
+
+### 修复 · E2E token 刷新（B3）
+- `tests/E2E/api-coverage.php` 的 `$auth` 由箭头函数改闭包 `use (&$token)`：箭头函数**按值捕获**，刷新回写的新 token 对已定义的闭包不可见 ⇒ 第 7 步起继续携带旧 token，而并发会话上限（3 个）踢出的可能正是它 ⇒ 整片 401
+- 刷新成功后采纳新 token；`usleep(1.1s)` 把本次签发推到严格更晚的一秒 —— app 侧 `score = time()+7200` 是秒级，同分时 `trackSession` 踢的是 member 的 md5 字典序最小者（**可能是刚签发的新 token**）。**这是挡在本作业之外的护栏，不是修复 app 侧 `refresh` 会话计数缺陷**
+- 本机未实跑：`.env` 与 `.env.example` 都**没有** `E2E_*` 任何键（旁路条件在 `app/api/v1/controller/AuthController.php:70-72`），且 8788 上那个服务读共享 `.env` ⇒ `DB_DATABASE=erp`（真库），而 E2E 会写真 ⇒ 只做静态复核。（**「8788 未监听」这条理由已作废**：21:09:49 起 WorkerMan 已在该端口拉起 31 个 worker，写下这句时尚未起。）
+
+### 修复 · 测试基建
+- `DetailContractRegressionTest.php` 的 `$targetId` 由写死 `7777` 改 `SnowflakeService::generate()`：`erp_approval_instance` 带 `uk_target=(target_type,target_id)`，**两条车道同时在真库跑本文件时后插者必 1062**（实测一条 rc=2、一条 rc=0）。判据：串行 `--filter testApprovalShow` rc=0、全仓 `grep 7777 tests/` 仅此一处；改后全量串行 `OK (30 tests, 273 assertions)`，断言数与改前一致
+- 新用例 7 条：`testListRowsCarryActorForeignKeyNames`、`testApplyIndexExposesApproverNameAfterApproval`、`testApplyUpdateStampsApproverOnApproveAndReject`、`testApplyUpdateWithoutStatusLeavesApprovalTraceUntouched`、`testApplyModelKeepsApprovalColumnsOutOfFillable`、`testFinanceMethodValidatorRejectsOutOfDomainValues`、`testDocumentUpdateRejectsOutOfDomainStatus`
+
+### 修复 · 文档统计数字
+- `docs/i18n/{ar,pt}/README.md` 的控制器数 `139 → 159`：把 `controllers_business` 误抄进了全仓口径的句子（zh 与其他 10 语种同位置本为 159）。只换数字、句子未重写、未翻译；围栏树内的 `139` 是合法异值，保留未动
+- v1.19.5 待办里登记的「20 处夹文字陈旧数字」已由 `4cb37c6` 覆盖，本轮实测只剩上述 2 处
+
+### 验证
+- **15 道 node 门禁全绿**（rc=0 逐条，两轮一致）；`check-ddl-dict` 覆盖度行逐字：`140 页解析出表 135 页；词典键 191 个落到列 177 个、其中 165 个有 DDL 值域可比、0 个枚举形注释未解析（上限 5）`、白名单 1 条全命中；13 处跳过的构成复核为 3（候选表不唯一）+ 3（本控制器表无此列）+ 7（端点未解析出表）
+- **冻结完整性**：88 路径逐个 md5 对拍 **88/88**；**跑完 15 道门禁后再核一遍仍 88/88** ⇒ 门禁对共享树零写入
+- **PHP 全量**：`Tests: 1055, Assertions: 7120, Warnings: 2, Skipped: 9` rc=0（Unit `635/3398/9S` + Integration `420/3722`）；PHPStan `[OK] No errors`；CS Fixer `Found 0 of 652`；`php -l` 483 文件无错；`composer validate --strict` / `composer audit` 均过
+- **本批真实增量**：7 条新用例在 HEAD 静态全不存在（`tests/` 的 `public function test` 585 → 592），`--exclude-filter` 复跑得 `1048 tests / 7042 assertions` ⇒ **+7 tests / +78 assertions、只增不减**。注意 `1055/7120` 是**含**这 7 条之后的数，**不是改前基线**
+- **覆盖率**：整体 **32.46%**（7924/24412，门槛 4%）/ 业务层 **77.63%**（5635/7259，门槛 10%）⇒ `check-coverage.php` PASS
+- **前端**：Angular `typecheck` + `build` rc=0（Initial total 1.23 MB）；React `typecheck` + `build` rc=0
+- `bash scripts/doc-stats.sh --check` rc=0 / 338 处（独立复跑，未跑 `--fix`）；并确认 **`doc-stats.sh` 不读 CHANGELOG**（`grep -c CHANGELOG` = 0）⇒ 本段后改不影响其结论
+- `ci.yml` 只审未改：PyYAML 可解析、jobs 5 个、`release.needs = [docs, e2e, php]` 未动、改动全部落在 docs 作业内（审计时为 30 行单一 hunk；**同批的注释订正之后 `git diff HEAD -- .github/workflows/ci.yml` 为 36/2 —— 新增 20 行注释、删除 2 行注释，其余 16 行非注释新增与改前逐字节相同**）、该作业 grep 不到 composer/npm/php/mysql、新 step 的 `set +e` / `code=$?` 捕获写法正确；门禁在本机默认 v22.17.0 下同样 rc=0，且**不需 node_modules**（`NODE_OPTIONS=--preserve-symlinks` 下亦 rc=0）
+- **活体探针有效性**（`check-fe-endpoints` 打 127.0.0.1:8788）：在跑的进程起于 21:09:49，而被改的 14 个 `app/*.php` 最新 mtime 为 20:19:12 ⇒ 该进程就是本批冻结代码，148/148 命中是对本批的实测、不是旧进程的绿
+- 真库只读对拍：`receipt`/`payment` 各 `bank=3 / d=0`，**跑全量 phpunit 前后一致** ⇒ 反证测试全程没落到真库
+- **未验证（显式列出，未吞）**：① E2E 作业（`tests/E2E/*.php` 会写目标库，超出只读授权；且 `.env` 与 `.env.example` 都没有 `E2E_*` 键，旁路条件在 `AuthController.php:70-72`；8788 上那个服务读共享 `.env` ⇒ 指向真库 `erp`）② flutter 作业（`continue-on-error`）③ 覆盖率 HTML 子步骤（本机 `memory_limit=128M` OOM —— **clover 先写成功才 OOM**，门禁读的就是 clover，故门禁结论有效）④ pcov 驱动的覆盖数值（本机只有 xdebug）⑤ 覆盖度地板「页 ≥100」无法单独触发（`DOMAINS` 硬编码 8 项）
+
+### 待办 / 已知遗留（本轮未修）
+- **`install-demo.sql` 的生成器未同步（真遗留）**：该文件是 `scripts/gen-demo-data.mjs` 的产物（`:96` 哨兵「生成段开始，勿手工编辑」），`'d'` 出自 `:177` 末臂兜底。实测**签入的生成段与当前生成器产物差 280 cell / 95 个 (表,列)**（行数差**净 +24** = 生成器警告块 **+29 行** − 签入文件里三段手写注释 **−5 行**；两侧均 207 段、无结构差异，且 0 张表有多个 INSERT 块）⇒ **重生成今天就不是 no-op**：签入段带着旧版生成器/手工调过的痕迹（`from_currency_id` 种子 id、`total_amount=1200.00`、`status='draft'`）。候选补丁（非空 DEFAULT 的字符串列取列默认值、带 `!isUniq` 守卫）收敛到 147 cell / 49 列（含预期的 6 个 `method`，且 `erp_crm_follow_record.method` 得 `'phone'` 而非 `'bank'` —— 证明形状对、按列名的裸规则错），但走 `--install` 的残差仍 385 cell / 130 列。**唯一落地通道会整段重写生成段 ⇒ 只修 `method` 一处救不了**，故按「超阈值不落地」裁决：生成器与 `--install` 都不动，本轮 6 行手改在「没人跑 `--install`」下稳定（门禁不读该文件、生成器不自动跑、CI 不跑生成器）。**差值里恰好含本轮手改的那 6 格、方向是回退**（`erp_finance_{receipt,payment}.method`: `'bank' → 'd'`，各 3 格），而三个门禁都看不见它 ⇒ 下次谁跑一次 `--install`，这 6 格就静默回退成域外值
+  - 落地时要先收三个陷阱：`erp_approval_workflow.canvas_json` 是表达式默认值 `DEFAULT ('')`，MySQL 8.4.4 的 `information_schema.column_default` 回 `_utf8mb4\\'\\'` 畸形串 ⇒ 必须加「只取普通字面量」守卫；`:74` 的 SELECT 只取了 `column_default IS NOT NULL` 布尔、**没取默认值文本**（要动 SELECT + 解构 + schema 映射）；兜底对唯一键列现在走 `d1/d2/d3`，换常量默认值会三行同值撞 `uk_*`
+- dms `status` 的空串语义：`''` 会被 Laravel 的 non-implicit 规则跳过（`nullable|integer|between:0,1` 不拦空串）⇒ 空串写入仍可能发生
+- **`/purchase/apply` 的 PUT 回写不再无副作用（B8 引入的边界）**：带 `status∈{1,2}` 的 PUT 一律 `forceFill(approved_by / approved_at)`，**即便状态没发生变化** ⇒ 对已通过的记录再点一次「通过」（或 E2E 的「原值回写」探针）也会把 `approved_by` 改成**当前编辑者**、`approved_at` 刷成当前时刻。正解是「只在状态**真的发生变化**时写审批轨迹」，但那要动控制器逻辑 + 补用例 ⇒ 冻结后不做；已在 `ci.yml` 的 api-coverage 注释里点名（该探针会对目标库**写真**，别指向生产库）
+- `docs/i18n/ar/CLAUDE.md` 围栏树内 10 个按模块控制器数过期（product 7→8、purchase 5→8、inventory 5→6、finance 20→28、workflow 2→3、notification 1→2、project 3→4、hr 5→9、manufacturing 5→13、eam 4→5）并缺 open/platform/print/retail 四行 —— **已实测背书为真过期**（活树 137 个模块文件 + 2 顶层 = 139 = `controllers_business`，23/23 逐项吻合 zh 树），非口径差异；待开窗修（围栏内改动纪律）
+- 11 份 i18n README 的 `tests/` 树行把数字写在围栏内 HTML 注释里（`<!-- stats:test_files=113 -->`）⇒ 渲染出来只有注释原文、无可读计数；`de` 与 zh 根是「可见数字 + 标注」形态。属**形态差异，注释里的数均为真值**（门禁可校验），无用户可见后果，不修
+- 详情抽屉 `fallbackCell` 的 kd 分支先于 isStatus（v1.19.5 起既有，未动）
+- 移动端 `customer_id`/`bank_account_id` 编辑态兜底（v1.19.5 起既有，未动）
 ## v1.19.5 (2026-09-22)
 
 **状态与字典口径统一批**：把 v1.19.4「待办」里的字典/状态条目逐条收口 —— 两端状态文案兜底口径统一（命中出译文、表外值直出原值）、删除三处编造的前缀状态字典与 `COMMON_STATUS`、`erp_dms_document.status` 补 DDL 默认值键、`/finance/{receipt,payment}` 表单选项补齐到五值（含 Flutter 编辑态兜底）、文档正文数字机械对齐。范围仍只含缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。

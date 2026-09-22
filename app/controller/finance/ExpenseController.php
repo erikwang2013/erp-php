@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
+use app\model\AdminUser;
 use app\model\FinanceAccount;
 use app\model\FinanceExpense;
 use app\model\HrEmployee;
@@ -69,22 +70,27 @@ class ExpenseController extends BaseController
         }
 
         $total = $query->count();
-        $models = $query->offset(($page - 1) * $limit)
-            ->limit($limit)->orderBy('id', 'desc')->get();
+        $rows = $query->offset(($page - 1) * $limit)
+            ->limit($limit)->orderBy('id', 'desc')->get()->toArray();
         // 行补引用名（表无名称类列）：申请人姓名/费用科目名；FK 编码供编辑弹窗下拉回填
-        $applyNames = HrEmployee::whereIn('id', $models->pluck('apply_user_id')->all())
+        $applyNames = HrEmployee::whereIn('id', array_column($rows, 'apply_user_id'))
             ->pluck('name', 'id')->all();
-        $accountNames = FinanceAccount::whereIn('id', $models->pluck('account_id')->all())
+        $accountNames = FinanceAccount::whereIn('id', array_column($rows, 'account_id'))
             ->pluck('name', 'id')->all();
-        $list = $models->map(function ($item) use ($applyNames, $accountNames) {
+        // 审批人名（erp_admin_user.real_name）：approved_by 存的是管理员雪花ID
+        // （Approve 写 request->adminId），前端取名称的键 = 本键切掉末 3 字符 + _name（approved_by → approved_name）
+        $approverNames = AdminUser::query()->whereIn('id', array_column($rows, 'approved_by'))
+            ->pluck('real_name', 'id')->all();
+        $list = array_map(function (array $item) use ($applyNames, $accountNames, $approverNames) {
+            $item['apply_user_name'] = $applyNames[$item['apply_user_id']] ?? '';
+            $item['account_name'] = $accountNames[$item['account_id']] ?? '';
+            // 名称按裸 ID 查（下一行 encodeIds 之后 approved_by 已是 hashid）
+            $item['approved_name'] = $approverNames[$item['approved_by']] ?? '';
+
             // approved_by（审批人 admin 雪花ID）须显式列入白名单：传了 $fields 即关闭自动
             // id/*_id 探测，且 approved_by 不以 _id 结尾，漏列即原样裸出裸数字
-            $row = $this->encodeIds($item->toArray(), ['id', 'apply_user_id', 'account_id', 'approved_by']);
-            $row['apply_user_name'] = $applyNames[$item->apply_user_id] ?? '';
-            $row['account_name'] = $accountNames[$item->account_id] ?? '';
-
-            return $row;
-        });
+            return $this->encodeIds($item, ['id', 'apply_user_id', 'account_id', 'approved_by']);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }

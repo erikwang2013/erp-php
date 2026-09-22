@@ -200,7 +200,7 @@ const CLEAN = {
   is_read: ['是否已读', '原注释是纯枚举「0未读1已读」，取 1 侧语义'],
 };
 
-/** install.sql 给不出的键：29 个无注释列 + 19 个非 DB 列（页面上实见，服务端算出/嵌套对象） */
+/** install.sql 给不出的键：29 个无注释列 + 23 个非 DB 列（页面上实见，服务端算出/嵌套对象） */
 const MANUAL = {
   response: ['响应内容', 'crm_campaign_participant 无注释'],
   completed_at: ['完成时间', 'project_task 无注释'],
@@ -246,6 +246,14 @@ const MANUAL = {
   quote_prices: ['报价单价', '非 DB 列：比价矩阵的报价单价数组（供应商 × 单价）'],
   product_code: ['商品编码', '非 DB 列：比价矩阵补出的 product.code'],
   buyer_real_name: ['采购员', '非 DB 列：purchase_rfq.buyer_id 的名称兄弟键；buyer_name 已被税票的购买方名称占用，故避开'],
+  // `*_by`/`assigned_to` 外键的名称兄弟键（B7 服务端补产出）。键名机械 = 外键名切末 3 字符 + `_name`
+  // （同前端 columns.ts:379-384 / relation.ts:63 的取名口径；`_by`/`_to` 恰好也是 3 字符）。
+  // 不登记就走 keyTitle 的 affix 兜底 —— base 是 approved/audited/created/assigned，都不是列名，
+  // 取不到对端条目 ⇒ 落驼峰 approvedName；而原来那行（approved_by）已被 siblingScalar 跳过
+  approved_name: ['审批人', '非 DB 列：finance/expense、oms/rma 的 approved_by 名称兄弟键'],
+  assigned_name: ['指派人员', '非 DB 列：wms/{pick,pack,putaway}-task 的 assigned_to 名称兄弟键'],
+  audited_name: ['审核人', '非 DB 列：finance/invoice 的 audited_by 名称兄弟键'],
+  created_name: ['创建人', '非 DB 列：openapi/app、openapi/webhook 的 created_by 名称兄弟键'],
   // 工资条（/hr/salary/{id}/payslip 回包）：头行 + 明细 + 社保三段
   salary: ['工资条', '非 DB 列：payslip 回包的工资头行对象'],
   social: ['社保', '非 DB 列：payslip 回包的社保段（未绑定/计算失败时为 null）'],
@@ -342,7 +350,28 @@ files.push([
 
 const APPS = ['apps/angular/src/app', 'apps/react/src'];
 if (CHECK_ONLY) {
-  console.log(`ok   ${extra.size} 个新键 / ${entries.length} 条落盘条目 / ${chunks.length} 片`);
+  /* `--check` 必须**真读盘**：以前这里只打印计数就 rc=0，于是「改 react 侧切片的值 / 删掉整片 /
+   * 给 install.sql 加列」三种漂移全都静默通过，而它打印的「N 条落盘条目」声称了一件没做的事。
+   * 判据 = 生成的文本与仓内落盘物**逐字节**一致（等价于写临时目录再比，但不写盘）+ 文件集不多不少。 */
+  const drift = [];
+  for (const app of APPS) {
+    const dir = path.join(ROOT, app, 'config/column-titles-extra');
+    const want = new Map(files.map(([rel, text]) => [path.basename(rel), text]));
+    for (const [name, text] of want) {
+      const p = path.join(dir, name);
+      if (!fs.existsSync(p)) drift.push(`${app}/config/column-titles-extra/${name} 缺失`);
+      else if (fs.readFileSync(p, 'utf8') !== text) drift.push(`${app}/config/column-titles-extra/${name} 内容漂移`);
+    }
+    for (const f of fs.existsSync(dir) ? fs.readdirSync(dir) : []) {
+      if (/^(part\d+|index)\.ts$/.test(f) && !want.has(f)) drift.push(`${app}/config/column-titles-extra/${f} 多余（install.sql 里没有对应条目）`);
+    }
+  }
+  if (drift.length) {
+    console.error(`FAIL 落盘物与 install.sql 导出不一致 ${drift.length} 处（跑 node scripts/gen-column-titles.mjs 重生）：`);
+    for (const d of drift.slice(0, 20)) console.error(`  ${d}`);
+    process.exit(1);
+  }
+  console.log(`ok   ${extra.size} 个新键 / ${entries.length} 条落盘条目 / ${chunks.length} 片 —— 两端落盘物逐字节一致`);
 } else {
   for (const app of APPS) {
     const dir = path.join(ROOT, app, 'config/column-titles-extra');

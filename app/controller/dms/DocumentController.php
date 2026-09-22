@@ -177,6 +177,13 @@ class DocumentController extends BaseController
             'category' => 'string',
             'content' => 'string',
             'change_note' => 'string',
+            // status 落 VARCHAR(20)（install.sql:4314，该列 DDL **无注释**，默认 'draft'）：裸 `string`
+            // 放行任意串，而 index 用 `(int)$status` 过滤 —— 列是 VARCHAR，MySQL 按数字折算比较
+            // （实测 'published'=0 为真、=1 为假；'5' 两个都假）：非数字串混进「草稿」筛选项，
+            // 越界数字串两个筛选项都选不出（行在筛选里消失）。值域取 store 的同一口径 0/1
+            // （store:100 已是 `nullable|integer|between:0,1`，apidoc 写 0=草稿 1=发布）；
+            // DDL 默认 'draft' 在库内与本仓夹具内均 0 行、且 store 只写 (int)，是 POST 不可达值。
+            'status' => 'nullable|integer|between:0,1',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

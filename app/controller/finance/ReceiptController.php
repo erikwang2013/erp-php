@@ -107,9 +107,12 @@ class ReceiptController extends BaseController
     public function store(Request $request): Response
     {
         // method 码表（并集口径）：cash/bank/wechat/alipay 出自 erp_finance_receipt.method
-        // （install.sql:1202），other 出自两端词典 PAY_METHOD_DICTS（表单 options 逐字对齐该词典）。
-        // 本字段只校验 string、无 in: 白名单，改的只是注释文字，行为不变
-        $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'customer_id' => 'required|string', 'amount' => 'required|numeric|min:0', 'bank_account_id' => 'string', 'method' => 'string', 'remark' => 'string', 'received_at' => 'string']);
+        // （install.sql:1202，DDL 注释只有这 4 个），other 出自两端词典 PAY_METHOD_DICTS
+        // （表单 options 逐字对齐该词典）—— 值域取并集 5 值，与 apidoc 的 desc 一致。
+        // 原先只校验 string（任意串落库，列表按码表渲染时表外值只能裸出），故补 in:。
+        // 依赖：本表现有 3 行 method='d' 是 install-demo.sql 的演示填充串，数据侧同批修好前，
+        // 这几行一旦在 Web 编辑弹窗保存就会被这条规则 422（弹窗会把表外值原样回送）。
+        $validator = validator($request->all(), ['code' => 'nullable|string|max:50', 'customer_id' => 'required|string', 'amount' => 'required|numeric|min:0', 'bank_account_id' => 'string', 'method' => 'string|in:cash,bank,wechat,alipay,other', 'remark' => 'string', 'received_at' => 'string']);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);
         }
@@ -198,7 +201,9 @@ class ReceiptController extends BaseController
             'customer_id' => 'string',
             'amount' => 'numeric',
             'bank_account_id' => 'string',
-            'method' => 'string',
+            // 值域同 store（5 值并集，理由见 store 上注释）：UPDATE 只在 method 非 null 时落库，
+            // 但原样落库的表外值会让该行此后按码表渲染时报废
+            'method' => 'string|in:cash,bank,wechat,alipay,other',
             'remark' => 'string',
             'status' => 'integer',
             'received_at' => 'string',

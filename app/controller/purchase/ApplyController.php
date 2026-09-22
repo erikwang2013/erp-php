@@ -51,10 +51,16 @@ class ApplyController extends BaseController
 
         // 申请人姓名经 leftJoin 带出：apply_user_id 落在 erp_admin_user（store 缺省取当前登录管理员），
         // 只下发 hashid 的话列表/详情只能显示一串雪花编码，代理不了「谁提的单」。
+        // 审批人姓名同法：approved_by 存的是管理员雪花ID（update 的批准/驳回分支写中间件注入的
+        // adminId），键名必须叫 approved_name —— 前端取名的规则是「键名切掉末 3 字符 + _name」
+        // （approved_by → approved_name，见 check-fe-enum-text.mjs:531），写成 approved_by_name 无人消费。
+        // 未审批的行 approved_by=0（列 NOT NULL DEFAULT 0），leftJoin 落空 → approved_name 为 null，
+        // 前端按空值显示「-」，与「没审批过」同义。
         // 注意 admin_user 与 purchase_apply 都有 status/created_at/deleted_at，join 后这些列必须带表名前缀
         $query = PurchaseApply::query()
             ->leftJoin('admin_user', 'admin_user.id', '=', 'purchase_apply.apply_user_id')
-            ->select('purchase_apply.*', 'admin_user.real_name as apply_user_name');
+            ->leftJoin('admin_user as approver', 'approver.id', '=', 'purchase_apply.approved_by')
+            ->select('purchase_apply.*', 'admin_user.real_name as apply_user_name', 'approver.real_name as approved_name');
         if ($keyword) {
             // 表无 name 列（erp_purchase_apply 仅有 code/apply_user_id 等，见 install.sql），仅按申请单号搜索
             $query->where('purchase_apply.code', 'like', "%{$keyword}%");
@@ -214,6 +220,17 @@ class ApplyController extends BaseController
             }
             // 同 store：走 fill 而非直写属性（模型无 @property，直写会新增 PHPStan property.notFound）
             $item->fill(['apply_user_id' => $applyUserId]);
+        }
+        // 审批轨迹：两端「批准/驳回」行内按钮只下发 {status:1|2}（前端 trade.ts），不改这里的话
+        // approved_by 恒 0、approved_at 恒 NULL —— 审批人不可考。驳回也是审批动作，两条路径都落。
+        // 两列刻意不在 $fillable（防客户端伪造审批人，见模型注释），fill() 会静默丢弃，故 forceFill
+        // 显式绕白名单；审批人取中间件注入的 adminId，同 oms RmaService::approve 的取法。
+        $newStatus = (int) $request->input('status', 0);
+        if ($newStatus === 1 || $newStatus === 2) {
+            $item->forceFill([
+                'approved_by' => (int) ($request->adminId ?? 0),
+                'approved_at' => date('Y-m-d H:i:s'),
+            ]);
         }
         $item->save();
 

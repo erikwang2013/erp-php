@@ -8,14 +8,19 @@ declare(strict_types=1);
 
 namespace tests;
 
+use app\admin\controller\OpenApiController;
 use app\admin\controller\PermissionController;
+use app\admin\controller\WebhookController;
 use app\common\HashidsService;
 use app\common\SnowflakeService;
 use app\controller\eam\EamInspectionController;
 use app\controller\eam\MaintenancePlanController;
 use app\controller\eam\RepairOrderController;
+use app\controller\finance\ExpenseController;
 use app\controller\finance\FinanceBillController;
+use app\controller\finance\InvoiceController;
 use app\controller\finance\PaymentController;
+use app\controller\hr\PerformanceController;
 use app\controller\inventory\TransferController;
 use app\controller\manufacturing\BomController;
 use app\controller\oms\FulfillmentController as OmsFulfillmentController;
@@ -24,8 +29,12 @@ use app\controller\oms\RmaController;
 use app\controller\purchase\OrderController as PurchaseOrderController;
 use app\controller\sales\OrderController as SalesOrderController;
 use app\controller\tms\FreightInvoiceController;
+use app\controller\wms\PackController;
+use app\controller\wms\PickController;
+use app\controller\wms\PutawayController;
 use app\controller\workflow\ApprovalController;
 use app\model\AdminPermission;
+use app\model\AdminUser;
 use app\model\ApprovalInstance;
 use app\model\ApprovalNode;
 use app\model\ApprovalRecord;
@@ -38,7 +47,10 @@ use app\model\EamMaintenancePlan;
 use app\model\EamRepairOrder;
 use app\model\FinanceBankAccount;
 use app\model\FinanceBill;
+use app\model\FinanceExpense;
+use app\model\FinanceInvoice;
 use app\model\FinancePayment;
+use app\model\HrPerfPlan;
 use app\model\Inventory;
 use app\model\MfgBom;
 use app\model\OmsFulfillment;
@@ -46,6 +58,7 @@ use app\model\OmsFulfillmentItem;
 use app\model\OmsOrder;
 use app\model\OmsRma;
 use app\model\OmsRmaItem;
+use app\model\OpenApiApp;
 use app\model\Product;
 use app\model\PurchaseOrder;
 use app\model\PurchaseOrderItem;
@@ -57,8 +70,13 @@ use app\model\TmsFreightInvoice;
 use app\model\TmsShipment;
 use app\model\Transfer;
 use app\model\Warehouse;
+use app\model\WebhookSubscription;
+use app\model\WmsPackTask;
+use app\model\WmsPickTask;
+use app\model\WmsPutawayTask;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use PHPUnit\Framework\TestCase;
+use support\Request;
 use support\Response;
 
 /**
@@ -1015,7 +1033,8 @@ class DetailContractRegressionTest extends TestCase
     public function testApprovalShowTargetRefNullForNonRegistryType(): void
     {
         // 'leave' 为 install.sql 列注释遗留取值、无独立单据资源 → registry 外：target_ref=null、target_id raw
-        $targetId = 7777;
+        // 随机 id：uk_target=(target_type,target_id)，硬编码值在多条车道并发跑本文件时会撞 1062
+        $targetId = SnowflakeService::generate();
         try {
             $ids = $this->seedApproval('leave', $targetId);
             $resp = (new ApprovalController())->show(new FakeRequest(), $this->encodeId($ids['instance_id']));
@@ -1843,16 +1862,220 @@ class DetailContractRegressionTest extends TestCase
             $this->assertNotNull($parentNode, '新插入的父权限应出现在权限树');
             $this->assertSame('', $parentNode['parent_name'] ?? null, '顶级节点 parent_name 应为空串');
         } finally {
-            FinanceBill::where('id', $billId)->delete();
+            FinanceBill::where('id', $billId)->forceDelete();
             FinancePayment::where('id', $paymentId)->delete();
             Transfer::where('id', $transferId)->delete();
             TmsFreightInvoice::where('id', $invoiceId)->delete();
             TmsShipment::where('id', $shipmentId)->delete();
             TmsCarrier::where('id', $carrierId)->delete();
             AdminPermission::whereIn('id', [$permChildId, $permParentId])->delete();
-            Supplier::where('id', $supplierId)->delete();
+            Supplier::where('id', $supplierId)->forceDelete();
             FinanceBankAccount::where('id', $accountId)->delete();
-            Warehouse::whereIn('id', [$fromWarehouseId, $toWarehouseId])->delete();
+            Warehouse::whereIn('id', [$fromWarehouseId, $toWarehouseId])->forceDelete();
+        }
+    }
+
+    /* ======================== `_by` 类外键名称产出方（v1.19.6） ======================== */
+
+    /**
+     * 真实报文的 Request（不是 FakeRequest）：OpenApi/Webhook 两个 index 读 `$request->get()`，
+     * 而 FakeRequest 只实现了 `input()/all()`，`get()` 会走父类未初始化的 $buffer 抛 Error。
+     */
+    private function queryRequest(string $path, array $query = []): Request
+    {
+        $qs = $query === [] ? '' : '?' . http_build_query($query);
+
+        return new Request("GET {$path}{$qs} HTTP/1.1\r\nHost: localhost\r\n\r\n");
+    }
+
+    /**
+     * 9 个外键的行内名称兄弟键（`<列名>_name`）—— 9 列 / 9 端点（B7 的 8 列 `_by`/`assigned_to` + B7b 的 `erp_hr_perf_plan.created_by`）；名称键 4 个（approved_name/audited_name/assigned_name/created_name）在 9 个端点上逐个断言。
+     * 缺这个兄弟键，两端详情抽屉里这些字段就只剩「审批人ID -」这类占位（裸外键不跳过）。
+     *
+     * 名称源逐列核过，都是 `erp_admin_user.real_name`（**不是** `erp_hr_employee`）：写入方各写
+     * `request->adminId` —— ExpenseController:239、RmaController:286、InvoiceService 的 $adminId、
+     * WmsOutboundService::startPick/startPack、WmsInboundService::startPutaway、
+     * OpenApiController:153、WebhookController:172；真库探针同向（非 0 值只在 erp_admin_user 命中、
+     * 在 erp_hr_employee 命中 0）。本批只补名称兄弟键，裸外键的值形状一律不动（移动端
+     * HarmonyOS 按 `Number(row['assigned_to'])` 回填该键）。
+     */
+    public function testListRowsCarryActorForeignKeyNames(): void
+    {
+        $suffix = $this->randSuffix();
+        $adminId = SnowflakeService::generate();
+        $warehouseId = SnowflakeService::generate();
+        $expenseId = SnowflakeService::generate();
+        $zeroExpenseId = SnowflakeService::generate();
+        $rmaId = SnowflakeService::generate();
+        $invoiceId = SnowflakeService::generate();
+        $pickId = SnowflakeService::generate();
+        $packId = SnowflakeService::generate();
+        $putawayId = SnowflakeService::generate();
+        $appId = SnowflakeService::generate();
+        $subId = SnowflakeService::generate();
+        $planId = SnowflakeService::generate();
+        $zeroPlanId = SnowflakeService::generate();
+        $actorName = '批7办理人' . $suffix;
+        try {
+            $admin = new AdminUser();
+            $admin->id = $adminId;
+            $admin->username = 'b7admin' . $suffix;
+            $admin->password = 'x';
+            $admin->real_name = $actorName;
+            $admin->save();
+
+            $warehouse = new Warehouse();
+            $warehouse->id = $warehouseId;
+            $warehouse->code = 'B7W' . $suffix;
+            $warehouse->name = '批7仓' . $suffix;
+            $warehouse->save();
+
+            // 1. /finance/expense 的 approved_by（该键已在 ID_FIELDS 里，值仍是 hashid）
+            $expense = new FinanceExpense();
+            $expense->id = $expenseId;
+            $expense->code = 'B7E' . $suffix;
+            $expense->apply_user_id = $adminId;
+            $expense->account_id = $adminId;
+            $expense->approved_by = $adminId;
+            $expense->save();
+            // 外键 0（未审批）：名称落空串，不是 '-'，也不能崩
+            $zeroExpense = new FinanceExpense();
+            $zeroExpense->id = $zeroExpenseId;
+            $zeroExpense->code = 'B7Z' . $suffix;
+            $zeroExpense->apply_user_id = 0;
+            $zeroExpense->account_id = 0;
+            $zeroExpense->approved_by = 0;
+            $zeroExpense->save();
+            $body = $this->jsonBody((new ExpenseController())->index(new FakeRequest(['page' => 1, 'limit' => 50])));
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = $this->rowById((array) ($body['data']['list'] ?? []), $expenseId);
+            $this->assertNotNull($row, '新插入的费用单应出现在列表');
+            $this->assertSame($actorName, $row['approved_name'] ?? null, '费用单缺 approved_name');
+            $this->assertSame($this->encodeId($adminId), (string) ($row['approved_by'] ?? ''), 'approved_by 仍应是 hashid');
+            $zeroRow = $this->rowById((array) ($body['data']['list'] ?? []), $zeroExpenseId);
+            $this->assertNotNull($zeroRow, '外键为 0 的费用单应出现在列表');
+            $this->assertSame('', $zeroRow['approved_name'] ?? null, '外键 0 时 approved_name 应为空串');
+
+            // 2. /oms/rma 的 approved_by —— 该键不在 ID_FIELDS 里，值仍是裸雪花ID
+            $rma = new OmsRma();
+            $rma->id = $rmaId;
+            $rma->code = 'B7R' . $suffix;
+            $rma->order_id = $adminId;
+            $rma->customer_id = $adminId;
+            $rma->approved_by = $adminId;
+            $rma->save();
+            $body = $this->jsonBody((new RmaController())->index(new FakeRequest(['page' => 1, 'limit' => 50])));
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = $this->rowById((array) ($body['data']['list'] ?? []), $rmaId);
+            $this->assertNotNull($row, '新插入的退换货单应出现在列表');
+            $this->assertSame($actorName, $row['approved_name'] ?? null, '退换货单缺 approved_name');
+            $this->assertSame((string) $adminId, (string) ($row['approved_by'] ?? ''), 'approved_by 应仍是裸雪花ID（本批不改值形状）');
+
+            // 3. /finance/invoice 的 audited_by（在 HEADER_ID_FIELDS 里，值仍是 hashid）
+            $invoice = new FinanceInvoice();
+            $invoice->id = $invoiceId;
+            $invoice->invoice_no = 'B7I' . $suffix;
+            $invoice->audited_by = $adminId;
+            $invoice->save();
+            $body = $this->jsonBody((new InvoiceController())->index(new FakeRequest(['page' => 1, 'limit' => 50])));
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = $this->rowById((array) ($body['data']['list'] ?? []), $invoiceId);
+            $this->assertNotNull($row, '新插入的发票应出现在列表');
+            $this->assertSame($actorName, $row['audited_name'] ?? null, '发票缺 audited_name');
+            $this->assertSame($this->encodeId($adminId), (string) ($row['audited_by'] ?? ''), 'audited_by 仍应是 hashid');
+
+            // 4/5/6. 三个 WMS 作业单的 assigned_to（都不在 encodeIds 探测范围内，值仍是裸雪花ID）
+            $tasks = [
+                ['/admin/v1/wms/pick-task', new WmsPickTask(), $pickId, 'B7PK'],
+                ['/admin/v1/wms/pack-task', new WmsPackTask(), $packId, 'B7PA'],
+                ['/admin/v1/wms/putaway-task', new WmsPutawayTask(), $putawayId, 'B7PT'],
+            ];
+            $controllers = [new PickController(), new PackController(), new PutawayController()];
+            foreach ($tasks as $i => [$endpoint, $task, $taskId, $codePrefix]) {
+                $task->id = $taskId;
+                $task->code = $codePrefix . $suffix;
+                $task->warehouse_id = $warehouseId;
+                $task->assigned_to = $adminId;
+                $task->save();
+                $body = $this->jsonBody($controllers[$i]->index(new FakeRequest(['page' => 1, 'limit' => 50])));
+                $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+                $row = $this->rowById((array) ($body['data']['list'] ?? []), $taskId);
+                $this->assertNotNull($row, $endpoint . ' 新插入的作业单应出现在列表');
+                $this->assertSame($actorName, $row['assigned_name'] ?? null, $endpoint . ' 缺 assigned_name');
+                $this->assertSame((string) $adminId, (string) ($row['assigned_to'] ?? ''), $endpoint . ' assigned_to 应仍是裸雪花ID（移动端 Number() 回填依赖它）');
+            }
+
+            // 7. /openapi/app 的 created_by —— 两个 index 走 $request->get()，故用真实报文
+            $app = new OpenApiApp();
+            $app->id = $appId;
+            $app->app_name = '批7应用' . $suffix;
+            $app->app_key = 'ak_b7' . $suffix;
+            $app->created_by = $adminId;
+            $app->save();
+            $body = $this->jsonBody((new OpenApiController())->index($this->queryRequest('/admin/v1/openapi/app', ['page' => 1, 'limit' => 50])));
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = $this->rowById((array) ($body['data']['list'] ?? []), $appId);
+            $this->assertNotNull($row, '新插入的开放平台应用应出现在列表');
+            $this->assertSame($actorName, $row['created_name'] ?? null, '开放平台应用缺 created_name');
+            $this->assertSame((string) $adminId, (string) ($row['created_by'] ?? ''), 'created_by 应仍是裸雪花ID');
+
+            // 8. /webhook/subscription 的 created_by（行上还有 with('app') 带出的 app_name）
+            $sub = new WebhookSubscription();
+            $sub->id = $subId;
+            $sub->app_id = $appId;
+            $sub->event = ['order.created'];
+            $sub->target_url = 'https://example.test/b7/' . $suffix;
+            $sub->created_by = $adminId;
+            $sub->save();
+            $body = $this->jsonBody((new WebhookController())->index($this->queryRequest('/admin/v1/webhook/subscription', ['page' => 1, 'limit' => 50])));
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = $this->rowById((array) ($body['data']['list'] ?? []), $subId);
+            $this->assertNotNull($row, '新插入的 Webhook 订阅应出现在列表');
+            $this->assertSame($actorName, $row['created_name'] ?? null, 'Webhook 订阅缺 created_name');
+            $this->assertSame((string) $adminId, (string) ($row['created_by'] ?? ''), 'created_by 应仍是裸雪花ID');
+            $this->assertSame('批7应用' . $suffix, $row['app_name'] ?? null, '预加载 app 关系仍应带出 app_name');
+            $this->assertArrayNotHasKey('app', $row, '预加载的 app 关系不应随行下发');
+
+            // 9. /hr/perf/plan 的 created_by（B7b）—— 该键在 encodeIds 白名单里，值仍是 hashid。
+            // 名称源取 erp_admin_user.real_name：planStore 落的是 $request->adminId，
+            // DDL 注释本批已改齐（install.sql:2463 现为 erp_admin_user.id），二者一致。
+            $plan = new HrPerfPlan();
+            $plan->id = $planId;
+            $plan->template_id = $adminId; // 表无外键约束，模板名落空即可（本例只验创建人名）
+            $plan->period_start = '2026-01-01';
+            $plan->period_end = '2026-03-31';
+            $plan->created_by = $adminId;
+            $plan->save();
+            $zeroPlan = new HrPerfPlan();
+            $zeroPlan->id = $zeroPlanId;
+            $zeroPlan->template_id = 0;
+            $zeroPlan->period_start = '2026-01-01';
+            $zeroPlan->period_end = '2026-03-31';
+            $zeroPlan->created_by = 0;
+            $zeroPlan->save();
+            $body = $this->jsonBody((new PerformanceController())->planIndex(new FakeRequest(['page' => 1, 'limit' => 50])));
+            $this->assertSame(0, (int) ($body['code'] ?? -1), $body['message'] ?? '');
+            $row = $this->rowById((array) ($body['data']['list'] ?? []), $planId);
+            $this->assertNotNull($row, '新插入的考核批次应出现在列表');
+            $this->assertSame($actorName, $row['created_name'] ?? null, '考核批次缺 created_name');
+            $this->assertSame($this->encodeId($adminId), (string) ($row['created_by'] ?? ''), 'created_by 仍应是 hashid');
+            $zeroRow = $this->rowById((array) ($body['data']['list'] ?? []), $zeroPlanId);
+            $this->assertNotNull($zeroRow, '创建人为 0 的考核批次应出现在列表');
+            $this->assertSame('', $zeroRow['created_name'] ?? null, '创建人 0 时 created_name 应为空串');
+        } finally {
+            HrPerfPlan::whereIn('id', [$planId, $zeroPlanId])->delete();
+            // 用 SoftDeletes 的模型必须 forceDelete：delete() 只置 deleted_at，行仍在表里（本文件其余
+            // 清理块同款，见 :179/:274 等）；withTrashed() 只影响查询、不改变 delete() 的软删语义
+            FinanceExpense::whereIn('id', [$expenseId, $zeroExpenseId])->forceDelete();
+            OmsRma::where('id', $rmaId)->delete();
+            FinanceInvoice::where('id', $invoiceId)->forceDelete();
+            WmsPickTask::where('id', $pickId)->delete();
+            WmsPackTask::where('id', $packId)->delete();
+            WmsPutawayTask::where('id', $putawayId)->delete();
+            WebhookSubscription::where('id', $subId)->delete();
+            OpenApiApp::where('id', $appId)->forceDelete();
+            Warehouse::where('id', $warehouseId)->forceDelete();
+            AdminUser::where('id', $adminId)->forceDelete();
         }
     }
 }

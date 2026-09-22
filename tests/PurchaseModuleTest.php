@@ -617,6 +617,168 @@ class PurchaseModuleTest extends TestCase
     }
 
     /**
+     * 批准/驳回必须落审批轨迹（approved_by/approved_at）—— 否则两列恒 0/恒 NULL，审批人不可考。
+     *
+     * 两端行内按钮只下发 `{status:1|2}`（trade.ts），没有别的审批入口，所以「谁批的」只能由
+     * 控制器在这一次 PUT 里补。两列刻意不在 $fillable（防伪造），fill() 会静默丢弃，
+     * 故写入必须走服务端强制路径 —— 本用例同时钉住写入发生、以及客户端自报的审批人被忽略。
+     * 真库 + 事务回滚；自造申请单避免依赖示例数据。
+     * ⑥ 要求的两条 DB 不变量都在下面：approved_by === 42（⇒ > 0，且证明用的是中间件 adminId
+     * 而非请求体里的 999）、approved_at 非空（且不等于客户端自报值）—— 都比「> 0 / 非空」更强。
+     */
+    public function testApplyUpdateStampsApproverOnApproveAndReject(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $controller = new \app\controller\purchase\ApplyController();
+            // 1=批准 2=驳回：驳回也是审批动作，两条路径都得落
+            foreach ([1 => '批准', 2 => '驳回'] as $status => $label) {
+                $applyId = 900000000000900000 + $status * 100 + random_int(1, 99);
+                DB::table('purchase_apply')->insert([
+                    'id' => $applyId,
+                    'code' => 'PA' . $applyId,
+                    'apply_user_id' => 7,
+                    'department' => '采购部',
+                    'status' => 0,
+                    'remark' => '',
+                ]);
+
+                $resp = $controller->update(
+                    // 夹带自报审批人：approved_by 不在 $fillable，必须被无视，只认中间件注入的 adminId
+                    new FakeRequest(
+                        ['status' => $status, 'approved_by' => 999, 'approved_at' => '2000-01-01 00:00:00'],
+                        ['adminId' => 42],
+                    ),
+                    \app\common\HashidsService::encode($applyId),
+                );
+                $this->assertSame(0, $this->responseCode($resp), $label . '应成功：' . $this->responseMessage($resp));
+
+                $row = DB::table('purchase_apply')->where('id', $applyId)->first();
+                $this->assertSame($status, (int) $row->status, $label . '后 status 应为 ' . $status);
+                $this->assertSame(42, (int) $row->approved_by, $label . '应记下中间件注入的审批人');
+                $this->assertNotSame('2000-01-01 00:00:00', (string) $row->approved_at, '审批时间不能被客户端自报');
+                $this->assertNotNull($row->approved_at, $label . '应记下审批时间');
+            }
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
+     * ⑥ 源码级不变量：approved_by/approved_at 绝不许进 $fillable（防将来有人「顺手放行」）。
+     *
+     * 放行的后果不是理论上的：fillModelFromRequest 就是 $model->fill($request->only($model->getFillable()))，
+     * 放行即客户端可自报审批人、自造「已审批」记录，且 hashid 串直填 BIGINT 列会 1366 → 500。
+     * B8 的服务端写入走 forceFill（显式绕白名单），所以「现在采购侧有人写这两列」不构成放行的理由。
+     * 用 getFillable() 而非读源码文本：这是 fillModelFromRequest 真正消费的那个值。
+     */
+    public function testApplyModelKeepsApprovalColumnsOutOfFillable(): void
+    {
+        $fillable = (new \app\model\PurchaseApply())->getFillable();
+        // 先证白名单本体非空：否则下面两条对空数组恒真 = 假绿
+        $this->assertContains('status', $fillable, '白名单本体应含 status，取空说明模型声明被改坏');
+        $this->assertNotContains('approved_by', $fillable, 'approved_by 不得进 $fillable');
+        $this->assertNotContains('approved_at', $fillable, 'approved_at 不得进 $fillable');
+    }
+
+    /**
+     * 端到端自测：批完 → GET /purchase/apply 列表里 approved_by 有值、approved_name 是审批人姓名。
+     *
+     * 自造两个不同名的管理员（erp_admin_user 只有 id/username/password 无默认值，其余列都有默认；
+     * 软删/同名都会让断言退化，种子里是不是两个不同名的人不可控）：申请人与其审批人名字必须各归各键，
+     * join 写错成同一个键、或键名写成 approved_by_name（前端不认），这里都会红。
+     * 真库 + 事务回滚。
+     */
+    public function testApplyIndexExposesApproverNameAfterApproval(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $controller = new \app\controller\purchase\ApplyController();
+            $suffix = (string) random_int(100000, 999999);
+            $applyUserId = 900000000000901000 + random_int(1, 99);
+            $approverId = 900000000000901100 + random_int(1, 99);
+            DB::table('admin_user')->insert([
+                ['id' => $applyUserId, 'username' => 'bf_apply_' . $suffix, 'password' => 'x', 'real_name' => '申请人' . $suffix],
+                ['id' => $approverId, 'username' => 'bf_approve_' . $suffix, 'password' => 'x', 'real_name' => '审批人' . $suffix],
+            ]);
+
+            $applyId = 900000000000900900 + random_int(1, 99);
+            DB::table('purchase_apply')->insert([
+                'id' => $applyId,
+                'code' => 'PA' . $applyId,
+                'apply_user_id' => $applyUserId,
+                'department' => '采购部',
+                'status' => 0,
+                'remark' => '',
+            ]);
+
+            // 批准（1）——与两端行内按钮同形：只下发 status，审批人由中间件注入
+            $resp = $controller->update(
+                new FakeRequest(['status' => 1], ['adminId' => $approverId]),
+                \app\common\HashidsService::encode($applyId),
+            );
+            $this->assertSame(0, $this->responseCode($resp), '批准应成功：' . $this->responseMessage($resp));
+
+            $body = json_decode((string) $controller->index(new FakeRequest(['page' => 1, 'limit' => 50]))->rawBody(), true);
+            $this->assertSame(0, (int) ($body['code'] ?? -1), '列表应成功：' . (string) ($body['message'] ?? ''));
+            $row = null;
+            foreach ((array) ($body['data']['list'] ?? []) as $item) {
+                if (($item['id'] ?? null) === \app\common\HashidsService::encode($applyId)) {
+                    $row = $item;
+                    break;
+                }
+            }
+            $this->assertNotNull($row, '刚批准的单应出现在列表首页（id 最大，按 id desc 排序）');
+            $this->assertSame($approverId, (int) $row['approved_by'], '列表行应带出审批人 ID（>0）');
+            $this->assertSame('审批人' . $suffix, $row['approved_name'] ?? null, 'approved_name 应解析出审批人姓名');
+            $this->assertSame('申请人' . $suffix, $row['apply_user_name'] ?? null, '申请人名不得被审批人名挤掉');
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
+     * 改单（status 未下发）不得动审批轨迹：非审批动作不该写审计列。
+     * 真库 + 事务回滚。
+     */
+    public function testApplyUpdateWithoutStatusLeavesApprovalTraceUntouched(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $applyId = 900000000000910000 + random_int(1, 999);
+            DB::table('purchase_apply')->insert([
+                'id' => $applyId,
+                'code' => 'PA' . $applyId,
+                'apply_user_id' => 7,
+                'department' => '采购部',
+                'status' => 1,
+                'remark' => '',
+                'approved_by' => 55,
+                'approved_at' => '2026-01-02 03:04:05',
+            ]);
+
+            $resp = (new \app\controller\purchase\ApplyController())->update(
+                new FakeRequest(['remark' => '改个备注'], ['adminId' => 42]),
+                \app\common\HashidsService::encode($applyId),
+            );
+            $this->assertSame(0, $this->responseCode($resp), '改备注应成功：' . $this->responseMessage($resp));
+
+            $row = DB::table('purchase_apply')->where('id', $applyId)->first();
+            $this->assertSame('改个备注', (string) $row->remark, '备注应更新');
+            $this->assertSame(55, (int) $row->approved_by, '未下发 status 时审批人应原样保留');
+            $this->assertSame('2026-01-02 03:04:05', (string) $row->approved_at, '未下发 status 时审批时间应原样保留');
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
      * 订单认领申请单 → 申请单置「已转订单」(3)。
      *
      * erp_purchase_apply.status=3 此前没有任何写入方（前端无入口、审批不回写目标单据），

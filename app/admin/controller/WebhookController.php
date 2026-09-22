@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
+use app\model\AdminUser;
 use app\model\OpenApiApp;
 use app\model\WebhookDeliveryLog;
 use app\model\WebhookSubscription;
@@ -65,18 +66,24 @@ class WebhookController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->with('app')->orderBy('id', 'desc')
+        $rows = $query->with('app')->orderBy('id', 'desc')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
-            ->get()
-            ->map(function (WebhookSubscription $sub) {
-                $row = $sub->toArray();
-                $row['app_name'] = $sub->app ? $sub->app->app_name : '';
-                unset($row['app']);
+            ->get()->toArray();
+        // 行补创建人名（erp_admin_user.real_name）：created_by 存的是管理员雪花ID
+        // （store 写 request->adminId），前端取名称的键 = 本键切掉末 3 字符 + _name（created_by → created_name）。
+        // 值本身不编码 —— 本响应里 created_by 是裸雪花ID（不以 _id 结尾，encodeIds 探测不到）
+        $creatorNames = AdminUser::query()->whereIn('id', array_column($rows, 'created_by'))
+            ->pluck('real_name', 'id')->all();
+        $list = array_map(function (array $row) use ($creatorNames) {
+            // 预加载的 app 关系只取名称，关系本身不随行下发
+            $row['app_name'] = (string) ($row['app']['app_name'] ?? '');
+            unset($row['app']);
+            // 名称按裸 ID 查
+            $row['created_name'] = $creatorNames[$row['created_by']] ?? '';
 
-                return $this->encodeIds($row, ['id', 'app_id']);
-            })
-            ->toArray();
+            return $this->encodeIds($row, ['id', 'app_id']);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }

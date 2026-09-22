@@ -155,7 +155,8 @@ jobs:
         # 渐进门槛（当前基线）：整体 ≥4%，业务层 app/service ≥10%，不达标即红。
         # 目标门槛：整体 ≥30%，业务层 ≥40%（见 docs/superpowers/plans/2026-08-07-next-phase-plan.md P1-B4），
         # 随测试补充逐步收紧——每轮合入前将阈值上调至略低于实测值，直至达到目标，防止覆盖率回退。
-        # 注：当前实测 4.78%/10.61%（新增测试多为校验/契约类，对 controller 成功路径覆盖有限，属正常起步值）。
+        # 注：阈值 4% / 业务层 10%；实测值随覆盖率驱动（pcov/xdebug）与纳入范围变动很大，**不在此固化数字**
+        # （旧注释写的 4.78%/10.61% 与本机 xdebug 实测 32.46%/77.63% 差一个数量级，CI 侧数值未在本机复现）。
         # 失败时输出经 ::error:: 写入 check-run annotations（API 匿名可读）便于定位
         # （"找不到 clover.xml" 需回头查上一步 Coverage Collection）。
         run: |
@@ -252,6 +253,36 @@ jobs:
         run: |
           set +e
           out="$(bash scripts/doc-stats.sh --check 2>&1)"
+          code=$?
+          set -e
+          printf '%s\n' "$out"
+          if [ $code -ne 0 ]; then
+            echo "::error::$(printf '%s' "$out" | tail -15 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+            exit $code
+          fi
+
+      # ----------------------------------------------------------
+      # FE ↔ DDL 字典对差（scripts/check-ddl-dict.mjs）—— 第 15 道门禁。
+      # 归在本作业：与 doc-stats 同属「静态对差」类（只需 checkout + node，无 PHP/vendor/
+      # DB/.env），且本作业已在 release 的 needs 里 —— 不新增 job 就不动 needs 列表，
+      # 门禁红时照样断发版。
+      # 必须 setup-node：脚本要 --experimental-strip-types（Node 22.6 起）直接 import
+      # domains/*.ts 域配置，还要 module.registerHooks（v22 后期才有，故 22.6 不是下限）；
+      # ubuntu-latest 自带的 Node 20 两者皆无，脚本起不来。锁 '22.x' 与本机实测版本同线。
+      # 只需 checkout + node：域配置的 import 图自洽（domains → ../cells、../types，无 npm 包），
+      # 故本作业不装 node_modules。
+      # 本地等价命令：node scripts/check-ddl-dict.mjs
+      # ----------------------------------------------------------
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: FE ↔ DDL 字典对差 (check-ddl-dict)
+        # 失败时输出经 ::error:: 写入 check-run annotations（API 匿名可读）便于定位，
+        # 处理方式同上一作业（bash -e 下命令替换内失败会终止步骤，set +e 包住捕获行）。
+        run: |
+          set +e
+          out="$(node scripts/check-ddl-dict.mjs 2>&1)"
           code=$?
           set -e
           printf '%s\n' "$out"
@@ -367,7 +398,10 @@ jobs:
           E2E_CAPTCHA_CODE: e2e-test-code # 与 Start webman service 写入服务端 .env 的口令一致
 
       - name: Run E2E API coverage
-        # 遗留#2：api-coverage 全模块只读遍历（25 业务模块 + 系统管理，全读操作）。
+        # 遗留#2：api-coverage 全模块遍历（25 业务模块 + 系统管理）。**不是只读**：
+        # :312 PUT /admin/v1/profile、:430 每模块 PUT 原值回写、:434 DELETE 空密码探针 ⇒ 会对目标库**写真**，
+        # 别指向生产库；smoke 另有 POST/PUT/DELETE /admin/v1/user。批次的 B8 之后，`/purchase/apply` 的
+        # PUT 一旦带 `status∈{1,2}` 还会 `forceFill(approved_by/approved_at)`，回写因此不再无副作用。
         # 已升级全量种子，业务表齐全应全绿；脚本以 FAIL>0 定退出码，SKIP 不失败。
         run: php tests/E2E/api-coverage.php --base-url=http://127.0.0.1:8788
         env:

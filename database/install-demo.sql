@@ -397,9 +397,9 @@ INSERT INTO `erp_finance_ledger` (`id`, `company_id`, `code`, `name`, `currency`
 (410000000000180001, 410000000000033001, 'DEMO-FINANCE_LEDGER-3', '演示finance_ledger', 'd', 0, 0, '演示数据', NOW(), NOW());
 
 INSERT INTO `erp_finance_payment` (`id`, `code`, `supplier_id`, `bank_account_id`, `amount`, `method`, `status`, `remark`, `created_at`, `updated_at`) VALUES
-(410000000000181001, 'DEMO-FINANCE_PAYMENT-1', 410000000000000801, 410000000000124001, 0.00, 'd', 0, '演示数据', NOW(), NOW()),
-(410000000000182001, 'DEMO-FINANCE_PAYMENT-2', 410000000000000802, 410000000000125001, 0.00, 'd', 0, '演示数据', NOW(), NOW()),
-(410000000000183001, 'DEMO-FINANCE_PAYMENT-3', 410000000000000803, 410000000000126001, 0.00, 'd', 0, '演示数据', NOW(), NOW());
+(410000000000181001, 'DEMO-FINANCE_PAYMENT-1', 410000000000000801, 410000000000124001, 0.00, 'bank', 0, '演示数据', NOW(), NOW()),
+(410000000000182001, 'DEMO-FINANCE_PAYMENT-2', 410000000000000802, 410000000000125001, 0.00, 'bank', 0, '演示数据', NOW(), NOW()),
+(410000000000183001, 'DEMO-FINANCE_PAYMENT-3', 410000000000000803, 410000000000126001, 0.00, 'bank', 0, '演示数据', NOW(), NOW());
 
 INSERT INTO `erp_finance_period` (`id`, `ledger_id`, `period`, `status`, `opened_at`, `created_at`, `updated_at`) VALUES
 (410000000000184001, 410000000000166001, 'd1', 0, NOW(), NOW(), NOW()),
@@ -417,9 +417,9 @@ INSERT INTO `erp_finance_profit_center` (`id`, `parent_id`, `code`, `name`, `man
 (410000000000192001, 0, 'DEMO-FINANCE_PROFIT_CENTER-3', '演示finance_profit_center', 'd', 0, NOW(), NOW());
 
 INSERT INTO `erp_finance_receipt` (`id`, `code`, `customer_id`, `bank_account_id`, `amount`, `method`, `status`, `remark`, `created_at`, `updated_at`) VALUES
-(410000000000193001, 'DEMO-FINANCE_RECEIPT-1', 410000000000000701, 410000000000124001, 0.00, 'd', 0, '演示数据', NOW(), NOW()),
-(410000000000194001, 'DEMO-FINANCE_RECEIPT-2', 410000000000000702, 410000000000125001, 0.00, 'd', 0, '演示数据', NOW(), NOW()),
-(410000000000195001, 'DEMO-FINANCE_RECEIPT-3', 410000000000000703, 410000000000126001, 0.00, 'd', 0, '演示数据', NOW(), NOW());
+(410000000000193001, 'DEMO-FINANCE_RECEIPT-1', 410000000000000701, 410000000000124001, 0.00, 'bank', 0, '演示数据', NOW(), NOW()),
+(410000000000194001, 'DEMO-FINANCE_RECEIPT-2', 410000000000000702, 410000000000125001, 0.00, 'bank', 0, '演示数据', NOW(), NOW()),
+(410000000000195001, 'DEMO-FINANCE_RECEIPT-3', 410000000000000703, 410000000000126001, 0.00, 'bank', 0, '演示数据', NOW(), NOW());
 
 INSERT INTO `erp_finance_settlement` (`id`, `ar_ap_id`, `receipt_payment_id`, `type`, `amount`, `created_at`, `updated_at`) VALUES
 (410000000000196001, 410000000000112001, 410000000000193001, 0, 0.00, NOW(), NOW()),

@@ -10,6 +10,8 @@ namespace tests;
 use app\common\HashidsService;
 use app\controller\crm\ContactController;
 use app\controller\finance\ArApController;
+use app\controller\finance\PaymentController;
+use app\controller\finance\ReceiptController;
 use app\controller\hr\PositionController;
 use app\controller\inventory\CheckTaskController;
 use app\controller\manufacturing\ProductionController;
@@ -103,6 +105,50 @@ class BusinessControllersTest extends TestCase
     {
         $resp = (new CheckTaskController())->store(new FakeRequest(['status' => 'abc']));
         $this->assertSame(422, $this->code($resp));
+    }
+
+    /**
+     * method 值域：四处写入点原先只校验 string（Payment::update 侧连规则都没有，非 null 即原样落库）
+     * ⇒ 任意串落库，列表按 PAY_METHOD_DICTS 渲染时表外值只能裸出。
+     * 值域取 5 值并集：cash/bank/wechat/alipay 出自 install.sql:1202/1221 的列注释，other 出自两端词典。
+     * 数据侧依赖：真库 6 行 method='d' 是 install-demo.sql 的演示填充串，数据侧同批修好前会被这条规则 422。
+     */
+    public function testFinanceMethodValidatorRejectsOutOfDomainValues(): void
+    {
+        // 坏值用 'd'（真库那 6 行的实际值），并先把必填项喂满：否则首个报错是必填字段，
+        // 断言就没区分度 —— 整条 method 规则摘掉也照样绿。
+        $probes = [
+            'ReceiptController::store' => (new ReceiptController())->store(new FakeRequest([
+                'customer_id' => '1', 'amount' => 1, 'method' => 'd',
+            ])),
+            'ReceiptController::update' => (new ReceiptController())->update(
+                new FakeRequest(['method' => 'd']),
+                HashidsService::encode(999),
+            ),
+            'PaymentController::store' => (new PaymentController())->store(new FakeRequest([
+                'supplier_id' => '1', 'amount' => 1, 'method' => 'd',
+            ])),
+            'PaymentController::update' => (new PaymentController())->update(
+                new FakeRequest(['method' => 'd']),
+                HashidsService::encode(999),
+            ),
+        ];
+        foreach ($probes as $site => $resp) {
+            $body = json_decode((string) $resp->rawBody(), true);
+            $this->assertSame(422, $this->code($resp), "{$site} 表外 method 应 422");
+            $this->assertStringContainsString('method', (string) ($body['message'] ?? ''), "{$site} 的 422 应指向 method 而非必填项");
+        }
+
+        // 上面那条只证明「表外值被拒」，证不了「5 个合法值都收」（把方法名写错成 in:bitcoin 也能绿）
+        // 与「4 个写入点都改了」。本文件是无 DB 契约（合法值会走到落库），故这条用源码断言补足。
+        foreach (['ReceiptController', 'PaymentController'] as $name) {
+            $src = (string) file_get_contents(__DIR__ . "/../app/controller/finance/{$name}.php");
+            $this->assertSame(
+                2,
+                substr_count($src, "'method' => 'string|in:cash,bank,wechat,alipay,other'"),
+                "{$name} 的 store/update 两处值域必须逐字同源（含 other）"
+            );
+        }
     }
 
     public function testFinanceArApStoreRejectsNegativeAmount(): void

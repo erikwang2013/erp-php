@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\oms;
 
 use app\admin\controller\BaseController;
+use app\model\AdminUser;
 use app\model\OmsRma;
 use app\model\OmsRmaItem;
 use support\Request;
@@ -68,9 +69,20 @@ class RmaController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
+        $rows = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('oms_rma.id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray(), ['id', 'order_id', 'customer_id', 'return_shipment_id']));
+            ->get()->toArray();
+        // 行补审批人名（erp_admin_user.real_name）：approved_by 存的是管理员雪花ID
+        // （RmaService::approve 的 $approverId 来自 request->adminId），前端取名称的键 =
+        // 本键切掉末 3 字符 + _name（approved_by → approved_name）
+        $approverNames = AdminUser::query()->whereIn('id', array_column($rows, 'approved_by'))
+            ->pluck('real_name', 'id')->all();
+        $list = array_map(function (array $item) use ($approverNames) {
+            // 名称按裸 ID 查（encodeIds 之后 approved_by 已是 hashid）
+            $item['approved_name'] = $approverNames[$item['approved_by']] ?? '';
+
+            return $this->encodeIds($item, ['id', 'order_id', 'customer_id', 'return_shipment_id']);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }

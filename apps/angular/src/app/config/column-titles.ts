@@ -116,6 +116,10 @@ const BASE: Record<string, string> = {
   onboard_date: '入职日期',
   // 非 DB 列：FulfillmentController::index 按 oms_order_id 带出 oms_order.channel_order_no
   order_channel_no: '渠道订单号',
+  // 非 DB 列：mfg 三页 index 按 order_id 反查 mfg_production_order.code 带出
+  // （MaterialIssue/WorkReport/CostEntry）；purchase/receive、sales/delivery、oms/rma 的值侧别名同为该键。
+  // 措辞沿用词典既有「工单编码」（该列 install.sql 注释原词），不另造第二条
+  order_code: '工单编码',
   order_id: '生产工单',
   order_no: '订单号',
   overtime: '加班费',

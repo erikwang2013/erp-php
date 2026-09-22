@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\admin\controller;
 
+use app\model\AdminUser;
 use app\model\OpenApiApp;
 use app\model\WebhookSubscription;
 use support\Request;
@@ -69,12 +70,23 @@ class OpenApiController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->orderBy('id', 'desc')
+        $rows = $query->orderBy('id', 'desc')
             ->offset(($page - 1) * $limit)
             ->limit($limit)
             ->get()
-            ->map(fn (OpenApiApp $app) => $this->encodeIds($app->toArray()))
+            ->map(fn (OpenApiApp $app) => $app->toArray())
             ->toArray();
+        // 行补创建人名（erp_admin_user.real_name）：created_by 存的是管理员雪花ID
+        // （store 写 request->adminId），前端取名称的键 = 本键切掉末 3 字符 + _name（created_by → created_name）。
+        // 值本身不编码 —— 本响应里 created_by 是裸雪花ID（不以 _id 结尾，encodeIds 探测不到）
+        $creatorNames = AdminUser::query()->whereIn('id', array_column($rows, 'created_by'))
+            ->pluck('real_name', 'id')->all();
+        $list = array_map(function (array $item) use ($creatorNames) {
+            // 名称按裸 ID 查
+            $item['created_name'] = $creatorNames[$item['created_by']] ?? '';
+
+            return $this->encodeIds($item);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }

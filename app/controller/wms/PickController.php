@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace app\controller\wms;
 
 use app\admin\controller\BaseController;
+use app\model\AdminUser;
 use app\model\WmsPickTask;
 use support\Request;
 use support\Response;
@@ -61,9 +62,21 @@ class PickController extends BaseController
         }
 
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)
+        $rows = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->toArray();
+        // 行补指派人员名（erp_admin_user.real_name）：assigned_to 存的是管理员雪花ID
+        // （WmsOutboundService::startPick 的 $assigneeId 来自 PickController 的 request->adminId），
+        // 前端取名称的键 = 本键切掉末 3 字符 + _name（assigned_to → assigned_name）。
+        // 值本身不编码 —— 移动端按 Number() 回填该键
+        $assigneeNames = AdminUser::query()->whereIn('id', array_column($rows, 'assigned_to'))
+            ->pluck('real_name', 'id')->all();
+        $list = array_map(function (array $item) use ($assigneeNames) {
+            // 名称按裸 ID 查（本响应里 assigned_to 是裸雪花ID，不经 encodeIds）
+            $item['assigned_name'] = $assigneeNames[$item['assigned_to']] ?? '';
+
+            return $this->encodeIds($item);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }

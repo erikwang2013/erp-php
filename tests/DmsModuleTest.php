@@ -127,6 +127,35 @@ class DmsModuleTest extends TestCase
         $this->assertFalse(validator(['title' => '手册', 'category' => '其他'], $rules)->fails(), '合法输入应通过');
     }
 
+    /**
+     * update() 的 status 值域校验。
+     *
+     * 此前 update 的 validator 里**根本没有 status**（store 有），而 status 在 $fillable 内：
+     * 客户端 PUT 任意串（如 'published'）就直落 VARCHAR(20) 列，此后 index 的 `(int)$status`
+     * 筛选再也匹配不上该行 —— 该行会从「草稿」「发布」两个筛选项里同时消失。
+     * 值域取 store 同口径 0/1（apidoc 写 0=草稿 1=发布；DDL 默认 'draft' 无 API 写入方）。
+     */
+    public function testDocumentUpdateRejectsOutOfDomainStatus(): void
+    {
+        // 真身路径：校验分支在 decodeId/find 之前，故这一步不触库。
+        // 没有这条规则时请求会落到 find(999) → 404，绝不会是 422（红得可读）。
+        $resp = (new DocumentController())->update(
+            new FakeRequest(['status' => 'published']),
+            \app\common\HashidsService::encode(999),
+        );
+        $body = json_decode($resp->rawBody(), true);
+        $this->assertSame(422, (int) ($body['code'] ?? -1), 'status 出值域应 422：' . (string) ($body['message'] ?? ''));
+        $this->assertStringContainsString('status', (string) ($body['message'] ?? ''), '422 应指向 status 字段');
+
+        // store 的用例抄了一份规则副本，副本会漂移：直接钉住源码里两份规则同为 0/1
+        $source = file_get_contents(__DIR__ . '/../app/controller/dms/DocumentController.php');
+        $this->assertSame(
+            2,
+            substr_count($source, "'status' => 'nullable|integer|between:0,1'"),
+            'store 与 update 的 status 值域必须同为 0/1（各一处）',
+        );
+    }
+
     public function testDestroyCascadesDocumentVersions(): void
     {
         // destroy(): 删除文档前先删除其全部版本记录

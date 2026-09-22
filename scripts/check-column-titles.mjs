@@ -60,6 +60,17 @@ const EXTRA_KEYS = [
   'carrier_service_code',
   'receiving_code',
   'production_order_code',
+  // 工单号：mfg 三页 index 按 order_id 反查 mfg_production_order.code（`$item['order_code'] = …`），
+  // 另有 purchase/receive、sales/delivery、oms/rma 三处 `as order_code` 别名 —— 但那三页各自声明了
+  // columns 且不含它 ⇒ 真正上屏的只有 mfg 三页（「工单号 / 订单号」二义，标题只能取一个，取上屏的那个）
+  'order_code',
+  // `*_by`/`assigned_to` 外键的名称兄弟键（B7 服务端补产出；键名机械 = 外键名切末 3 字符 + `_name`，
+  // 同前端 columns.ts:379-384 / relation.ts:63 的取名口径）。合成键 install.sql 里没有 ——
+  // 不列在这里就没有任何门禁守得住（漏登只在页面出英文 approvedName，无人报错）
+  'approved_name',
+  'assigned_name',
+  'audited_name',
+  'created_name',
   // ReportScheduleController::index 把 recipients 的 id 换成姓名（_names 不匹配 (name|id)$，回落驼峰）
   'recipients_names',
   // 比价回包的比价矩阵块
@@ -133,9 +144,13 @@ if (drift.length) fail(`两端标题表漂移 ${drift.length} 键：${drift.slic
 
 // 2) install.sql 的每个展示列 + 非 DB 键，都要在标题表里命中（没命中 = 掉进驼峰兜底）
 const sql = fs.readFileSync(path.join(ROOT, 'database/install.sql'), 'utf8');
+const sqlCols = new Set();
 const columns = new Set(EXTRA_KEYS);
 for (const [, , body] of sql.matchAll(/CREATE TABLE(?:\s+IF NOT EXISTS)?\s+`([^`]+)`\s*\((.*?)^\)/gims)) {
-  for (const m of body.matchAll(/^\s*`([^`]+)`\s+/gm)) columns.add(m[1]);
+  for (const m of body.matchAll(/^\s*`([^`]+)`\s+/gm)) {
+    sqlCols.add(m[1]);
+    columns.add(m[1]);
+  }
 }
 const missing = [];
 for (const c of columns) {
@@ -144,7 +159,118 @@ for (const c of columns) {
 }
 if (missing.length) fail(`${missing.length} 个展示列未命中标题表（会显示英文）：${missing.slice(0, 20).join(', ')}`);
 
-console.log(`两端各 ${Object.keys(ng).length} 键（install.sql ${columns.size} 列名，含 ${EXTRA_KEYS.length} 个非 DB 键）`);
+// 3) `*_name` / `*_code` 族键必须有真产出方 —— 前者是 `*_by`/`assigned_to` 外键的名称兄弟
+//    （approved_name…），后者是从 `*_id` 反查 / leftJoin 出的业务编号（shipment_code…）。
+//    前端只在行里真有这个键时才渲染（columns.ts:379-384 / relation.ts:63 的 siblingScalar）：
+//    键名拼错、产出方被删、或登记了却没人产，都不会报错，只是那一列永远出「-」。
+//    分类必须**完备**：往 EXTRA_KEYS 加一个族键而没在这儿分类 → 红（这个洞当初就是
+//    「没有任何判据」才让 approved_name 靠人眼抓到）；synthetic ＝**本守卫不适用**（前端自造，或产出路径
+//    不是行内标量，如 `with()` 预加载的关系对象）—— 只登记不断言，登记时要写清是哪一种。
+//    `must` 带**产出方计数 pin**（第二项）：判据是「计数 === pin」，不是「计数 > 0」——
+//    漏一个产出方（如把 `assigned_name` 写成 `assigned_by_name`）与多一个产出方都会现形；
+//    其它车道真加了产出方就同步改这里的数与理由，别让 pin 过期成静默。
+const KEY_CLASS = new Map([
+  ['buyer_real_name', ['must', 1]], // RfqController::show 按 buyer_id 反查（buyer_name 被税票占用，故键名带 real_）
+  ['approved_name', ['must', 3]], // approved_by 的名称兄弟（purchase/Apply 的 leftJoin 别名 + finance/Expense 批量回填）
+  ['assigned_name', ['must', 3]], // assigned_to（wms pick/pack/putaway）
+  ['audited_name', ['must', 1]], // audited_by（finance Invoice）
+  ['created_name', ['must', 3]], // created_by（admin OpenApi/Webhook + hr Performance 计划）
+  ['recipients_names', ['must', 1]], // 复数同族：ReportScheduleController::index 把 recipients 的 id 换成姓名串
+  // `*_code` 族（同型洞：产出方没了 → 列上屏「-」、全门禁绿）。都是「行上只有 `*_id`，编号靠反查/别名补」
+  ['shipment_code', ['must', 2]], // tms FreightInvoice/Tracking 按 shipment_id 反查
+  ['receive_code', ['must', 2]], // purchase Return/Settlement 按 receive_id 反查
+  ['delivery_code', ['must', 3]], // quality FinalCheck 的 `sales_delivery.code` 别名 + sales Return/Settlement 反查
+  ['product_code', ['must', 6]], // 6 处：inventory/sales/purchase 的 `product.code` 别名 + Rfq 比价按 product_id 反查
+  ['voucher_code', ['must', 1]], // finance SubsidiaryLedger 按 voucher_id 反查
+  ['carrier_service_code', ['must', 1]], // tms FreightRate 按 carrier_service_id 反查
+  ['receiving_code', ['must', 1]], // quality IncomingCheck 的 `purchase_receive.code` 别名
+  ['production_order_code', ['must', 1]], // quality ProcessCheck 的 `mfg_production_order.code` 别名
+  ['order_code', ['must', 6]], // mfg 三控制器数组位赋值（MaterialIssue:87 / WorkReport:98 / CostEntry:88）+ Receive:79 / Delivery:81 / Rma:60 三处别名
+]);
+
+const appPhp = [];
+(function walk(dir) {
+  for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (e.isDirectory()) walk(path.join(dir, e.name));
+    else if (e.name.endsWith('.php')) appPhp.push(path.join(dir, e.name));
+  }
+})(path.join(ROOT, 'app'));
+
+/** 产出方 = **代码态的产出形状**（整行注释不算 —— 讲解注释与注释掉的旧产出跟真产出长得一模一样，
+ *  `ApplyController` 就有一行「键名必须叫 approved_name」）：
+ *    ① 数组位赋值 `['key'] = / ??= / .=`   ② 数组字面量 `'key' => …`   ③ SQL 别名 `as key`。
+ *  只**读**这个键（`$x = $row['approved_name']`）不算产出方 —— 本守卫守的是有人把它写进行里。
+ *  ponytail: 只认字面量写法；关系对象路径（`with('approver')` 预加载、前端走 `row.approver.name`）
+ *  与动态拼键（`$row[$k]`）看不见 ⇒ 真出现时把该键登记成 synthetic（＝本守卫不适用），别改判据。 */
+const codeLines = [];
+for (const f of appPhp) {
+  fs.readFileSync(f, 'utf8')
+    .split('\n')
+    .forEach((line, i) => {
+      if (/^\s*(\/\/|\*|\/\*|#)/.test(line)) return;
+      codeLines.push([f, i + 1, line]);
+    });
+}
+const producersOf = (key) => {
+  const write = new RegExp(`\\['${key}'\\]\\s*(\\?\\?|\\.)?\\s*=|['"]${key}['"]\\s*=>`);
+  const as = new RegExp(`\\bas\\s+${key}\\b`, 'i');
+  return codeLines.filter(([, , l]) => write.test(l) || as.test(l)).map(([f, i]) => `${path.relative(ROOT, f)}:${i}`);
+};
+
+const FAMILIES = [
+  { label: '*_name', test: (k) => /_names?$/.test(k) },
+  { label: '*_code', test: (k) => /_code$/.test(k) },
+];
+const familyKeys = EXTRA_KEYS.filter((k) => FAMILIES.some((f) => f.test(k)));
+/* 分类集/键集/整族塌成空（EXTRA_KEYS 被改坏、某族键被整段删掉）时下面两条断言会静默全绿 ——
+ * 与 check-ddl-dict.mjs 的覆盖度下限同款兜底：解析面塌了必须自己红，不许安静地什么都不比。 */
+const goneFamilies = FAMILIES.filter((f) => !familyKeys.some((k) => f.test(k))).map((f) => f.label);
+if (!familyKeys.length || !KEY_CLASS.size || goneFamilies.length) {
+  fail(
+    `*_name/*_code 守卫解析面塌了（EXTRA_KEYS 里 ${familyKeys.length} 个族键 / 分类 ${KEY_CLASS.size} 条` +
+      ` / 整族消失：${goneFamilies.join(' ') || '无'}）—— 静默全绿`,
+  );
+}
+const unclassified = familyKeys.filter((k) => !KEY_CLASS.has(k));
+if (unclassified.length) {
+  fail(`EXTRA_KEYS 里 ${unclassified.length} 个 *_name/*_code 键未分类（must / synthetic）：${unclassified.join(', ')}`);
+}
+/* pin 全命中自检（反方向）：KEY_CLASS 里有、族键集里没有 = 表腐（键被移出 EXTRA_KEYS 却没删这行），
+ * 否则它会继续断言一个已经不上屏的键 —— 只登记不断言的那半边也得有人守。 */
+const stalePins = [...KEY_CLASS.keys()].filter((k) => !familyKeys.includes(k));
+if (stalePins.length) {
+  fail(`KEY_CLASS 里 ${stalePins.length} 个键不在 EXTRA_KEYS 族键集里（删掉这些行或把键加回登记）：${stalePins.join(', ')}`);
+}
+const prodCount = [];
+const badPin = [];
+for (const [k, v] of KEY_CLASS) {
+  const tup = Array.isArray(v);
+  const cls = tup ? v[0] : v;
+  if (cls === 'synthetic' && !tup) continue; // 只登记不断言
+  /* 形态自检优先于断言：`'must'` 裸值（没带 pin）以前会被 `[cls, pin] = 'must'` 解成
+   * cls='m' 而**静默跳过整个键**（负控实测：门禁绿、打印行里那个键不见了）。 */
+  if (!tup || cls !== 'must' || !v[1]) {
+    badPin.push(`${k} = ${JSON.stringify(v)}`);
+    continue;
+  }
+  const [, pin] = v;
+  const n = producersOf(k).length;
+  prodCount.push(`${k}(${n})`);
+  if (n !== pin) badPin.push(`${k}(实际 ${n} ≠ pin ${pin})`);
+}
+if (badPin.length) {
+  fail(
+    `产出方 pin 不合格 ${badPin.length} 处（must 必须写 ['must', N]，计数与实际情况不符也要改；丢了产出方 = 该列恒出「-」）：` +
+      badPin.join('; '),
+  );
+}
+
+console.log(`两端各 ${Object.keys(ng).length} 键（展示面 = install.sql ${sqlCols.size} 列名 + ${EXTRA_KEYS.length} 个非 DB 键，去重后 ${columns.size}）`);
+const clsOf = (k) => {
+  const v = KEY_CLASS.get(k);
+  return Array.isArray(v) ? v[0] : v;
+};
+console.log(`*_name/*_code 键 ${familyKeys.length} 个（分类声明：${familyKeys.filter((k) => clsOf(k) === 'must').length} must / ${familyKeys.filter((k) => clsOf(k) === 'synthetic').length} synthetic）产出方命中：${prodCount.join(' ')}`);
 if (bad.length) {
   console.error(`FAIL\n  ${bad.join('\n  ')}`);
   process.exit(1);

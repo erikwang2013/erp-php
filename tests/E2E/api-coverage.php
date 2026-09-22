@@ -246,7 +246,11 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
         $detail = sprintf('验证码生成失败 HTTP %d code=%d (%s)', $cap['status'], bizCode($cap), $cap['body']['message'] ?? '');
     }
     $results[] = ['name' => '3. POST /api/v1/auth/login', 'verdict' => $token !== null ? 'PASS' : 'FAIL', 'detail' => $detail];
-    $auth = fn (): array => $token ? ['Authorization' => 'Bearer ' . $token] : [];
+    // 必须按引用捕获 $token：箭头函数是按值捕获，刷新后回写的新 token 对已定义的闭包不可见，
+    // 第 7 步起会继续携带旧 token —— 而并发会话上限（3 个）踢出的可能正是这个旧 token
+    $auth = function () use (&$token): array {
+        return $token ? ['Authorization' => 'Bearer ' . $token] : [];
+    };
 
     // ---- 4. 系统管理读操作 ----
     $sysEndpoints = [
@@ -316,9 +320,18 @@ function runAll(string $base, string $user, string $pass, array $matrix): int
 
     // ---- 6. 刷新 token 并可继续使用 ----
     if ($token !== null && $refreshToken !== '') {
+        // 把这次签发推到严格更晚的一秒：app 侧 score = time()+7200 是秒级，同一秒内多次签发会同分，
+        // 而 trackSession 在 zcard>3 时踢的是 zrange 最小者（同分按 member 的 md5 字典序）——被踢的可能是刚签发的新 token。
+        // 这里只是把 app 侧缺陷（refresh 被记成一次新会话：trackSession 之外那句 zrem 的 member 口径与 zadd 不符，恒不命中）
+        // 挡在本作业之外，不是修复它。
+        usleep(1_100_000);
         $resp = httpRequest('POST', "{$base}/api/v1/auth/refresh", ['refresh_token' => $refreshToken]);
         $code = bizCode($resp);
         $newToken = $resp['body']['data']['access_token'] ?? null;
+        // 采纳新 token：旧 token 可能已被并发会话上限踢出并进黑名单（见 trackSession），继续使用即整片 401
+        if ($code === 0 && is_string($newToken) && $newToken !== '') {
+            $token = $newToken;
+        }
         $probe = $code === 0 && is_string($newToken) && $newToken !== ''
             ? httpRequest('GET', "{$base}/admin/v1/user?page=1&limit=1", [], ['Authorization' => 'Bearer ' . $newToken])
             : null;

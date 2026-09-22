@@ -198,7 +198,7 @@ open-erp/
 │   ├── e2e-seed.sql             # Seed mínimo para E2E/CI
 │   └── backup/                 # Scripts de backup/restauração
 ├── docs/                       # Documentação de arquitetura, design, segurança e API
-├── tests/                      # Testes PHPUnit (<!-- stats:test_files=113 --> arquivos de teste, <!-- stats:tests=1037 --> métodos de teste, <!-- stats:assertions=4962 --> asserções)
+├── tests/                      # Testes PHPUnit (<!-- stats:test_files=113 --> arquivos de teste, <!-- stats:tests=1044 --> métodos de teste, <!-- stats:assertions=5020 --> asserções)
 ├── resource/
 │   └── translations/           # Dicionários de mensagens do backend em 13 idiomas (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
 │       ├── zh_CN/              # Tradução em chinês (565 entradas)
@@ -229,7 +229,7 @@ open-erp/
 
 ![Functional Modules](./diagrams/functional-modules-cn.svg)
 
-**23 grandes domínios de negócio, 227 tabelas de dados, 139 controladores**: cobrem autenticação e segurança, dashboard, administração do sistema, proteção de segurança, monitoramento de operações, gestão de produtos, compras, vendas, estoque, finanças (14 submódulos), CRM (10 submódulos), fluxo de aprovação, notificações, gestão de projetos, recursos humanos, manufatura (MRP), relatórios personalizados, gestão de pedidos (OMS), gestão de armazém (WMS), gestão de transporte (TMS), gestão de qualidade (QMS), gestão de equipamentos (EAM), gestão de documentos (DMS) e painéis BI.
+**23 grandes domínios de negócio, 227 tabelas de dados, 159 controladores**: cobrem autenticação e segurança, dashboard, administração do sistema, proteção de segurança, monitoramento de operações, gestão de produtos, compras, vendas, estoque, finanças (14 submódulos), CRM (10 submódulos), fluxo de aprovação, notificações, gestão de projetos, recursos humanos, manufatura (MRP), relatórios personalizados, gestão de pedidos (OMS), gestão de armazém (WMS), gestão de transporte (TMS), gestão de qualidade (QMS), gestão de equipamentos (EAM), gestão de documentos (DMS) e painéis BI.
 
 ### Ciclo de vida da requisição
 

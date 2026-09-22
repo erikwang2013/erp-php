@@ -4,6 +4,10 @@
 
 /** 生成物 —— 由 `scripts/gen-column-titles.mjs` 从 install.sql 列注释导出（第 2/2 片）。请勿手工编辑。 */
 export const COLUMN_TITLES_PART2: Record<string, string> = {
+  report_data: '完整报表数据JSON', // 裁决：众数
+  report_id: '合并报表ID', // install.sql 列注释
+  report_month: '会计月份', // 裁决：众数
+  report_year: '会计年度', // 裁决：众数
   reported_by: '报告人', // install.sql 列注释
   request: '请求报文', // install.sql 列注释
   require_date: '需求日期', // install.sql 列注释

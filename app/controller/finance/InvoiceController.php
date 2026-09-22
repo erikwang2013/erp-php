@@ -9,6 +9,7 @@ declare(strict_types=1);
 namespace app\controller\finance;
 
 use app\admin\controller\BaseController;
+use app\model\AdminUser;
 use app\model\FinanceInvoice;
 use app\model\FinanceInvoiceItem;
 use app\service\finance\InvoiceService;
@@ -83,9 +84,18 @@ class InvoiceController extends BaseController
             $query->where('source_id', $sourceId);
         }
         $total = $query->count();
-        $list = $query->offset(($page - 1) * $limit)->limit($limit)
-            ->orderBy('id', 'desc')->get()
-            ->map(fn ($item) => $this->encodeIds($item->toArray(), self::HEADER_ID_FIELDS));
+        $rows = $query->offset(($page - 1) * $limit)->limit($limit)
+            ->orderBy('id', 'desc')->get()->toArray();
+        // 行补审核人名（erp_admin_user.real_name）：audited_by 存的是管理员雪花ID
+        // （InvoiceService::audit 的 $adminId），前端取名称的键 = 本键切掉末 3 字符 + _name（audited_by → audited_name）
+        $auditorNames = AdminUser::query()->whereIn('id', array_column($rows, 'audited_by'))
+            ->pluck('real_name', 'id')->all();
+        $list = array_map(function (array $item) use ($auditorNames) {
+            // 名称按裸 ID 查（encodeIds 之后 audited_by 已是 hashid）
+            $item['audited_name'] = $auditorNames[$item['audited_by']] ?? '';
+
+            return $this->encodeIds($item, self::HEADER_ID_FIELDS);
+        }, $rows);
 
         return $this->successPage($list, $total, $page, $limit);
     }

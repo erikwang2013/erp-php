@@ -13,7 +13,7 @@
 |------|------|--------------|
 | Backend | webman (Workerman) PHP 8.3+, **23 Geschäftsmodule**, 159 Controller, 63 Services, 224 Modelle, 227 Tabellen, 11 Middleware (schema basiert auf database/install.sql als einziger Tatsachenquelle) | Monolith, groß und umfassend; Arbeitsteilung nach Geschäftsdomänen, um Kontextexplosion einzelner agents zu verhindern |
 | Frontend | Flutter **102 Menürouten** (`lib/app/config/menu_config.dart`; die `getPages` in `main.dart` umfassen 110 Einträge = 102 Menüs + Login/Profil/6 Detailseiten) + HarmonyOS **41 Seiten** (`main_pages.json`), deckt alle Module ab | Parallele Pflege beider Enden, dedizierte Frontend-Rolle erforderlich |
-| Qualitätsbasis | PHPUnit 1037 Tests / 4962 Assertions, PHPStan + baseline, CS-Fixer, CI-Multiversionsmatrix | Disziplin vorhanden; Test-/Review-Rolle direkt in die Pipeline eingebunden |
+| Qualitätsbasis | PHPUnit 1044<!-- stats:tests=1044 --> Tests / 5020<!-- stats:assertions=5020 --> Assertions, PHPStan + baseline, CS-Fixer, CI-Multiversionsmatrix | Disziplin vorhanden; Test-/Review-Rolle direkt in die Pipeline eingebunden |
 | Versionsmatrix | Nur der Branch `main` (`lite` / `standard` / `full` wurden gelöscht, der Archiv-Commit `eea90c0` liegt weiterhin in der `main`-Historie) | Keine Versionsbranches zu synchronisieren, Versionsunterschiede werden per Tag nachverfolgt, siehe „Branch-Strategie" in `docs/EDITIONS.md` |
 | Roadmap | P0~P3 geliefert (Gesamtbewertung 89/100), Eintritt in tägliche Iterations- und Evolutionsphase | Teamgröße skaliert nach Aufgabentyp, keine projektförmige Großaufstellung |
 | Bestehende Infrastruktur | `.claude/agents/` (planner / sparc / testing / swarm / consensus), `.claude-flow` (hierarchical-mesh, Obergrenze 15 agents, consensus-Koordination), hooks + Gedächtnis | Team hängt direkt an der bestehenden Konfiguration, kein Neuanfang |
@@ -83,7 +83,7 @@
 ### 3.4 Qualitäts-Gate (vor dem Commit verpflichtend, vom Reviewer bewacht)
 
 ```
-phpunit            # 1037 Tests / 4962 Assertions komplett grün, neue Fälle mit der Änderung einreichen
+phpunit            # 1044<!-- stats:tests=1044 --> Tests / 5020<!-- stats:assertions=5020 --> Assertions komplett grün, neue Fälle mit der Änderung einreichen
 phpstan            # keine neuen Probleme außerhalb der baseline zulässig
 php-cs-fixer       # --dry-run bestanden
 composer audit     # keine Hochrisiko-Abhängigkeitslücken
