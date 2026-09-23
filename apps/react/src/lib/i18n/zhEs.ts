@@ -1395,6 +1395,7 @@ export const zhEs: Record<string, string> = {
   '释放': 'Liberar',
   '重置密钥': 'Restablecer secreto',
   '销售管理': 'Gestión de ventas',
+  '集团': 'Grupo',
   '集团财务': 'Finanzas del grupo',
   '面单已生成': 'Etiqueta generada',
   '面试中': 'Entrevistando',

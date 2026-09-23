@@ -68,7 +68,32 @@
   margin-left: 0;
 }
 
-/* ── 状态筛选胶囊 ── */
+/* ── 筛选下拉（每个筛一项：标签 + 下拉） ── */
+.filters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  color: var(--text-2);
+  font-size: var(--fs-base);
+}
+
+/* 下拉按内容定宽（.input/.select 的 100% 是给输入框的） */
+.filter .select {
+  width: auto;
+  min-width: 110px;
+}
+
+/* ── 状态筛选胶囊（恰好一个静态筛选时走这条，2026-09-23 回滚：以下两段是改动前的原文） ── */
 .chips {
   display: flex;
   gap: 8px;

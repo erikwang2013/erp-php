@@ -71,7 +71,7 @@ const ok = (name, pass, extra = '') => {
 };
 
 const NG = new URL('../apps/angular/src/app/pages/resource-page/columns.ts', import.meta.url).href;
-const { cellOf, inferColumns, inferDetailItems, keyTitle, resultBlocks } = await import(NG);
+const { cellOf, filterList, inferColumns, inferDetailItems, keyTitle, resultBlocks } = await import(NG);
 
 /* ── 夹具：采购订单列表行（后端 index 会 leftJoin supplier 带出 supplier_name） ── */
 
@@ -127,6 +127,13 @@ eq('无 filter 时原值直出（不再按 endpoint 段猜枚举）', cellOf(ORD
 // 字典的另一个来源 cfg.dicts 仍然生效 —— 真枚举（receiving 的 2=已收货）能出文案
 const orderDictCols = inferColumns([ORDER], '/admin/v1/purchase/order', [], {}, 8, undefined, { status: { 2: '已收货' } });
 eq('cfg.dicts 提供真枚举 → 2 出「已收货」', cellOf(orderDictCols.find((c) => c.key === 'status'), ORDER).text, '已收货');
+
+// 带 `source`（远程选项）的筛选**不得参与字典**：dictFromFilter 只认 key==='status' **且有静态 options** 的那条；只有 source 的 status 无枚举可当字典，不能顶掉有 options 的那条。
+const SRC_ONLY = { key: 'status', label: '状态', source: { endpoint: '/admin/v1/meta/status/list' } };
+const statusColOf = (filters) => inferColumns([LEAVE], '/admin/v1/hr/leave', [], {}, 8, filters).find((c) => c.key === 'status');
+eq('只有 source、无静态 options 的 status 筛选 → 不参与字典（原值直出）', cellOf(statusColOf(SRC_ONLY), LEAVE).text, '2');
+eq('数组形 [source 那条, options 那条] → 取有 options 的', cellOf(statusColOf([SRC_ONLY, LEAVE_FILTER]), LEAVE).text, '已驳回');
+eq('数组形 [options 那条, source 那条] → 同上（与顺序无关）', cellOf(statusColOf([LEAVE_FILTER, SRC_ONLY]), LEAVE).text, '已驳回');
 
 // 每一条与同名列的 cellOf 输出逐字对齐（列表渲染什么，详情就渲染什么）
 const drift = ORDER_ITEMS.filter((it) => {
@@ -337,6 +344,19 @@ ok(
 const REACT_FF = readFileSync(new URL('../apps/react/src/components/FormFields.tsx', import.meta.url), 'utf8');
 ok('ResultView 两处（数组列 / 对象行）都走 fkText', (REACT_FF.match(/fkText\(/g) ?? []).length >= 2, 'ResultView 里 fkText 调用不足 2 处');
 
+// `filterList` 两端同语义（undefined→[]、单对象→[f]、数组→原样）：Angular 真身 import；React 的 .tsx Node 起不来 ⇒ 抽其**函数体**交给 Function 执行，不是抄一份规则。
+const FL_SRC = /export function filterList\([^)]*\)[^{]*\{([\s\S]*?)\n\}/.exec(REACT_DEFAULTS)?.[1];
+let reactFL = null; try { if (FL_SRC) reactFL = new Function('f', FL_SRC); } catch { /* 抽不出可执行体 ⇒ 下面判红 */ }
+const FL_CASES = [[undefined], [LEAVE_FILTER], [[SRC_ONLY, LEAVE_FILTER]]];
+ok('React filterList 可抽成可执行体（静默跳过=这条断言不存在）', !!reactFL, '未找到函数体或含 Node 执行不了的语法');
+eq('两端 filterList 三输入同行为（undefined→[]、单对象→[f]、数组→全量且保序）', reactFL ? FL_CASES.map((c) => JSON.stringify(reactFL(...c))) : null,
+  FL_CASES.map((c) => JSON.stringify(filterList(...c))));
+
+// 两端 status 字典的**取值谓词**必须同形且带 `&& f.options` 守卫：A 组验的是 Angular 真身行为，React 少这个守卫时
+// A 组照绿（真引擎实测顺序相关：`[source, options]` 同键两条时 Angular 出字典、React 裸数字码）。
+const dpOf = (s) => /dictFromFilter\(filterList\(\w+\)\.find\(\((?:\w+)\) => ([^)]*)\)\)/.exec(s.replace(/\s+/g, ' ').replaceAll('"', "'"))?.[1]?.replace(/\b\w+\./g, 'F.');
+eq('两端 status 字典取值谓词同形且都带 options 守卫（React 缺守卫时这条红，两端同错也红）', [dpOf(REACT_DEFAULTS), dpOf(readFileSync(new URL(NG), 'utf8'))], ["F.key === 'status' && F.options", "F.key === 'status' && F.options"]);
+
 console.log('── H. 移动端：详情行/导航标题不落裸外键（静态） ──');
 
 // HarmonyOS（ArkTS）与 Flutter（Dart）在本机没有 DOM/运行时可跑，按本仓约定做静态接线检查
@@ -435,7 +455,8 @@ for (const m of allPages) {
     ...Object.keys(m.cfg.dicts ?? {}),
     ...(m.cfg.columns ?? []).map((c) => c.key),
     ...(m.cfg.fields ?? []).map((f) => f.key),
-    ...[m.cfg.filters].filter(Boolean).map((f) => f.key),
+    // `[cfg.filters]` 在数组形状下每项是**数组**、`f.key` 得 undefined ⇒ 下面 `k.endsWith` 崩（2026-09-23 本门禁 rc=1 的原因）。
+    ...filterList(m.cfg.filters).map((f) => f.key),
   ]);
   const row = { id: 'H', code: 'X-1' };
   const sentinel = new Map();

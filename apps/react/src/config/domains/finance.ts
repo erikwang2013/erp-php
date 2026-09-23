@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  */
 
-import { dateCol, docStatus, mapText, moneyCol, statusCol, strStatus, textCol } from '@/config/cells';
+import { dateCol, docStatus, mapText, moneyCol, monthOptions, statusCol, strStatus, textCol, yearOptions } from '@/config/cells';
 import { res, type DictMap, type MenuGroup, type ResourceConfig } from '@/config/types';
 
 /** 财务管理域（最大域） */
@@ -251,8 +251,19 @@ export const financeMenus: MenuGroup[] = [
           ],
         }),
       },
-      // erp_finance_consolidation_report.status: 0=草稿 1=已出（install.sql:1531）
-      { label: '合并报表', path: '/finance/consolidation', cfg: f('合并报表', '/admin/v1/finance/consolidation/list', { canDelete: false, deleteNeedsPassword: false, dicts: { status: { 0: '草稿', 1: '已出' } } }) },
+      // erp_finance_consolidation_report.status: 0=草稿 1=已出（install.sql:1531）；
+      // 三个筛选对齐 ConsolidationController::list 的三个可选参数（缺省=不过滤）：
+      // company_id 是编码后的 hashid（company/list 实测回 {id,name}，正合 FieldSource 默认 id/name）
+      { label: '合并报表', path: '/finance/consolidation', cfg: f('合并报表', '/admin/v1/finance/consolidation/list', {
+        canDelete: false,
+        deleteNeedsPassword: false,
+        dicts: { status: { 0: '草稿', 1: '已出' } },
+        filters: [
+          { key: 'company_id', label: '集团', source: { endpoint: '/admin/v1/finance/company/list' } },
+          { key: 'report_year', label: '年份', options: yearOptions() },
+          { key: 'report_month', label: '月份', options: monthOptions() },
+        ],
+      }) },
     ],
   },
 ];

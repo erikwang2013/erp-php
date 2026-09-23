@@ -1395,6 +1395,7 @@ export const zhDe: Record<string, string> = {
   '释放': 'Freigeben',
   '重置密钥': 'Geheimnis zurücksetzen',
   '销售管理': 'Vertriebsmanagement',
+  '集团': 'Gruppe',
   '集团财务': 'Konzernfinanzen',
   '面单已生成': 'Etikett erstellt',
   '面试中': 'Im Interview',

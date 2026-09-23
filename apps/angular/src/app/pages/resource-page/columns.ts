@@ -70,13 +70,23 @@ const isBool = (k: string): boolean => k === 'enabled' || /^is_[a-z_]+$/.test(k)
 const BOOL_DICT: Record<number, string> = { 0: '否', 1: '是' };
 
 /**
+ * 筛选定义归一化：`undefined → []`、单个对象 `→ [f]`、数组原样（同引用）。
+ * `cfg.filters` 是「单个或一组」的联合类型，引擎与门禁都从这里取统一形状。
+ */
+export function filterList(f?: FilterDef | FilterDef[]): FilterDef[] {
+  if (!f) return [];
+  return Array.isArray(f) ? f : [f];
+}
+
+/**
  * 筛选定义 → 状态字典。`docStatus()` 生成的 filter.options 就是字典本身（首项「全部」无值），
  * 所以声明了状态筛选的资源无需另写 columns，状态列也能拿到本表真枚举。
  */
 function dictFromFilter(filter?: FilterDef): Record<number | string, string> | undefined {
   if (!filter || filter.key !== 'status') return undefined;
   const dict: Record<number | string, string> = {};
-  for (const o of filter.options) if (typeof o.value === 'number') dict[o.value] = o.label;
+  // options 自 2026-09-23 起可选（source 型筛选无静态选项）：规则一字未改，只补空数组兜底
+  for (const o of filter.options ?? []) if (typeof o.value === 'number') dict[o.value] = o.label;
   return Object.keys(dict).length > 0 ? dict : undefined;
 }
 
@@ -199,7 +209,7 @@ export function relSources(rows: Row[], fields: FormField[] = []): FieldSource[]
  *
  * @param fields cfg.fields —— 其中的 label 优先做列标题（契约 A）
  * @param labels OptionSource 加载好的 id→名称映射（rule 3；未加载到就退回原值）
- * @param filter 本资源的状态筛选，其选项即状态字典（见 dictFromFilter）
+ * @param filter 本资源的筛选（单个或一组，见 filterList）——其中 key 为 status 的那条的选项即状态字典
  * @param dicts cfg.dicts —— 逐键值字典，优先于状态筛选（见 types.ts）
  */
 export function inferColumns(
@@ -210,7 +220,7 @@ export function inferColumns(
   fields: FormField[] = [],
   labels: RelLabels = {},
   limit = 8,
-  filter?: FilterDef,
+  filter?: FilterDef | FilterDef[],
   dicts?: DictMap,
 ): ColumnDef[] {
   const sample = rows.slice(0, 3);
@@ -251,7 +261,10 @@ export function inferColumns(
   // 字典只有一个来源：本资源状态筛选带的（`docStatus()`/`ST_FILTER` 的 options 就是该表枚举的真身）。
   // 2026-09-22 删掉「按 endpoint 第 4 段猜前缀档」与 `COMMON_STATUS` 通用档：猜错比裸值更隐蔽
   // （erp_purchase_receive 的 2=已收货曾被猜成「已审核」），未命中一律原值直出（见 format.statusText）
-  const dict = dictFromFilter(filter);
+  //
+  // 多筛选（数组）下只认 key==='status' 的那条，其余筛选（集团/年份/月份）天然不参与字典；
+  // 带 `options` 才可能给字典 —— 只有 source 的 status 筛选没有静态枚举可取（dictFromFilter 按 options 取值）
+  const dict = dictFromFilter(filterList(filter).find((f) => f.key === 'status' && f.options));
 
   const cols: ColumnDef[] = [];
   for (const k of keys) {

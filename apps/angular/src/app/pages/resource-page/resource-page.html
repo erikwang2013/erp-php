@@ -41,10 +41,30 @@
       </select>
     </div>
 
-    @if (c.filters; as f) {
+    @if (useDropdowns()) {
+      <!-- 多键/含 source 的筛选走一行下拉：静态筛选的「全部」来自配置首项（value=null），远程筛选由引擎补（见 ALL_FILTER） -->
+      <div class="filters">
+        @for (f of filterViews(); track f.key) {
+          <label class="filter">
+            <span class="filter-label">{{ f.label | tr }}</span>
+            <select class="select" (change)="onSelectFilter(f.key, $event)">
+              @for (o of f.options; track $index) {
+                <option [value]="o.value ?? ''" [selected]="isSel(f.key, o.value)">
+                  {{ o.label | tr }}
+                </option>
+              }
+            </select>
+          </label>
+        }
+      </div>
+    } @else {
+      <!-- 恰好一个静态筛选：下面这段是改动前的原文（2026-09-23 回滚，见 useDropdowns）—— 别顺手改写成下拉。
+           只有两行被迫改（filters 类型变联合 + options 变可选，见 chipFilter）：@if 的取值与 @for 的 `?? []`，
+           渲染出的 DOM 与改动前逐字节相同（有断言 F1/F6 守着） -->
+    @if (chipFilter(); as f) {
       <!-- 「全部」胶囊来自配置（filters.options 首项 value=null），引擎不额外补 -->
       <div class="chips">
-        @for (o of f.options; track $index) {
+        @for (o of f.options ?? []; track $index) {
           <button
             type="button"
             class="chip"
@@ -55,6 +75,7 @@
           </button>
         }
       </div>
+    }
     }
 
     @if (loading()) {

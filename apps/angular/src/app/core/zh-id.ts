@@ -2124,6 +2124,7 @@ export const zhId: Record<string, string> = {
   '阅读时间': 'Dibaca Pada',
   '阶段已推进': 'Tahap Lanjutan',
   '险种': 'Jenis Asuransi',
+  '集团': 'Grup',
   '零担': 'LTL',
   '需求日期': 'Tanggal Diperlukan',
   '面单URL': 'URL Label Pengiriman',

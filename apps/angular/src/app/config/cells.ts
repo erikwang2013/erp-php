@@ -95,6 +95,21 @@ export const strStatus = (labels: Record<string, string>): { col: ColumnDef; fil
   },
 });
 
+/** 年份筛选选项：首项「全部」（value null = 不下发该参数），其后近 N 年（当年起降序）；年份按模块加载时刻的本机年算 */
+export const yearOptions = (n = 5): FieldOption[] => {
+  const y = new Date().getFullYear();
+  return [
+    { label: '全部', value: null },
+    ...Array.from({ length: n }, (_v, i): FieldOption => ({ label: `${y - i}`, value: y - i })),
+  ];
+};
+
+/** 月份筛选选项：首项「全部」，其后 1-12（见 erp_finance_consolidation_report.report_month 注释） */
+export const monthOptions = (): FieldOption[] => [
+  { label: '全部', value: null },
+  ...Array.from({ length: 12 }, (_v, i): FieldOption => ({ label: `${i + 1}`, value: i + 1 })),
+];
+
 /** 启用/禁用下拉选项 */
 export const ON_OFF = [
   { label: '启用', value: 1 },

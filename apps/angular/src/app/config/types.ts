@@ -83,7 +83,10 @@ export interface FormField {
 export interface FilterDef {
   key: string;
   label: string;
-  options: FieldOption[];
+  /** 静态选项（与 source 二选一），首项「全部」value 为 null */
+  options?: FieldOption[];
+  /** 远程选项：复用表单的 FieldSource 机制（OptionSource：按 endpoint 缓存 + in-flight 去重） */
+  source?: FieldSource;
 }
 
 export interface ActionDef {
@@ -164,8 +167,8 @@ export interface ResourceConfig {
   columns?: ColumnDef[];
   /** 搜索框占位文案 */
   searchPlaceholder?: string;
-  /** 状态筛选胶囊（第一个选项为「全部」，value 为 null） */
-  filters?: FilterDef;
+  /** 筛选下拉：单个或一组（数组即多个下拉，每项一个查询参数；值为 null 的不下发该参数） */
+  filters?: FilterDef | FilterDef[];
   /**
    * 逐键值字典（见 DictMap）。推断列只按字段名认 status/state/*_status 是枚举，
    * `type`/`priority`/`is_lowest` 这类键没有字典可查、直接裸出 0/1；而不写 columns 的推断页

@@ -1395,6 +1395,7 @@ export const zhId: Record<string, string> = {
   '释放': 'Rilis',
   '重置密钥': 'Reset Rahasia',
   '销售管理': 'Manajemen Penjualan',
+  '集团': 'Grup',
   '集团财务': 'Keuangan Grup',
   '面单已生成': 'Label dibuat',
   '面试中': 'Wawancara',

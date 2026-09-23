@@ -358,7 +358,7 @@ export const zhEn: Record<string, string> = {
   '进项发票池': 'Input Invoice Pool', '退换货 RMA': 'Return RMA', '退货仓库': 'Return Warehouse', '退货入库': 'Receive Return',
   '退货金额': 'Return Amount', '部门名称': 'Department Name', '部门编码': 'Department Code', '配置键': 'Key',
   '采购管理': 'Purchase Management', '采购销售': 'Procurement & Sales', '释放': 'Release', '重置密钥': 'Reset Secret',
-  '销售管理': 'Sales Management', '集团财务': 'Group Finance', '面单已生成': 'Label generated', '面试中': 'Interviewing',
+  '销售管理': 'Sales Management', '集团': 'Group', '集团财务': 'Group Finance', '面单已生成': 'Label generated', '面试中': 'Interviewing',
   '面试日期': 'Interview Date', '页': 'of', '项目名称': 'Project Name', '项目成本': 'Project Cost',
   '项目管理': 'Project Management', '项目编号': 'Project Code', '预到货 ASN': 'ASN', '预算名称': 'Budget Name',
   '预算对比': 'Compare Budget', '预算年度': 'Budget Year', '预算额': 'Budget Amount', '预计金额': 'Expected Amount',

@@ -269,14 +269,21 @@ const isBool = (k: string) => k === 'enabled' || /^is_[a-z_]+$/.test(k);
 /** 「是否X」的通用文案（DDL 里统一 0=否 1=是）；语义特异的表（is_read=未读/已读）由页面 dicts 覆盖 */
 const BOOL_DICT: Record<number, string> = { 0: '否', 1: '是' };
 
+/** 归一化筛选声明：undefined→[]、单对象→[f]、数组→原样（与 Angular 端逐字同语义） */
+export function filterList(f?: FilterDef | FilterDef[]): FilterDef[] {
+  if (!f) return [];
+  return Array.isArray(f) ? f : [f];
+}
+
 /**
  * 筛选定义 → 状态字典。`docStatus()` 生成的 filter.options 就是字典本身（首项「全部」无值），
  * 所以声明了状态筛选的资源无需另写 columns，状态列也能拿到本表真枚举。
+ * 只认 status 那一条：多筛选页里其余筛选（集团/年份/月份…）天然不参与字典。
  */
 function dictFromFilter(filter?: FilterDef): Record<number, string> | undefined {
   if (!filter || filter.key !== 'status') return undefined;
   const dict: Record<number, string> = {};
-  for (const o of filter.options) if (typeof o.value === 'number') dict[o.value] = o.label;
+  for (const o of filter.options ?? []) if (typeof o.value === 'number') dict[o.value] = o.label;
   return Object.keys(dict).length > 0 ? dict : undefined;
 }
 
@@ -295,7 +302,7 @@ export function keyTitle(k: string): string {
 /**
  * 从行样本推断列定义。
  * fields 用于两处：`{key,label}` 给出本页列标题；`{key,source}` 给出外键的远程名称源。
- * filter 是本资源的状态筛选，其选项即状态字典（见 dictFromFilter）。
+ * filters 是本资源的筛选（单对象或数组），其中 status 那条的选项即状态字典（见 dictFromFilter）。
  * dicts 是 cfg.dicts —— 逐键值字典，优先于状态筛选（见 config/types.ts）。
  */
 export function inferColumns(
@@ -305,7 +312,7 @@ export function inferColumns(
   _endpoint: string,
   fields?: FormField[],
   limit = 8,
-  filter?: FilterDef,
+  filters?: FilterDef | FilterDef[],
   dicts?: DictMap,
 ): Column<Row>[] {
   const sample = rows.slice(0, 3);
@@ -357,8 +364,11 @@ export function inferColumns(
 
   // 字典只有一个来源：本资源状态筛选带的（`docStatus()`/`ST_FILTER` 的 options 就是该表枚举的真身）。
   // 与 Angular `columns.ts` 同口径：2026-09-22 删掉「按 endpoint 第 4 段猜前缀档」与通用档，
-  // 未命中一律原值直出（见 lib/format.ts 的 statusText）
-  const dict = dictFromFilter(filter);
+  // 未命中一律原值直出（见 lib/format.ts 的 statusText）。
+  // 多筛选页里只有 key==='status' 的那条参与字典 —— 新增的集团/年份/月份筛选不得改变状态列文案。
+  // `&& f.options`：数组里同键两条时**只有带静态 options 的那条**可能给字典（`source` 型 status 没有
+  // 枚举可取），不挑就会命中 source 那条 ⇒ 字典恒 undefined ⇒ 状态列裸出数字码（与 Angular 同形）。
+  const dict = dictFromFilter(filterList(filters).find((f) => f.key === 'status' && f.options));
 
   return shown.map((k) => {
     const primary = k === 'code' || k === 'no' || k === 'name';

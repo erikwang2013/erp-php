@@ -2124,6 +2124,7 @@ export const zhEs: Record<string, string> = {
   '阅读时间': 'Leído el',
   '阶段已推进': 'Etapa avanzada',
   '险种': 'Tipo de seguro',
+  '集团': 'Grupo',
   '零担': 'LTL',
   '需求日期': 'Fecha requerida',
   '面单URL': 'URL de etiqueta de envío',

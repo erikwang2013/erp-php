@@ -250,11 +250,19 @@ function dictsOf(cfg) {
     out.set(k, { dict, source: prev && prev.source !== source ? `${prev.source}→${source}` : source, narrow });
   };
   for (const [k, d] of Object.entries(cfg.dicts ?? {})) add(k, d, '逐键字典(cfg.dicts)', false);
-  // 筛选项即字典（引擎的 dictFromFilter 只收数值 value）——缺码时该列的字典也就缺文案
-  if (cfg.filters) {
+  // 筛选项即字典 —— 与运行期 **严格同口径**：`filterList` 归一化后只认 `key==='status'` **且有静态
+  // options** 的那条（Angular columns.ts:267 / React defaults.tsx:369 都是这个表达式），且只收数值 value。
+  // 非 status 筛选（集团/年份/月份）只是请求参数、不参与列字典 —— 旧码把它们也当字典来源（来源串却写
+  // 「筛选 options(dictFromFilter)」，名不副实）；缩到 status+有 options 后，该来源串才与运行期同口径。
+  // 归一化内联而不 import columns.ts：本门禁是 CI docs 作业里 node-only 的一步，columns.ts 会拖进
+  // `@angular/core`（经 core/i18n.service.ts）而 CI 不装依赖。
+  const statusFilter = (Array.isArray(cfg.filters) ? cfg.filters : cfg.filters ? [cfg.filters] : []).find(
+    (x) => x.key === 'status' && x.options,
+  );
+  if (statusFilter) {
     const o = {};
-    for (const x of cfg.filters.options ?? []) if (typeof x.value === 'number') o[x.value] = x.label;
-    add(cfg.filters.key, o, '筛选 options(dictFromFilter)', false);
+    for (const x of statusFilter.options ?? []) if (typeof x.value === 'number') o[x.value] = x.label;
+    add(statusFilter.key, o, '筛选 options(dictFromFilter)', false);
   }
   for (const c of cfg.columns ?? []) if (c.dict) add(c.key, c.dict, '列上字典(kind:map/statusCol)', false);
   // 表单 options：能提交的码也要落在 DDL 值域里。

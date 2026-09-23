@@ -98,7 +98,7 @@ const ok = (name, pass, extra = '') => {
 
 const url = (p) => new URL(p, import.meta.url);
 const at = (p) => url(p).href;
-const { cellOf, inferColumns, inferDetailItems, keyTitle, resultBlocks } = await import(
+const { cellOf, filterList, inferColumns, inferDetailItems, keyTitle, resultBlocks } = await import(
   at('../apps/angular/src/app/pages/resource-page/columns.ts')
 );
 const { setLocale, tr } = await import(at('../apps/angular/src/app/core/i18n.service.ts'));
@@ -750,7 +750,13 @@ for (const m of allPages) {
     codes.get(k).add(String(v));
   };
   for (const f of m.cfg.fields ?? []) for (const o of f.options ?? []) if (o?.value != null && o.value !== '') add(f.key, o.value);
-  for (const fl of [m.cfg.filters].filter(Boolean)) for (const o of fl.options ?? []) if (o?.value != null && o.value !== '') add(fl.key, o.value);
+  // filters 是「单个或一组」的联合类型 ⇒ 走引擎真身 filterList 归一化。原先 `[m.cfg.filters]` 在数组形状下
+  // 每项是**数组**，`fl.options` 得 undefined、静默跳过该页全部筛选码（2026-09-23：/finance/consolidation 全被跳过）。
+  // 选项自带文案的（label 就是 value 的字符串形式，如年份/月份）**不是码、没有待翻文案** —— 若参与断言，
+  // 「2026 渲染成 2026」会被判成裸码（实测 17 处假阳）；真正的码（启用/禁用、借方/贷方…）label≠value，照查。
+  for (const fl of filterList(m.cfg.filters))
+    for (const o of fl.options ?? [])
+      if (o?.value != null && o.value !== '' && String(o.value) !== String(o.label)) add(fl.key, o.value);
   for (const [k, vs] of codes) {
     for (const sv of vs) {
       const v = /^\d+$/.test(sv) ? Number(sv) : sv;

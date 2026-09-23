@@ -2,6 +2,52 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.10 (2026-09-23)
+
+**筛选引擎扩「多键 + 远程选项」批（两端对偶）**：用户报的合并报表页修好后仍缺「按集团看某个期间」的入口，而引擎的筛选只支持**单键 + 静态选项**。本批把它扩成**联合类型 + 可远程选项**，并给该页加上集团/年份/月份三个筛选。**0 个新增控制器、0 个新增路由、0 个新增数据表、0 个后端改动**。
+
+### 新增 · 筛选引擎：多键 + 远程选项（`apps/{angular,react}` 对偶）
+- **类型**：`FilterDef` 的 `options` 由必填改**可选**，新增 `source?: FieldSource`（远程选项，复用已有的 `OptionSource`/`loadOptions` —— 与表单下拉、列表关联列**同一套**取数缓存 + in-flight 去重，未新写一套）；`ResourceConfig.filters` 由 `FilterDef` 放宽为 **`FilterDef | FilterDef[]`** ⇒ **62 个单筛选页的配置一字未改**
+- **归一化**：两端各导出 `filterList(f?)`（`undefined→[]`、单对象→`[f]`、数组→原样），引擎与门禁共用。Angular 侧归一化点落在 `inferColumns` 内而非页面调用点 —— 因为 `check-fe-enum-text.mjs:481` **逐字 pin 了 `resource-page.ts:286` 那一行的原文**，动调用点就得动那条 pin
+- **字典规则一字未变**：`dictFromFilter` 只认 `key === 'status'` **且有静态 `options`** 的那条筛选（唯一改动是 `options ?? []` 兜底，因为 options 变可选）⇒ **集团/年份/月份天然不参与字典**，现有 **61 个带状态筛选页**（复核方 census 口径：`cfg.filters` 单条或数组里存在 `key === 'status'` 的项；单筛选页共 62 = 61 status + `/finance/cash-journal` 的 `direction`）的字典行为逐字不变
+- **渲染分派（两端同一句判定）**：`useDropdowns = list.length > 1 || list.some(f => f.source)`。**`false` ⇒ 走改动前的胶囊渲染**（现有 62 个单筛选页外观与行为零变化，单元素数组也落这一支）；`true` ⇒ 一行下拉。**这条判定是用户裁决的结果** —— 引擎改动的自然结果是把 62 页从胶囊换成下拉，用户选了「不该顺带改 62 页外观」
+- **远程筛选取数失败**：降级为空选项（只剩「全部」）且**不阻断列表**；引擎给 `source` 型筛选补首项「全部」（`value: null` ⇒ 不下发），否则**选完回不到「全部」**
+- 胶囊支路里只有两行与 HEAD 不同，且都是类型逼的：`@if (c.filters; as f)` → `if (chipFilter(); as f)`、`f.options` → `f.options ?? []`（不改则 `TS2339`，`ng build` rc=1）。**渲染输出与改动前相同**（有断言守着）—— 这正是「两行源码改动 ≠ DOM 改动」要分开证的地方。**口径要说清**：React 侧 raw 逐字节 62/62；Angular 侧 raw **0/62**，须**掩掉 AOT 作用域哈希 + 去掉 `<!--container-->` 块锚注释**才 62/62（全矩阵作用域哈希差集只有 `resource-page` 一个组件 —— 它是所有列表页的外壳；残差恰为每页 2 个块锚注释）—— 两类都是 Angular 编译器产物，不是 DOM 语义差
+
+### 新增 · 合并报表页三个筛选（两端 `domains/finance.ts`）
+```ts
+filters: [
+  { key: 'company_id',   label: '集团', source: { endpoint: '/admin/v1/finance/company/list' } },
+  { key: 'report_year',  label: '年份', options: yearOptions() },   // 近 5 年，模块加载时按本机年算
+  { key: 'report_month', label: '月份', options: monthOptions() },  // 1–12
+]
+```
+（`company/list` 返回 `{id: hashid, name}`，正合 `FieldSource` 默认的 `valueKey:'id'`/`labelKey:'name'`；hashid 由后端 `decodeFlexibleId` 双模接住。）
+
+### 修复 · 三道门禁对「filters 一定是单对象」旧假设的处置
+- `check-fe-detail-items.mjs`：**修崩溃**。`:438` 的 `[m.cfg.filters].filter(Boolean).map(f => f.key)` 对数组形状展开后每项是**数组不是对象**、`f.key` 得 `undefined` ⇒ 键集混进 `undefined` ⇒ `k.endsWith` **TypeError**。改成 import 真身 `filterList(m.cfg.filters)`（该门禁本来就 import `columns.ts` 跑真引擎断言，零额外依赖；**内联等于把引擎规则抄第二份**，正是本仓有前科的那种漂移）
+- `check-fe-enum-text.mjs`：**收紧**。原 `?? []` 只是不崩 —— 数组形状下 `fl.options` 得 `undefined` ⇒ **该页全部筛选码静默消失**（rc=0、无打印）。归一化后**必须同时加判别子** `String(o.value) !== String(o.label)`：选项自带文案（年份/月份 label==value）不是码、没有待翻文案，只归一化不加这条会出 **17 处假阳**
+- `check-ddl-dict.mjs`：**收紧**（理由不是「会崩」而是**口径错**）。旧码把任意单对象 `cfg.filters` 当字典来源（非 status 的 `direction` 也收），却标了来源串「筛选 options(dictFromFilter)」，而运行期只认 `key==='status'` **且有静态 options**；数组形状下旧码整条静默跳过。已改同口径。**这里刻意内联归一化、不 import `columns.ts`** —— 那条链经 `core/i18n.service.ts` 拖 `@angular/core`，而它跑在 **CI docs 作业的 node-only 步骤**里，CI 不装 node_modules（已在不含 node_modules 的镜像里复验 rc=0、数不变）
+- **两条防倒退断言**（都放 `check-fe-detail-items.mjs`）：① **带 `source` 的筛选不得参与字典**（三种形状，判据是**渲染出的文案**而非内部变量）② **`filterList` 三输入两端同行为** —— Angular 用真身 import；React 的 `.tsx` 在 Node 起不来，故**用正则从 `defaults.tsx` 抽出 `filterList` 的函数体交给 `new Function` 执行它自己的源码**（不是抄规则），**抽不出可执行体则判红、不许静默跳过**
+
+### 新增 · i18n
+- **复用**：`年份`（`Year`）、`月份`（`Month`）、`全部`（`All`）两端词典里本就有。**新增 1 键**：`集团` → `Group`（Angular `core/zh-en/part6.ts` + React `lib/i18n/zhEn.ts` 同行追加，`zhEn.ts` 仍 **496/500** 行未越界），两端 en 一致 ⇒ 共享翻译缓存里已有该键的 11 个译文 ⇒ **待译 0 / 2148，无模型调用**；11 语种产物各 **+1 行**（`--numstat` 全 `1 0`，无其它漂移）
+
+### 验证（独立验证方单飞，仓库零写入；含一处**本批抓到并修掉的真缺陷**）
+- **62 个单筛选页零差异**（口径必读）：playwright 驱动**两棵树各自的真 dev server**，全部 API 流量**从活的 8788 栈录一次后冻结回放**（未命中回退空表的请求 **0 条**）；**噪声地板**：同版本渲染两遍 252 页次逐字节相同 ⇒ 对差不是比抖动；**React raw 62/62**，**Angular raw 0/62** —— 须掩 AOT 作用域哈希 + 去 `<!--container-->` 块锚注释才 62/62（全矩阵作用域哈希差集只有 `resource-page` 一个组件、残差恰为每页 2 个块锚注释，两类都是 Angular 编译器产物）。**胶囊段非空**：`class="chip"` 全矩阵 211 个、单页 2–7、**0 页无胶囊**（防「比两段空白」）；**分派未翻转**：124 页次全部 `chips ≥ 1` 且 `filters = 0`。**正控 `/finance/consolidation` 必须不同** ✔ —— React 差异恰好 **1 块 / 1103 字节 / 3 个 `<label class="filter">` / 24 个 `<option>`**（集团 5 项 = 4 个真 hashid + 默认公司、年份 6 项 2026..2022、月份 13 项 1..12，首项均 `value=""`）；`/dashboard` raw 逐字节相同 ⇒ harness 零噪声
+- **字典语义未变**：61 个 status 筛选页 —— Angular 侧 `inferColumns` 产出的状态列（**含 dict 全 JSON**）new==head 逐页相同（59 页有字典，`/finance/invoice`、`/eam/repair` 无，与 HEAD 同集合）；React 侧 61 页渲染文本 new==head 61/61。**形状矩阵**（真引擎）：只有 `source` 的 status 筛选 ⇒ 两端都不出字典、原值直出 —— **HEAD 在这一形状直接崩 `filter.options is not iterable`**（正是本批 `?? []` 修的坑）；`[source, options]` 与 `[options, source]` ⇒ 两端都出字典、**顺序无关**；`source + options: []` ⇒ 都不出
+- **抓到并修掉的一处真缺陷（潜伏，非线上）**：React 的 status 字典调用点少了 `&& f.options` 守卫（Angular 有）⇒ `[source, options]` 同键两条时 **Angular 出字典、React 裸数字码**（顺序相关）。现状不可达（唯一多筛选页没有 status 项）。已补守卫（两端谓词去空白后逐字相同）+ 补一条门禁断言「**两端 status 字典取值谓词同形**」（钉字面量 ⇒ React 缺守卫红、**两端同错也红**、正则抽不到也红不静默跳过）
+- **三条断言各自的三条负控实测咬得住**：(a) 只摘 React 守卫 ⇒ 新断言红**且 A 组行为断言仍绿** ⇒ 证实了「**A 组跑的是 Angular 真身，天然抓不到 React**」这个缺口描述；(b) 两端一起摘 ⇒ 新断言与 A 组**两条都红**；(c) 让正则抽不到（改成两步变量）⇒ `got [null, …]` 红
+- **旧盲区实证**：给 `/project/list` 塞**数组形** status 筛选（多一个域外码 `9`）⇒ **新门禁 rc=1 点名 `多出 ["9"]`**，而 **HEAD 门禁同一注入 rc=0 / 0 条 FAIL**（键被整条丢弃，覆盖度 `191/177/165` → `190/176/164` 静默绿）
+- React 那条「**抽真身源码执行**」的断言：改 `filterList` 函数体语义 ⇒ 抽取断言 PASS / **行为断言 FAIL**；改成箭头常量 ⇒ 两条都红 ⇒ 证明它执行的是盘上那段真身、且抽不到不静默跳过
+- **全量**：phpunit `Tests: 1062, Assertions: 7161, Warnings: 2, Skipped: 9` rc=0（与上批**逐字相同** —— 本批未动 PHP）；15 道 node 门禁 **15/15 rc=0**；`doc-stats --check` rc=0 / 338 处；Angular `tsc -p tsconfig.app.json` rc=0（**裸 `tsc --noEmit` 经注入 `TS2322` 证为假绿**：裸跑仍 rc=0、`-p` 才 rc=2）、React `tsc` rc=0；两端 build rc=0；**无 node_modules 镜像**里 `check-ddl-dict.mjs` rc=0 且 `135/191/177/165` 逐字不变
+- **增量复验（修缺陷之后）**：只 `defaults.tsx` 一处代码改动 + 注释 2→4 行、无夹带；形状矩阵两端现已一致、140 页 real 段 **0 变化**；React 63 页重渲（剥掉 Vite cache-buster 后）与上轮逐字节相同
+- **未验证（显式列出）**：① 三个下拉的**交互链路**（点选 → 下发 → 后端过滤 → 刷新）—— harness 只渲染不点击 ② **真栈 8788 端到端**本批未碰 ③ 11 语种**译文语义**（只登记 md5，未逐语种核对漏键/词义）④ 两端**页面级**对等（两份冻结录制不同，**别跨端比计数**）
+
+### 记录 · 两条方法层教训
+- **Vite dev server 会往 `index.html` 注入 `?t=<时间戳>` cache-buster**（`<script src="/main.tsx?t=…">`），**不属于应用 DOM**。跨版本对差前不剥掉它，整批页会被误判成「全变了」—— 实测第一次 126/126 全不同，剥掉后 **126/126 逐字节相同**。上轮 React raw 62/62 成立是因为当时两台 server 的 index.html 都没带它，**不是因为它不影响结论**
+- **原地负控与并发拷贝会互相污染**：01:31:36–44 有车道在**共享树**上做「摘守卫 → 还原」，另一车道同一秒从 live 拷镜像 ⇒ 把无守卫态灌进镜像、那一跑 rc=1。判据全程用**内容哈希**（不是 mtime）⇒ 事后 `md5sum -c` 与「受跟踪改动文件集合」都无残留。**要摘就在副本上摘**
+
 ## v1.19.9 (2026-09-22)
 
 **合并报表页面打不开（无参 422）**：用户报「apps 中合并报表页面报错」。根因是**前后端契约对不上**，且该页**自建立起就没工作过**（后端 `629dd43` 2026-09-04、页面 `47a3a7a` 2026-09-10，**均早于本会话任何一批，非回归**）。范围只含这一处缺陷修复：**0 个新增控制器、0 个新增路由、0 个新增数据表**。

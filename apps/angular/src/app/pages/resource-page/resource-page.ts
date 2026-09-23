@@ -21,6 +21,8 @@ import type {
   ActionDef,
   ColumnDef,
   FieldOption,
+  FieldSource,
+  FilterDef,
   FormField,
   ResourceConfig,
   Row,
@@ -36,6 +38,7 @@ import { IconComponent } from '../../ui/icon';
 import {
   TONE_COLOR,
   cellOf,
+  filterList,
   flattenTree,
   inferColumns,
   inferDetailItems,
@@ -66,6 +69,13 @@ const DEFAULT_LIMIT = 15;
 // ponytail: 后端部分 service 把 limit 夹在 [1,100]，超限静默截断，这里先对齐上限
 const MAX_LIMIT = 100;
 const PAGE_SIZES = [15, 30, 50, 100];
+
+/**
+ * 远程筛选（带 source）的首项「全部」：静态筛选的「全部」来自配置 `options` 首项，
+ * 远程选项没人给这一项，由引擎补上（value=null ⇒ 不下发该参数，也是回退到「不过滤」的唯一入口）；
+ * 拉取失败就是只剩「全部」，不阻断列表（与 React ResourcePage 的 ALL_FILTER 同款）。
+ */
+const ALL_FILTER: FieldOption = { label: '全部', value: null };
 
 interface RowView {
   row: Row;
@@ -218,7 +228,25 @@ export class ResourcePage implements OnInit {
   readonly page = signal(1);
   readonly limit = signal(DEFAULT_LIMIT);
   readonly keyword = signal('');
-  readonly filter = signal<string | number | null>(null);
+  /** 筛选选中值：筛选键 → 值（值为 null 的不下发该参数，见 reload）；未选过的键不存在 = 不下发 */
+  readonly filters = signal<Record<string, string | number | null>>({});
+  /** 远程筛选（FilterDef.source）拉回的选项：筛选键 → 选项（拉不到就是空选项，不阻断列表） */
+  readonly filterOpts = signal<Record<string, FieldOption[]>>({});
+  /**
+   * 筛选渲染分派（与 React ResourcePage 逐字同规则）：恰好一个静态筛选 → 旧胶囊（模板里那段逐字未动），
+   * 多键或含 source → 一行下拉。判据只有这两项，别再加维度（两端要靠它对齐 DOM）。
+   */
+  readonly useDropdowns = computed(() => {
+    const list = filterList(this.cfg()?.filters);
+    return list.length > 1 || list.some((f) => f.source);
+  });
+  /** 胶囊路径的选中值（旧单值口径）：恰好一个筛选时就是那一条的值，null=「全部」不下发 */
+  readonly filter = computed<string | number | null>(() => {
+    const f = filterList(this.cfg()?.filters)[0];
+    return f ? (this.filters()[f.key] ?? null) : null;
+  });
+  /** 胶囊路径的筛选（旧模板里 `c.filters` 的那一条）：filters 现在是联合类型，模板取不出单条 */
+  readonly chipFilter = computed<FilterDef | undefined>(() => filterList(this.cfg()?.filters)[0]);
 
   // ── 列表状态 ──
   readonly rows = signal<Row[]>([]);
@@ -284,6 +312,23 @@ export class ResourcePage implements OnInit {
     const cfg = this.cfg();
     if (!cfg) return [];
     return cfg.columns ?? inferColumns(this.rows(), cfg.endpoint, cfg.fields, this.relLabels(), 8, cfg.filters, cfg.dicts);
+  });
+
+  /**
+   * 筛选下拉视图：静态 `options` 优先，其次 `source` 远程拉回的选项（两处都没有就是空下拉）。
+   * 选项值只在模板里贴 DOM（字符串），选中判定走 isSel —— DOM 侧拿不回原始类型，
+   * 「全部」的 null 与状态码数字都由 isSel/onFilter 按字符串找回来。
+   */
+  readonly filterViews = computed(() => {
+    const cfg = this.cfg();
+    const remote = this.filterOpts();
+    return filterList(cfg?.filters).map((f) => ({
+      key: f.key,
+      label: f.label,
+      // 只认配了 source 的远程选项：key 撞车的另一个页面不该串到别人的选项；
+      // 远程那条补首项「全部」（见 ALL_FILTER），没拉到选项时就只有「全部」
+      options: f.options ?? (f.source ? [ALL_FILTER, ...(remote[f.key] ?? [])] : []),
+    }));
   });
 
   /** 行视图：单元格已格式化，模板不参与任何取值逻辑（折叠过滤已在 sliceLocal 完成） */
@@ -401,6 +446,10 @@ export class ResourcePage implements OnInit {
     effect(() => {
       void this.loadRelLabels();
     });
+    // 远程筛选选项：读 cfg（跟踪），写 filterOpts（本 effect 不读它，不自激）
+    effect(() => {
+      void this.loadFilterOpts();
+    });
   }
 
   ngOnInit(): void {
@@ -415,7 +464,7 @@ export class ResourcePage implements OnInit {
       this.page.set(1);
       this.limit.set(DEFAULT_LIMIT);
       this.keyword.set('');
-      this.filter.set(null);
+      this.filters.set({});
       this.collapsed.set(new Set<string>());
       this.local = null;
       this.localKey = '';
@@ -432,7 +481,7 @@ export class ResourcePage implements OnInit {
       cfg.endpoint,
       JSON.stringify(cfg.params ?? {}),
       this.keyword(),
-      this.filter() ?? '',
+      JSON.stringify(this.filters()),
     ].join('|');
   }
 
@@ -451,7 +500,11 @@ export class ResourcePage implements OnInit {
       ...(cfg.params ?? {}),
       keyword: this.keyword() || undefined,
     };
-    if (cfg.filters && this.filter() !== null) params[cfg.filters.key] = this.filter();
+    // 每个筛选一个查询参数；值为 null（「全部」）或从未选过的键不下发（qs 也会丢 undefined）
+    for (const f of filterList(cfg.filters)) {
+      const v = this.filters()[f.key];
+      if (v !== null && v !== undefined) params[f.key] = v;
+    }
     params['page'] = this.page();
     params['limit'] = Math.min(this.limit(), MAX_LIMIT);
     const seq = ++this.reqSeq;
@@ -536,12 +589,34 @@ export class ResourcePage implements OnInit {
     );
   }
 
+  /**
+   * 远程筛选选项（FilterDef.source）——与表单下拉/关联列共用 OptionSource 的缓存与 in-flight 去重。
+   * 失败保持空选项（下拉只剩「全部」）且不阻断列表：异常在 OptionSource 里已从缓存摘除，这里不再向上抛。
+   */
+  private async loadFilterOpts(): Promise<void> {
+    const want = filterList(this.cfg()?.filters).filter((f) => f.source);
+    if (!want.length) return;
+    const out: Record<string, FieldOption[]> = {};
+    await Promise.all(
+      want.map(async (f): Promise<void> => {
+        try {
+          out[f.key] = await this.sources.options(f.source as FieldSource);
+        } catch {
+          // 详见方法注释：单个筛选失败不连坐其他筛选
+        }
+      }),
+    );
+    this.filterOpts.update((m) => ({ ...m, ...out }));
+  }
+
   refresh(): void {
     // 刷新语义是「重新问后端」，本地缓存与联动选项缓存必须作废，
     // 否则本地分页会拿旧数据切片、关联列会一直显示过期名称
     this.local = null;
     this.localKey = '';
     this.sources.clear();
+    // 联动缓存已清空，远程筛选的选项跟着重拉（effect 只认 cfg 变化，刷新不在它的依赖里）
+    void this.loadFilterOpts();
     void this.reload();
   }
 
@@ -556,9 +631,29 @@ export class ResourcePage implements OnInit {
     this.page.set(1);
   }
 
+  /** 胶囊路径（恰好一个静态筛选）的选中：值直接来自选项，键就是那唯一的筛选 —— 与改动前的单值口径逐字同形 */
   onFilter(v: string | number | null): void {
-    this.filter.set(v);
+    const f = filterList(this.cfg()?.filters)[0];
+    if (f) this.filters.update((m) => ({ ...m, [f.key]: v }));
     this.page.set(1);
+  }
+
+  /**
+   * 筛选下拉选中（多键/含 source 那条路径）：DOM 只给字符串，按字符串相等在选项里找回原始值
+   * （「全部」= null、状态码 = 数字），找不到（选项还没加载出来/已被换掉）一律当「全部」= 不下发该参数。
+   */
+  onSelectFilter(key: string, e: Event): void {
+    const raw = (e.target as HTMLSelectElement).value;
+    const f = filterList(this.cfg()?.filters).find((x) => x.key === key);
+    const opts = f?.options ?? this.filterOpts()[key] ?? [];
+    const v = opts.find((o) => String(o.value ?? '') === raw)?.value ?? null;
+    this.filters.update((m) => ({ ...m, [key]: v }));
+    this.page.set(1);
+  }
+
+  /** 模板用：该选项是否选中（DOM 值域是字符串，两侧都按字符串比，「全部」的 null 与 '' 同义） */
+  isSel(key: string, v: string | number | null): boolean {
+    return String(this.filters()[key] ?? '') === String(v ?? '');
   }
 
   // ── 树形行的折叠（键取 columns.rowKey，语义与 React lib/tree.ts 同名函数一致） ──

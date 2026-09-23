@@ -618,7 +618,33 @@ td.num {
   color: var(--danger);
 }
 
-/* ============ 筛选胶囊 ============ */
+/* ============ 筛选（每个筛选一个下拉，与 Angular resource-page.less 同款） ============ */
+
+.filters {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  color: var(--text-2);
+  font-size: var(--fs-base);
+}
+
+/* 下拉按内容定宽（.select 的 100% 是给整行控件的） */
+.filter .select {
+  width: auto;
+  min-width: 110px;
+}
+
+/* ============ 筛选胶囊（ui.tsx 的 Chips，列表页已改下拉，保留给其它场景） ============ */
 
 .chips {
   display: flex;

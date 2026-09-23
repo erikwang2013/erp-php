@@ -365,6 +365,7 @@ export const zhEnPart6: Record<string, string> = {
   '阅读时间': 'Read At',
   '阶段已推进': 'Stage Advanced',
   '险种': 'Insurance Type',
+  '集团': 'Group',
   '零担': 'LTL',
   '需求日期': 'Required Date',
   '面单URL': 'Shipping Label URL',

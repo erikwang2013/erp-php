@@ -2124,6 +2124,7 @@ export const zhPt: Record<string, string> = {
   '阅读时间': 'Lido em',
   '阶段已推进': 'Etapa Avançada',
   '险种': 'Tipo de Seguro',
+  '集团': 'Grupo',
   '零担': 'Carga Fracionada',
   '需求日期': 'Data Necessária',
   '面单URL': 'URL da Etiqueta de Envio',

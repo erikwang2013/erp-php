@@ -2124,6 +2124,7 @@ export const zhDe: Record<string, string> = {
   '阅读时间': 'Gelesen am',
   '阶段已推进': 'Phase fortgeschritten',
   '险种': 'Versicherungsart',
+  '集团': 'Gruppe',
   '零担': 'Teilladung',
   '需求日期': 'Erforderliches Datum',
   '面单URL': 'Versandetikett-URL',

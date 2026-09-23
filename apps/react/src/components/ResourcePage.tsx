@@ -21,10 +21,10 @@ import { api, http, qs, type PageData } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { errMsg, text } from '@/lib/format';
 import { useTr } from '@/lib/i18n';
-import { accentOf, type ActionDef, type Row } from '@/config/types';
-import { inferColumns, inferDetailItems } from '@/lib/defaults';
+import { accentOf, type ActionDef, type FieldOption, type FilterDef, type Row } from '@/config/types';
+import { filterList, inferColumns, inferDetailItems } from '@/lib/defaults';
 import { mergeEditRow } from '@/lib/edit-row';
-import { prefetch } from '@/lib/options';
+import { loadOptions, prefetch } from '@/lib/options';
 import { seqGuard } from '@/lib/seq';
 import { flattenIfTree, toggleCollapsed, visibleRows } from '@/lib/tree';
 
@@ -58,7 +58,8 @@ export function ResourcePage({
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(DEFAULT_LIMIT);
   const [keyword, setKeyword] = useState(initialQuery ?? '');
-  const [filter, setFilter] = useState<string | number | null>(null);
+  /** 筛选值按筛选键存（key → 值）；null/缺省 = 「全部」，不下发该参数（与 Angular 端同规则） */
+  const [filterValues, setFilterValues] = useState<Record<string, string | number | null>>({});
   const [tick, setTick] = useState(0);
 
   const [rows, setRows] = useState<Row[]>([]);
@@ -96,7 +97,11 @@ export function ResourcePage({
         ...(cfg.params ?? {}),
         keyword: keyword || undefined,
       };
-      if (cfg.filters && filter !== null) params[cfg.filters.key] = filter;
+      // 多个筛选逐个拼：值为 null/未选（「全部」）就不下发该参数（后端按缺省=不过滤）
+      for (const f of filterList(cfg.filters)) {
+        const v = filterValues[f.key];
+        if (v !== null && v !== undefined) params[f.key] = v;
+      }
       if (paginated) {
         params.page = page;
         params.limit = Math.min(limit, MAX_LIMIT);
@@ -137,9 +142,15 @@ export function ResourcePage({
     return () => {
       alive = false;
     };
-  }, [cfg.endpoint, cfg.params, cfg.filters, cfg.paginated, page, limit, keyword, filter, tick]);
+  }, [cfg.endpoint, cfg.params, cfg.filters, cfg.paginated, page, limit, keyword, filterValues, tick]);
 
   const refresh = () => setTick((t) => t + 1);
+
+  /** 改某个筛选：回第一页重拉（与旧单筛选行为一致） */
+  const onFilter = (key: string, v: string | number | null) => {
+    setFilterValues((s) => ({ ...s, [key]: v }));
+    setPage(1);
+  };
 
   // 关联列的名称来自其它资源：先把 fields 声明的 source 预取进共享缓存，
   // 到货后 bump 一次触发重渲染，让 id 占位换成名称
@@ -285,6 +296,14 @@ export function ResourcePage({
     },
   ];
 
+  /**
+   * 筛选渲染分支（与 Angular 端同一份判定）：**恰好一个静态筛选的老形状保持原样胶囊**
+   * —— 62 个单筛选页的 DOM 与行为与改动前逐字相同；多个筛选或含 source 才走新下拉。
+   */
+  const fl = filterList(cfg.filters);
+  const useDropdowns = fl.length > 1 || fl.some((f) => f.source);
+  const chips = !useDropdowns && fl.length === 1 ? fl[0] : null;
+
   return (
     <>
       <PageHead title={cfg.title} total={paginated ? total : undefined} accent={accentOf(cfg.moduleKey)}>
@@ -328,15 +347,27 @@ export function ResourcePage({
           </Select>
         </div>
 
-        {cfg.filters && (
+        {/* 老形状（恰好一个静态筛选）：原样胶囊，DOM 与行为同改动前 */}
+        {chips && (
           <Chips
-            options={cfg.filters.options}
-            value={filter}
-            onChange={(v) => {
-              setFilter(v);
-              setPage(1);
-            }}
+            options={chips.options ?? []}
+            value={filterValues[chips.key] ?? null}
+            onChange={(v) => onFilter(chips.key, v)}
           />
+        )}
+
+        {/* 多键或含 source：每个筛选一个下拉（与 Angular resource-page.html 的 .filters/.filter 同款） */}
+        {useDropdowns && (
+          <div className="filters">
+            {fl.map((f) => (
+              <FilterSelect
+                key={f.key}
+                f={f}
+                value={filterValues[f.key] ?? null}
+                onChange={(v) => onFilter(f.key, v)}
+              />
+            ))}
+          </div>
         )}
 
         {report !== null ? (
@@ -429,6 +460,66 @@ export function ResourcePage({
         />
       ) : null}
     </>
+  );
+}
+
+/**
+ * 远程筛选（带 source）的首项「全部」：静态筛选的「全部」来自配置 `options` 首项，
+ * 远程选项没人给这一项，由引擎补上（value=null ⇒ 不下发该参数，也是回退到「不过滤」的唯一入口）。
+ */
+const ALL_FILTER: FieldOption = { label: '全部', value: null };
+
+/**
+ * 一个筛选 = 一个下拉（与 Angular resource-page.html 的 `.filters > .filter` 同款）。
+ * 选项：静态 `options` 优先；带 `source` 的走 lib/options 的共享加载器 —— 与表单下拉、列表关联列
+ * 同一套（按 endpoint 缓存 + in-flight 去重），取数失败降级为空选项，该筛选不可用但列表照常。
+ * 选中值按字符串在选项里找回**原值**（DOM 只给字符串，数字码不能变成字符串下发）；找不到一律当「全部」。
+ */
+function FilterSelect({
+  f,
+  value,
+  onChange,
+}: {
+  f: FilterDef;
+  value: string | number | null;
+  onChange: (v: string | number | null) => void;
+}) {
+  const t = useTr();
+  const [remote, setRemote] = useState<FieldOption[]>([]);
+
+  useEffect(() => {
+    if (!f.source) return;
+    let alive = true;
+    void loadOptions(f.source).then((list) => {
+      if (alive) setRemote([ALL_FILTER, ...list]);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [f.source]);
+
+  const options = f.options ?? (f.source ? remote : []);
+  return (
+    <label className="filter">
+      <span className="filter-label">{t(f.label)}</span>
+      <Select
+        value={String(value ?? '')}
+        onChange={(e) => {
+          const raw = e.target.value;
+          const hit = options.find((o) => String(o.value ?? '') === raw);
+          onChange(hit ? hit.value : null);
+        }}
+      >
+        {options.map((o, i) => {
+          const v = String(o.value ?? '');
+          return (
+            <option key={i} value={v}>
+              {t(o.label)}
+            </option>
+          );
+        })}
+      </Select>
+    </label>
   );
 }
 

@@ -65,6 +65,24 @@ export const ST_FILTER = {
 };
 
 /**
+ * 年份筛选选项：首项「全部」（value=null ⇒ 不下发该参数）+ 近 span 年。
+ * 按**模块加载时**的本机年算（配置是模块级常量，跨年刷新页面即更新），值为年份整数。
+ */
+export const yearOptions = (span = 5): FieldOption[] => {
+  const thisYear = new Date().getFullYear();
+  return [
+    { label: '全部', value: null },
+    ...Array.from({ length: span }, (_, i) => ({ label: String(thisYear - i), value: thisYear - i })),
+  ];
+};
+
+/** 月份筛选选项：首项「全部」+ 1-12（值域同 install.sql 该列注释「报表月份 1-12」） */
+export const monthOptions = (): FieldOption[] => [
+  { label: '全部', value: null },
+  ...Array.from({ length: 12 }, (_, i) => ({ label: String(i + 1), value: i + 1 })),
+];
+
+/**
  * 单据状态字典 + 筛选：labels 下标即状态值。
  * 各表枚举互不相同（见 database/install.sql 的 `status` 列注释），一个资源一份，禁止跨表复用。
  */
