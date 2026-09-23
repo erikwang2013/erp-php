@@ -27,7 +27,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟡 **P2** Эксплуатационная надёжность | 1-2 недели | Миграции с откатом + автоматическое резервное копирование + TraceId + двухдрайверные очереди | ✅ |
 | 🟣 **P3** Улучшение опыта | 2-3 недели | BI-панели + EAM + мультитенантность + DMS + 7 новых таблиц | ✅ |
 
-**Тесты**: 1051<!-- stats:tests=1051 --> tests, 5047<!-- stats:assertions=5047 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**Тесты**: 1055<!-- stats:tests=1055 --> tests, 5056<!-- stats:assertions=5056 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## Перечень функций
 

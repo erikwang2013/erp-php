@@ -116,6 +116,26 @@ export interface ActionDef {
   navTo?: (row: Row) => string;
 }
 
+/**
+ * 页级动作：渲在**页头工具条**（行内动作渲在表格行里，页级的不能混进去）。
+ * 与 ActionDef 的差别只有入参来源：`path`/`body` 收到的是**当前筛选值**（行内动作收到的是行）。
+ * 执行链路（请求构造/错误面/密码收集/toast/刷列表）与行内动作完全同一条。
+ */
+export interface PageActionDef {
+  label: string;
+  icon?: IconName;
+  variant?: 'icon' | 'icon-danger' | 'sm' | 'outline' | 'danger';
+  /** 拼请求路径；**返回 null 则隐藏该按钮**（与 ActionDef.path 同约定）。入参是**当前筛选值** */
+  path: (filters: Row) => string | null;
+  method?: 'POST' | 'PUT' | 'GET';
+  /** 请求体；入参是当前筛选值。**值为 null/未选的键不进对象** */
+  body?: (filters: Row, password: string) => unknown;
+  bodyFields?: FormField[];        // 与 ActionDef 同语义（含 items）
+  requirePassword?: boolean;
+  message?: string;
+  confirm?: string;
+}
+
 /** 列渲染语义（由资源页引擎按 kind 执行，规则与 React cells 渲染一致） */
 export type ColumnKind =
   | 'text'
@@ -163,6 +183,8 @@ export interface ResourceConfig {
   endpoint: string;
   /** 行内动作（业务按钮） */
   actions?: ActionDef[];
+  /** 页级动作（页头工具条按钮，入参是当前筛选值；见 PageActionDef） */
+  pageActions?: PageActionDef[];
   /** 表格列；省略则由引擎从行数据推断 */
   columns?: ColumnDef[];
   /** 搜索框占位文案 */

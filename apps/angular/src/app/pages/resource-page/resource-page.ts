@@ -24,6 +24,7 @@ import type {
   FieldSource,
   FilterDef,
   FormField,
+  PageActionDef,
   ResourceConfig,
   Row,
 } from '../../config/types';
@@ -48,6 +49,7 @@ import {
   specTags,
   take,
   toggleCollapsed,
+  visiblePageActions,
   visibleRows,
   type Cell,
   type RelLabels,
@@ -88,8 +90,11 @@ interface RowView {
 
 interface Pending {
   kind: 'delete' | 'action';
+  /** 行内动作=该行；页级动作=**当前筛选值**（页级动作的 path/body 收的就是它，见 PageActionDef） */
   row: Row;
   act?: ActionDef;
+  /** 页级动作的确认文案（PageActionDef.confirm）；行内动作没有，走「确定执行「X」吗？」 */
+  confirm?: string;
 }
 
 function actionCount(cfg: ResourceConfig | null): number {
@@ -331,6 +336,14 @@ export class ResourcePage implements OnInit {
     }));
   });
 
+  /**
+   * 页级动作（页头工具条）：`path(当前筛选值)` 返回 null 的按钮不出现，
+   * 筛选一变即重算（与 React 渲染期 `a.path(filterValues) === null` 同判，见 columns.visiblePageActions）。
+   */
+  readonly pageActions = computed<PageActionDef[]>(() =>
+    visiblePageActions(this.cfg()?.pageActions, this.filters()),
+  );
+
   /** 行视图：单元格已格式化，模板不参与任何取值逻辑（折叠过滤已在 sliceLocal 完成） */
   readonly view = computed<RowView[]>(() => {
     const cols = this.cols();
@@ -387,7 +400,9 @@ export class ResourcePage implements OnInit {
     if (!p) return '';
     return p.kind === 'delete'
       ? tr('确定删除「{name}」？该操作不可恢复。', { name: text(rowLabel(p.row)) })
-      : tr('确定执行「{act}」吗？', { act: p.act?.label ?? '' });
+      : p.confirm
+        ? tr(p.confirm)
+        : tr('确定执行「{act}」吗？', { act: p.act?.label ?? '' });
   });
   readonly needPassword = computed(() => {
     const p = this.pending();
@@ -759,7 +774,7 @@ export class ResourcePage implements OnInit {
     this.pending.set({ kind: 'delete', row });
   }
 
-  askAction(row: Row, act: ActionDef): void {
+  askAction(row: Row, act: ActionDef, confirm?: string): void {
     this.pw.set('');
     // 有 bodyFields 就是「先填参数再执行」：跳过确认框（表单本身即确认），密码仍在表单里收
     if (act.bodyFields?.length) {
@@ -768,7 +783,12 @@ export class ResourcePage implements OnInit {
       void this.loadFormOpts(act.bodyFields);
       return;
     }
-    this.pending.set({ kind: 'action', row, act });
+    this.pending.set({ kind: 'action', row, act, confirm });
+  }
+
+  /** 页级动作点击：row 位就是**当前筛选值**（同一套确认框/动作表单/执行链路，见 PageActionDef） */
+  askPageAction(act: PageActionDef): void {
+    this.askAction(this.filters(), act, act.confirm);
   }
 
   closePending(): void {

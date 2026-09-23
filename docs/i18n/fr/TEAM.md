@@ -13,7 +13,7 @@
 |------|------|--------------|
 | Backend | webman (Workerman) PHP 8.3+, **23 modules métier**, 159 contrôleurs, 63 services, 224 modèles, 227 tables, 11 middlewares (le schéma a `database/install.sql` comme source unique de vérité) | Monolithe grand et complet, réparti par domaines métier pour éviter l'explosion de contexte d'un agent unique |
 | Frontend | Flutter **102 routes de menu** (`lib/app/config/menu_config.dart` ; les `getPages` de `main.dart` enregistrent 110 entrées au total = 102 menus + connexion / espace personnel / 6 pages de détail) + HarmonyOS **41 pages** (`main_pages.json`), couvrant tous les modules | Maintenance parallèle des deux plateformes, nécessite des rôles frontend dédiés |
-| Ligne de base qualité | PHPUnit 1051<!-- stats:tests=1051 --> tests / 5047<!-- stats:assertions=5047 --> assertions, PHPStan + baseline, CS-Fixer, matrice multi-versions CI | La discipline existe déjà ; les rôles de test / revue sont directement intégrés au pipeline |
+| Ligne de base qualité | PHPUnit 1055<!-- stats:tests=1055 --> tests / 5056<!-- stats:assertions=5056 --> assertions, PHPStan + baseline, CS-Fixer, matrice multi-versions CI | La discipline existe déjà ; les rôles de test / revue sont directement intégrés au pipeline |
 | Matrice de versions | Une seule branche `main` (`lite` / `standard` / `full` supprimées, le commit d'archivage `eea90c0` reste dans l'historique de `main`) | Aucune branche de version à synchroniser, les différences de version se tracent par tag, voir `docs/EDITIONS.md` « Stratégie de branches » |
 | Feuille de route | P0~P3 livrés (score global 89/100), entrée dans l'itération quotidienne et la phase d'évolution | Taille de l'équipe adaptée au type de tâche, pas de grand effectif de type projet |
 | Infrastructures existantes | `.claude/agents/` (planner / sparc / testing / swarm / consensus), `.claude-flow` (hierarchical-mesh, max 15 agents, coordination consensus), hooks + mémoire | L'équipe se monte directement sur la configuration existante, sans repartir de zéro |
@@ -83,7 +83,7 @@
 ### 3.4 Porte qualité (obligatoire avant soumission, gardée par le réviseur)
 
 ```
-phpunit            # 1051<!-- stats:tests=1051 --> tests / 5047<!-- stats:assertions=5047 --> assertions au vert, les nouveaux cas sont livrés avec la modification
+phpunit            # 1055<!-- stats:tests=1055 --> tests / 5056<!-- stats:assertions=5056 --> assertions au vert, les nouveaux cas sont livrés avec la modification
 phpstan            # aucune nouvelle remontée hors baseline autorisée
 php-cs-fixer       # --dry-run passé
 composer audit     # aucune vulnérabilité de dépendance à haut risque

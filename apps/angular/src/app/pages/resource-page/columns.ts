@@ -3,7 +3,15 @@
  */
 
 import { COLUMN_TITLES } from '../../config/column-titles';
-import type { ColumnDef, DictMap, FieldSource, FilterDef, FormField, Row } from '../../config/types';
+import type {
+  ColumnDef,
+  DictMap,
+  FieldSource,
+  FilterDef,
+  FormField,
+  PageActionDef,
+  Row,
+} from '../../config/types';
 import { tr } from '../../core/i18n.service';
 import {
   date,
@@ -718,3 +726,14 @@ export const TONE_COLOR: Record<BadgeTone, string> = {
   d: 'error',
   i: 'default',
 };
+
+/**
+ * 页级动作可见性：`path(当前筛选值)` 返回 null 的不渲（页头工具条，与 React ResourcePage 渲染期同判）。
+ * 传的是筛选项的**快照**（值一变就是新对象），故筛选一变按钮即重算 —— 没选集团就没有「生成草稿」。
+ */
+export function visiblePageActions(
+  list: PageActionDef[] | undefined,
+  filters: Row,
+): PageActionDef[] {
+  return (list ?? []).filter((a) => a.path(filters) !== null);
+}

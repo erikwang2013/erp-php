@@ -180,4 +180,184 @@ class ConsolidationServiceTest extends TestCase
             DB::rollBack();
         }
     }
+
+    /* ============================ 抵销金额的边界校验（客户端可控串直入 bcmath） ============================ */
+
+    /** 自造一份可编辑草稿：addElimination 只接受 status=0 的报表 */
+    private function seedDraftReport(int $id, int $companyId): int
+    {
+        DB::table('finance_consolidation_report')->insert([
+            'id' => $id,
+            'company_id' => $companyId,
+            'report_year' => 2026,
+            'report_month' => 3,
+            'status' => 0,
+        ]);
+
+        return $id;
+    }
+
+    /** 自造一个真科目：addElimination 会拿 account_code 去 erp_finance_account 验存在性 */
+    private function seedAccount(int $id, string $code): string
+    {
+        DB::table('finance_account')->insert([
+            'id' => $id,
+            'code' => $code,
+            'name' => '抵销测试科目',
+            'type' => 1,
+            'direction' => 1,
+            'status' => 1,
+        ]);
+
+        return $code;
+    }
+
+    /** 经控制器打一次 /finance/consolidation/eliminations（等于真实请求那条路） */
+    private function eliminate(int $reportId, array $rows): \support\Response
+    {
+        return (new \app\controller\finance\ConsolidationController())->eliminations(new FakeRequest([
+            'report_id' => \app\common\HashidsService::encode($reportId),
+            'eliminations' => $rows,
+        ]));
+    }
+
+    /**
+     * **缺陷本体**：抵销行金额是客户端可控字符串，此前不进任何形状校验就喂 bcmath ——
+     * 'abc' / '1e-5' 会让 bccomp 抛 ValueError（PHP 8 起 bcmath 对畸形数字抛异常，
+     * 不再静默当 0），而 ValueError 属 Error 不属 RuntimeException ⇒ 控制器的
+     * `catch (\RuntimeException)` 拦不住 ⇒ 500（真栈实测两条 TraceId）。形状不对必须在
+     * 边界拦成 422。用例值照抄真栈那两条，外加同族 '--1' / '1,000' / 数组 / 布尔。
+     * 借方贷方都要覆盖；另一侧给 '100' 以免落进「两侧同时为 0」那条既有 422。
+     */
+    public function testEliminationRejectsMalformedAmountsInsteadOf500(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $reportId = $this->seedDraftReport(900000000000960000 + random_int(1, 500), 410000000000920001);
+            $cases = [
+                ['debit_amount', 'abc'],
+                ['debit_amount', '1e-5'],
+                ['debit_amount', '1.0E-5'],
+                ['debit_amount', '--1'],
+                ['debit_amount', '1,000'],
+                ['debit_amount', ['1']],  // ?debit_amount[]=1：字符串化为 'Array'，同样喂不得
+                ['debit_amount', true],
+                ['credit_amount', 'abc'],
+                ['credit_amount', '1.0E-5'],
+            ];
+            foreach ($cases as [$field, $bad]) {
+                $row = ['account_code' => 'ELIM-XX', 'debit_amount' => '100', 'credit_amount' => '100'];
+                $row[$field] = $bad;
+                $resp = $this->eliminate($reportId, [$row]);
+                $this->assertSame(
+                    422,
+                    $this->responseCode($resp),
+                    $field . '=' . json_encode($bad, JSON_UNESCAPED_UNICODE) . ' 应 422：' . $this->responseMessage($resp)
+                );
+                $this->assertStringContainsString($field, $this->responseMessage($resp), '文案应点名出错的字段');
+            }
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
+     * 放行集不能收窄过头：空串与缺省仍是 0（bcmath 自身的语义），正常金额照旧成功。
+     * 两行拼一个平衡批次 —— 单行两侧不平时会先撞「借贷不平衡」那条既有校验。
+     */
+    public function testEliminationEmptyAndAbsentAmountsStillTreatedAsZero(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $base = 900000000000960500 + random_int(1, 400);
+            $reportId = $this->seedDraftReport($base, 410000000000920002);
+            $code = $this->seedAccount($base + 1, 'ELIM-OK' . random_int(1000, 9999));
+
+            $resp = $this->eliminate($reportId, [
+                ['account_code' => $code, 'debit_amount' => '', 'credit_amount' => '1.50'],   // 空串 = 0
+                ['account_code' => $code, 'debit_amount' => '1.50'],                          // 缺省 = 0
+            ]);
+            $this->assertSame(0, $this->responseCode($resp), '空串/缺省应按 0 处理：' . $this->responseMessage($resp));
+            $this->assertNotNull(
+                json_decode($resp->rawBody(), true)['data']['report_data']['eliminations'][0]['debit_amount'] ?? null,
+                '成功时应返回落库后的抵销行'
+            );
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
+     * 同类第二种形状：account_code / summary 传非标量（?account_code[]=1401）时，
+     * `(string)` 转换触发 PHP Warning，webman 把 Warning 转成 ErrorException（不属
+     * RuntimeException）⇒ 500（真栈实测两条 TraceId，日志为本服务 :241 的 ErrorException）。
+     * 单测里 500 不会自然出现（PHPUnit 不转 Warning），所以这里连机制一起钉：
+     * 既断言 422 面，也断言**不产生 PHP Warning** —— 后者才是摘掉守卫时会红的那条。
+     */
+    public function testEliminationNonScalarTextFieldsRejectedWithoutPhpWarning(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $reportId = $this->seedDraftReport(900000000000961500 + random_int(1, 400), 410000000000920004);
+            $warnings = [];
+            set_error_handler(static function (int $no, string $msg) use (&$warnings): bool {
+                $warnings[] = $msg;
+
+                return true;
+            });
+            try {
+                foreach (['account_code', 'summary'] as $field) {
+                    $row = ['account_code' => 'ELIM-TX', 'debit_amount' => '100', 'credit_amount' => '100'];
+                    $row[$field] = ['x'];
+                    $resp = $this->eliminate($reportId, [$row]);
+                    $this->assertSame(422, $this->responseCode($resp), $field . ' 传数组应 422：' . $this->responseMessage($resp));
+                    // 先钉机制再钉文案：摘掉守卫时这里会红在 ['Array to string conversion'] 上，
+                    // 那正是真栈 500 的成因；文案断言在它后面（旧行为下文案是「科目不存在：Array」）。
+                    $this->assertSame(
+                        [],
+                        $warnings,
+                        $field . ' 传数组不得触发 PHP Warning（webman 会转 ErrorException ⇒ 500）'
+                    );
+                    $this->assertStringContainsString($field, $this->responseMessage($resp), '文案应点名出错的字段');
+                }
+            } finally {
+                restore_error_handler();
+            }
+        } finally {
+            DB::rollBack();
+        }
+    }
+
+    /**
+     * :248 的既有 422 不回归：两侧算出来都是 0（空串 / '0.00' / '0.000'）时照旧拒。
+     * 这条不看金额形状，只看数值为 0 ⇒ 不需要真科目（在科目存在性校验之前就抛）。
+     */
+    public function testEliminationBothSidesZeroStillRejected(): void
+    {
+        $this->skipIfNoDb();
+
+        DB::beginTransaction();
+        try {
+            $reportId = $this->seedDraftReport(900000000000961000 + random_int(1, 400), 410000000000920003);
+            foreach ([['', ''], ['0.00', '0.000'], ['-0', '+0']] as [$debit, $credit]) {
+                $resp = $this->eliminate($reportId, [
+                    ['account_code' => 'ELIM-ZERO', 'debit_amount' => $debit, 'credit_amount' => $credit],
+                ]);
+                $this->assertSame(
+                    422,
+                    $this->responseCode($resp),
+                    "借 {$debit} / 贷 {$credit} 都算 0，应仍拒：" . $this->responseMessage($resp)
+                );
+                $this->assertStringContainsString('不能同时为 0', $this->responseMessage($resp), '应是「同时为 0」那条校验，不是新加的金额形状校验');
+            }
+        } finally {
+            DB::rollBack();
+        }
+    }
 }

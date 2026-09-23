@@ -21,7 +21,14 @@ import { api, http, qs, type PageData } from '@/lib/api';
 import { useToast } from '@/lib/toast';
 import { errMsg, text } from '@/lib/format';
 import { useTr } from '@/lib/i18n';
-import { accentOf, type ActionDef, type FieldOption, type FilterDef, type Row } from '@/config/types';
+import {
+  accentOf,
+  type ActionDef,
+  type FieldOption,
+  type FilterDef,
+  type PageActionDef,
+  type Row,
+} from '@/config/types';
 import { filterList, inferColumns, inferDetailItems } from '@/lib/defaults';
 import { mergeEditRow } from '@/lib/edit-row';
 import { loadOptions, prefetch } from '@/lib/options';
@@ -83,8 +90,11 @@ export function ResourcePage({
   const [detail, setDetail] = useState<Row | null>(null);
   const [pending, setPending] = useState<{
     kind: 'delete' | 'action';
+    /** 行内动作=该行；页级动作=`{}`（页级动作的入参在 act 里已绑死为当前筛选值） */
     row: Row;
     act?: ActionDef;
+    /** 页级动作的确认文案（PageActionDef.confirm）；行内动作没有，走「确定执行「X」吗？」 */
+    confirm?: string;
   } | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -251,6 +261,16 @@ export function ResourcePage({
     }
   };
 
+  /**
+   * 页级动作绑一次入参：`PageActionDef.path/body` 收的是**当前筛选值**，行内 `ActionDef` 收的是行。
+   * 绑成 ActionDef 形状后 runAction 不用分叉 —— 请求构造/错误面/密码收集/toast/刷列表全沿用那一条链路。
+   */
+  const bindPageAct = (a: PageActionDef, f: Row): ActionDef => ({
+    ...a,
+    path: () => a.path(f),
+    body: (_row, pw) => a.body?.(f, pw),
+  });
+
   /** 待执行动作（kind='action' 时才有） */
   const pendingAct = pending?.kind === 'action' ? pending.act : undefined;
 
@@ -307,6 +327,29 @@ export function ResourcePage({
   return (
     <>
       <PageHead title={cfg.title} total={paginated ? total : undefined} accent={accentOf(cfg.moduleKey)}>
+        {/* 页级动作：`path(当前筛选值)` 返回 null 的按钮真消失，筛选一变即重算（没选集团就没有「生成草稿」） */}
+        {cfg.pageActions?.map((a) => {
+          if (a.path(filterValues) === null) return null;
+          const iconOnly = !a.variant || a.variant.startsWith('icon');
+          return (
+            <Btn
+              key={a.label}
+              variant={a.variant ?? 'sm'}
+              icon={a.icon}
+              title={t(a.label)}
+              onClick={() =>
+                setPending({
+                  kind: 'action',
+                  row: {},
+                  act: bindPageAct(a, filterValues),
+                  confirm: a.confirm,
+                })
+              }
+            >
+              {iconOnly ? null : t(a.label)}
+            </Btn>
+          );
+        })}
         <Btn variant="outline" icon="refresh" onClick={refresh} title={t('刷新')}>
           {t('刷新')}
         </Btn>
@@ -439,7 +482,9 @@ export function ResourcePage({
           message={
             pending.kind === 'delete'
               ? t('确定删除「{name}」？该操作不可恢复。', { name: text(rowLabel(pending.row)) })
-              : t('确定执行「{act}」吗？', { act: pending.act?.label ?? '' })
+              : pending.confirm
+                ? t(pending.confirm)
+                : t('确定执行「{act}」吗？', { act: pending.act?.label ?? '' })
           }
           requirePassword={
             pending.kind === 'delete'

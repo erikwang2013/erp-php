@@ -238,20 +238,20 @@ class ConsolidationService
             if (!is_array($row)) {
                 throw new RuntimeException('eliminations[' . $i . '] 必须为对象');
             }
-            $code = trim((string) ($row['account_code'] ?? ''));
+            $code = $this->eliminationText($row['account_code'] ?? '', $i, 'account_code');
             if ($code === '') {
                 throw new RuntimeException('eliminations[' . $i . '] 缺少 account_code');
             }
             $codes[$code] = true;
-            $debit = bc_norm((string) ($row['debit_amount'] ?? '0'));
-            $credit = bc_norm((string) ($row['credit_amount'] ?? '0'));
+            $debit = $this->eliminationAmount($row['debit_amount'] ?? '0', $i, 'debit_amount');
+            $credit = $this->eliminationAmount($row['credit_amount'] ?? '0', $i, 'credit_amount');
             if (bccomp($debit, '0', 2) === 0 && bccomp($credit, '0', 2) === 0) {
                 throw new RuntimeException('eliminations[' . $i . '] 借贷金额不能同时为 0');
             }
             $rows[$i]['account_code'] = $code;
             $rows[$i]['debit_amount'] = $debit;
             $rows[$i]['credit_amount'] = $credit;
-            $rows[$i]['summary'] = trim((string) ($row['summary'] ?? ''));
+            $rows[$i]['summary'] = $this->eliminationText($row['summary'] ?? '', $i, 'summary');
             $totalDebit = bcadd($totalDebit, $debit, 6);
             $totalCredit = bcadd($totalCredit, $credit, 6);
         }
@@ -307,6 +307,51 @@ class ConsolidationService
     }
 
     // ---------------------------------------------------------------- private
+
+    /**
+     * 抵销行金额的边界校验（客户端可控值，进 bcmath 之前）。
+     * 为什么必须有：bcmath 自 PHP 8 起对畸形数字抛 ValueError，而 ValueError 属 Error 不属
+     * RuntimeException ⇒ 控制器的 `catch (\RuntimeException)` 拦不住 ⇒ 500（真栈实测
+     * 'abc' 与 '1.0E-5' 两条）。放行集 = bcmath 唯一吃得下的形状「可选符号 + 数字 + 可选小数」；
+     * 空串归一成 '0' —— bcmath 把 '' 当 0，但 DECIMAL(14,2) 列不收 ''（严格模式 1366，
+     * 再被 catch 成 422 并把 SQL 报文回显给客户端）。
+     * 先 bc_norm 再正则：JSON 数字 0.00001 经 bc_norm 的 %.10F 分支还原成 '0.00001'（用户真填的
+     * 5 位小数不该因 (string) 转出的 '1.0E-5' 被误杀），而客户端手写的指数串 '1e-5' 原样保留 ⇒ 拒
+     * （bcmath 不认指数形，且 1e-5 远低于 0.001 的平衡容差，放行也过不了平衡校验）。
+     * 非标量（?debit_amount[]=1 的数组、布尔）同样拒：其字符串化是 'Array'，bcmath 照抛。
+     */
+    private function eliminationAmount(mixed $raw, int $index, string $field): string
+    {
+        if (!is_string($raw) && !is_int($raw) && !is_float($raw)) {
+            throw new RuntimeException('eliminations[' . $index . '] ' . $field . ' 金额格式非法');
+        }
+        $amount = bc_norm($raw);
+        if ($amount === '') {
+            return '0';
+        }
+        if (preg_match('/^[+-]?(\d+(\.\d*)?|\.\d+)$/', $amount) !== 1) {
+            throw new RuntimeException('eliminations[' . $index . '] ' . $field
+                . ' 金额格式非法（仅支持十进制定点数）：' . mb_substr($amount, 0, 32));
+        }
+
+        return $amount;
+    }
+
+    /**
+     * 抵销行文本字段（account_code / summary）的边界校验：非标量一律拒。
+     * 为什么：`(string) ['x']` 触发 PHP Warning「Array to string conversion」，而 webman 的错误
+     * 处理把它转成 ErrorException（不属 RuntimeException）⇒ 控制器的 catch 拦不住 ⇒ 500
+     * （真栈实测：?account_code[]=1401、summary 传数组各一条 TraceId，日志里就是本文件 :241
+     * 的 ErrorException）。标量照旧 trim，语义不变。
+     */
+    private function eliminationText(mixed $raw, int $index, string $field): string
+    {
+        if (!is_scalar($raw)) {
+            throw new RuntimeException('eliminations[' . $index . '] ' . $field . ' 格式非法');
+        }
+
+        return trim((string) $raw);
+    }
 
     /** 解析报表项 → 账套（ledger_id 优先，其次 company_id 的默认账套） */
     private function resolveLedger(array $item, string $where): FinanceLedger

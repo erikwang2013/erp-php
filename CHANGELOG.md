@@ -2,6 +2,49 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.11 (2026-09-23)
+
+**页级动作 + 合并报表三动作 + 抵销分录边界收口批**：把「合并报表页只能看不能做」收口 —— 引擎新增**页级动作**能力，页面上接上后端已有的**生成草稿 / 抵销分录 / 出表**三个动作；同时把 `/eliminations` 的**客户端可触发 500** 收成 422。范围只含本批所需：**0 个新增控制器、0 个新增路由、0 个新增数据表**（后端只加了边界校验 + 一句 apidoc 注释订正）。
+
+### 新增 · 引擎「页级动作」（两端对偶）
+- `ResourceConfig.pageActions?: PageActionDef[]`，渲在**页头工具条**（行内动作在表格行里，页级的不能混进去）。与 `ActionDef` 的差别**只有入参来源**：`path`/`body` 收到的是**当前筛选值**（行内动作收到的是行）
+- `path(filters)` 返回 `null` ⇒ **按钮消失且随筛选实时重算**（与行内动作 `path(row)` 同约定）；无 `bodyFields` ⇒ 走确认框（`confirm` 文案），有 ⇒ **复用既有动作表单**（含 `items` 多行录入）
+- **执行链路零分叉**：两端都把页级动作**绑成 `ActionDef` 形状**（Angular `visiblePageActions` 过滤 + 快照传入；React `bindPageAct` → `path: () => a.path(f)`、`body: (_row, pw) => a.body?.(f, pw)`）后交给既有的 `runAction` ⇒ 请求构造/错误面/密码收集/toast/刷列表全部共用。**行内动作的执行链路方法体与 HEAD 逐字节相同**（复核方逐方法比 body 验过）
+
+### 新增 · 合并报表页三个动作（两端 `domains/finance.ts` 逐字同形）
+- **生成草稿**（页级）：`path: (f) => f.company_id ? '…/draft' : null`（**没选集团就不出现**），`body` 取当前筛选的 `company_id/report_year/report_month`，无 `bodyFields` ⇒ 走确认框
+- **抵销分录**（行内）：`bodyFields` 一个 `items`（`account_code` 必填 / `debit_amount` 借方 / `credit_amount` 贷方），`body` 补 `report_id`
+- **出表**（行内）：`body` 补 `report_id`
+- **后两个都带「已出表就隐藏」门控**（`Number(status) === 0`）—— 不是风格，是后端 apidoc 硬要求「须为未出表草稿」，不过滤掉就是每次点都 422
+- **`debit_amount`/`credit_amount` 是本批最贵的一课**：初版契约照控制器 apidoc 的 `Desc`（`debit/credit`）写，而 service 读的是 `debit_amount`/`credit_amount` ⇒ **会让每次提交都 422**。react-dev 在真栈上实测识破（`{debit, credit}` ⇒ 422「借贷金额不能同时为 0」= 键被忽略；换对键名 ⇒ 422「抵销科目不存在」= 金额已过检），两条前端车道都拦住了。**apidoc 那句错的 `Desc` 已按「注释落后于实现就修注释那侧」订正**（`ConsolidationController.php:157`）
+- **金额字段的 `type` 也是实测定的，不是长相问题**：`type: 'number'` 在这套引擎里 = **提交前强制 `Number()`**（`resource-form.ts:185`/`:435` 同一行）⇒ 任何输入先规范化，bcmath 收到的是 `bc_norm` float 分支产出的规范十进制串；选文本则 `'abc'`/`'1.0E-5'` 直达 `bccomp` 抛 `ValueError`（Error 系，控制器的 `catch(\RuntimeException)` 拦不住）⇒ **500**。真栈实测三条 TraceId。React 侧最初选文本的依据（「number 会丢精度」）实测被推翻：`'100.005'` 与 float `100.005` 两条路都进 `bc_round2` 得 `100.01`，列是 `DECIMAL(14,2)`、float64 够用
+
+### 修复 · `/eliminations` 客户端可触发的 500 → 422（`ConsolidationService`）
+- **机制**：客户端可控的金额字符串**不校验**就喂 bcmath ⇒ `bcmath` 自 PHP 8 起对畸形数字抛 `ValueError`（**Error 系、不是 RuntimeException**）⇒ 控制器 `catch(\RuntimeException)` 拦不住 ⇒ 500。同类第二条：非标量（`?account_code[]=1`）的 `(string)` 触发 PHP Warning ⇒ webman 转 `ErrorException` ⇒ 同样 500
+- **修法**：新增 `eliminationAmount()` / `eliminationText()` 两个私有守卫，4 处调用点改走它们；错误出口沿用 `throw new RuntimeException` → 控制器 422（**不新造错误面**）
+- **`eliminationAmount` 的承重顺序（先 `bc_norm` 再正则，是实测过的、不是随手）**：正则 `^[+-]?(\d+(\.\d*)?|\.\d+)$` 只认 bcmath 吃得下的形状；但**必须先 `bc_norm`** —— JSON 数字 `0.00001` 经 `(string)` 会变成 `'1.0E-5'`，直接判正则会被**误杀**，而 `bc_norm` 的 `%.10F` 分支能还原成 `'0.00001'`。复核方用反射跑真身证过：float `0.00001`/`1e-5` 放行、字符串 `'1e-5'`/`'1.0E-5'` 拒 ⇒ **同一种「指数形」按来源被区别对待，且反事实（顺序颠倒）会让 5 位小数被误杀** ⇒ 顺序是承重的
+- 空串归一成 `'0'`：bcmath 把 `''` 当 0，但 `DECIMAL(14,2)` 列**不收空串**（1366，再被那个 catch 成 422 并回显 SQL）⇒ 「空串=0」的语义要**端到端**成立才算数
+
+### 验证（独立验证方单飞，仓库零写入；本轮**无实测不符项**）
+- **边界收口**：7 种畸形 `debit`（`abc`/`1e-5`/`1.0E-5`/`1E2`/`1,000`/数组/布尔）+ 2 种 `credit` + 非标量 `account_code`/`summary` ⇒ **全 422、无 500**；`""` 与缺省仍按 0（不出现 1366）；既有语义零回归（科目不存在 / 两侧为 0 / 不平衡 / 负号放行，文案与判定全未变）。**「放行」不只是走到校验**：复核方在自己库上用真控制器、事务内自造报表+科目，负号平衡批与空串批都 `code=0` **真落库**后回滚。零写入：`erp_finance_elimination_item` 3→3
+- **`bc_norm` 顺序承重**已如上（反射真身 + 反事实）；HEAD 侧对照复现 `ValueError`/`ErrorException` ⇒ 500 机制成立
+- **两端对称**：`pageActions`/`actions`/`itemFields` 归一化后逐字段一致；行内动作既有行为 A/B（同一次运行内、traffic 冻结回放、52 页 × 2 次 × 4 服务端）⇒ **唯一变化页 = `/finance/consolidation`**，剥掉 Vite `?t=` 与 AOT 作用域哈希后差异恰为两个 icon-only 行按钮（title/aria-label）+ 操作列宽 86→128px，两端一致；页级「生成草稿」在 `path({}) === null` 时**正确地不出现**
+- **全量 CI 等效**：phpunit `Tests: 1066, Assertions: 7193, Warnings: 2, Skipped: 9` rc=0 = 上批 `1062 / 7161` 之上 **+4 用例 / +32 断言**（Integration 单跑仍 `420 / 3722`）。**咬人负控**：同一批新用例跑在 HEAD 的 service 上 ⇒ 1 error（`ValueError` @HEAD:248）+ 2 failures（`''` 得 1366、数组转字符串 warning）⇒ 新用例咬的是旧实现
+- PHPStan rc=0（474 文件）、**15 道门禁 15/15 rc=0**、两端 `tsc`+`build` rc=0（Angular 用 `-p tsconfig.app.json`；**根目录裸 `tsc --noEmit` 仍是假绿**：根 tsconfig `files: []`）
+- `doc-stats --check` 曾红且**只有两种漂移**（`stats:tests` 1051→1055、`stats:assertions` 5047→5056，`test_files` 零漂移）⇒ 冻结时跑一次 `--fix`（触动 52 份）⇒ 复跑 **rc=0 / 338 处全一致**
+- **未验证（显式列出）**：① 页级动作的**点击/交互链**（点「生成草稿」→ 真发 POST、confirm、`bodyFields` 含 items 的提交）**全没跑** —— 回放只冻结 GET、POST 一律未发，渲染层只证明了「按 `path()` 取舍正确 + 结构/属性正确」② 62 页全矩阵未重跑（用 52 页定向子集，含两端全部有 `actions` 的页）③ 真栈只走了**拒绝路径**；正路保存是在复核方自己的库上跑真控制器（事务内、已回滚）④ `/draft` 的端到端未验（本批没改那条路径，但前端新接线到它没跑）
+
+### 记录 · 三条方法层（都会复发，已进记忆）
+- **`php-cs-fixer --path-mode=intersection` 不带路径 = 空集求交 = 假绿**：`Found 0 of 0 files` + rc=0 ⇒ **一个文件都没查**（我们几批都在用这一支）。**判据：CS Fixer 的结论必须带分母 `Found X of Y files`，Y=0 一律当没跑**；真跑两支（CI 用的就是不带 `--path-mode` 的那支 → `0 of 652`）。复核方另做了咬人负控（注入违规 ⇒ rc=8、`Found 1 of 1`、点名 8 条规则）证明规则集不空转
+- **真栈 8788 前面有一层 WAF**，按 payload 形状在进 PHP 之前拦：值以 `--` 开头 ⇒ `HTTP 403 Request blocked by security policy`（纯文本、非 `{"code":…}` 信封）。⇒ 该形状的真栈保证只能由单测承担，**报告要写明「真栈不可达」而不是伪造一条 422**（本批 `--1` 就是这种）
+- **建测试库只能导 `install.sql`**（CI 就是只导它）：复核方先导了 `install.sql + install-demo.sql`，Integration 立刻 8 errors / 7 failures —— **那两个数是数据问题不是代码问题**，此后数字一律取自干净库
+
+### 待办 / 已知遗留（本轮未修）
+- **【新，优先级最高】`app/controller/finance/` 的 14 处 `catch (\RuntimeException) → 422` 会把真库故障吞成客户端错误，且回显 SQL、不留日志**。实证（复核方独立复现、判据硬）：`summary` 传 600 字符（列 `VARCHAR(500)`、**无长度守卫、客户端可控**）⇒ INSERT 抛 1406（`QueryException extends PDOException extends RuntimeException`）⇒ 回来是 **HTTP 200 / body 422**，message 含 `SQLSTATE[22001]` + `1406 Data too long` + **完整 insert 语句（含客户端 payload 明文）**；**回显无上限**（payload 600→message 1000 字符、payload 2000→2400，1:1 膨胀）；`elimination_item` 增量 0（已回滚）；**全部应用日志本次请求新增 0 行**（含 INFO）。整目录 grep 不到一处 `PDOException`；正确写法在 13 个 wms/tms/purchase/sales/oms 文件里（如 `wms/PickController.php:283`），且仓库里**已有记日志的正确先例**（`runtime/logs/webman-2026-09-22.log:64`「输入超出列宽，已按 422 拒绝」）⇒ 本处是**信息泄露 + 可观测性空洞**，不只是错误面问题
+- **两端行内动作谓词的历史不对称**：React `r.status === 0` vs Angular `Number(r['status']) === 0`（对 `'0'`/`null` 结论相反）。**今天不可达**（列表接口实测返回 int）⇒ 本批已把 React 侧对齐为 `Number(...)` 并加断言钉住；触发条件是任何让 `status` 变字符串的序列化改动
+- **7 处两端动作配置不对称是本批之前就有的**（复核方只报存在、未逐条定性）—— 属另一批
+- v1.19.10 结转：`company_id=999999999` ⇒ `code:0` + 空表（守卫只覆盖「解不出」不覆盖「**解得出但不存在**」）；`company_id=1.5`/显式 `null`/`report_year=-1` 等既有语义；`create` 允许 `status=3`（单开窗）；8 张表的 `source_type` 仍是 `'d'`、`target_type`/`biz_type` 仍是 `'d'`、两个 `period_month` 注释未宣告 1–12、`ar_ap.type` 码表轮转（demo 质量项）、采购金额 11 对 `0.00`、真库 `erp` 不自动更新、`docs/i18n/ar/CLAUDE.md` 树过期、11 份 i18n README 形态、dms 空串、抽屉 `fallbackCell` 的 kd 分支、移动端两键兜底
+
 ## v1.19.10 (2026-09-23)
 
 **筛选引擎扩「多键 + 远程选项」批（两端对偶）**：用户报的合并报表页修好后仍缺「按集团看某个期间」的入口，而引擎的筛选只支持**单键 + 静态选项**。本批把它扩成**联合类型 + 可远程选项**，并给该页加上集团/年份/月份三个筛选。**0 个新增控制器、0 个新增路由、0 个新增数据表、0 个后端改动**。

@@ -238,7 +238,47 @@ export const financeMenus: MenuGroup[] = [
       // erp_finance_consolidation_report.status: 0=草稿 1=已出（install.sql:1531）
       // 三个筛选与 ConsolidationController::list 的查询参数同名同义（company_id/report_year/report_month，
       // 三者都可缺省 = 不过滤）；集团下拉的 id 是 encodeIds 后的 hashid，后端 decodeFlexibleId 吃得下
-      { label: '合并报表', path: '/finance/consolidation', cfg: f('合并报表', '/admin/v1/finance/consolidation/list', { canDelete: false, deleteNeedsPassword: false, dicts: { status: { 0: '草稿', 1: '已出' } }, filters: [{ key: 'company_id', label: '集团', source: { endpoint: '/admin/v1/finance/company/list' } }, { key: 'report_year', label: '年份', options: yearOptions() }, { key: 'report_month', label: '月份', options: monthOptions() }] }) },
+      { label: '合并报表', path: '/finance/consolidation', cfg: f('合并报表', '/admin/v1/finance/consolidation/list', {
+        canDelete: false,
+        deleteNeedsPassword: false,
+        dicts: { status: { 0: '草稿', 1: '已出' } },
+        filters: [
+          { key: 'company_id', label: '集团', source: { endpoint: '/admin/v1/finance/company/list' } },
+          { key: 'report_year', label: '年份', options: yearOptions() },
+          { key: 'report_month', label: '月份', options: monthOptions() },
+        ],
+        // 三个动作都已在后端就位（ConsolidationController 的 draft/eliminations/issue）。
+        // 生成草稿吃**当前筛选**：没选集团就没有这个按钮（path 返回 null ⇒ 按钮真消失）。
+        pageActions: [
+          { label: '生成草稿', icon: 'plus', method: 'POST',
+            path: (f) => (f['company_id'] ? '/admin/v1/finance/consolidation/draft' : null),
+            body: (f) => ({ company_id: f['company_id'], report_year: f['report_year'] ?? 0, report_month: f['report_month'] ?? 0 }),
+            confirm: '按当前筛选的集团与期间生成合并草稿？', message: '合并草稿已生成' },
+        ],
+        // 两个行内动作都要求「未出表草稿」（status 0）：已出表的行上按钮不出现，
+        // 否则每次点都是 422（ConsolidationService::addElimination/issue 都按 status 拦）。
+        // 抵销分录的明细子字段键取自 ConsolidationService::addElimination 读的键
+        // （account_code/debit_amount/credit_amount，实测 debit/credit 会被忽略 ⇒ 必填项误报）。
+        // 金额走 type:'number'（与 React 逐字一致）：引擎里 number 不是控件长相，而是提交前强制
+        // Number()（resource-form 的 items 子字段与普通字段各一行）⇒ 文本输入能把 'abc'/'1.0E-5'
+        // 原样送进 bcmath 的 bccomp 抛 ValueError（实测 HTTP 500，见 live-probe2.php P11/P12），
+        // number 则先变成 JS 数字、由 bc_norm 的 float 分支 sprintf('%.10F') 规整成规范十进制串。
+        // '100.005' 与 float 100.005 两条路都进 bc_round2 得 100.01；金额列是 DECIMAL(14,2)
+        // （14 位有效数字在 float64 精确区内），不丢精度。'': 特判保留、提交时丢弃 ⇒ 非必填。
+        actions: [
+          { label: '抵销分录', icon: 'edit', method: 'POST',
+            path: (r) => (Number(r['status']) === 0 ? '/admin/v1/finance/consolidation/eliminations' : null),
+            body: (r) => ({ report_id: r['id'] }),
+            bodyFields: [{ key: 'eliminations', label: '抵销分录', type: 'items', required: true, itemFields: [
+              { key: 'account_code', label: '科目编码', required: true },
+              { key: 'debit_amount', label: '借方', type: 'number' },
+              { key: 'credit_amount', label: '贷方', type: 'number' }] }],
+            message: '抵销分录已保存' },
+          { label: '出表', icon: 'check', method: 'POST',
+            path: (r) => (Number(r['status']) === 0 ? '/admin/v1/finance/consolidation/issue' : null),
+            body: (r) => ({ report_id: r['id'] }), message: '已出表' },
+        ],
+      }) },
     ],
   },
 ];

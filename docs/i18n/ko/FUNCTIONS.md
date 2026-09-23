@@ -576,7 +576,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 데이터베이스 설치 스크립트 | 단일 파일 `database/install.sql`(227개 테이블, 전체 마이그레이션 병합 완료) |
 | 프론트엔드 페이지 (Flutter) | 119(2026-09-22 실측, `apps/flutter/lib/app/pages/` 하위 `.dart` 페이지 파일 수(재귀), doc-stats 검증 미포함) |
 | 프론트엔드 페이지 (HarmonyOS) | 52(2026-09-22 실측, `apps/harmonyos/entry/src/main/ets/pages/` 하위 `.ets` 페이지 파일 수(재귀), doc-stats 검증 미포함) |
-| 단위 테스트 | 113<!-- stats:test_files=113 -->개 테스트 파일  / 1051<!-- stats:tests=1051 -->개 테스트 케이스  / 5047<!-- stats:assertions=5047 -->개 assertion (정적 카운트: 테스트 메서드 수 + 어설션 호출 지점 수, 실행 환경과 무관) |
+| 단위 테스트 | 113<!-- stats:test_files=113 -->개 테스트 파일  / 1055<!-- stats:tests=1055 -->개 테스트 케이스  / 5056<!-- stats:assertions=5056 -->개 assertion (정적 카운트: 테스트 메서드 수 + 어설션 호출 지점 수, 실행 환경과 무관) |
 
 > 위 숫자는 `bash scripts/doc-stats.sh`가 실측한 값입니다. `<!-- stats:key=value -->`로 표기된 항목은 CI
 > (`.github/workflows/ci.yml` docs 작업)가 코드 사실과의 일치를 자동 검증하며, 어긋나면 빨간불이 켜집니다.

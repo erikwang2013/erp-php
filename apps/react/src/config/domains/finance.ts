@@ -263,6 +263,37 @@ export const financeMenus: MenuGroup[] = [
           { key: 'report_year', label: '年份', options: yearOptions() },
           { key: 'report_month', label: '月份', options: monthOptions() },
         ],
+        // 三个动作都已在后端就位（ConsolidationController 的 draft/eliminations/issue）。
+        // 生成草稿吃**当前筛选**：没选集团就没有这个按钮（path 返回 null ⇒ 按钮真消失）。
+        pageActions: [
+          { label: '生成草稿', icon: 'plus', method: 'POST',
+            path: (f) => (f.company_id ? '/admin/v1/finance/consolidation/draft' : null),
+            body: (f) => ({ company_id: f.company_id, report_year: f.report_year ?? 0, report_month: f.report_month ?? 0 }),
+            confirm: '按当前筛选的集团与期间生成合并草稿？', message: '合并草稿已生成' },
+        ],
+        // 两个行内动作都要求「未出表草稿」（status 0）：已出表的行上按钮不出现，
+        // 否则每次点都是 422（ConsolidationService::addElimination/issue 都按 status 拦）。
+        // 抵销分录的明细子字段键取自 ConsolidationService::addElimination 读的键
+        // （account_code/debit_amount/credit_amount，实测 debit/credit 会被忽略 ⇒ 必填项误报），
+        // 金额**必须** type:'number'：文本输入能把任意串（如 'abc'）送进 body，
+        // `bc_norm` 的字符串分支原样返回后 `bccomp('abc','0',2)` 在 PHP 8.3 抛 ValueError ⇒ 未捕获 500
+        // （用户可达：手输非数字）。number 走 bc_norm 的 float 分支 sprintf('%.10F')，
+        // 而 debit_amount 是 DECIMAL(14,2)（14 位有效数字在 float64 精确区内）——
+        // '100.005' 与 float 100.005 两条路都进 bc_round2 得 100.01，实测等价。'' 仍安全（bc_norm 原样返回 '',
+        // bccomp('','0') 当 0）⇒ 不要求必填，保持非必填。
+        actions: [
+          { label: '抵销分录', icon: 'edit', method: 'POST',
+            path: (r) => (Number(r.status) === 0 ? '/admin/v1/finance/consolidation/eliminations' : null),
+            body: (r) => ({ report_id: r.id }),
+            bodyFields: [{ key: 'eliminations', label: '抵销分录', type: 'items', required: true, itemFields: [
+              { key: 'account_code', label: '科目编码', required: true },
+              { key: 'debit_amount', label: '借方', type: 'number' },
+              { key: 'credit_amount', label: '贷方', type: 'number' }] }],
+            message: '抵销分录已保存' },
+          { label: '出表', icon: 'check', method: 'POST',
+            path: (r) => (Number(r.status) === 0 ? '/admin/v1/finance/consolidation/issue' : null),
+            body: (r) => ({ report_id: r.id }), message: '已出表' },
+        ],
       }) },
     ],
   },

@@ -154,7 +154,7 @@ class ConsolidationController extends BaseController
      * 抵销分录（仅作用最新草稿）
      */
     #[\erikwang2013\apidoc\annotation\Title('合并抵销分录')]
-    #[\erikwang2013\apidoc\annotation\Desc('新增一组抵销行到当前草稿并重算合计；行=account_code+debit/credit（bcmath字符串）')]
+    #[\erikwang2013\apidoc\annotation\Desc('新增一组抵销行到当前草稿并重算合计；行=account_code+debit_amount/credit_amount（bcmath字符串）')]
     #[\erikwang2013\apidoc\annotation\Url('/admin/v1/finance/consolidation/eliminations')]
     #[\erikwang2013\apidoc\annotation\Method('POST')]
     #[\erikwang2013\apidoc\annotation\Author('erik')]

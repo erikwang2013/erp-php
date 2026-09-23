@@ -13,6 +13,35 @@
       <span class="page-total">{{ '共' | tr }} {{ total() }} {{ '条' | tr }}</span>
     }
     <span class="sp"></span>
+    <!-- 页级动作（PageActionDef）：`path(当前筛选值)` 返回 null 的按钮不渲（筛选一变即重算，
+         如没选集团就没有「生成草稿」）。显隐/图标/文案都走 showLabel 与行内动作同一套判定。 -->
+    @for (p of pageActions(); track $index) {
+      @if (showLabel(p)) {
+        <button
+          nz-button
+          nzSize="small"
+          [nzDanger]="p.variant === 'danger' || p.variant === 'icon-danger'"
+          (click)="askPageAction(p)"
+        >
+          @if (p.icon) {
+            <app-icon [name]="p.icon" />
+          }
+          {{ p.label | tr }}
+        </button>
+      } @else {
+        <button
+          nz-button
+          nzType="text"
+          nzSize="small"
+          [nzDanger]="p.variant === 'icon-danger'"
+          [title]="p.label | tr"
+          [attr.aria-label]="p.label | tr"
+          (click)="askPageAction(p)"
+        >
+          <app-icon [name]="p.icon ?? 'send'" />
+        </button>
+      }
+    }
     <button nz-button (click)="refresh()">
       <app-icon name="reload" />
       {{ '刷新' | tr }}
