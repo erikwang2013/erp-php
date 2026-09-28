@@ -600,3 +600,15 @@ El proyecto proporciona `nginx-security.conf` como configuración de referencia 
 | La lista negra de IP solo se almacena en memoria | La lista negra se pierde al reiniciar Redis | La duración del bloqueo es solo de 15 minutos; el impacto es limitado |
 | Los endpoints de administración no tienen limitación especial | Las interfaces de administración comparten el límite por defecto de 60/min con las interfaces normales | La frecuencia de operaciones de administración es naturalmente baja; no requiere distinción por ahora |
 | `@preg_match` suprime errores | Falla silenciosamente ante entradas regex malformadas | `preg_last_error()` podría monitorizarse; actualmente no implementado |
+
+## 13. Agradecimientos de seguridad
+
+Las mejoras de seguridad de este proyecto provienen de los comentarios de la comunidad. Cada entrada indica la **contribución concreta que se adoptó**, no un vago «reportó una vulnerabilidad».
+
+### kta1kri (v1.19.13)
+
+Señaló que `assert_env_not_placeholder()` solo enumeraba cadenas de marcador como `change-me` / `xxx`, por lo que **no impedía que los valores públicos «de aspecto aleatorio» de `.env.example` se usaran silenciosamente en producción**; y advirtió que la protección daba así una **falsa sensación de seguridad**.
+
+La revisión lo confirmó: el docblock de la función afirmaba que impedía el uso silencioso de claves/contraseñas de marcador en producción, algo que estructuralmente no puede hacer (las cadenas de marcador son un conjunto ilimitado). La v1.19.13 la cambió por una **comparación exacta con `.env.example`** (una comprobación fáctica, no una heurística) y restableció el paso de rotación de claves en CI.
+
+> Canal de reporte: `.well-known/security.txt`. Una **discrepancia sobre la gravedad** (por ejemplo, nuestra conclusión de que no era de alto riesgo) no afecta al agradecimiento: señalar la brecha entre lo que promete una protección y lo que realmente puede hacer es en sí mismo una contribución válida.

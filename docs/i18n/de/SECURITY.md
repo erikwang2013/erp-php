@@ -600,3 +600,15 @@ Das Projekt stellt `docs/nginx-security.conf` als Referenzkonfiguration zur Sich
 | IP-Blacklist nur im Speicher | Blacklist geht bei Redis-Neustart verloren | Ban-Dauer nur 15 Minuten, Auswirkung begrenzt |
 | Admin-Endpunkte ohne spezielle Ratenbegrenzung | Admin-Schnittstellen teilen sich die Standardbegrenzung von 60/min mit normalen Schnittstellen | Admin-Operationsfrequenz ist von Natur aus niedrig, vorerst keine Unterscheidung nötig |
 | `@preg_match` unterdrückt Fehler | stilles Versagen bei fehlerhaften Regex-Eingaben | `preg_last_error()` könnte überwacht werden, derzeit nicht implementiert |
+
+## 13. Sicherheits-Danksagung
+
+Sicherheitsverbesserungen in diesem Projekt stammen aus Community-Feedback. Jeder Eintrag nennt den **konkret übernommenen Beitrag** – nicht ein vages „hat eine Schwachstelle gemeldet".
+
+### kta1kri (v1.19.13)
+
+Wies darauf hin, dass `assert_env_not_placeholder()` nur Platzhalterzeichenketten wie `change-me` / `xxx` auflistete und daher **nicht verhindern konnte, dass die „zufällig aussehenden" öffentlichen Werte aus `.env.example` stillschweigend in der Produktion verwendet werden** – und dass der Guard dadurch eine **trügerische Sicherheit** vermittelte.
+
+Die Prüfung bestätigte dies: Der Docblock der Funktion behauptete, sie verhindere die stillschweigende Verwendung von Platzhalter-Schlüsseln/-Passwörtern in der Produktion, was sie strukturell nicht leisten kann (Platzhalterzeichenketten sind eine unbegrenzte Menge). v1.19.13 hat sie auf einen **exakten Vergleich mit `.env.example`** umgestellt (eine Tatsachenprüfung, keine Heuristik) und den Schlüsselrotations-Schritt in CI wiederhergestellt.
+
+> Meldeweg: `.well-known/security.txt`. Eine **abweichende Einschätzung der Schwere** (z. B. wenn wir zu dem Schluss kommen, dass kein hohes Risiko besteht) berührt die Danksagung nicht – die Lücke zwischen dem Anspruch einer Schutzmaßnahme und ihrer tatsächlichen Fähigkeit zu benennen, ist bereits ein wertvoller Beitrag.

@@ -600,3 +600,15 @@ Le projet fournit `docs/nginx-security.conf` comme configuration de référence 
 | La liste noire IP n'est stockée qu'en mémoire | la liste noire est perdue après redémarrage de Redis | la durée de bannissement n'est que de 15 minutes, impact limité |
 | Pas de limitation spécifique sur les points d'accès administrateur | les interfaces administrateur partagent la limite par défaut de 60/min avec les interfaces ordinaires | la fréquence d'opération des administrateurs est naturellement faible, pas de distinction nécessaire pour l'instant |
 | `@preg_match` supprime les erreurs | échec silencieux sur entrée regex malformée | `preg_last_error()` peut être surveillé, non implémenté actuellement |
+
+## 13. Remerciements de sécurité
+
+Les améliorations de sécurité de ce projet viennent des retours de la communauté. Chaque entrée indique la **contribution précise qui a été retenue**, et non un vague « a signalé une vulnérabilité ».
+
+### kta1kri (v1.19.13)
+
+A signalé que `assert_env_not_placeholder()` n'énumérait que des chaînes de remplacement telles que `change-me` / `xxx`, et ne pouvait donc **pas empêcher l'utilisation silencieuse en production des valeurs publiques « d'apparence aléatoire » de `.env.example`** ; et a fait remarquer que ce garde-fou donnait de ce fait une **fausse assurance**.
+
+La vérification l'a confirmé : le docblock de la fonction prétendait empêcher l'utilisation silencieuse de clés/mots de passe de remplacement en production, ce qu'elle ne peut structurellement pas faire (les chaînes de remplacement forment un ensemble illimité). La v1.19.13 l'a remplacée par une **comparaison exacte avec `.env.example`** (un constat factuel, non une heuristique) et a rétabli l'étape de rotation des clés en CI.
+
+> Canal de signalement : `.well-known/security.txt`. Un **désaccord sur la gravité** (par exemple notre conclusion qu'il ne s'agit pas d'un risque élevé) n'affecte pas les remerciements — signaler l'écart entre ce qu'une protection annonce et ce qu'elle fait réellement est en soi une contribution utile.

@@ -770,6 +770,12 @@ Se este projeto ajudar você, escaneie o código QR para doar, obrigado!
 
 ---
 
+## Agradecimentos
+
+Agradecemos às seguintes pessoas por ajudarem a melhorar a segurança deste projeto (detalhes em [`docs/SECURITY.md` §13](docs/SECURITY.md#13-安全致谢)):
+
+- **kta1kri** — apontou que `assert_env_not_placeholder()` não impedia que os valores públicos do `.env.example` fossem usados silenciosamente em produção; a proteção prometia mais do que entregava (corrigido na v1.19.13).
+
 ## License
 
 MIT

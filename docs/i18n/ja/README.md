@@ -760,6 +760,12 @@ GitHub Actions 継続的インテグレーションパイプライン: `.github/
 
 ---
 
+## 謝辞
+
+本プロジェクトのセキュリティ改善にご協力いただいた方々（詳細は [`docs/SECURITY.md` §13](docs/SECURITY.md#13-安全致谢) を参照）：
+
+- **kta1kri** 氏 —— `assert_env_not_placeholder()` が `.env.example` 内の公開値を本番で黙って使われるのを防げない点、すなわち同ガードの保護宣言が実際の能力と一致していない点をご指摘（v1.19.13 で修正）。
+
 ## License
 
 MIT

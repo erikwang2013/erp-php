@@ -731,6 +731,12 @@ Jika proyek ini membantu Anda, silakan pindai kode QR untuk berdonasi, terima ka
 
 ---
 
+## Ucapan Terima Kasih
+
+Terima kasih kepada pihak berikut yang membantu meningkatkan keamanan proyek ini (rincian di [`docs/SECURITY.md` §13](docs/SECURITY.md#13-安全致谢)):
+
+- **kta1kri** — menunjukkan bahwa `assert_env_not_placeholder()` tidak mencegah nilai publik di `.env.example` dipakai diam-diam di produksi; penjaga itu menjanjikan lebih dari yang dijalankannya (diperbaiki di v1.19.13).
+
 ## Lisensi
 
 MIT

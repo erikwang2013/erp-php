@@ -600,3 +600,15 @@ The project provides `docs/nginx-security.conf` as a hardening reference configu
 | IP blacklist is memory-only storage | Blacklist lost after Redis restart | Ban duration is only 15 minutes, limited impact |
 | No special rate limit for admin endpoints | Admin endpoints share the 60/min default limit with regular endpoints | Admin operations are naturally low-frequency, no differentiation needed for now |
 | `@preg_match` suppresses errors | Silently fails on malformed regex input | `preg_last_error()` could add monitoring, not currently implemented |
+
+## 13. Security Acknowledgments
+
+Security improvements in this project come from community feedback. Each entry names the **specific contribution that was adopted**, not a vague "reported a vulnerability".
+
+### kta1kri (v1.19.13)
+
+Pointed out that `assert_env_not_placeholder()` only enumerated placeholder strings such as `change-me` / `xxx`, so it **could not stop the "random-looking" public values in `.env.example` from being silently used in production**; and noted that the guard therefore gave **false assurance**.
+
+Review confirmed it: the function's docblock claimed it prevented placeholder keys/passwords from being silently used in production, which it structurally cannot do (placeholder strings are an unbounded set). v1.19.13 changed it to an **exact comparison against `.env.example`** (a factual check, not a heuristic) and restored the CI key-rotation step.
+
+> Reporting channel: `.well-known/security.txt`. A **disagreement over severity** (for example, our conclusion that it was not high-risk) does not affect acknowledgment — identifying a gap between a protection's claim and its actual capability is itself a valid contribution.

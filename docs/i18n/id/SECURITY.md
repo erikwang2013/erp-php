@@ -600,3 +600,15 @@ Proyek menyediakan `nginx-security.conf` sebagai referensi konfigurasi penguatan
 | Blacklist IP hanya disimpan di memori | Setelah Redis restart, blacklist hilang | Durasi ban hanya 15 menit, dampak terbatas |
 | Endpoint admin tanpa rate limit khusus | Endpoint admin berbagi batas default 60/menit dengan endpoint umum | Frekuensi operasi admin secara alami rendah, belum perlu dibedakan |
 | `@preg_match` menekan error | Regex input yang cacat gagal secara diam-diam | `preg_last_error()` dapat ditambahkan pemantauan, saat ini belum diimplementasikan |
+
+## 13. Ucapan Terima Kasih Keamanan
+
+Peningkatan keamanan di proyek ini berasal dari masukan komunitas. Setiap butir menyebutkan **kontribusi spesifik yang diadopsi**, bukan pernyataan samar "melaporkan kerentanan".
+
+### kta1kri (v1.19.13)
+
+Menunjukkan bahwa `assert_env_not_placeholder()` hanya menghitung string placeholder seperti `change-me` / `xxx`, sehingga **tidak dapat mencegah nilai publik yang "terlihat acak" di `.env.example` dipakai diam-diam di produksi**; dan mencatat bahwa penjaga itu karenanya memberi **rasa aman yang palsu**.
+
+Peninjauan memastikannya: docblock fungsi itu mengklaim mencegah kunci/kata sandi placeholder dipakai diam-diam di produksi, yang secara struktural tidak bisa dilakukannya (string placeholder adalah himpunan tak terbatas). v1.19.13 mengubahnya menjadi **perbandingan persis dengan `.env.example`** (pemeriksaan faktual, bukan heuristik) dan memulihkan langkah rotasi kunci di CI.
+
+> Saluran pelaporan: `.well-known/security.txt`. **Perbedaan penilaian tingkat keparahan** (misalnya kesimpulan kami bahwa ini bukan risiko tinggi) tidak memengaruhi ucapan terima kasih — menunjukkan celah antara klaim suatu perlindungan dan kemampuan sebenarnya sudah merupakan kontribusi yang berharga.

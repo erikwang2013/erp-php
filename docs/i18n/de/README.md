@@ -773,6 +773,12 @@ Wenn dieses Projekt Ihnen hilft, scannen Sie gerne den QR-Code, um zu spenden. V
 
 ---
 
+## Danksagung
+
+Dank an die folgenden Personen für ihre Hilfe bei der Verbesserung der Sicherheit dieses Projekts (Details in [`docs/SECURITY.md` §13](docs/SECURITY.md#13-安全致谢)):
+
+- **kta1kri** — wies darauf hin, dass `assert_env_not_placeholder()` nicht verhindern kann, dass die öffentlichen Werte aus `.env.example` stillschweigend in der Produktion verwendet werden; der Guard versprach mehr, als er leistete (behoben in v1.19.13).
+
 ## License
 
 MIT

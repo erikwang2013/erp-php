@@ -703,6 +703,12 @@ GitHub Actions 지속적 통합 파이프라인: `.github/workflows/ci.yml`, 5�
 
 ---
 
+## 감사
+
+본 프로젝트의 보안 개선에 도움을 주신 분들(자세한 내용은 [`docs/SECURITY.md` §13](docs/SECURITY.md#13-安全致谢) 참고):
+
+- **kta1kri** 님 — `assert_env_not_placeholder()` 가 `.env.example` 의 공개 값을 운영 환경에서 조용히 사용되는 것을 막지 못한다는 점, 즉 해당 가드의 보호 선언이 실제 능력과 일치하지 않는다는 점을 지적(v1.19.13 수정).
+
 ## License
 
 MIT

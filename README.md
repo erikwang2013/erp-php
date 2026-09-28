@@ -783,6 +783,12 @@ push 至 `main` 且 php / docs / e2e 检查全部通过后，`ci.yml` 的 `relea
 
 ---
 
+## 致谢
+
+感谢以下人士帮助改进本项目的安全（完整说明见 [`docs/SECURITY.md` §13](docs/SECURITY.md#13-安全致谢)）：
+
+- **kta1kri** —— 指出 `assert_env_not_placeholder()` 无法阻止 `.env.example` 中的公开值被静默用于生产，即该守卫的防护宣称与实际能力不符（v1.19.13 修复）。
+
 ## License
 
 MIT

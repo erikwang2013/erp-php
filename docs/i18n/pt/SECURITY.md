@@ -600,3 +600,15 @@ O projeto fornece `docs/nginx-security.conf` como configuração de referência 
 | Blacklist de IP só em memória | Após reinício do Redis, a blacklist se perde | O banimento dura apenas 15 minutos; impacto limitado |
 | Endpoints de administração sem rate limit especial | Interfaces de admin compartilham o limite padrão de 60/min com as comuns | A frequência de operações de admin é naturalmente baixa; sem necessidade por enquanto |
 | `@preg_match` suprime erros | Falha silenciosa com entrada regex malformada | `preg_last_error()` pode ser monitorado; ainda não implementado |
+
+## 13. Agradecimentos de segurança
+
+As melhorias de segurança deste projeto vêm do retorno da comunidade. Cada entrada indica a **contribuição concreta que foi adotada**, e não um vago "reportou uma vulnerabilidade".
+
+### kta1kri (v1.19.13)
+
+Apontou que `assert_env_not_placeholder()` apenas enumerava strings de placeholder como `change-me` / `xxx`, portanto **não impedia que os valores públicos "de aparência aleatória" do `.env.example` fossem usados silenciosamente em produção**; e observou que a proteção, com isso, dava uma **falsa sensação de segurança**.
+
+A revisão confirmou: o docblock da função afirmava impedir o uso silencioso de chaves/senhas de placeholder em produção, o que ela estruturalmente não faz (strings de placeholder são um conjunto ilimitado). A v1.19.13 trocou por uma **comparação exata com o `.env.example`** (verificação factual, não heurística) e restaurou a etapa de rotação de chaves no CI.
+
+> Canal de relato: `.well-known/security.txt`. Uma **divergência quanto à gravidade** (por exemplo, nossa conclusão de que não era de alto risco) não afeta o agradecimento — apontar a lacuna entre o que uma proteção promete e o que ela realmente faz já é, por si só, uma contribuição válida.

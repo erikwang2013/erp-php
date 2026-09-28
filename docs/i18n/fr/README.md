@@ -703,6 +703,12 @@ Si ce projet vous est utile, scannez le code QR pour faire un don, merci !
 
 ---
 
+## Remerciements
+
+Merci aux personnes suivantes pour leur aide à l'amélioration de la sécurité de ce projet (détails dans [`docs/SECURITY.md` §13](docs/SECURITY.md#13-安全致谢)) :
+
+- **kta1kri** — a signalé que `assert_env_not_placeholder()` ne pouvait pas empêcher l'utilisation silencieuse en production des valeurs publiques de `.env.example` ; le garde-fou promettait plus qu'il ne faisait (corrigé en v1.19.13).
+
 ## License
 
 MIT
