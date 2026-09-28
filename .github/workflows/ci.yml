@@ -319,6 +319,33 @@ jobs:
             exit $code
           fi
 
+      # ----------------------------------------------------------
+      # 品牌吉祥物四端同源校验（scripts/check-mascot-assets.mjs）—— 第 17 道门禁。
+      # 为什么需要它：v1.19.17 把吉祥物接进四端（Angular/React/Flutter/HarmonyOS）的品牌位，
+      #   位图统一由 scripts/gen-mascot-assets.sh 产出。**此前 16 道门禁无一涉及位图/吉祥物**
+      #   —— 那批之所以发生，正是因为「都改了吗」当时没人能答（纯人肉盘）。
+      #   校验四条：① 四端 mascot.png md5 全等（含 HOS 拿它当应用图标的两处副本）
+      #            ② 每端品牌位引用未断 + Angular 的 box 别名未指回 Dropbox 商标
+      #            ③ 生成产物与生成器本身必须都在 git 索引里
+      #               （「提交了 ic_launcher.xml 却没提交 foreground.png」本机看不出来、CI 才炸）
+      #            ④ 生成器每处 magick 输出都带 PNG_DEF（去掉它位图就不再逐字节可复现）
+      # 归在本作业：与 check-ddl-dict 同类（只需 checkout + node，无需 ImageMagick/rsvg），
+      #   且本作业已在 release 的 needs 里 —— 不新增 job 就不动 needs，门禁红时照样断发版。
+      # 像素级判据（重跑生成器 ⇒ 位图零变化）留在本地，见生成器头「幂等」段。
+      # 本地等价命令：node scripts/check-mascot-assets.mjs
+      # ----------------------------------------------------------
+      - name: 品牌吉祥物四端同源校验 (check-mascot-assets)
+        run: |
+          set +e
+          out="$(node scripts/check-mascot-assets.mjs 2>&1)"
+          code=$?
+          set -e
+          printf '%s\n' "$out"
+          if [ $code -ne 0 ]; then
+            echo "::error::$(printf '%s' "$out" | tail -20 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+            exit $code
+          fi
+
   # ============================================================
   # E2E 冒烟测试：真实 HTTP 走通核心链路
   # ------------------------------------------------------------

@@ -2,6 +2,33 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.18 (2026-09-28)
+
+**品牌吉祥物同源门禁批**：新增 `scripts/check-mascot-assets.mjs`（第 17 道门禁，挂 `docs` 作业）—— v1.19.17 建立的「四端吉祥物同源 + 品牌位引用未断」不变量，此前**没有任何门禁看着**（16 道逐条 grep 过，无一涉及位图/吉祥物/应用名），纯靠人肉维持；而 v1.19.17 那批之所以发生，正是因为它「问一句『都改了吗』当时没人能答」。范围：**0 产品代码改动**。
+
+### 新增 · `scripts/check-mascot-assets.mjs`
+- 四条不变量：
+  - ① **四端同源**：`mascot.png` 在 Flutter / Angular / React / HarmonyOS 四处 **md5 全等**；HOS 拿它当应用图标的三处副本（`entry/app_icon.png`、`entry/start_icon.png`、`AppScope/app_icon.png`）亦须同源
+  - ② **品牌位引用未断**：逐端断言真实引用（Flutter 的 pubspec 声明 + 空态组件 + 登录页、Angular 的侧栏/`index.html` 三链接/空态共享类、React 同形、HOS 启动页与登录页），并钉住 **Angular 的 `box` 别名不得再指回 `DropboxOutline`**（v1.19.17 修掉的既有缺陷，防回退）
+  - ③ **产物与生成器必须入库**：19 个产物目录逐文件比对 `git ls-files` —— 「提交了 `ic_launcher.xml` 却没提交 `ic_launcher_foreground.png`」这种断链**本机看不出来**（本机有位图），只在 CI 上炸
+  - ④ **生成器幂等不被改回**：`gen-mascot-assets.sh` 每处 `magick` 输出都必须带 `PNG_DEF`（`-define png:exclude-chunks=date,time`）—— 少了它，同像素两次编码字节会变，v1.19.17 那条「重跑生成器 ⇒ 位图零变化」的判据就失效
+- **三条刻意的不校验**（写进脚本头，避免被读成「全覆盖」）：
+  - **不做像素比对** —— CI 这台机器没有 ImageMagick / rsvg-convert；像素级判据留在本地（重跑生成器两次比 md5）
+  - **不做名称断言** —— 跨端名称是**有意分叉**的（Flutter 壳层 `开放ERP`／应用内 l10n `erp管理后台`／Web 两端 `erp开放管理后台`），且 macOS `PRODUCT_NAME` 是构建身份、`windows/runner/main.cpp` 用 UCN 转义（文件里 grep 不到中文）
+  - **不做「位图与 SVG 一致」** —— 同上，CI 无渲染工具链
+- **防空转下限**：③ 要求扫到的产物文件数 ≥30（实测 61）、④ 要求识别到的 `magick` 调用 ≥5（实测 6）—— 否则探针一旦失效就会「检查了 0 项而静默通过」
+
+### 验证
+- 门禁 rc=0，22 项全过（含「61 个产物文件分布在 19 个目录，全部在 git 索引中」）
+- **负控四条**（每条只摘一次、跑完还原并核 md5，全部按预期红）：
+  - ① 把 React 的 `mascot.png` 换成别的字节 ⇒ rc=1、命中「四端不齐」
+  - ② 把 React 侧栏品牌位改成指向不存在的图 ⇒ rc=1、命中「React 侧栏品牌位」
+  - ③ `git rm --cached` 一个产物 ⇒ rc=1、命中「未入库」
+  - ④ 摘掉一处 `${PNG_DEF[@]}` ⇒ rc=1、命中「未带 PNG_DEF」
+  - 四条还原后**基线 md5 全部一致**，门禁复回 rc=0
+- **这个门禁的第一版自己先红了**：计数探针把注释里的 `magick (ImageMagick 7)` 与依赖探测 `command -v magick` 也算成输出点（报「8 处 vs 6 处」）⇒ 改为逐行判定（抹掉注释行与探测行）+ 下限
+- `ci.yml` YAML 解析通过；挂 `docs` 作业、**不动 `release.needs`**（`['docs','e2e','php']` 原样）⇒ 门禁红时照样断发版
+
 ## v1.19.17 (2026-09-28)
 
 **品牌吉祥物四端接入批**：把章鱼吉祥物「小八爪」（`docs/mascot.svg`）接入**四端所有品牌位**，并把此前各自为政、部分仍是脚手架默认产物的应用图标/启动图/壳层元数据一次收口。范围：**0 后端改动**，只动 `apps/`（Angular / React / Flutter / HarmonyOS）与 `scripts/`。
