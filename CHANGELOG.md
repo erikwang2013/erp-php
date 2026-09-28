@@ -2,6 +2,39 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.12 (2026-09-28)
+
+**密钥轮换工具的「模板残留」收口批**：`docs/INSTALL.md` 的部署主线是 `cp .env.example .env` + `bash scripts/gen-env-keys.sh .env`，而该脚本只认 `change-me|xxx` 字面占位串 —— `.env.example` 里那 10 个具体值（`JWT_SECRET_KEY` / `HASHIDS_SALT` / `ENCRYPTION_KEY` / `DB_PASSWORD` / `ES_PASSWORD` 等）一个都不匹配，脚本打印「已替换 N 个键」成功后原样留下它们。⇒ **照文档做的人会以为密钥已轮换，实际签名密钥仍是公开值**（`jwt.php:13` 直接把它当 HS256 密钥；`AdminAuth::validateToken()` 只验签名、不验「这枚 token 由本服务签发过」⇒ 知道密钥即可伪造任意 `sub`）。范围：**0 个新增控制器 / 路由 / 数据表**，3 个文件（1 行为 + 2 文案）。
+
+### 修复 · `gen-env-keys.sh` 增加「模板残留」判据
+- 新判据：**值与 `.env.example` 同名行逐字相同** ⇒ 视为必须替换；键名限缩为 `(KEY|SALT|SECRET|PASSWORD)$` 且值为非空
+- **键名限缩是承重的、不是装饰**：`.env.example` 里 `DB_HOST=127.0.0.1`、`DB_PORT=3306`、`DB_DATABASE=erp` 与 `.env` 逐字同形（实测确认这三行确实存在），只看「整行与模板相同」会把数据库地址换成随机串。空值判定挡住 `REDIS_PASSWORD=`（模板与 `.env` 两边都空，本就不该填）
+- 加密密钥分支套同一判据：`ENCRYPTION_KEY`/`ENCRYPTABLE_KEY` 的模板值是**合法长度 32**，原有的「长度自愈」分支碰不到它
+- 顺带修正脚本第 47 行注释里失效的行号引用（`app/functions.php:100` → `:142`）
+
+### 修复 · 两处文档事实订正
+- **`docs/SECURITY.md:501` 原文「`.env.example` 是公开模板文件，不包含真实密钥」与事实相反** ⇒ 改为实话：其中的密钥值是公开示例值、不是占位串、因此不触发启动守卫，必须替换；`gen-env-keys.sh` 会识别并替换
+- `README.md:304` 的命令注释「幂等，已配置的值不会被覆盖」在本次改动后不再成立 ⇒ 改为「占位值与 `.env.example` 里的公开示例值都会被替换，已自定义的值不动」
+- **`docs/INSTALL.md:53` 一字未改**：脚本修好后，那句「生成随机密钥并写入 .env（`JWT_SECRET_KEY`/`ENCRYPTION_KEY`/`HASHIDS_SALT` 等…）」从假话自动变成真话 —— 这是本批的主要收益
+
+### 修复 · 删除 `InstallController:709-710` 死代码
+- `preg_replace('/JWT_SECRET=.*/', …)` 匹配不到 `JWT_SECRET_KEY=`（`JWT_SECRET` 后面是 `_` 不是 `=`）⇒ 算出的随机数被丢弃、`preg_replace` 原样返回。真实生效的是下方 `$extra` 循环（`collectAdvanced()` 的 `$map` 恒含 `JWT_SECRET_KEY`，唯一调用点 `:588`）。删掉，避免哪天上游循环被重构后这行「看起来还在兜底」
+
+### 不改的（有意）
+- **`.env.example` 的值保持具体**：它是**可运行模板**，改成 `CHANGE_ME_*` 会让 `cp .env.example .env && php start.php start` 直接起不来（`env_required()` 缺值即抛）。启动守卫的角色是兜底「本来就会照抄占位串的人」，不是安全边界 —— 安全边界是轮换脚本真的替换 + 文档把话说准
+
+### 验证
+- **测试1（`.env.example` 副本）**：`已替换 12 个键` rc=0 ⇒ 12 个非空机密键全换；与模板做集合对照，剩余共有行全是非机密配置（`DB_HOST`/端口/`JWT_ALGORITHM`/`SNOWFLAKE_*` 等）**原样未动**
+- **测试2（幂等）**：对已处理过的文件复跑 ⇒ `无占位值、密钥长度均正确，未做改动` rc=0，md5 改前=改后 ⇒ 幂等未破，模板判据不会二次触发
+- **测试3（混合状态的真实 `.env` 副本）**：`已替换 7 个键`，且**只**替换了仍等于模板值的 7 个，已自定义的 5 个（`JWT_SECRET_KEY`/`HASHIDS_SALT`/`HASHIDS_ALT_SALT`/`ENCRYPTION_KEY`/`ENCRYPTABLE_KEY`）逐一比对**未被触碰** ⇒ 判据选择性正确
+- 语法：`php -l InstallController.php` rc=0、`bash -n gen-env-keys.sh` rc=0；`$jwtSecret` 删除后全文件无残留引用
+- **未验证（显式列出）**：① 没有对「真起一个 `cp .env.example .env` 的实例」打 HTTP 端到端；已验证的是密钥流向 config 的代码路径，以及同库同分支下**伪造 token 被接受**（负控：持私有密钥 ⇒ `Signature verification failed`）② i18n 那 11 份镜像里 `SECURITY.md`/`README.md` 的对应句子**未同步**（语义过期，但不触发 `doc-stats`：门禁只看 `<!-- stats:k=N -->` 标记，本批改的是散文）
+
+### 记录 · 本批起于一份外部披露，定级经复核下调
+- 披露方（handle `kta1kri`）报的是「公开仓库里 `.env.example` 带真密钥 + 守卫只拦 `change-me/xxx`」并定为 High。**机械复核后：描述的现象成立，High 的定级不成立** —— `docs/INSTALL.md:73`（`JWT_SECRET_KEY=修改为32位以上随机字符串`）与 `README.md:301`（生产环境务必替换所有密钥）都明写要改，绕开这两条属于运维未按文档执行，不是应用有洞
+- 真正站得住的残余是**补救工具承诺与行为不符**（文档点名它生成 `JWT_SECRET_KEY`/`ENCRYPTION_KEY`/`HASHIDS_SALT`，它却对这三个键纹丝不动并打印成功）⇒ 按**低危**处理，不建 advisory / 不申请 CVE
+- 披露另有一处事实错误：称向导路径的安全来自 `InstallController` 的 `bin2hex(random_bytes(24))`，实为本次删掉的死代码；真正兜底的是 `$extra` 循环
+
 ## v1.19.11 (2026-09-23)
 
 **页级动作 + 合并报表三动作 + 抵销分录边界收口批**：把「合并报表页只能看不能做」收口 —— 引擎新增**页级动作**能力，页面上接上后端已有的**生成草稿 / 抵销分录 / 出表**三个动作；同时把 `/eliminations` 的**客户端可触发 500** 收成 422。范围只含本批所需：**0 个新增控制器、0 个新增路由、0 个新增数据表**（后端只加了边界校验 + 一句 apidoc 注释订正）。

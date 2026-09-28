@@ -301,7 +301,7 @@ cp .env.example .env
 **生产环境务必替换所有密钥为随机字符串**（`JWT_SECRET_KEY` / `ENCRYPTION_KEY` / `HASHIDS_SALT` 等：缺失、为空或仍是 `change-me`/`xxx` 类弱占位值时，启动即被 `env_required` / `env_crypto_key` 拒绝，不会静默降级）：
 
 ```bash
-# 生成随机密钥并写入 .env（幂等，已配置的值不会被覆盖）
+# 生成随机密钥并写入 .env（幂等；占位值与 .env.example 里的公开示例值都会被替换，已自定义的值不动）
 bash scripts/gen-env-keys.sh .env
 ```
 

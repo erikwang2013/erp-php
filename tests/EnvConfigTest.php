@@ -121,6 +121,65 @@ class EnvConfigTest extends TestCase
         $this->assertStringContainsString("DB_USERNAME=erp_u\n", $env);
     }
 
+    /** @return array<string,string> 键名 => 整行（仅「名字像机密且值非空」的行） */
+    private static function secretLines(string $content): array
+    {
+        preg_match_all('/^[A-Za-z_][A-Za-z0-9_]*(KEY|SALT|SECRET|PASSWORD)=(.+)$/m', $content, $m);
+        $lines = [];
+        foreach ($m[0] as $line) {
+            $lines[explode('=', $line, 2)[0]] = $line;
+        }
+
+        return $lines;
+    }
+
+    #[Test]
+    public function gen_env_keys_replaces_public_template_secrets(): void
+    {
+        // 回归：.env.example 里的密钥是**具体值**而非 change-me 占位串，而脚本原先只认
+        // change-me|xxx ⇒ 一个都匹配不上，却打印「已替换 N 个键」成功退出。照 INSTALL.md 主线
+        // （cp .env.example .env + gen-env-keys.sh）部署的人会以为密钥已轮换，实际签名密钥公开：
+        // jwt.php:13 直接拿它当 HS256 密钥，而 AdminAuth::validateToken() 只验签名、不验签发登记。
+        $dir = sys_get_temp_dir() . '/erp-gen-keys-' . bin2hex(random_bytes(4));
+        mkdir($dir);
+        $env = $dir . '/.env';
+        $example = (string) file_get_contents(__DIR__ . '/../.env.example');
+        file_put_contents($env, $example);
+
+        $script = __DIR__ . '/../scripts/gen-env-keys.sh';
+        $run = static function () use ($script, $env): int {
+            exec('bash ' . escapeshellarg($script) . ' ' . escapeshellarg($env), $ignored, $rc);
+            clearstatcache();
+
+            return $rc;
+        };
+
+        $this->assertSame(0, $run(), 'gen-env-keys.sh 应退出 0');
+        $after = (string) file_get_contents($env);
+
+        $before = self::secretLines($example);
+        $this->assertNotEmpty($before, '前置：.env.example 里应有机密键，否则本用例空转');
+        foreach ($before as $key => $line) {
+            $this->assertNotSame(
+                $line,
+                self::secretLines($after)[$key] ?? '',
+                "$key 仍是 .env.example 的公开值（脚本漏替换）",
+            );
+        }
+
+        // 键名限缩承重：与模板同形的**非机密**行不得被动 —— .env.example 里确有 DB_HOST=127.0.0.1
+        // 这类同形行，判据若只看「整行相同」会把数据库地址换成随机串。
+        $this->assertStringContainsString("DB_HOST=127.0.0.1\n", $after, '非机密行 DB_HOST 不得被换');
+        $this->assertMatchesRegularExpression('/^REDIS_PASSWORD=$/m', $after, '空口令不得被填成随机值');
+
+        // 幂等：复跑不得再改（已自定义的值也不会被覆盖）
+        $this->assertSame(0, $run(), '复跑应退出 0');
+        $this->assertSame($after, (string) file_get_contents($env), '复跑应 no-op');
+
+        @unlink($env);
+        @rmdir($dir);
+    }
+
     #[Test]
     public function startup_ports_declared_in_env_and_example(): void
     {

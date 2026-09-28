@@ -706,9 +706,9 @@ class InstallController
             $template
         );
 
-        $jwtSecret = bin2hex(random_bytes(32));
-        $template = preg_replace('/JWT_SECRET=.*/', "JWT_SECRET={$jwtSecret}", $template);
-
+        // 此处曾有一行 preg_replace('/JWT_SECRET=.*/', …)：正则匹配不到 JWT_SECRET_KEY=
+        // （JWT_SECRET 后面是 _ 不是 =），算出的随机数被丢弃，是死代码。JWT_SECRET_KEY
+        // 实际由下方 $extra 循环按 collectAdvanced() 的结果整行覆盖，故直接删除。
         if (!preg_match('/^APP_KEY=/m', $template)) {
             $appKey = bin2hex(random_bytes(16));
             $template = preg_replace('/^(APP_URL=.*)$/m', "\$1\nAPP_KEY={$appKey}", $template);
