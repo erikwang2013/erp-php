@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.erik" "\0"
-            VALUE "FileDescription", "admin_app" "\0"
+            VALUE "FileDescription", "开放ERP" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "admin_app" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 com.erik. All rights reserved." "\0"
             VALUE "OriginalFilename", "admin_app.exe" "\0"
-            VALUE "ProductName", "admin_app" "\0"
+            VALUE "ProductName", "开放ERP" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

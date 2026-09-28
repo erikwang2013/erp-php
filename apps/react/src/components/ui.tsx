@@ -226,7 +226,7 @@ export function Empty({
   const t = useTr();
   return (
     <div className="center-block">
-      <Icon name="box" size={40} className="empty-icon" />
+      <img className="empty-mascot" src="/mascot.png" alt="" />
       <div className="empty-title">{t(title)}</div>
       {desc && <div className="empty-desc">{t(desc)}</div>}
       {action}

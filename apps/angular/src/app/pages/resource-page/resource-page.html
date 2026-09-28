@@ -124,7 +124,7 @@
       <app-result-view [blocks]="reportView()" />
     } @else if (!view().length) {
       <div class="center-block">
-        <app-icon name="box" class="block-icon" />
+        <img class="empty-mascot" src="mascot.png" alt="" />
         <div class="empty-title">{{ '暂无数据' | tr }}</div>
         @if (c.emptyDesc) {
           <div class="block-text">{{ c.emptyDesc | tr }}</div>

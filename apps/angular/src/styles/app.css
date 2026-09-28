@@ -231,6 +231,20 @@
   color: var(--text-2);
 }
 
+/* 空态吉祥物：灰阶去饱和（对位 Flutter widgets/empty_state.dart 的 ColorFiltered
+   矩阵 grayscale + 0.45 不透明度）。默认 96 对齐 Flutter EmptyState 默认值，
+   .sm=48 给卡片内空态（Flutter dashboard 用 48–56）。 */
+.empty-mascot {
+  width: 96px;
+  height: 96px;
+  filter: grayscale(1) opacity(0.45);
+}
+
+.empty-mascot.sm {
+  width: 48px;
+  height: 48px;
+}
+
 /* ============ 人机验证 ============ */
 
 .captcha-box {

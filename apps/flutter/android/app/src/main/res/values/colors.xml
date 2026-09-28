@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 自适应图标底色：圆徽自身底色 #EEF4FF（与 scripts/gen-mascot-assets.sh 压底色一致） -->
+    <color name="ic_launcher_background">#EEF4FF</color>
+</resources>

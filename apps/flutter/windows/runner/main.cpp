@@ -27,7 +27,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
-  if (!window.Create(L"admin_app", origin, size)) {
+  // The window title is written as Unicode escapes on purpose:
+  // this file has no BOM and the Windows build sets no /utf-8, so raw UTF-8
+  // would decode as the system ACP and trip C4819 under /WX.
+  if (!window.Create(L"\u5f00\u653eERP", origin, size)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

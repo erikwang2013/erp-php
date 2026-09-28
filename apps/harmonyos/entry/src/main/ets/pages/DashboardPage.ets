@@ -236,19 +236,28 @@ struct DashboardPage {
         .height(52)
         .padding({ left: 16, right: 16 })
 
-        Column() {
-          Text(greetingText(this.getUIContext()))
-            .fontSize(22)
-            .fontWeight(FontWeight.Bold)
-            .fontColor(ON_GRADIENT)
+        Row() {
+          Column() {
+            Text(greetingText(this.getUIContext()))
+              .fontSize(22)
+              .fontWeight(FontWeight.Bold)
+              .fontColor(ON_GRADIENT)
 
-          Text(dateLineText(this.getUIContext()))
-            .fontSize(12)
-            .fontColor(ON_GRADIENT_SUB)
-            .margin({ top: 6 })
+            Text(dateLineText(this.getUIContext()))
+              .fontSize(12)
+              .fontColor(ON_GRADIENT_SUB)
+              .margin({ top: 6 })
+          }
+          .alignItems(HorizontalAlign.Start)
+          .layoutWeight(1)
+
+          // 品牌吉祥物：对位登录页 mascot 用法（Splash 120 / 登录 104），hero 内取小一号不喧宾夺主
+          Image($r('app.media.mascot'))
+            .width(64)
+            .height(64)
+            .margin({ left: 12 })
         }
         .width('100%')
-        .alignItems(HorizontalAlign.Start)
         .padding({ left: 16, right: 16, bottom: 16 })
       }
       .width('100%')

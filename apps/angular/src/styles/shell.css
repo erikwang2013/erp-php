@@ -45,16 +45,12 @@
   flex-shrink: 0;
 }
 
+/* 品牌位吉祥物（对位 Flutter admin_layout.dart 的 Image.asset('assets/mascot.png', 28×28)）：
+   原为 28×28 渐变方块 + 文字 erp */
 .brand-logo {
   width: 28px;
   height: 28px;
-  border-radius: 6px;
-  background: var(--brand-grad);
-  color: var(--text-on-primary);
-  display: grid;
-  place-items: center;
-  font-size: var(--fs-sm);
-  font-weight: 700;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
@@ -144,8 +140,10 @@
   padding-left: 10px;
 }
 
+/* 折叠态 64px：品牌文字不藏会撑出宽度（.brand 左右各 16px padding + 28px logo 已占 60px） */
 .sidebar.folded .nav-label,
-.sidebar.folded .nav-caret {
+.sidebar.folded .nav-caret,
+.sidebar.folded .brand-name {
   display: none;
 }
 

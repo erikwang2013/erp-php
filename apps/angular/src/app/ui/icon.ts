@@ -33,7 +33,6 @@ import {
   DollarOutline,
   DownOutline,
   DownloadOutline,
-  DropboxOutline,
   EditOutline,
   ExceptionOutline,
   ExperimentOutline,
@@ -102,7 +101,10 @@ import type { IconDefinition } from '@ant-design/icons-angular';
  * 因此映射值必须是 *Outline 定义，且 app.config 里注册的就是这里的全部值。
  *
  * 替换说明（icons-angular 22.1 没有的名字）：layers→ApartmentOutline、
- * box→DropboxOutline、factory→BuildOutline；语义相近，调用方无感。
+ * factory→BuildOutline；语义相近，调用方无感。
+ * box→ContainerOutline：原映射 DropboxOutline 是 Dropbox 官方商标图形，而 box 被
+ * 「商品资料」侧栏菜单吃到（config/menu.ts:40），产品界面不应画第三方商标，故换中性
+ * 方箱（React ui/Icon.tsx 的 box 本就是自绘中性方箱）。别名键不变 ⇒ 调用点零改动。
  */
 export const ICON_MAP: Record<string, IconDefinition> = {
   accountBook: AccountBookOutline,
@@ -113,7 +115,7 @@ export const ICON_MAP: Record<string, IconDefinition> = {
   audit: AuditOutline,
   bell: BellOutline,
   block: BlockOutline,
-  box: DropboxOutline,
+  box: ContainerOutline,
   branches: BranchesOutline,
   bug: BugOutline,
   calendar: CalendarOutline,

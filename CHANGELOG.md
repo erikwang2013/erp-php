@@ -2,6 +2,48 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.17 (2026-09-28)
+
+**品牌吉祥物四端接入批**：把章鱼吉祥物「小八爪」（`docs/mascot.svg`）接入**四端所有品牌位**，并把此前各自为政、部分仍是脚手架默认产物的应用图标/启动图/壳层元数据一次收口。范围：**0 后端改动**，只动 `apps/`（Angular / React / Flutter / HarmonyOS）与 `scripts/`。
+
+### 新增 · `scripts/gen-mascot-assets.sh`（唯一源 → 四端位图）
+- 从 `docs/mascot.svg` 一次渲染 **79 个位图**，四端同源：Web 两端各 7 个（`favicon.ico` 3 帧、`apple-touch-icon` 180、`icon-192/512`、`icon-maskable-192/512`、`mascot.png` 400×400）；Flutter 五平台（Android 传统图标 5 档 + 自适应前景 5 档 · 108dp 画布 · 圆徽缩进 66dp 安全区 + `launch_image` 512 仅 xxxhdpi；iOS AppIcon 15 张压底 + LaunchImage 3 张；macOS 7 张；Windows `ico` 7 帧；web 4 张 + favicon）
+- **幂等是硬要求，且一开始没做到**：ImageMagick 会往 PNG 嵌 `date:create/date:modify/date:timestamp` 文本块，其值取输出文件自身 mtime（1 秒粒度）⇒ 像素完全相同、字节却会变（实测 56 个位图里 39 个字节不同）。修法是给**全部 magick 输出**加 `-define png:exclude-chunks=date,time`（`-strip` 无效，属性是写时重算的）。修后两次运行 **79 个位图逐字节相同**
+- 基准图 `apps/flutter/assets/mascot.png` 缺失时从 SVG 重渲染（此前该文件只能手放，脚本无法从源重建）
+- 只出 `xxxhdpi` 一档的 `launch_image` 是**设计如此**：位图固有 dp = 像素 ÷ 密度倍率 ⇒ 512px = 128dp；放 `drawable/`（按 mdpi 解释）会变 512dp 撑爆屏
+
+### 接入 · 四端品牌位
+- **Angular**：`index.html` 补 apple-touch-icon / manifest / theme-color（favicon href 未动）；侧栏品牌位由「28×28 渐变方块写 `erp`」换成吉祥物，**并修掉折叠态 `.brand-name` 未隐藏导致的溢出**；登录页加 96/84 响应式吉祥物；`resource-page` / `notification` 两处空态与 `dashboard` 三处纯文字空态换灰阶吉祥物（收敛到共享类 `.empty-mascot` / `.sm`）
+- **React**：同上（该端此前**零图片资产**、`public/` 目录都不存在）；另把 `index.html` 的**内联 `data:image/svg+xml` favicon**（渐变方块+「开」字）换成真实 `favicon.ico`
+- **Flutter**：登录页/侧栏/空态自 v1.6.0 起已接入，本批只补壳层 —— Android 自适应图标（`mipmap-anydpi-v26/ic_launcher.xml` + `values/colors.xml`）与两个 `launch_background.xml`；web favicon/PWA 图标/manifest；iOS AppIcon 15 张 + LaunchImage 3 张；macOS 7 张；Windows `app_icon.ico`。**PWA 元数据此前是脚手架模板**：`name/short_name=admin_app`、`description="A new Flutter project."`、`theme_color/background_color` 为 Flutter 默认蓝 `#0175C2`（改为本端 token `#0E7A6F` / `#F5F6F4`）
+- **HarmonyOS**：首页 hero 加吉祥物（64）；冷启动窗口底色 `#FFFFFF`（dark `#141414`）→ 品牌渐变首色 `#001D66`，消掉「白闪一下」（两份 `color.json` 同改 —— 该键唯一消费者是 `module.json5:23`，深色下原本是 `#141414`→蓝渐变的闪变）；删零引用死资源 `rawfile/logo.png`（删前已 grep 证零引用）
+
+### 修复 · 顺带收口的两处既有缺陷
+- **Angular 侧栏「商品资料」菜单画的竟是 Dropbox 商标**：`src/app/ui/icon.ts` 的 `box` 别名映射到 `@ant-design/icons-angular` 的 `DropboxOutline`（注释自陈「icons-angular 22.1 没有 box，用 DropboxOutline 顶替、语义相近」），被菜单、goods/fulfill 域图标、看板图标兜底共 4 处吃到 ⇒ 换成中性 `ContainerOutline`（该图标包里真实存在），**别名键名不变 ⇒ 4 个调用点零改动**。改后产物里 `dropbox` 全 bundle 0 命中
+- Flutter Web PWA 元数据为脚手架模板（见上）
+
+### 名称统一（用户裁定：`开放ERP`）
+- Flutter 端用户可见名 **7 处**统一：Android `android:label`、iOS `CFBundleDisplayName` + `CFBundleName`、web `name`/`short_name`/`<title>`/`apple-mobile-web-app-title`、Windows 窗口标题与 `.rc` 文件属性、Linux 窗口标题。其中 web 的 `<title>`/`apple-mobile-web-app-title` 原为 `erp开放平台` —— 该串在本仓**规范用途是词典键/菜单 label**（11 语种，en = `Open ERP Platform`），不是产品名；产品名以 `README.md` 与 `docs/INSTALL.md` 的 `开放ERP系统 (open-erp)` 为准
+- 描述串 3 处同一串（`pubspec.yaml:2` / `web/manifest.json` / `web/index.html` meta），**压缩改写自 `README.md:13` 项目简介**（非逐字沿用、非仓库既有串）
+- **有意不改**：Dart 包名 `admin_app`（35 个测试文件 `import package:admin_app/`，改名必炸）、构建标识（`BINARY_NAME` / `APPLICATION_ID` / Android namespace / bundle identifier）、macOS `PRODUCT_NAME`（见「未验证」）、应用内 l10n `appTitle`（11 语种本地化资产，属另一议题）；Windows `Runner.rc` 的 `InternalName`/`OriginalFilename` 也保留 —— 按 MS 定义这两个字段命名的是**文件本体**（产物真名仍是 `admin_app.exe`），改它们会让文件属性与真实文件名自相矛盾
+- **`windows/runner/main.cpp` 里 grep 不到「开放ERP」是正常的**：该文件无 BOM、Windows 构建无 `/utf-8`，而 `windows/CMakeLists.txt:42` 开着 `/WX` ⇒ 直写中文会触发 C4819 并被升级为 error，故窗口标题写成 UCN 转义（`L"开放ERP"`）。读代码时别按「漏改」处理
+
+### 验证
+- **四端 `mascot.png` md5 全等** `8040ea2aca24665d65e2ab9ffa123f1f`（核心不变量）
+- **位图物理核验**：iOS 15 张 AppIcon **无 alpha 通道**（HEAD 本有 14/15 是 palette 编码 ⇒ 本批是改善不是回归）；PWA `icon-192/512`、`apple-touch-icon`、maskable 全不透明；Android 前景 `108/162/216/324/432`、圆徽精确落在 66dp 安全区；Windows `app_icon.ico` 7 帧 16–256
+- **构建/测试**：Angular `ng build` rc=0；React `npm run build`（`tsc --noEmit && vite build`）rc=0；`flutter analyze` rc=0；`flutter test` `+195 All tests passed`（0 skip）
+- **门禁 11 道 rc=0**（doc-mirror / fe-captcha-single-submit / fe-detail-items / fe-edit-seq / fe-endpoints / fe-enum-text / fe-items-strip / fe-tree / flutter-quality-fk / flutter-settlement-fields / harmonyos-enum）。其中 **`check-fe-endpoints` 的 rc=0 为空转**（本机无后端，151 个端点全 `fetch failed`）⇒ **不构成证据**，另 10 道有效
+- **生成器幂等**：连续两次运行，91 个路径内容哈希 `diff` 0 行；56 个位图**像素零漂移**（新旧字节用 `%#` 签名逐一比对）
+- **反例 HEAD-vs-工作树**（只扫工作树会「零命中」而看不出本批修了什么）：`#0175C2` 1→0、`A new Flutter project` 3→0、内联 `svg+xml` 1→0、`Admin App` 1→0；`admin_app` 剩 42 文件但**全是标识符/包名、无一是用户可见文案**
+
+### 未验证 / 已知
+- **原生构建本机无工具链**（Android 自适应图标与启动背景、iOS、HarmonyOS、Windows/Linux runner、macOS）⇒ 只过静态核验（XML 良构、资源引用可解析、编码与编译期理由）。对应地，`android:label` 与两个 `CFBundle*` 值也只做了语法与读回核验
+- **macOS 窗口/菜单栏显示名仍是 `admin_app`**：`macos/Runner/Configs/AppInfo.xcconfig:8` 的 `PRODUCT_NAME` 同时喂 `.app` 产物名，而该产物名在 `project.pbxproj`（产物引用 + 三处 `TEST_HOST`）与 `Runner.xcscheme`（四处 `BuildableName`）里是**字面量、不随 `$(PRODUCT_NAME)` 联动** ⇒ 改它必须连 Xcode 工程一起改，属**构建身份**而非显示名。**（判据：位图是资产，名字是身份）**
+  - **收口的更小路径**（留给后续批次）：`macos/Runner/Info.plist` 目前**只有** `CFBundleName = $(PRODUCT_NAME)`、**没有** `CFBundleDisplayName` ⇒ 加一个 `CFBundleDisplayName = 开放ERP` 键即可只改显示名、不动产物身份。**本机无 `xcodebuild`，`$(TARGET_NAME)` 都解不出来，故本批未做**（不能把无法验证的配置塞进批里）
+- **跨端名称分叉（既有，本批只报告不修）**：`开放ERP`（Flutter 壳层）／`erp管理后台`（Flutter 应用内 arb，11 语种）／`erp开放管理后台`（Web 两端 title + PWA name）
+- **跨端品牌色分叉（既有，本批只报告不修）**：Web 两端与 Flutter token 为青绿 `#0e7a6f→#17a08f`，HOS 与 Flutter 门面为蓝 `#001D66→#1677FF→#69B1FF`（吉祥物本体是蓝）
+- **门禁覆盖缺口**：16 道门禁**无一**断言位图/吉祥物/名称不变量 ⇒ 本批建立的核心不变量目前靠人肉维持
+
 ## v1.19.16 (2026-09-28)
 
 **文档镜像门禁批**：新增 `scripts/check-doc-mirror.mjs`（第 16 道门禁，挂 `docs` 作业）—— 此前**没有任何门禁看着「镜像结构须同形」这条不变量**，纯靠人工维持，实测已因此漂移过三次。并修掉现存漂移。范围：**0 代码改动**。

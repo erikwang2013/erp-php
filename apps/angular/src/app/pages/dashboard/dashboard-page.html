@@ -115,7 +115,10 @@
           }
         </svg>
       } @else {
-        <div class="empty-desc">{{ '暂无趋势数据' | tr }}</div>
+        <div class="center-block">
+          <img class="empty-mascot sm" src="mascot.png" alt="" />
+          <div class="empty-desc">{{ '暂无趋势数据' | tr }}</div>
+        </div>
       }
     </div>
 
@@ -124,7 +127,10 @@
         <span class="card-title">{{ '账户状态分布' | tr }}</span>
       </div>
       @if (dist().length === 0) {
-        <div class="empty-desc">{{ '暂无数据' | tr }}</div>
+        <div class="center-block">
+          <img class="empty-mascot sm" src="mascot.png" alt="" />
+          <div class="empty-desc">{{ '暂无数据' | tr }}</div>
+        </div>
       } @else {
         <div class="stack">
           @for (d of dist(); track $index) {
@@ -151,7 +157,10 @@
       <span class="card-title">{{ '最近操作日志' | tr }}</span>
     </div>
     @if (logs().length === 0) {
-      <div class="empty-desc">{{ '暂无日志' | tr }}</div>
+      <div class="center-block">
+        <img class="empty-mascot sm" src="mascot.png" alt="" />
+        <div class="empty-desc">{{ '暂无日志' | tr }}</div>
+      </div>
     } @else {
       <div class="table-wrap">
         <table class="table">

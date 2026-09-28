@@ -101,7 +101,7 @@ export function Shell() {
     <div className="shell">
       <aside className={`sidebar${folded ? ' folded' : ''}`}>
         <div className="brand">
-          <div className="brand-logo">erp</div>
+          <img className="brand-logo" src="/mascot.png" alt="" />
           <span className="brand-name">{t('管理后台')}</span>
         </div>
         <nav className="nav">

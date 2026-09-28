@@ -1,5 +1,5 @@
 name: admin_app
-description: "A new Flutter project."
+description: "面向中小企业的开源全栈 ERP 系统，覆盖进销存、财务核算、生产制造、CRM 与审批工作流。"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev

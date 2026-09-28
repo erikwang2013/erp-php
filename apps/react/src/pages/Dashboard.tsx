@@ -109,14 +109,20 @@ export function Dashboard() {
               {trend && trend.dates.length > 0 ? (
                 <LineChart dates={trend.dates} series={trend.series} />
               ) : (
-                <div className="empty-desc">{t('暂无趋势数据')}</div>
+                <div className="center-block">
+                  <img className="empty-mascot" src="/mascot.png" alt="" />
+                  <div className="empty-desc">{t('暂无趋势数据')}</div>
+                </div>
               )}
             </div>
 
             <div className="card body">
               <div style={{ fontWeight: 600, marginBottom: 12 }}>{t('账户状态分布')}</div>
               {dist.length === 0 ? (
-                <div className="empty-desc">{t('暂无数据')}</div>
+                <div className="center-block">
+                  <img className="empty-mascot" src="/mascot.png" alt="" />
+                  <div className="empty-desc">{t('暂无数据')}</div>
+                </div>
               ) : (
                 <>
                   <div style={{ display: 'flex', height: 10, borderRadius: 5, overflow: 'hidden', background: 'var(--surface-alt)', marginBottom: 12 }}>
@@ -146,7 +152,10 @@ export function Dashboard() {
           <div className="card body" style={{ marginTop: 16 }}>
             <div style={{ fontWeight: 600, marginBottom: 8 }}>{t('最近操作日志')}</div>
             {(data.recent_logs ?? []).length === 0 ? (
-              <div className="empty-desc">{t('暂无日志')}</div>
+              <div className="center-block">
+                <img className="empty-mascot" src="/mascot.png" alt="" />
+                <div className="empty-desc">{t('暂无日志')}</div>
+              </div>
             ) : (
               <div className="table-wrap">
                 <table className="table">

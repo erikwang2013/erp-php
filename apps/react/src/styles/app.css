@@ -89,16 +89,11 @@ td.num {
   white-space: nowrap;
 }
 
+/* 品牌吉祥物（圆形徽章图，自带底色，别再叠渐变瓦片）；与 Flutter admin_layout.dart 同位同尺寸 */
 .brand-logo {
   width: 28px;
   height: 28px;
-  border-radius: 8px;
-  background: var(--brand-grad);
-  color: var(--text-on-primary);
-  display: grid;
-  place-items: center;
-  font-size: 15px;
-  font-weight: 700;
+  object-fit: contain;
   flex-shrink: 0;
 }
 
@@ -988,6 +983,14 @@ td.num {
   color: var(--text-4);
 }
 
+/* 空态吉祥物：灰阶去饱和 + 降透明度，与 Flutter app/widgets/empty_state.dart 的 ColorFiltered 同形 */
+.empty-mascot {
+  width: 56px;
+  height: 56px;
+  object-fit: contain;
+  filter: grayscale(1) opacity(0.45);
+}
+
 .empty-title {
   font-size: var(--fs-base);
   font-weight: 500;
@@ -1135,6 +1138,22 @@ td.num {
   border-radius: var(--r-facade);
   box-shadow: var(--shadow-facade);
   padding: 28px 28px 24px;
+}
+
+/* 登录页吉祥物：宽屏 148 / 窄屏 84，与 Flutter login_page.dart 的 hero 尺寸一致 */
+.login-mascot {
+  display: block;
+  width: 148px;
+  height: 148px;
+  margin: 0 auto 12px;
+  object-fit: contain;
+}
+
+@media (max-width: 480px) {
+  .login-mascot {
+    width: 84px;
+    height: 84px;
+  }
 }
 
 .login-title {

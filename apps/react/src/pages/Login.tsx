@@ -60,6 +60,7 @@ export function Login() {
   return (
     <div className="login">
       <div className="login-card">
+        <img className="login-mascot" src="/mascot.png" alt="" />
         <h1 className="login-title">{t('erp开放管理后台')}</h1>
         <p className="login-sub">{t('Open ERP · Web 控制台')}</p>
 
