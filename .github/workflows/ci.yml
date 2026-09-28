@@ -76,6 +76,11 @@ jobs:
 
       - name: Prepare .env for CI
         run: |
+          # 密钥轮换：.env.example 的密钥值是公开的，而 app/functions.php 的
+          # assert_env_not_placeholder() 现在会拒绝「等于 .env.example 同名键的值」⇒
+          # 不跑这步，加载 config（env_required/env_crypto_key）即抛，phpunit 起不来。
+          # 顺序无碍：轮换后再 sed 置空 DB_PASSWORD 仍是空值（脚本遇空值会跳过）。
+          bash scripts/gen-env-keys.sh .env
           # DB_PASSWORD 置空：本 job 的 mysql service 为 root 空口令（与 e2e job 同款处理），
           # 不置空则 app config 连接（CrmModuleTest/CrmServiceTest 分析报表走此路径）必 1045 access denied
           sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=/' .env
@@ -118,7 +123,7 @@ jobs:
             exit $code
           fi
         # 遗留#2：与 e2e job 的 mysql/redis 服务一致，跑起集成测试（缺则 markTestSkipped 跳过）
-        # 注：.env 的 DB_PASSWORD 已在 Generate random secrets 步骤置空，
+        # 注：.env 的 DB_PASSWORD 已在「Prepare .env for CI」步骤置空，
         # 使走 app config 的模块测试（CrmModuleTest 分析报表等）能连上 mysql 服务
         env:
           TEST_DB_DATABASE: erp
@@ -375,6 +380,11 @@ jobs:
         # E2E_CAPTCHA_CODE：AuthController 的 E2E 旁路口令（登录时 captcha_key 与之相等则跳过点击验证），
         # 验证码目标坐标属服务端秘密，E2E 脚本无法自行求解，故由 CI 注入测试口令。
         run: |
+          # 密钥轮换：同 php job —— 守卫拒绝等于 .env.example 的公开值，不轮换则 webman 起不来。
+          # 安全前提已核：install.sql 对全部 encryptable 表（admin_user/supplier/customer/
+          # hr_employee/warehouse/openapi_app/webhook_subscription/crm_contact）零 INSERT，
+          # 故 ENCRYPTION_KEY/ENCRYPTABLE_KEY 轮换不会让任何既有密文解不开。
+          bash scripts/gen-env-keys.sh .env
           sed -i 's/^SCOUT_DRIVER=.*/SCOUT_DRIVER=null/' .env
           sed -i 's/^DB_PASSWORD=.*/DB_PASSWORD=/' .env
           echo 'E2E_CAPTCHA_CODE=e2e-test-code' >> .env

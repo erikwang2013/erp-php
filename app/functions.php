@@ -134,14 +134,71 @@ function env_secret(string $key, string $label, bool $allowEmpty = false): strin
 }
 
 /**
- * 占位值检测：环境变量值包含 change-me / change_me / CHANGE_ME / xxx 等
- * 弱占位特征时抛异常，防止占位密钥/口令被静默用于生产。
+ * 读取 .env.example 中的非空键值（只读一次，进程内缓存）。
+ *
+ * 用于判断某个环境变量的值是否**仍是本仓库公开发布的示例值**。这与下面正则那条是
+ * 两类不同的判据：正则是「看起来像占位串」——那是个无界集合，枚举不完；本函数是
+ * 「就是我们公布过的那个值」——事实判断，零漏报零误报。
+ *
+ * 文件缺失（如运维删了模板）时返回空数组 ⇒ 退化为只做正则那条，不会误杀。
+ *
+ * @return array<string,string>
+ */
+function example_env_values(): array
+{
+    static $values = null;
+
+    if ($values === null) {
+        $values = [];
+        $file = dirname(__DIR__) . '/.env.example';
+        if (is_file($file)) {
+            foreach (file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) ?: [] as $line) {
+                if (!preg_match('/^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/', $line, $m)) {
+                    continue;
+                }
+                $value = trim($m[2]);
+                // 空值不参与：模板里 REDIS_PASSWORD= 这类本就该留空
+                if ($value !== '') {
+                    $values[$m[1]] = $value;
+                }
+            }
+        }
+    }
+
+    return $values;
+}
+
+/**
+ * 占位/公开值检测：命中即抛异常，防止弱密钥/口令被静默用于生产。
+ *
+ * 两条判据：
+ *   ① 值形如 change-me / xxx 等弱占位串；
+ *   ② 值等于 .env.example 里同名键的值 —— 即本公开仓库里印着的那个值。
+ *
+ * ② 是后加的，因为只有 ① 时守卫覆盖不到最危险的一类：.env.example 里那些
+ * **看起来像真随机**的具体值（如 JWT_SECRET_KEY=636ffaf5…）能全部通过检查并成功
+ * 启动 —— 于是照文档 `cp .env.example .env` 的部署会带着公开的签名密钥上线。
+ * 判据 ② 让守卫真正覆盖那条路径（`.dockerignore` 有 `!.env.example`，模板随镜像发布）。
+ *
+ * ② 有唯一的显式豁免：ALLOW_PUBLIC_EXAMPLE_SECRETS=1。它**刻意不写进 .env.example**
+ * —— 照抄模板就不会带上它，危险路径仍然是启动即拒。它只给本地开发用（例如数据库口令
+ * 本就取自模板、而 MySQL 那边没法跟着改）；生产环境不得设置。
+ * ① （change-me/xxx）不受豁免影响，任何环境一律拒绝。
  */
 function assert_env_not_placeholder(string $key, string $value): void
 {
     if (preg_match('/(change[-_]me|xxx)/i', $value)) {
         throw new \RuntimeException(
             "环境变量 {$key} 的值仍为弱占位值（change-me/CHANGE_ME/xxx），部署前必须替换为强随机密钥/口令，请参照 .env.example 重新配置后重试"
+        );
+    }
+
+    if ($value === (example_env_values()[$key] ?? null)
+        && getenv('ALLOW_PUBLIC_EXAMPLE_SECRETS') !== '1') {
+        throw new \RuntimeException(
+            "环境变量 {$key} 的值仍是 .env.example 里公开的示例值 —— 该值在公开仓库中，照抄上线等于此密钥/口令公开。"
+            . '修复：bash scripts/gen-env-keys.sh .env（替换占位值与模板公开值，已自定义的值不动）。'
+            . '本地开发确需沿用公开值（如数据库口令取自模板且服务端不便改）时，显式设 ALLOW_PUBLIC_EXAMPLE_SECRETS=1 放行；生产环境不得设置该项'
         );
     }
 }

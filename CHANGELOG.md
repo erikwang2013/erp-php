@@ -2,6 +2,40 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.13 (2026-09-28)
+
+**守卫收口批：`assert_env_not_placeholder()` 从「枚举占位串」改为「比对公开值」**。v1.19.12 修了轮换脚本，但守卫本身仍只认 `change-me|xxx` —— 那是 denylist，覆盖不了 `.env.example` 里那批**看起来像真随机**的具体值，于是「只 `cp .env.example .env`、不跑 `gen-env-keys.sh`」这条路仍然带着公开密钥静默启动。本批把这条路径也堵上。范围：**0 个新增控制器 / 路由 / 数据表**。
+
+### 修复 · 守卫新增精确判据（`app/functions.php`）
+- 新增 `example_env_values()`：读一次 `.env.example` 取非空键值（进程内 static 缓存；**文件缺失时返回空数组** ⇒ 退化为老行为，不误杀）
+- `assert_env_not_placeholder()` 增设判据 ②：**值等于 `.env.example` 同名键的值 ⇒ 拒绝**。这是**事实判断**而非启发式 —— 坏值（种种占位串）是无界集合、枚举不完，而「我们公布过的那个值」可精确定位、零漏报零误报。判据 ①（change-me/xxx）保持不变，任何环境一律拒绝
+- 覆盖范围即 `env_required` / `env_secret` / `env_crypto_key` 的 8 个调用点：`JWT_SECRET_KEY` / `HASHIDS_SALT` / `HASHIDS_ALT_SALT` / `ENCRYPTION_KEY` / `ENCRYPTABLE_KEY` / `DB_PASSWORD` / `RABBITMQ_PASSWORD` / `ES_PASSWORD`
+- **为什么不直接把 `.env.example` 的值换成 `CHANGE_ME_*`**（那是更直觉的修法）：12 份 i18n README 各 3 行写着「`.env.example` 预置 48 位随机值」，改值要连带改 13 语言 39 个格子；精确判据同样达成目标，且不动模板、不动文档
+
+### 新增 · 唯一显式豁免 `ALLOW_PUBLIC_EXAMPLE_SECRETS=1`
+- **刻意不写进 `.env.example`** —— 照抄模板不会带上它，危险路径仍然启动即拒。只给本地开发用（典型场景：数据库口令本就取自模板，而 MySQL 那边的真实口令不便跟着改）；生产环境不得设置
+- 只放行判据 ②；`change-me` 类占位值**不受豁免影响**（实测）
+- **为什么不用 `APP_ENV` 分档**（本批最初的方案，已否）：该分档在本场景**失效** —— `.env.example:18` 就是 `APP_ENV=development`，照抄模板的人拿到的正是 development，生产档永远不会触发
+
+### 修复 · CI 恢复密钥轮换（`.github/workflows/ci.yml`）
+- php / e2e 两个作业的 `cp .env.example .env` 之后各补 `bash scripts/gen-env-keys.sh .env`（不补则加载 config 即抛，两个作业全红）
+- 安全前提已核：`install.sql` 对全部 8 张 encryptable 表（`admin_user` / `supplier` / `customer` / `hr_employee` / `warehouse` / `openapi_app` / `webhook_subscription` / `crm_contact`）**零 INSERT** ⇒ `ENCRYPTION_KEY` / `ENCRYPTABLE_KEY` 轮换不会让任何既有密文解不开
+- 顺带修正一处陈旧注释：该文件曾引用「Generate random secrets」步骤，而该步骤早已不存在（改名为「Prepare .env for CI」后注释未跟上）
+- **历史脉络（这条缺口是怎么开的）**：`.env.example` 原本是 `CHANGE_ME_*`、CI 也确有替换步骤；`93a20f0`（v1.6.0）把模板换成具体随机值后，CI 那些 `CHANGE_ME_` 步骤沦为死步骤被清理 —— 副作用是守卫从此再也抓不到模板值。本批把「模板是具体值」与「守卫能抓住模板值」这两件事重新接上
+
+### 验证
+- **守卫行为探针**（直接跑 `app/functions.php` 真身，7 种情形）：模板值+无豁免 ⇒ 拒；模板值+豁免=1 ⇒ 放行；豁免=0 ⇒ 拒；**change-me + 豁免=1 ⇒ 仍拒**；自建随机值 ⇒ 放行；模板里没有的键 ⇒ 放行；值只差一个字符 ⇒ 放行
+- **CI 路径复刻**（不依赖 vendor）：`cp .env.example` → `gen-env-keys.sh` → `sed 's/^DB_PASSWORD=.*/DB_PASSWORD=/'` 之后，8 个受管辖键在**不带豁免**的情况下全部通过 ⇒ 本批不会把 CI 改红
+- `php -l` 两个改动文件通过；`ci.yml` YAML 解析通过；`doc-stats --fix` 已跑（1056→1057 用例 / 5063→5070 断言）并复跑 `--check` rc=0 / 338 处一致
+- 本机 `.env` 已追加豁免行 —— 实测其 `DB_PASSWORD` 确等于模板值，且**本机 MySQL root 的真实口令就是该值**（模板口令可登录、空口令不行）⇒ 不加豁免会直接阻断本地栈
+- PHPStan（`app/functions.php`，本批唯一改动的 PHP 源）rc=0 `[OK]`
+- **未验证 / 需注意（显式）**：
+  - ① **全量单测有 1 个失败，但不是本批引入的** —— `1068 / 3346 / Failures: 1 / Skipped: 443`，失败为 `WebSocketAuthTest::testRefreshTokenRejected`。根因：一个**并发的 `composer update`**（12:04 起、长期停在 D 状态等磁盘 I/O）把 `jwt-webman` 从 **v2.0.8 升到 v2.1.2**，新版把「拒绝 refresh 令牌」搬进了库的 `decode()`（`vendor/erikwang2013/jwt-webman/src/erik-jwt/JWT.php:118`）⇒ `validateToken()` 的 `catch (JWTException | \Exception)` 先接住，返回文案由「请使用访问令牌」变成「Token已过期或无效」。**CI 用已提交的 lock（仍是 v2.0.8）故不受影响**；但那份 `composer.lock` 一旦提交，**CI 会红在这条用例**，且 `app/middleware/AdminAuth.php:78-80` 的 refresh 检查会成为**不可达代码**。本批未动它 —— 改测试去迁就一份尚未提交的依赖升级是错的
+  - ② 集成套件未跑（需 scratch 库；本机 `TEST_DB_*` 指向真库，跑集成会写行）
+
+### 致谢
+- **kta1kri** —— 指出 `assert_env_not_placeholder()` 无法阻止 `.env.example` 中的公开值被静默用于生产、其防护宣称与实际能力不符。详见 `docs/SECURITY.md` §13「安全致谢」
+
 ## v1.19.12 (2026-09-28)
 
 **密钥轮换工具的「模板残留」收口批**：`docs/INSTALL.md` 的部署主线是 `cp .env.example .env` + `bash scripts/gen-env-keys.sh .env`，而该脚本只认 `change-me|xxx` 字面占位串 —— `.env.example` 里那 10 个具体值（`JWT_SECRET_KEY` / `HASHIDS_SALT` / `ENCRYPTION_KEY` / `DB_PASSWORD` / `ES_PASSWORD` 等）一个都不匹配，脚本打印「已替换 N 个键」成功后原样留下它们。⇒ **照文档做的人会以为密钥已轮换，实际签名密钥仍是公开值**（`jwt.php:13` 直接把它当 HS256 密钥；`AdminAuth::validateToken()` 只验签名、不验「这枚 token 由本服务签发过」⇒ 知道密钥即可伪造任意 `sub`）。范围：**0 个新增控制器 / 路由 / 数据表**，3 个文件（1 行为 + 2 文案）。
@@ -30,10 +64,10 @@
 - 语法：`php -l InstallController.php` rc=0、`bash -n gen-env-keys.sh` rc=0；`$jwtSecret` 删除后全文件无残留引用
 - **未验证（显式列出）**：① 没有对「真起一个 `cp .env.example .env` 的实例」打 HTTP 端到端；已验证的是密钥流向 config 的代码路径，以及同库同分支下**伪造 token 被接受**（负控：持私有密钥 ⇒ `Signature verification failed`）② i18n 那 11 份镜像里 `SECURITY.md`/`README.md` 的对应句子**未同步**（语义过期，但不触发 `doc-stats`：门禁只看 `<!-- stats:k=N -->` 标记，本批改的是散文）
 
-### 记录 · 本批起于一份外部披露，定级经复核下调
-- 披露方（handle `kta1kri`）报的是「公开仓库里 `.env.example` 带真密钥 + 守卫只拦 `change-me/xxx`」并定为 High。**机械复核后：描述的现象成立，High 的定级不成立** —— `docs/INSTALL.md:73`（`JWT_SECRET_KEY=修改为32位以上随机字符串`）与 `README.md:301`（生产环境务必替换所有密钥）都明写要改，绕开这两条属于运维未按文档执行，不是应用有洞
-- 真正站得住的残余是**补救工具承诺与行为不符**（文档点名它生成 `JWT_SECRET_KEY`/`ENCRYPTION_KEY`/`HASHIDS_SALT`，它却对这三个键纹丝不动并打印成功）⇒ 按**低危**处理，不建 advisory / 不申请 CVE
-- 披露另有一处事实错误：称向导路径的安全来自 `InstallController` 的 `bin2hex(random_bytes(24))`，实为本次删掉的死代码；真正兜底的是 `$extra` 循环
+### 记录 · 本批起于一份外部披露（定级经复核下调；致谢见 `docs/SECURITY.md` §13）
+- 该披露报的是「公开仓库里 `.env.example` 带具体密钥 + 守卫只拦 `change-me`/`xxx`」，自评 High。**机械复核后：描述的现象成立，High 的定级不成立** —— `docs/INSTALL.md:73`（`JWT_SECRET_KEY=修改为32位以上随机字符串`）与 `README.md:301`（生产环境务必替换所有密钥）都明写要改，绕开这两条属于运维未按文档执行，不是应用有洞
+- 真正站得住的残余是**补救工具承诺与行为不符**（文档点名它生成 `JWT_SECRET_KEY`/`ENCRYPTION_KEY`/`HASHIDS_SALT`，它却对这三个键纹丝不动并打印成功）⇒ 按**低危**处理，不建 advisory / 不申请 CVE。其中「**守卫覆盖不到模板值**」这一条已在 v1.19.13 修复 —— 那正是本次致谢所指的贡献
+- 该披露另有一处事实错误：称向导路径的安全来自 `InstallController` 的 `bin2hex(random_bytes(24))`，实为本次删掉的死代码；真正兜底的是 `$extra` 循环
 
 ## v1.19.11 (2026-09-23)
 

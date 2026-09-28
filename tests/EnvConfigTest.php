@@ -181,6 +181,51 @@ class EnvConfigTest extends TestCase
     }
 
     #[Test]
+    public function env_guard_rejects_public_example_values(): void
+    {
+        // 回归：守卫原先只认 change-me|xxx，而 .env.example 里的值是**看起来像真随机的具体值**
+        // ⇒ 照文档 `cp .env.example .env` 的部署会带着公开的 JWT 签名密钥成功启动。现在改为
+        // 对着 .env.example 做精确比对（事实判断，不是启发式枚举）。
+        $key = 'JWT_SECRET_KEY';
+        $templateValue = example_env_values()[$key] ?? null;
+        $this->assertNotEmpty($templateValue, '前置：.env.example 应有 JWT_SECRET_KEY，否则本用例空转');
+
+        $rejects = static function (string $k, string $v): bool {
+            try {
+                assert_env_not_placeholder($k, $v);
+
+                return false;
+            } catch (\RuntimeException) {
+                return true;
+            }
+        };
+
+        $previous = getenv('ALLOW_PUBLIC_EXAMPLE_SECRETS');
+        try {
+            // 默认 fail-closed：模板值一律拒绝
+            putenv('ALLOW_PUBLIC_EXAMPLE_SECRETS');
+            $this->assertTrue($rejects($key, $templateValue), '模板公开值必须被拒绝');
+
+            // 值只要不是模板里那个（哪怕只差一个字符）就不该被这条判据拦
+            $this->assertFalse($rejects($key, $templateValue . 'x'), '非模板值不得被这条判据误杀');
+            $this->assertFalse($rejects('NOT_IN_EXAMPLE_AT_ALL', $templateValue), '模板里没有的键不得被误杀');
+
+            // 豁免只放行模板值这一条；change-me 那条不受豁免影响
+            putenv('ALLOW_PUBLIC_EXAMPLE_SECRETS=1');
+            $this->assertFalse($rejects($key, $templateValue), '显式豁免后模板值应放行');
+            $this->assertTrue($rejects($key, 'CHANGE_ME_whatever'), '豁免不得放行 change-me 类占位值');
+
+            // 只有字面量 "1" 算豁免
+            putenv('ALLOW_PUBLIC_EXAMPLE_SECRETS=0');
+            $this->assertTrue($rejects($key, $templateValue), '豁免必须显式为 1');
+        } finally {
+            $previous === false
+                ? putenv('ALLOW_PUBLIC_EXAMPLE_SECRETS')
+                : putenv("ALLOW_PUBLIC_EXAMPLE_SECRETS={$previous}");
+        }
+    }
+
+    #[Test]
     public function startup_ports_declared_in_env_and_example(): void
     {
         // 启动端口集中在 .env（后端监听 / 前端 dev server / docker 发布），两份模板须一致：
