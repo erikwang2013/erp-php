@@ -21,7 +21,7 @@
 - `pubspec.yaml:1` + **35 个测试文件**的 `import 'package:admin_app/…'` → `package:erik_erp/…`（分布：`test/pages` 20、`test/widgets` 8、`test/services` 4、`test/l10n` 2、`test/` 1）；`lib/` 用相对 import，零改动
 - 改名后 `flutter pub get` → `Got dependencies!` rc=0（`.dart_tool/` 是 gitignore 的生成物，不入库）
 - **验证**：`flutter analyze` rc=0（`No issues found!`）；`flutter test` rc=0，**`+195 All tests passed`**（0 skip）—— 35 个 import 文件全部编译并通过，这是本次改名最硬的证据
-- 全仓 `package:admin_app/` 残留 **0 命中**（`grep` rc=1）
+- **代码里 `package:admin_app/` 残留 0**（`.dart` 与 `pubspec` 全干净）；`grep` 全仓仍会命中 2 处，都在本 CHANGELOG 的改名说明里（第 21 行与本行之上）—— 那是记录，不是残留
 
 ### 有意不改（都不是「包名」）
 - **可执行/产物名**：`BINARY_NAME=admin_app`、`admin_app.exe`、`admin_app.app`、`Runner.rc` 的 `InternalName`/`OriginalFilename`（命名的是文件本体，改成域名式会让元数据与真实文件名矛盾）
@@ -29,7 +29,8 @@
 - **macOS `PRODUCT_NAME`**：同时喂 `.app` 产物名且被 pbxproj/xcscheme 字面量引用（见 v1.19.17 的「已知」档）
 
 ### 验证
-- 全仓旧标识 **0 命中**（`grep` rc=1，rc 在单独行捕获、未经管道）
+- **构建标识文件里旧标识 0 残留**（Android gradle/Kotlin、两个 pbxproj、xcconfig、CMakeLists、app.json5 逐文件核过）
+  - 措辞收窄的原因：`grep` 全仓仍会命中 8 处，**全部是本 CHANGELOG 的改名说明与门禁自身注释里列举的旧标识文本** —— 属记录、非残留。这也是门禁 `noLegacy` 按文件清单扫、而**不**扩成全仓扫描的原因（扩了会撞上记录而自我误报）
 - Kotlin **包名与目录逐段一致**（`package xyz.erik.erp` ↔ `kotlin/xyz/erik/erp/`）
 - `AppScope/app.json5` 去注释后可 `json.loads`，`bundleName` 读回 `xyz.erik.erp`
 - 两个 `pbxproj` 与 `build.gradle.kts` 括号/引号配平；门禁 #17 rc=0；**Dart 树 0 改动**（`git status` 空 ⇒ 上一批的 `flutter analyze`/`test` 结论继续有效）
