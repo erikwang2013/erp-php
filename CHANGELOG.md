@@ -2,6 +2,35 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.19 (2026-09-28)
+
+**应用包名统一批**：Flutter 四平台与 HarmonyOS 的**应用标识**由 `com.erik.admin_app` / `com.erik.adminApp` / `xyz.erik.openadmin` 三套统一为 **`xyz.erik.erp`**。范围：**0 代码逻辑改动**（纯构建标识）。
+
+### 改动 · 五端标识
+| 端 | 位置 | 前 → 后 |
+|---|---|---|
+| Android | `android/app/build.gradle.kts:9`(namespace) / `:24`(applicationId) | `com.erik.admin_app` → `xyz.erik.erp` |
+| Android | `kotlin/com/erik/admin_app/MainActivity.kt` → `kotlin/xyz/erik/erp/MainActivity.kt`（`git mv`，保历史）+ `package` 行 | 同上 |
+| iOS | `ios/Runner.xcodeproj/project.pbxproj` **6 处** | `com.erik.adminApp`(+`.RunnerTests`) → `xyz.erik.erp`(+`.RunnerTests`) |
+| macOS | `Configs/AppInfo.xcconfig:11` + `macos/Runner.xcodeproj/project.pbxproj` **3 处** | 同上 |
+| Linux | `linux/CMakeLists.txt:10` `APPLICATION_ID` | `com.erik.admin_app` → `xyz.erik.erp` |
+| HarmonyOS | `AppScope/app.json5:3` `bundleName` | `xyz.erik.openadmin` → `xyz.erik.erp` |
+
+### 有意不改（都不是包名）
+- **Dart 包名 `admin_app`** —— 35 个测试文件 `import package:admin_app/`，且 Dart 包名**不允许点号**，`xyz.erik.erp` 在语法上就不成立
+- **可执行/产物名**：`BINARY_NAME=admin_app`、`admin_app.exe`、`admin_app.app`、`Runner.rc` 的 `InternalName`/`OriginalFilename`（命名的是文件本体，改成域名式会让元数据与真实文件名矛盾）
+- **版权/公司串 `com.erik`**：`Runner.rc:92/96`、`AppInfo.xcconfig:14`
+
+### 验证
+- 全仓旧标识 **0 命中**（`grep` rc=1，rc 在单独行捕获、未经管道）
+- Kotlin **包名与目录逐段一致**（`package xyz.erik.erp` ↔ `kotlin/xyz/erik/erp/`）
+- `AppScope/app.json5` 去注释后可 `json.loads`，`bundleName` 读回 `xyz.erik.erp`
+- 两个 `pbxproj` 与 `build.gradle.kts` 括号/引号配平；门禁 #17 rc=0；**Dart 树 0 改动**（`git status` 空 ⇒ 上一批的 `flutter analyze`/`test` 结论继续有效）
+- **未构建验证**：Android / iOS / macOS / Linux / HOS 原生构建本机无工具链（与 v1.19.17 同一限制）
+
+### 影响
+- Android 换 `applicationId` = **换应用身份**：已装旧包名的设备会视为两个应用，原应用不会自动升级。发布前切换即无影响；若已在应用市场发布过，需另行处理（本仓未见发布痕迹）
+
 ## v1.19.18 (2026-09-28)
 
 **品牌吉祥物同源门禁批**：新增 `scripts/check-mascot-assets.mjs`（第 17 道门禁，挂 `docs` 作业）—— v1.19.17 建立的「四端吉祥物同源 + 品牌位引用未断」不变量，此前**没有任何门禁看着**（16 道逐条 grep 过，无一涉及位图/吉祥物/应用名），纯靠人肉维持；而 v1.19.17 那批之所以发生，正是因为它「问一句『都改了吗』当时没人能答」。范围：**0 产品代码改动**。

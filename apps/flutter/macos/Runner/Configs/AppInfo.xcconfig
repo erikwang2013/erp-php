@@ -8,7 +8,7 @@
 PRODUCT_NAME = admin_app
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.erik.adminApp
+PRODUCT_BUNDLE_IDENTIFIER = xyz.erik.erp
 
 // The copyright displayed in application information
 PRODUCT_COPYRIGHT = Copyright © 2026 com.erik. All rights reserved.

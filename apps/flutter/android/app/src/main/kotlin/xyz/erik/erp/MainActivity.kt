@@ -1,4 +1,4 @@
-package com.erik.admin_app
+package xyz.erik.erp
 
 import io.flutter.embedding.android.FlutterActivity
 
