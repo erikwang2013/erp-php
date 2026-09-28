@@ -7,10 +7,13 @@
 # 用途：从唯一源 docs/mascot.svg 渲染出四端所需的全部位图 —— Web favicon/PWA 图标、
 #       Flutter 五平台 launcher icon、Android/iOS 启动图，保证四端同源同形。
 #   用法: bash scripts/gen-mascot-assets.sh      （生成/覆盖，无参数）
-#   幂等: 逐字节可复现 —— 输出统一带 -define png:exclude-chunks=date,time，
-#         剔掉 PNG 里的 date:* 文本块（其值取输出文件 mtime，1 秒粒度），
-#         否则同一像素两次编码会得到不同字节（实测 56 个位图里 39 个字节不同、像素全同）。
-#         `-strip` 无效 —— 属性是写时重算的，必须用该 define。
+#   幂等: 逐字节可复现 —— 56 个产出里 44 个由 magick 写出，每处输出都必须带
+#         -define png:exclude-chunks=date,time，剔掉 PNG 里的 date:* 文本块（其值取输出
+#         文件 mtime，1 秒粒度）；否则同一像素两次编码会得到不同字节（实测 39/56 字节
+#         不同、像素零漂移）。`-strip` 无效 —— 属性是写时重算的，必须用该 define。
+#         另 12 个由 rsvg-convert 直写（Android 传统图标 5 档 + macOS 7 档），不经该 define，
+#         实测本就不嵌时间戳（两跑零差异）—— 别把「幂等」全归因给 define。
+#         判据是内容哈希：跑两次比对全部位图 md5 / `%#` 像素签名。
 #   依赖: rsvg-convert (librsvg2-bin)、magick (ImageMagick 7)
 #   约定: 圆徽占源图 96%（r=192 / viewBox 400），圆外透明。因此
 #         • 需要不透明底的平台（iOS / PWA"any"图标）压 #EEF4FF（圆徽自身底色）
