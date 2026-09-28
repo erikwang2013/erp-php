@@ -114,6 +114,39 @@ open-erp는 중소기업을 위한 **오픈소스 풀스택 ERP 시스템**으�
 
 인덱스 동기화는 `erikwang2013/webman-scout`로 구현합니다(모델에 `Searchable` trait을 추가하면 저장 시 인덱스가 자동 동기화). **Elasticsearch**와 **OpenSearch**를 모두 지원하며 하나를 선택합니다.
 
+**① 해당 클라이언트 설치 (Composer 패키지와 드라이버가 반드시 일치해야 하며, 틀리면 "Please install the ... client" 오류)**
+
+| 엔진 | Composer 클라이언트 |
+|---|---|
+| Elasticsearch | `composer require elasticsearch/elasticsearch:^9.5` |
+| OpenSearch | `composer require opensearch-project/opensearch-php:^2.0` |
+
+**② `.env` 에서 드라이버 선택**
+
+```ini
+# elasticsearch | opensearch (위에서 설치한 클라이언트와 일치)
+SCOUT_DRIVER=opensearch
+# 인덱스 이름 접두사 / 샤드 / 레플리카 / 대량 색인 블록 크기 / 소프트 삭제 (두 엔진 공통)
+SCOUT_PREFIX=erp_
+SCOUT_SHARDS=1
+SCOUT_REPLICAS=0
+SCOUT_CHUNK_SIZE=500
+SCOUT_SOFT_DELETE=true
+```
+
+**③ 연결 설정 (두 엔진의 읽는 위치가 다름)**
+
+- **Elasticsearch**: `.env` 의 `SCOUT_HOSTS` (여러 노드는 쉼표로 구분, 예: `http://localhost:9200`), 인증 없이 직접 연결;
+- **OpenSearch**: 공식 이미지는 기본적으로 보안 플러그인이 켜져 있음(자체 서명 TLS + 계정 인증), `config/scout.php` 의 `opensearch` 절을 사용하며 `SCOUT_HOSTS` 를 읽지 않음:
+
+  ```ini
+  # .env
+  SCOUT_OPENSEARCH_HOST=https://localhost:9200
+  SCOUT_OPENSEARCH_USERNAME=admin
+  SCOUT_OPENSEARCH_PASSWORD=비밀번호
+  ```
+
+
 - **인덱스 범위**: `app/model/` 아래 224개 모델이 모두 `Searchable`을 사용하며, 쓰기·소프트 삭제 시 `ModelObserver`를 통해 동기화합니다. AdminUser, Customer, Product, Supplier 4개 모델은 `toSearchableArray()`로 화이트리스트 필드를 정의하고, 나머지는 기본(전체 행)으로 인덱싱합니다.
 - **엔진을 사용할 수 없어도 업무 쓰기에 영향이 없습니다**(실측: 드라이버를 도달 불가능한 포트로 지정해도 `save()`는 성공하며 연결 타임아웃 1회만큼 시간이 늘어남) — 검색 엔진은 선택 컴포넌트로, 미설치 상태에서도 전체 업무가 동작합니다.
 - **범위 설명**: 이 프로젝트는 현재 **인덱스 동기화만** 연결되어 있으며(쓰기/소프트 삭제 시 동기화), 검색 인터페이스나 검색 화면은 제공하지 않습니다. 검색이 필요하면 Scout 쿼리 API를 직접 호출하세요(관리단 목록 페이지 필터는 백엔드 `where` 쿼리로 처리하며 검색 엔진을 거치지 않습니다).
@@ -399,13 +432,30 @@ docker compose up -d
 ## API 규약
 
 ### API 문서
+이 프로젝트는 `erikwang2013/apidoc-php` 를 사용하며, **문서는 컨트롤러 애노테이션에서 자동 생성**되므로 별도로 유지할 필요가 없습니다:
 
-프로젝트는 erikwang2013/apidoc-php으로 인터페이스 문서를 자동 생성하며 `/apidoc`에서 확인할 수 있습니다.
+```bash
+php start.php start          # 启动后端
+# 然后用浏览器访问
+http://localhost:8788/apidoc
+```
 
-- 관리단 인터페이스 (Admin): 25개 모듈 그룹, 완전한 요청 파라미터와 응답 구조 포함
-- 클라이언트 인터페이스 (Service API): 인증/캡차/상품 3개 그룹
-- 모든 인터페이스에 JWT 인증, API 버전, 국제화 등 전역 요청 헤더 표기
+- **접근 경로**: `/apidoc` (플러그인 라우트 접두사, `config/plugin/erikwang2013/apidoc/route.php` 참고);
+  이 경로는 속도 제한 미들웨어에서 예외 처리되므로 애노테이션을 대량으로 열람해도 차단되지 않습니다
+- **범위**: 관리자 인터페이스(Admin)는 모듈별로 그룹화되어 요청 파라미터와 응답 구조를 모두 포함하며, 클라이언트 인터페이스(Service API)는 인증/캡차/상품을 포함합니다
+- **새 인터페이스 문서 추가 방법**: 컨트롤러 메서드에 애노테이션을 달기만 하면 되고, 저장 후 `/apidoc` 을 새로 고치면 즉시 반영됩니다
 
+  ```php
+  #[\erikwang2013\apidoc\annotation\Title("商品列表")]
+  #[\erikwang2013\apidoc\annotation\Desc("分页查询商品")]
+  #[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
+  #[\erikwang2013\apidoc\annotation\Method("GET")]
+  #[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+  #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+  public function index(Request $request): Response { /* ... */ }
+  ```
+
+- 운영 환경에서 접근을 제한하려면 `docs/nginx-security.conf` 참고
 ### 통일 응답 형식
 
 ```json

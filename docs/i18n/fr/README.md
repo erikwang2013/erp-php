@@ -380,6 +380,39 @@ Bascule automatique via l'en-tête `Accept-Language` (zh-CN / en), le chinois pa
 
 La synchronisation de l'index passe par `erikwang2013/webman-scout` (dès qu'un modèle utilise le trait `Searchable`, l'index est mis à jour automatiquement à l'enregistrement). **Elasticsearch** et **OpenSearch** sont pris en charge.
 
+**① Installer le client correspondant (le paquet Composer et le driver doivent correspondre, sinon « Please install the ... client » s'"'"'affiche)**
+
+| Moteur | Client Composer |
+|---|---|
+| Elasticsearch | `composer require elasticsearch/elasticsearch:^9.5` |
+| OpenSearch | `composer require opensearch-project/opensearch-php:^2.0` |
+
+**② Configurer `.env` pour choisir le driver**
+
+```ini
+# elasticsearch | opensearch (identique au client installé ci-dessus)
+SCOUT_DRIVER=opensearch
+# préfixe de l'"'"'index / shards / réplicas / taille de lot / suppression logique (commun aux deux moteurs)
+SCOUT_PREFIX=erp_
+SCOUT_SHARDS=1
+SCOUT_REPLICAS=0
+SCOUT_CHUNK_SIZE=500
+SCOUT_SOFT_DELETE=true
+```
+
+**③ Configuration de connexion (chaque moteur la lit à un endroit différent)**
+
+- **Elasticsearch** : `SCOUT_HOSTS` du `.env` (plusieurs nœuds séparés par des virgules, par ex. `http://localhost:9200`), connexion directe sans authentification ;
+- **OpenSearch** : l'"'"'image officielle active le plugin de sécurité par défaut (TLS auto-signé + authentification) ; la configuration se fait dans la section `opensearch` de `config/scout.php`, qui ne lit pas `SCOUT_HOSTS` :
+
+  ```ini
+  # .env
+  SCOUT_OPENSEARCH_HOST=https://localhost:9200
+  SCOUT_OPENSEARCH_USERNAME=admin
+  SCOUT_OPENSEARCH_PASSWORD=votre_mot_de_passe
+  ```
+
+
 **Périmètre de l'index** : les 224 modèles de `app/model/` portent `Searchable` ; à l'écriture et à la suppression logique, le `ModelObserver` synchronise l'index. Pour AdminUser, Customer, Product et Supplier, un `toSearchableArray()` dédié ne met en index que les champs de la liste blanche ; tous les autres modèles sont indexés en entier (ligne complète).
 
 **Un moteur injoignable n'empêche pas l'écriture des données métier** (testé : en pointant le pilote vers un port injoignable, `save()` réussit toujours — seul un délai d'attente de connexion s'ajoute) — le moteur de recherche est un composant optionnel, tout le métier tourne sans lui.
@@ -398,13 +431,30 @@ La synchronisation de l'index passe par `erikwang2013/webman-scout` (dès qu'un 
 ## Règles API
 
 ### Documentation API
+Le projet utilise `erikwang2013/apidoc-php` ; **la documentation est générée automatiquement à partir des annotations des contrôleurs**, sans maintenance séparée :
 
-Le projet utilise `erikwang2013/apidoc-php` pour générer automatiquement la documentation des interfaces, accessible sur `/apidoc`.
+```bash
+php start.php start          # 启动后端
+# 然后用浏览器访问
+http://localhost:8788/apidoc
+```
 
-- Interfaces d'administration (Admin) : 25 groupes de modules, avec paramètres de requête et structures de réponse complets
-- Interfaces client (Service API) : 3 groupes — authentification / captcha / produits
-- Toutes les interfaces indiquent les en-têtes globaux : authentification JWT, internationalisation, etc.
+- **Chemin d'accès** : `/apidoc` (préfixe de route du plugin, voir `config/plugin/erikwang2013/apidoc/route.php`) ;
+  ce chemin est exempté dans le middleware de limitation, donc parcourir les annotations en masse n'est pas bloqué
+- **Couverture** : les interfaces d'administration (Admin) sont regroupées par module, avec les paramètres de requête et les structures de réponse complets ; les interfaces client (Service API) couvrent authentification/captcha/produits
+- **Comment documenter une nouvelle interface** : annotez simplement la méthode du contrôleur ; après enregistrement et rafraîchissement, `/apidoc` prend effet immédiatement
 
+  ```php
+  #[\erikwang2013\apidoc\annotation\Title("商品列表")]
+  #[\erikwang2013\apidoc\annotation\Desc("分页查询商品")]
+  #[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
+  #[\erikwang2013\apidoc\annotation\Method("GET")]
+  #[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+  #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+  public function index(Request $request): Response { /* ... */ }
+  ```
+
+- Pour restreindre l'accès en production, voir `docs/nginx-security.conf`
 ### Format de réponse unifié
 
 ```json

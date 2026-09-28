@@ -432,13 +432,30 @@ SCOUT_SOFT_DELETE=true
 ## مواصفات API
 
 ### وثائق API
+يستخدم المشروع `erikwang2013/apidoc-php`، و**تُولَّد الوثائق تلقائيًا من تعليقات وحدات التحكم**، دون حاجة إلى صيانتها بشكل منفصل:
 
-يستخدم المشروع erikwang2013/apidoc-php لتوليد وثائق الواجهات تلقائيًا، افتح `/apidoc` لعرضها.
+```bash
+php start.php start          # 启动后端
+# 然后用浏览器访问
+http://localhost:8788/apidoc
+```
 
-- واجهات الإدارة (Admin): 25 مجموعة وحدات، مع معاملات الطلب وهياكل الاستجابة الكاملة
-- واجهات العميل (Service API): 3 مجموعات — المصادقة/التحقق/المنتجات
-- جميع الواجهات موضحة برؤوس عامة: مصادقة JWT والتدويل وغيرها
+- **مسار الوصول**: `/apidoc` (بادئة مسار الإضافة، انظر `config/plugin/erikwang2013/apidoc/route.php`)؛
+  هذا المسار مستثنى في وسيط تحديد المعدل، لذا لا يُحظر تصفح التعليقات بشكل مكثف
+- **التغطية**: واجهات الإدارة (Admin) مجمّعة حسب الوحدة، مع معاملات الطلب وهياكل الاستجابة الكاملة؛ واجهات العميل (Service API) تشمل المصادقة/التحقق/المنتجات
+- **كيفية إضافة وثائق واجهة جديدة**: أضف التعليق التوضيحي على دالة وحدة التحكم، ويصبح ساريًا فورًا بعد الحفظ وتحديث `/apidoc`
 
+  ```php
+  #[\erikwang2013\apidoc\annotation\Title("商品列表")]
+  #[\erikwang2013\apidoc\annotation\Desc("分页查询商品")]
+  #[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
+  #[\erikwang2013\apidoc\annotation\Method("GET")]
+  #[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+  #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+  public function index(Request $request): Response { /* ... */ }
+  ```
+
+- لتقييد الوصول في بيئة الإنتاج، راجع `docs/nginx-security.conf`
 ### تنسيق الاستجابة الموحد
 
 ```json

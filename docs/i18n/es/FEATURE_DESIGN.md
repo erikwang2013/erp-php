@@ -16,7 +16,7 @@ El Sistema ERP Abierto (open-erp) es un sistema de planificación de recursos em
 ### 1.2 Restricciones técnicas
 - PHP 8.3+, MySQL 8.0+, Redis 7, Elasticsearch 8
 - Prefijo de tablas erp_, clave primaria BIGINT no autoincremental
-- La versión de la API se controla mediante la cabecera API-Version
+- La versión de la API va en la ruta de la URL (/admin/v1, /api/v1, /open/v1), sin cabecera de versión
 - Autenticación JWT + permisos RBAC
 - Las funciones globales no llevan prefijo \
 

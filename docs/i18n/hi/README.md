@@ -426,13 +426,30 @@ SCOUT_SOFT_DELETE=true
 ## API मानदंड
 
 ### API दस्तावेज़
+यह परियोजना `erikwang2013/apidoc-php` का उपयोग करती है; **दस्तावेज़ कंट्रोलर एनोटेशन से स्वतः उत्पन्न होते हैं**, अलग से बनाए रखने की आवश्यकता नहीं:
 
-प्रोजेक्ट erikwang2013/apidoc-php से इंटरफ़ेस दस्तावेज़ स्वतः उत्पन्न करता है, `/apidoc` पर जाएँ।
+```bash
+php start.php start          # 启动后端
+# 然后用浏览器访问
+http://localhost:8788/apidoc
+```
 
-- प्रशासन एंड इंटरफ़ेस (Admin): 25 मॉड्यूल समूह, पूर्ण अनुरोध पैरामीटर और प्रतिक्रिया संरचना सहित
-- क्लाइंट इंटरफ़ेस (Service API): प्रमाणीकरण/कैप्चा/उत्पाद 3 समूह
-- सभी इंटरफ़ेस पर JWT प्रमाणीकरण, अंतर्राष्ट्रीयकरण आदि वैश्विक अनुरोध हेडर अंकित हैं
+- **पहुँच पथ**: `/apidoc` (प्लगइन रूट प्रीफ़िक्स, देखें `config/plugin/erikwang2013/apidoc/route.php`);
+  यह पथ दर-सीमा मिडलवेयर में छूट प्राप्त है, इसलिए एनोटेशन को थोक में देखना अवरुद्ध नहीं होता
+- **कवरेज**: प्रशासन इंटरफ़ेस (Admin) मॉड्यूल के अनुसार समूहित, पूर्ण अनुरोध पैरामीटर व प्रतिक्रिया संरचना के साथ; क्लाइंट इंटरफ़ेस (Service API) में प्रमाणीकरण/कैप्चा/उत्पाद शामिल
+- **नया इंटरफ़ेस दस्तावेज़ कैसे जोड़ें**: कंट्रोलर मेथड पर एनोटेशन लगाएँ; सहेजने और `/apidoc` रीफ़्रेश करने पर तुरंत प्रभावी हो जाता है
 
+  ```php
+  #[\erikwang2013\apidoc\annotation\Title("商品列表")]
+  #[\erikwang2013\apidoc\annotation\Desc("分页查询商品")]
+  #[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
+  #[\erikwang2013\apidoc\annotation\Method("GET")]
+  #[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+  #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+  public function index(Request $request): Response { /* ... */ }
+  ```
+
+- उत्पादन में पहुँच सीमित करनी हो तो `docs/nginx-security.conf` देखें
 ### समान प्रतिक्रिया प्रारूप
 
 ```json

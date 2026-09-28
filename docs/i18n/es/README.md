@@ -376,6 +376,39 @@ Cambio automático mediante la cabecera `Accept-Language` (zh-CN / en), con el c
 
 La sincronización del índice se realiza mediante `erikwang2013/webman-scout` (cuando un modelo usa el trait `Searchable`, el índice se actualiza automáticamente al guardar). Se admiten **Elasticsearch** y **OpenSearch**.
 
+**① Instalar el cliente correspondiente (el paquete Composer y el driver deben coincidir; si no, aparece "Please install the ... client")**
+
+| Motor | Cliente Composer |
+|---|---|
+| Elasticsearch | `composer require elasticsearch/elasticsearch:^9.5` |
+| OpenSearch | `composer require opensearch-project/opensearch-php:^2.0` |
+
+**② Configurar `.env` para elegir el driver**
+
+```ini
+# elasticsearch | opensearch (coincide con el cliente instalado arriba)
+SCOUT_DRIVER=opensearch
+# prefijo del índice / shards / réplicas / tamaño de bloque masivo / borrado lógico (común a ambos motores)
+SCOUT_PREFIX=erp_
+SCOUT_SHARDS=1
+SCOUT_REPLICAS=0
+SCOUT_CHUNK_SIZE=500
+SCOUT_SOFT_DELETE=true
+```
+
+**③ Configuración de conexión (cada motor la lee de un sitio distinto)**
+
+- **Elasticsearch**: `SCOUT_HOSTS` del `.env` (varios nodos separados por comas, p. ej. `http://localhost:9200`), conexión directa sin autenticación;
+- **OpenSearch**: la imagen oficial activa el plugin de seguridad por defecto (TLS autofirmado + autenticación); se configura en la sección `opensearch` de `config/scout.php` y no lee `SCOUT_HOSTS`:
+
+  ```ini
+  # .env
+  SCOUT_OPENSEARCH_HOST=https://localhost:9200
+  SCOUT_OPENSEARCH_USERNAME=admin
+  SCOUT_OPENSEARCH_PASSWORD=tu_contraseña
+  ```
+
+
 **Alcance del índice**: los 224 modelos de `app/model/` llevan `Searchable`; al escribir y al borrar lógico, el `ModelObserver` sincroniza el índice. En AdminUser, Customer, Product y Supplier, un `toSearchableArray()` propio indexa solo los campos de la lista blanca; el resto de modelos se indexan completos (fila entera).
 
 **Un motor inaccesible no impide escribir los datos de negocio** (probado: apuntando el driver a un puerto inaccesible, `save()` sigue teniendo éxito — solo se añade un tiempo de espera de conexión) — el motor de búsqueda es un componente opcional, todo el negocio funciona sin él.
@@ -394,13 +427,30 @@ La sincronización del índice se realiza mediante `erikwang2013/webman-scout` (
 ## Convenciones de API
 
 ### Documentación de API
+El proyecto usa `erikwang2013/apidoc-php`; **la documentación se genera automáticamente a partir de las anotaciones de los controladores**, sin necesidad de mantenerla aparte:
 
-El proyecto usa erikwang2013/apidoc-php para generar automáticamente la documentación de interfaces; visite `/apidoc` para verla.
+```bash
+php start.php start          # 启动后端
+# 然后用浏览器访问
+http://localhost:8788/apidoc
+```
 
-- Interfaces de administración (Admin): 25 grupos de módulos, con parámetros de solicitud y estructuras de respuesta completos
-- Interfaces de cliente (Service API): 3 grupos: autenticación/captcha/productos
-- Todas las interfaces anotan los encabezados globales: autenticación JWT, internacionalización, etc.
+- **Ruta de acceso**: `/apidoc` (prefijo de ruta del plugin, véase `config/plugin/erikwang2013/apidoc/route.php`);
+  esa ruta está exenta en el middleware de limitación, por lo que recorrer las anotaciones en lote no se bloquea
+- **Cobertura**: las interfaces de administración (Admin) se agrupan por módulo, con parámetros de petición y estructuras de respuesta completos; las interfaces de cliente (Service API) incluyen autenticación/captcha/productos
+- **Cómo documentar una interfaz nueva**: basta con anotar el método del controlador; al guardar y refrescar `/apidoc` surte efecto de inmediato
 
+  ```php
+  #[\erikwang2013\apidoc\annotation\Title("商品列表")]
+  #[\erikwang2013\apidoc\annotation\Desc("分页查询商品")]
+  #[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
+  #[\erikwang2013\apidoc\annotation\Method("GET")]
+  #[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+  #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+  public function index(Request $request): Response { /* ... */ }
+  ```
+
+- Para restringir el acceso en producción, véase `docs/nginx-security.conf`
 ### Formato de respuesta unificado
 
 ```json

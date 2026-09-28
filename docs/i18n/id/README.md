@@ -426,13 +426,30 @@ Peralihan otomatis melalui header `Accept-Language`, mendukung 13 bahasa (`zh` d
 ## Konvensi API
 
 ### Dokumen API
+Proyek ini memakai `erikwang2013/apidoc-php`; **dokumentasi dihasilkan otomatis dari anotasi controller**, tanpa perlu dipelihara terpisah:
 
-Proyek menggunakan erikwang2013/apidoc-php untuk menghasilkan dokumen antarmuka secara otomatis, akses `/apidoc` untuk melihat.
+```bash
+php start.php start          # 启动后端
+# 然后用浏览器访问
+http://localhost:8788/apidoc
+```
 
-- Antarmuka admin (Admin): 25 grup modul, berisi parameter permintaan lengkap dan struktur respons
-- Antarmuka klien (Service API): 3 grup autentikasi/kaptcha/produk
-- Semua antarmuka ditandai dengan header global seperti autentikasi JWT, internasionalisasi
+- **Jalur akses**: `/apidoc` (prefiks rute plugin, lihat `config/plugin/erikwang2013/apidoc/route.php`);
+  jalur ini dikecualikan di middleware pembatas laju, sehingga menelusuri anotasi secara massal tidak diblokir
+- **Cakupan**: antarmuka admin (Admin) dikelompokkan per modul, dengan parameter permintaan dan struktur respons lengkap; antarmuka klien (Service API) mencakup autentikasi/captcha/produk
+- **Cara menambah dokumentasi antarmuka baru**: cukup beri anotasi pada metode controller; setelah disimpan dan `/apidoc` disegarkan, langsung berlaku
 
+  ```php
+  #[\erikwang2013\apidoc\annotation\Title("商品列表")]
+  #[\erikwang2013\apidoc\annotation\Desc("分页查询商品")]
+  #[\erikwang2013\apidoc\annotation\Url("/admin/v1/product")]
+  #[\erikwang2013\apidoc\annotation\Method("GET")]
+  #[\erikwang2013\apidoc\annotation\Param(name:"page", type:"int", desc:"页码")]
+  #[\erikwang2013\apidoc\annotation\Returned("code", type:"int", desc:"业务代码,0=成功")]
+  public function index(Request $request): Response { /* ... */ }
+  ```
+
+- Untuk membatasi akses di produksi, lihat `docs/nginx-security.conf`
 ### Format Respons Terpadu
 
 ```json

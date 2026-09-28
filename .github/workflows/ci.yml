@@ -296,6 +296,29 @@ jobs:
             exit $code
           fi
 
+      # ----------------------------------------------------------
+      # 文档镜像结构校验（scripts/check-doc-mirror.mjs）—— 第 16 道门禁。
+      # 为什么需要它：docs/i18n/<语种>/*.md 是 docs/*.md 的译文镜像，
+      #   结构须同形（标题数 / 端点路径集 / 代码围栏条数与语言构成）。
+      #   此前**没有任何门禁看着这条不变量**，纯靠人工维持 —— 实测已因此漂移过三次：
+      #   README 的 apidoc 注解示例（6 语种）、README 的搜索引擎配置块（es/fr/ko）、
+      #   SECURITY.md §13 致谢（12 语种，中文侧加了镜像没跟）。
+      # 归在本作业：与 check-ddl-dict 同类（只需 checkout + node），且本作业已在
+      #   release 的 needs 里 —— 不新增 job 就不动 needs，门禁红时照样断发版。
+      # 本地等价命令：node scripts/check-doc-mirror.mjs
+      # ----------------------------------------------------------
+      - name: 文档镜像结构校验 (check-doc-mirror)
+        run: |
+          set +e
+          out="$(node scripts/check-doc-mirror.mjs 2>&1)"
+          code=$?
+          set -e
+          printf '%s\n' "$out"
+          if [ $code -ne 0 ]; then
+            echo "::error::$(printf '%s' "$out" | tail -20 | sed 's/%/%25/g; s/\r/%0D/g; s/\n/%0A/g')"
+            exit $code
+          fi
+
   # ============================================================
   # E2E 冒烟测试：真实 HTTP 走通核心链路
   # ------------------------------------------------------------
