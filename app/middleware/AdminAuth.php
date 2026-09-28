@@ -74,7 +74,11 @@ class AdminAuth implements MiddlewareInterface
             return ['ok' => false, 'error' => 'Token已过期或无效'];
         }
 
-        // 刷新令牌不能当访问令牌使用
+        // 刷新令牌不能当访问令牌使用。
+        // jwt-webman v2.1.1 起该约束已由库的 decode() 自己强制（抛 JWTException，被上面的 catch
+        // 转成「Token已过期或无效」），故本分支在 v2.1.1+ 下**不可达**。保留而不删的理由是它不对称：
+        // 留着只是多一个永不命中的分支，删掉则把「刷新令牌不得当访问令牌」重新变成只依赖单一实现
+        // 细节 —— 库若行为回退或被降级，这里就是最后一道。
         if (($payload['token_type'] ?? '') === 'refresh') {
             return ['ok' => false, 'error' => '请使用访问令牌'];
         }

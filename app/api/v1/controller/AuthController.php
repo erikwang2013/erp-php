@@ -307,7 +307,11 @@ class AuthController
 
         try {
             $jwt = self::getJWT();
-            $payload = $jwt->decode($refreshToken);
+            // jwt-webman v2.1.1 起 decode() 默认拒绝 token_type=refresh 的令牌（刷新令牌有效期更长
+            // 且只在刷新时轮换，允许它当访问令牌 = 一次泄露拿到长期通行证）。本处**就是要读刷新
+            // 令牌**，故显式放开第二参数；该实参在旧版（v2.0.8 及以前）被忽略，因此这行对两个版本
+            // 都安全 —— 版本升级不会因它产生行为分叉。
+            $payload = $jwt->decode($refreshToken, true);
         } catch (Throwable $e) {
             // 令牌无效：fail-closed 拒绝，记录失败原因便于审计
             Log::warning('刷新令牌解析失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
