@@ -2,6 +2,45 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.14 (2026-09-28)
+
+**依赖升级适配批**：`composer update` 带来 **9 个自有包 + 3 个第三方**升级，逐一核对影响后确认**两处真实破坏**，本批在应用侧适配（不回退版本 —— 这批升级的安全账是正的）。范围：**0 个新增控制器 / 路由 / 数据表**。
+
+### 修复 · `/api/v1/auth/refresh` 整体失效（jwt-webman v2.0.8 → v2.1.2）
+- **根因**：v2.1.1 是一次刻意的行为变更 —— `decode()` / `validate()` **默认拒绝 `token_type=refresh`** 的令牌（刷新令牌有效期更长且只在刷新时轮换，允许它当访问令牌 = 一次泄露拿到长期通行证）。需要读取刷新令牌时须显式传第二参数
+- **命中点**：`app/api/v1/controller/AuthController.php:310` 用单参数 `decode($refreshToken)` ⇒ 抛 `JWTException`，被 `catch (Throwable)` 转成 **401「刷新令牌无效或已过期」** —— 合法刷新令牌被报成无效并记 warning。不是 500，但**刷新功能彻底不可用**：访问令牌默认 2h 到期后只能重新登录（HarmonyOS 文档里的「401 无感刷新」随之失效）
+- **修法**：`$jwt->decode($refreshToken, true)`。该实参在旧版（v2.0.8 及以前）被忽略 ⇒ **这行对两个版本都安全**，升级不产生行为分叉
+- **调用面已全仓扫过**：JWT `decode()` 只有 3 处，另两处（`AdminAuth.php:72`、`ProfileController.php:155`）解的都是访问令牌，不受影响；`->refresh(` / `->blacklist(` **零调用**
+- `app/middleware/AdminAuth.php:78-80` 的 refresh 检查因此成为**不可达代码**，保留而不删（留着的代价是一个永不命中的分支，删掉则把该约束重新变成只依赖单一实现细节 —— 库若行为回退或被降级，它仍是最后一道）
+
+### 修复 · 验证码限流退化成「全应用共用一个桶」（poster-php v1.2.10 → v1.3.0）
+- **根因**：v1.3.0 新增跨 key 的窗口限流（`captcha.rate_limit`，默认 **30 次/60 秒**，默认生效），身份解析写的是 `session_id() ?: ($_SERVER['REMOTE_ADDR'] ?? 'cli')`。而本栈里：未装 `webman/session`、全仓无 `session_start()` ⇒ `session_id()` 恒为 `''`；workerman 源码**零处**写 `$_SERVER['REMOTE_ADDR']` ⇒ 兜底到字面量 **`'cli'`**
+- **后果**：30 次/分钟的预算变成**全应用共享**。单个 IP 打满（应用自身限流允许 60 次/分钟/路由，是预算的两倍）即让**所有人的验证码校验失败**，且失败形态与「答错」无异、没有风控信号 —— 这是一条自伤的 DoS，且是本批升级**新引入**的
+- **修法**：在全局中间件 `RateLimit::process()` 起始处 `$_SERVER['REMOTE_ADDR'] = $request->getRealIp();` —— 身份随之变为客户端 IP，回到该包本来的设计意图。取值与同文件下方的限流同源，两处看到同一个身份
+- 实证（反射调 `CaptchaManager::resolveIdentity()` 真身）：未设 `REMOTE_ADDR` ⇒ `"cli"`；设后 ⇒ `"203.0.113.7"`
+- `ponytail` 天花板已注明：超级全局在常驻进程里会跨请求残留（请求路径每次重设故恒新鲜；队列/CLI 可能读到上一个请求的 IP，对验证码限流无影响）。**根治应在上游** —— `Adapters/Webman/CaptchaPlugin.php:24` 写死 `new CaptchaManager(driver, storage)` 两个参数，未注入身份解析器；该包的默认身份（session/IP）是 FPM 形状，对常驻进程框架不成立
+
+### 逐包影响核对（结论：其余无影响）
+| 包 | 结论 |
+|---|---|
+| `encryption 1.0.8→1.4.0` | **无影响**。标题里的「v2 子密钥派生」是 **opt-in**，官方明示「默认，行为逐字节不变」；SM3/SM4 改走 OpenSSL 原生实现时**输出逐字节一致**，并附「旧实现产出的固化密文仍可解」的回归用例 |
+| `firebase/php-jwt 7.1.1→7.2.0`（JWT 真正引擎） | **无影响**，release 仅 "Miscellaneous Chores" |
+| `hashids 1.0.8→1.2.5`、`snowflake-php 2.0.5→2.4.0`、`webman-scout`、`security-php` | **无影响**，发布说明多为文档/吉祥物；`HashidsServiceTest`（含 `encode(decode(x))===x` 往返恒等）全绿 |
+| `encryptable 2.0.5→2.0.7` | 非标量写入加密字段的异常由裸 `TypeError` 改为 `SerializationException`（错误面可能变化）；本仓未见该写法 |
+| `season 2.0.4→2.1.0` | 跨赤道国家半球判定修正，仅影响展示 |
+| `laravel/serializable-closure`、`nesbot/carbon` | 补丁级，未观察到影响 |
+
+### 附带记录 · 这批升级本身是安全净收益
+- `jwt-webman v2.1.1` 另修两处高危：Redis 黑名单读路径 fail-open（`(bool) $redis->exists()` 在链路错误时与「0 个键」无法区分 ⇒ 已拉黑令牌被放行）、伪造 `jti` 数组导致**任何三段字符串都能打成 500**
+- `poster-php v1.3.0` 封堵：验证码跨 key 无限盲猜、小画布退化致**完全绕过**、按色分割可 6/6 还原点击坐标、验证计数并发下实际放行 9~24 次（现为 3 次）
+- 结论：**不应回退版本**
+
+### 验证
+- 全量单测 `1068 / 3346 / 443 skipped` **rc=0**（适配前是 1 failure：`WebSocketAuthTest::testRefreshTokenRejected` 断的是旧文案，已随库把校验搬进 `decode()` 而更新为通用文案并注明原因）
+- PHPStan 全仓 `[OK]` rc=0（474 文件）；CS Fixer `Found 0 of 652 files` rc=0（判据取分母 652 而非 rc）；`php -l` 四个改动文件通过；`doc-stats --check` rc=0 / 338 处一致
+- 关键行实证：`decode($refreshToken)` 单参数抛 `JWTException: Refresh token cannot be used as an access token`；带第二参数返回 `token_type=refresh` ⇒ 原 `!== 'refresh'` 判据重新可达
+- **未验证（显式）**：① **E2E 未在本地跑**（8788 当前未监听；E2E 会写真库）—— `tests/E2E/smoke.php:352` 与 `api-coverage.php:328` 都覆盖 refresh，**由 CI 的 e2e 作业兜底** ② 集成套件未跑（本机 `TEST_DB_*` 指向真库）③ `poster-php` 的限流修复只做了身份解析的单元级实证，未在真栈上跑满 30 次验证限流
+
 ## v1.19.13 (2026-09-28)
 
 **守卫收口批：`assert_env_not_placeholder()` 从「枚举占位串」改为「比对公开值」**。v1.19.12 修了轮换脚本，但守卫本身仍只认 `change-me|xxx` —— 那是 denylist，覆盖不了 `.env.example` 里那批**看起来像真随机**的具体值，于是「只 `cp .env.example .env`、不跑 `gen-env-keys.sh`」这条路仍然带着公开密钥静默启动。本批把这条路径也堵上。范围：**0 个新增控制器 / 路由 / 数据表**。

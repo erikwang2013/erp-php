@@ -36,7 +36,10 @@ class WebSocketAuthTest extends TestCase
 
     public function testRefreshTokenRejected(): void
     {
-        // 刷新令牌不能作为访问令牌使用（签名有效但 token_type 为 refresh）
+        // 刷新令牌不能作为访问令牌使用（签名有效但 token_type 为 refresh）。
+        // 自 jwt-webman v2.1.1 起，该约束由库的 decode() **自己**强制（抛 JWTException），
+        // 被 AdminAuth 的 catch 转成下面这条通用文案 —— 故这里断言的是「被拒绝 + 通用文案」。
+        // 更早那条应用层专属文案「请使用访问令牌」对应的分支已因此成为不可达代码（保留作纵深防御）。
         $token = jwt_instance()->encode([
             'sub' => 1,
             'username' => 'tester',
@@ -45,6 +48,6 @@ class WebSocketAuthTest extends TestCase
 
         $result = AdminAuth::validateToken($token);
         $this->assertFalse($result['ok']);
-        $this->assertSame('请使用访问令牌', $result['error']);
+        $this->assertSame('Token已过期或无效', $result['error']);
     }
 }

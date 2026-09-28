@@ -751,16 +751,16 @@
         },
         {
             "name": "erikwang2013/encryptable",
-            "version": "v2.0.5",
+            "version": "v2.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwang2013/encryptable.git",
-                "reference": "b60881f8205540091e921f0d2272984ac1d36516"
+                "reference": "38d85c8bd177c279a0e55aec802417eacba3e85b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwang2013/encryptable/zipball/b60881f8205540091e921f0d2272984ac1d36516",
-                "reference": "b60881f8205540091e921f0d2272984ac1d36516",
+                "url": "https://api.github.com/repos/erikwang2013/encryptable/zipball/38d85c8bd177c279a0e55aec802417eacba3e85b",
+                "reference": "38d85c8bd177c279a0e55aec802417eacba3e85b",
                 "shasum": ""
             },
             "require": {
@@ -782,6 +782,7 @@
                 "phpunit/phpunit": "^10.5|^11.0"
             },
             "suggest": {
+                "ext-pdo": "Optional: native-PHP (framework-free) dialect detection for Encryption::db() via new EnvDbDriverDetector(null, $pdo); ENCRYPTION_DB_DRIVER or Encryption::configure(['db_driver' => …]) covers the same ground without PDO.",
                 "hyperf/db-connection": "Required for Hyperf DB decrypt snippets (Encryption::db()).",
                 "hyperf/framework": "Hyperf 2–3: ConfigProvider is registered via composer extra (see docs).",
                 "illuminate/database": "Required with illuminate/support and illuminate/validation for Laravel/Webman integration.",
@@ -820,7 +821,7 @@
                     "role": "Developer"
                 }
             ],
-            "description": "Encryptable Eloquent casts and helpers for PHP 8.2+ with Laravel 10–12 / Webman (Illuminate), Hyperf 2–3, and ThinkPHP 6–8 bridges.",
+            "description": "Encryptable Eloquent casts and helpers for PHP 8.0+: Laravel 10–12 / Webman (Illuminate), Hyperf 2–3, ThinkPHP 6–8 bridges, and plain native PHP without a framework.",
             "homepage": "https://github.com/erikwang2013/encryptable",
             "keywords": [
                 "anonymize",
@@ -833,22 +834,22 @@
             ],
             "support": {
                 "issues": "https://github.com/erikwang2013/encryptable/issues",
-                "source": "https://github.com/erikwang2013/encryptable/tree/v2.0.5"
+                "source": "https://github.com/erikwang2013/encryptable/tree/v2.0.7"
             },
-            "time": "2026-08-28T22:25:55+00:00"
+            "time": "2026-09-25T18:22:06+00:00"
         },
         {
             "name": "erikwang2013/encryption",
-            "version": "v1.0.8",
+            "version": "v1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwang2013/encryption.git",
-                "reference": "d458b2b606e4fb5b1a6f4fe9b94e70e8708dcbab"
+                "reference": "ce71710b9a57f0a430b347dd5f7855f3e528420d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwang2013/encryption/zipball/d458b2b606e4fb5b1a6f4fe9b94e70e8708dcbab",
-                "reference": "d458b2b606e4fb5b1a6f4fe9b94e70e8708dcbab",
+                "url": "https://api.github.com/repos/erikwang2013/encryption/zipball/ce71710b9a57f0a430b347dd5f7855f3e528420d",
+                "reference": "ce71710b9a57f0a430b347dd5f7855f3e528420d",
                 "shasum": ""
             },
             "require": {
@@ -857,6 +858,7 @@
                 "pohoc/crypto-sm": "^0.0.2"
             },
             "require-dev": {
+                "phpstan/phpstan": "^2.2",
                 "phpunit/phpunit": "^9.6 || ^10.5"
             },
             "suggest": {
@@ -873,7 +875,15 @@
             "license": [
                 "MIT"
             ],
+            "authors": [
+                {
+                    "name": "erik",
+                    "email": "erik@erik.xyz",
+                    "homepage": "https://erik.xyz"
+                }
+            ],
             "description": "A pluggable cryptography component library: under a unified contract it provides symmetric encryption, asymmetric encryption, hashing, and key derivation (HKDF / PBKDF2), with implementations including AES/Sodium and Chinese national algorithms SM2/SM3/SM4/ZUC. Installable via Composer.",
+            "homepage": "https://github.com/erikwang2013/encryption",
             "keywords": [
                 "encryption",
                 "hyperf",
@@ -886,22 +896,23 @@
             ],
             "support": {
                 "issues": "https://github.com/erikwang2013/encryption/issues",
-                "source": "https://github.com/erikwang2013/encryption/tree/v1.0.8"
+                "security": "https://github.com/erikwang2013/encryption/security/advisories/new",
+                "source": "https://github.com/erikwang2013/encryption"
             },
-            "time": "2026-08-28T19:29:58+00:00"
+            "time": "2026-09-25T15:07:54+00:00"
         },
         {
             "name": "erikwang2013/hashids",
-            "version": "v1.0.8",
+            "version": "v1.2.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwang2013/hashids.git",
-                "reference": "912358497041af9b75ede5d63bdff47d9b826c27"
+                "reference": "70b573f7f945aabeaf1de7dafe273924ff063ad5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwang2013/hashids/zipball/912358497041af9b75ede5d63bdff47d9b826c27",
-                "reference": "912358497041af9b75ede5d63bdff47d9b826c27",
+                "url": "https://api.github.com/repos/erikwang2013/hashids/zipball/70b573f7f945aabeaf1de7dafe273924ff063ad5",
+                "reference": "70b573f7f945aabeaf1de7dafe273924ff063ad5",
                 "shasum": ""
             },
             "require": {
@@ -914,6 +925,8 @@
                 "phpunit/phpunit": "^9.6|^10.5|^11.0"
             },
             "suggest": {
+                "ext-bcmath": "hashids/hashids 需要 bcmath 或 gmp 之一，否则首次编码抛 RuntimeException。",
+                "ext-gmp": "hashids/hashids 需要 bcmath 或 gmp 之一（两者二选一即可）。",
                 "hyperf/framework": "For Hyperf integration.",
                 "laravel/framework": "For Laravel integration.",
                 "topthink/framework": "For ThinkPHP integration.",
@@ -963,20 +976,20 @@
                 "issues": "https://github.com/erikwang2013/hashids/issues",
                 "source": "https://github.com/erikwang2013/hashids"
             },
-            "time": "2026-08-28T22:24:26+00:00"
+            "time": "2026-09-25T15:52:53+00:00"
         },
         {
             "name": "erikwang2013/jwt-webman",
-            "version": "v2.0.8",
+            "version": "v2.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwang2013/jwt-webman.git",
-                "reference": "ad75860f61ae97e8ce96abcc64de097add5fcf49"
+                "reference": "724168aee31c4470a6a04eb2e8087aae481f62ed"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwang2013/jwt-webman/zipball/ad75860f61ae97e8ce96abcc64de097add5fcf49",
-                "reference": "ad75860f61ae97e8ce96abcc64de097add5fcf49",
+                "url": "https://api.github.com/repos/erikwang2013/jwt-webman/zipball/724168aee31c4470a6a04eb2e8087aae481f62ed",
+                "reference": "724168aee31c4470a6a04eb2e8087aae481f62ed",
                 "shasum": ""
             },
             "require": {
@@ -1007,8 +1020,7 @@
             },
             "autoload": {
                 "files": [
-                    "src/erik-jwt/Laravel/helpers.php",
-                    "src/erik-jwt/ThinkPHP/helpers.php"
+                    "src/erik-jwt/Laravel/helpers.php"
                 ],
                 "psr-4": {
                     "Erikwang2013\\Jwt\\": "src/erik-jwt"
@@ -1026,13 +1038,15 @@
                     "role": "Developer"
                 }
             ],
-            "description": "A JWT plugin compatible with webman, Laravel, ThinkPHP, and Hyperf. Suitable for distributed deployment, simple and fast installation.",
+            "description": "A framework-agnostic JWT plugin for plain PHP and webman, Laravel, ThinkPHP, Hyperf: one core, a request guard or four native adapters, pluggable blacklist storage (redis / database / file / memcached).",
             "keywords": [
                 "erik",
                 "erikwang2013",
+                "framework-agnostic",
                 "hyperf",
                 "jwt",
                 "laravel",
+                "php",
                 "thinkphp",
                 "webman"
             ],
@@ -1041,20 +1055,20 @@
                 "issues": "https://github.com/erikwang2013/jwt-webman/issues",
                 "source": "https://github.com/erikwang2013/jwt-webman"
             },
-            "time": "2026-08-28T21:41:07+00:00"
+            "time": "2026-09-25T18:22:10+00:00"
         },
         {
             "name": "erikwang2013/poster-php",
-            "version": "v1.2.10",
+            "version": "v1.3.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwang2013/poster-php.git",
-                "reference": "7a8add67f1e22406408f95589364d30ff20cb018"
+                "reference": "b0cf92a9263d5ab2a6f52701dd5487693f89f3a9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwang2013/poster-php/zipball/7a8add67f1e22406408f95589364d30ff20cb018",
-                "reference": "7a8add67f1e22406408f95589364d30ff20cb018",
+                "url": "https://api.github.com/repos/erikwang2013/poster-php/zipball/b0cf92a9263d5ab2a6f52701dd5487693f89f3a9",
+                "reference": "b0cf92a9263d5ab2a6f52701dd5487693f89f3a9",
                 "shasum": ""
             },
             "require": {
@@ -1116,22 +1130,22 @@
             ],
             "support": {
                 "issues": "https://github.com/erikwang2013/poster-php/issues",
-                "source": "https://github.com/erikwang2013/poster-php/tree/v1.2.10"
+                "source": "https://github.com/erikwang2013/poster-php/tree/v1.3.0"
             },
-            "time": "2026-09-08T15:42:44+00:00"
+            "time": "2026-09-25T15:37:21+00:00"
         },
         {
             "name": "erikwang2013/season",
-            "version": "2.0.4",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwang2013/season.git",
-                "reference": "d7193e1506a2c35562de2b244cef800a3267bb91"
+                "reference": "3442048123b3a2b29fd388c530b75b019cc459d0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwang2013/season/zipball/d7193e1506a2c35562de2b244cef800a3267bb91",
-                "reference": "d7193e1506a2c35562de2b244cef800a3267bb91",
+                "url": "https://api.github.com/repos/erikwang2013/season/zipball/3442048123b3a2b29fd388c530b75b019cc459d0",
+                "reference": "3442048123b3a2b29fd388c530b75b019cc459d0",
                 "shasum": ""
             },
             "require": {
@@ -1198,22 +1212,22 @@
             ],
             "support": {
                 "issues": "https://github.com/erikwang2013/season/issues",
-                "source": "https://github.com/erikwang2013/season/tree/v2.0.4"
+                "source": "https://github.com/erikwang2013/season/tree/v2.1.0"
             },
-            "time": "2026-08-28T19:28:43+00:00"
+            "time": "2026-09-25T15:28:53+00:00"
         },
         {
             "name": "erikwang2013/security-php",
-            "version": "v1.3.3",
+            "version": "v1.4.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwang2013/security-php.git",
-                "reference": "62ad4a7eaa1d6e3b76f48d8d3a2ed6261394b49d"
+                "reference": "6e5b672fd55bb8d6b7368e283009b086f60c177b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwang2013/security-php/zipball/62ad4a7eaa1d6e3b76f48d8d3a2ed6261394b49d",
-                "reference": "62ad4a7eaa1d6e3b76f48d8d3a2ed6261394b49d",
+                "url": "https://api.github.com/repos/erikwang2013/security-php/zipball/6e5b672fd55bb8d6b7368e283009b086f60c177b",
+                "reference": "6e5b672fd55bb8d6b7368e283009b086f60c177b",
                 "shasum": ""
             },
             "require": {
@@ -1272,28 +1286,29 @@
             ],
             "support": {
                 "issues": "https://github.com/erikwang2013/security-php/issues",
-                "source": "https://github.com/erikwang2013/security-php/tree/v1.3.3"
+                "source": "https://github.com/erikwang2013/security-php/tree/v1.4.2"
             },
-            "time": "2026-09-15T11:12:14+00:00"
+            "time": "2026-09-25T15:48:31+00:00"
         },
         {
             "name": "erikwang2013/snowflake-php",
-            "version": "v2.0.5",
+            "version": "v2.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwang2013/snowflake-php.git",
-                "reference": "d9db6a9bb251b3bfdcfa0a1f54a167eaf34fabde"
+                "reference": "43f165bca6420c43c575be44adb59a4fdbc1a997"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwang2013/snowflake-php/zipball/d9db6a9bb251b3bfdcfa0a1f54a167eaf34fabde",
-                "reference": "d9db6a9bb251b3bfdcfa0a1f54a167eaf34fabde",
+                "url": "https://api.github.com/repos/erikwang2013/snowflake-php/zipball/43f165bca6420c43c575be44adb59a4fdbc1a997",
+                "reference": "43f165bca6420c43c575be44adb59a4fdbc1a997",
                 "shasum": ""
             },
             "require": {
                 "php": ">=8.0"
             },
             "require-dev": {
+                "phpstan/phpstan": "^2.1",
                 "phpunit/phpunit": "^9.6 || ^10 || ^11"
             },
             "suggest": {
@@ -1342,28 +1357,29 @@
             "support": {
                 "email": "erik@erik.xyz",
                 "issues": "https://github.com/erikwang2013/snowflake-php/issues",
-                "source": "https://github.com/erikwang2013/snowflake-php/tree/v2.0.5"
+                "source": "https://github.com/erikwang2013/snowflake-php/tree/v2.4.0"
             },
-            "time": "2026-08-28T22:28:28+00:00"
+            "time": "2026-09-25T14:54:30+00:00"
         },
         {
             "name": "erikwang2013/webman-scout",
-            "version": "v2.0.9",
+            "version": "v2.1.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/erikwang2013/webman-scout.git",
-                "reference": "e943e38b19553603c965b8f8698aefc081f8e318"
+                "reference": "09c37a96e9795661c3e92170768e9a5f16f1d969"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/erikwang2013/webman-scout/zipball/e943e38b19553603c965b8f8698aefc081f8e318",
-                "reference": "e943e38b19553603c965b8f8698aefc081f8e318",
+                "url": "https://api.github.com/repos/erikwang2013/webman-scout/zipball/09c37a96e9795661c3e92170768e9a5f16f1d969",
+                "reference": "09c37a96e9795661c3e92170768e9a5f16f1d969",
                 "shasum": ""
             },
             "require": {
                 "illuminate/bus": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
                 "illuminate/contracts": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
                 "illuminate/database": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/events": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
                 "illuminate/http": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
                 "illuminate/pagination": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
                 "illuminate/queue": "^7.0|^8.0|^9.0|^10.0|^11.0|^12.0",
@@ -1386,8 +1402,12 @@
             "suggest": {
                 "algolia/algoliasearch-client-php": "Required to use the Algolia engine (^3.2).",
                 "hightman/xunsearch": "Required to use the XunSearch engine.",
+                "illuminate/cache": "Useful when the host has no cache: routes Support\\Cache through the Illuminate Cache facade instead of the per-process array store.",
+                "illuminate/log": "Useful when the host has no logger: routes Support\\Log through the Illuminate Log facade instead of error_log().",
                 "meilisearch/meilisearch-php": "Required to use the Meilisearch engine (^1.0).",
                 "opensearch-project/opensearch-php": "Required to use the OpenSearch engine (^2.0).",
+                "psr/log": "Required to hand the package a PSR-3 logger via Support\\Log::setLoggerResolver().",
+                "psr/simple-cache": "Required to hand the package a PSR-16 cache via Support\\Cache::setPsr16Resolver() (Yii3 / custom hosts).",
                 "typesense/typesense-php": "Required to use the Typesense engine (^4.9).",
                 "yiisoft/yii2": "Required to use Scout in Yii2 (config() polyfill, cache/log adapters, console bridge).",
                 "yiisoft/yii3": "Required to use Scout in Yii3 (config plugin, PSR-3/PSR-16 adapters)."
@@ -1416,23 +1436,28 @@
                     "email": "erik@erik.xyz"
                 }
             ],
-            "description": "Scout-style full-text search for Webman, Laravel, ThinkPHP, and Hyperf (Eloquent models, multiple engines).",
+            "description": "Scout-style full-text search for Eloquent models on Webman, Laravel, Hyperf, ThinkPHP, Yii2 and Yii3 — 9 engines (OpenSearch, Elasticsearch, Meilisearch, Typesense, Algolia, XunSearch, Database, Collection, Null) with time ranges, geo distance, vector/KNN, aggregations and facets.",
             "keywords": [
                 "algolia",
                 "elasticsearch",
                 "hyperf",
                 "laravel",
+                "meilisearch",
                 "opensearch",
                 "scout",
                 "search",
                 "thinkphp",
-                "webman"
+                "typesense",
+                "webman",
+                "xunsearch",
+                "yii",
+                "yii2"
             ],
             "support": {
                 "issues": "https://github.com/erikwang2013/webman-scout/issues",
                 "source": "https://github.com/erikwang2013/webman-scout"
             },
-            "time": "2026-08-28T20:56:49+00:00"
+            "time": "2026-09-25T16:22:30+00:00"
         },
         {
             "name": "ezimuel/guzzlestreams",
@@ -1547,16 +1572,16 @@
         },
         {
             "name": "firebase/php-jwt",
-            "version": "v7.1.1",
+            "version": "v7.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/googleapis/php-jwt.git",
-                "reference": "9bc93bd7e3ee5bead4cd23c365ec12f3c1fb0a6a"
+                "reference": "f502cdbf279cd7532060b041f7c22a05208c0b93"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/googleapis/php-jwt/zipball/9bc93bd7e3ee5bead4cd23c365ec12f3c1fb0a6a",
-                "reference": "9bc93bd7e3ee5bead4cd23c365ec12f3c1fb0a6a",
+                "url": "https://api.github.com/repos/googleapis/php-jwt/zipball/f502cdbf279cd7532060b041f7c22a05208c0b93",
+                "reference": "f502cdbf279cd7532060b041f7c22a05208c0b93",
                 "shasum": ""
             },
             "require": {
@@ -1566,7 +1591,7 @@
                 "guzzlehttp/guzzle": "^7.4||^8.0",
                 "phpfastcache/phpfastcache": "^9.2",
                 "phpseclib/phpseclib": "~3.0",
-                "phpspec/prophecy-phpunit": "^2.0",
+                "phpspec/prophecy-phpunit": "^2.2",
                 "phpunit/phpunit": "^9.5",
                 "psr/cache": "^2.0||^3.0",
                 "psr/http-client": "^1.0",
@@ -1578,6 +1603,14 @@
                 "phpseclib/phpseclib": "Support PS256 (RSASSA-PSS) signatures"
             },
             "type": "library",
+            "extra": {
+                "component": {
+                    "id": "jwt",
+                    "path": "Jwt",
+                    "entry": "README.md",
+                    "target": "googleapis/php-jwt.git"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Firebase\\JWT\\": "src"
@@ -1607,9 +1640,9 @@
             ],
             "support": {
                 "issues": "https://github.com/googleapis/php-jwt/issues",
-                "source": "https://github.com/googleapis/php-jwt/tree/v7.1.1"
+                "source": "https://github.com/googleapis/php-jwt/tree/v7.2.0"
             },
-            "time": "2026-09-14T17:48:47+00:00"
+            "time": "2026-09-21T19:29:58+00:00"
         },
         {
             "name": "fruitcake/php-cors",
@@ -3428,16 +3461,16 @@
         },
         {
             "name": "laravel/serializable-closure",
-            "version": "v2.0.16",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/serializable-closure.git",
-                "reference": "7cfc24e4fa2cca045fb8dd2a797a2b2b13b655ed"
+                "reference": "2d5869a838bbcf37e0d8b0568fc41914e81374b5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/7cfc24e4fa2cca045fb8dd2a797a2b2b13b655ed",
-                "reference": "7cfc24e4fa2cca045fb8dd2a797a2b2b13b655ed",
+                "url": "https://api.github.com/repos/laravel/serializable-closure/zipball/2d5869a838bbcf37e0d8b0568fc41914e81374b5",
+                "reference": "2d5869a838bbcf37e0d8b0568fc41914e81374b5",
                 "shasum": ""
             },
             "require": {
@@ -3485,7 +3518,7 @@
                 "issues": "https://github.com/laravel/serializable-closure/issues",
                 "source": "https://github.com/laravel/serializable-closure"
             },
-            "time": "2026-08-18T20:28:54+00:00"
+            "time": "2026-09-22T14:32:34+00:00"
         },
         {
             "name": "maennchen/zipstream-php",
@@ -3843,16 +3876,16 @@
         },
         {
             "name": "nesbot/carbon",
-            "version": "3.14.0",
+            "version": "3.14.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/CarbonPHP/carbon.git",
-                "reference": "0023eaa2c9110e47446dd512a263c69c40cd41f2"
+                "reference": "34e9109535165bf1d7ff17a610492372ae73a896"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/CarbonPHP/carbon/zipball/0023eaa2c9110e47446dd512a263c69c40cd41f2",
-                "reference": "0023eaa2c9110e47446dd512a263c69c40cd41f2",
+                "url": "https://api.github.com/repos/CarbonPHP/carbon/zipball/34e9109535165bf1d7ff17a610492372ae73a896",
+                "reference": "34e9109535165bf1d7ff17a610492372ae73a896",
                 "shasum": ""
             },
             "require": {
@@ -3944,7 +3977,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-09-12T20:45:19+00:00"
+            "time": "2026-09-27T12:07:26+00:00"
         },
         {
             "name": "nikic/fast-route",
@@ -7800,16 +7833,16 @@
         },
         {
             "name": "composer/semver",
-            "version": "3.4.4",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/semver.git",
-                "reference": "198166618906cb2de69b95d7d47e5fa8aa1b2b95"
+                "reference": "f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/198166618906cb2de69b95d7d47e5fa8aa1b2b95",
-                "reference": "198166618906cb2de69b95d7d47e5fa8aa1b2b95",
+                "url": "https://api.github.com/repos/composer/semver/zipball/f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5",
+                "reference": "f7a296f4c4cf8cb8bb83e35d6951a406bb11afa5",
                 "shasum": ""
             },
             "require": {
@@ -7851,7 +7884,7 @@
                     "homepage": "http://robbast.nl"
                 }
             ],
-            "description": "Semver library that offers utilities, version constraint parsing and validation.",
+            "description": "Version comparison library that offers utilities, version constraint parsing and validation.",
             "keywords": [
                 "semantic",
                 "semver",
@@ -7861,7 +7894,7 @@
             "support": {
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/semver/issues",
-                "source": "https://github.com/composer/semver/tree/3.4.4"
+                "source": "https://github.com/composer/semver/tree/3.5.0"
             },
             "funding": [
                 {
@@ -7873,7 +7906,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-08-20T19:15:30+00:00"
+            "time": "2026-09-24T14:38:51+00:00"
         },
         {
             "name": "composer/xdebug-handler",
@@ -8059,23 +8092,23 @@
         },
         {
             "name": "fidry/cpu-core-counter",
-            "version": "1.3.0",
+            "version": "1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/theofidry/cpu-core-counter.git",
-                "reference": "db9508f7b1474469d9d3c53b86f817e344732678"
+                "reference": "7cbeb03e286fa81b2bbe0e6bd6b8a27c71a3144d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/theofidry/cpu-core-counter/zipball/db9508f7b1474469d9d3c53b86f817e344732678",
-                "reference": "db9508f7b1474469d9d3c53b86f817e344732678",
+                "url": "https://api.github.com/repos/theofidry/cpu-core-counter/zipball/7cbeb03e286fa81b2bbe0e6bd6b8a27c71a3144d",
+                "reference": "7cbeb03e286fa81b2bbe0e6bd6b8a27c71a3144d",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.2 || ^8.0"
             },
             "require-dev": {
-                "fidry/makefile": "^0.2.0",
+                "fidry/makefile": "^0.2.0 || ^1.1.2",
                 "fidry/php-cs-fixer-config": "^1.1.2",
                 "phpstan/extension-installer": "^1.2.0",
                 "phpstan/phpstan": "^2.0",
@@ -8083,6 +8116,7 @@
                 "phpstan/phpstan-phpunit": "^2.0",
                 "phpstan/phpstan-strict-rules": "^2.0",
                 "phpunit/phpunit": "^8.5.31 || ^9.5.26",
+                "symfony/polyfill-mbstring": "^1.33",
                 "webmozarts/strict-phpunit": "^7.5"
             },
             "type": "library",
@@ -8108,7 +8142,7 @@
             ],
             "support": {
                 "issues": "https://github.com/theofidry/cpu-core-counter/issues",
-                "source": "https://github.com/theofidry/cpu-core-counter/tree/1.3.0"
+                "source": "https://github.com/theofidry/cpu-core-counter/tree/1.4.0"
             },
             "funding": [
                 {
@@ -8116,20 +8150,20 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-08-14T07:29:31+00:00"
+            "time": "2026-09-27T17:40:20+00:00"
         },
         {
             "name": "friendsofphp/php-cs-fixer",
-            "version": "v3.95.26",
+            "version": "v3.95.27",
             "source": {
                 "type": "git",
                 "url": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer.git",
-                "reference": "11839dfaf25718e1617c522c3dde01ebf96c875f"
+                "reference": "1d0c68ee5f37446d8ad5970b82384cd1bb0a3317"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/11839dfaf25718e1617c522c3dde01ebf96c875f",
-                "reference": "11839dfaf25718e1617c522c3dde01ebf96c875f",
+                "url": "https://api.github.com/repos/PHP-CS-Fixer/PHP-CS-Fixer/zipball/1d0c68ee5f37446d8ad5970b82384cd1bb0a3317",
+                "reference": "1d0c68ee5f37446d8ad5970b82384cd1bb0a3317",
                 "shasum": ""
             },
             "require": {
@@ -8212,7 +8246,7 @@
             ],
             "support": {
                 "issues": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/issues",
-                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.26"
+                "source": "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/tree/v3.95.27"
             },
             "funding": [
                 {
@@ -8220,7 +8254,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-19T19:04:32+00:00"
+            "time": "2026-09-22T09:54:55+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -8459,11 +8493,11 @@
         },
         {
             "name": "phpstan/phpstan",
-            "version": "2.2.14",
+            "version": "2.2.16",
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/9c672e7a8e791dfc3d30e55f683e73fc0b63a3ac",
-                "reference": "9c672e7a8e791dfc3d30e55f683e73fc0b63a3ac",
+                "url": "https://api.github.com/repos/phpstan/phpstan/zipball/46a6d9060e5a7763adfcc21ebcb8b504ebdbcb92",
+                "reference": "46a6d9060e5a7763adfcc21ebcb8b504ebdbcb92",
                 "shasum": ""
             },
             "require": {
@@ -8519,7 +8553,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2026-09-12T21:39:33+00:00"
+            "time": "2026-09-25T09:31:51+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -8868,16 +8902,16 @@
         },
         {
             "name": "phpunit/phpunit",
-            "version": "12.5.35",
+            "version": "12.5.36",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "345ac22e42cb14cdc7aa8428655d8bb8c82a4aab"
+                "reference": "ddb775588a0ea447d1c9b190c0f29c174ce81d65"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/345ac22e42cb14cdc7aa8428655d8bb8c82a4aab",
-                "reference": "345ac22e42cb14cdc7aa8428655d8bb8c82a4aab",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/ddb775588a0ea447d1c9b190c0f29c174ce81d65",
+                "reference": "ddb775588a0ea447d1c9b190c0f29c174ce81d65",
                 "shasum": ""
             },
             "require": {
@@ -8946,7 +8980,7 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
-                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.35"
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/12.5.36"
             },
             "funding": [
                 {
@@ -8954,7 +8988,7 @@
                     "type": "other"
                 }
             ],
-            "time": "2026-09-09T04:48:50+00:00"
+            "time": "2026-09-25T08:47:40+00:00"
         },
         {
             "name": "react/cache",
