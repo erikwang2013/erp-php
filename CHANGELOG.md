@@ -21,7 +21,8 @@
 - `pubspec.yaml:1` + **35 个测试文件**的 `import 'package:admin_app/…'` → `package:erik_erp/…`（分布：`test/pages` 20、`test/widgets` 8、`test/services` 4、`test/l10n` 2、`test/` 1）；`lib/` 用相对 import，零改动
 - 改名后 `flutter pub get` → `Got dependencies!` rc=0（`.dart_tool/` 是 gitignore 的生成物，不入库）
 - **验证**：`flutter analyze` rc=0（`No issues found!`）；`flutter test` rc=0，**`+195 All tests passed`**（0 skip）—— 35 个 import 文件全部编译并通过，这是本次改名最硬的证据
-- **代码里 `package:admin_app/` 残留 0**（`.dart` 与 `pubspec` 全干净）；`grep` 全仓仍会命中 2 处，都在本 CHANGELOG 的改名说明里（第 21 行与本行之上）—— 那是记录，不是残留
+- **代码里 `package:admin_app/` 残留 0**（`.dart` 与 `pubspec` 全干净）；`grep` 全仓仍会命中 **3 处，全在 CHANGELOG 内**（本批改名说明两处 + v1.19.17 条目里的一处历史记录）—— 那是记录，不是残留
+  - **按内容描述、不写行号**：行号随文档增删而漂移，本行上一版正是因为漏数了历史条目而写成「2 处」；同族的坑在旧标识那条也一样（当时写「全仓 0 命中」，其实文档里就有 8 处）
 
 ### 有意不改（都不是「包名」）
 - **可执行/产物名**：`BINARY_NAME=admin_app`、`admin_app.exe`、`admin_app.app`、`Runner.rc` 的 `InternalName`/`OriginalFilename`（命名的是文件本体，改成域名式会让元数据与真实文件名矛盾）
