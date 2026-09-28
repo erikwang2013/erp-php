@@ -18,6 +18,10 @@
   - **不做「位图与 SVG 一致」** —— 同上，CI 无渲染工具链
 - **防空转下限**：③ 要求扫到的产物文件数 ≥30（实测 61）、④ 要求识别到的 `magick` 调用 ≥5（实测 6）—— 否则探针一旦失效就会「检查了 0 项而静默通过」
 
+### 修复 · 门禁自身的两处静默（复核发现，同批修掉）
+- **① 后半段会静默跳过缺失文件**：HOS 三处应用图标副本的断言原写成 `if (!existsSync(...)) continue;` —— 文件不存在时**既不进 OK 也不进 BAD**，加上 HOS 的 media 目录原先不在「产物必须在库」的目录清单里 ⇒ **删掉 HOS 应用图标或漏提交它，本机与 CI 会一起通过**（而 HOS 恰恰是拿吉祥物当应用图标的那一端）。已改为缺失即 `BAD`，并把 `entry/.../base/media` 与 `AppScope/.../base/media` 两个目录补进清单
+- **② 该缺陷由复核的第六条负控暴露**（删 `app_icon.png` → 修复前 rc=0、修复后 rc=1）；补跑「HOS 图标不入库」负控（`git rm --cached`）同样 rc=1 —— **两条路现在都咬得住**
+
 ### 验证
 - 门禁 rc=0，22 项全过（含「61 个产物文件分布在 19 个目录，全部在 git 索引中」）
 - **负控四条**（每条只摘一次、跑完还原并核 md5，全部按预期红）：
@@ -36,7 +40,7 @@
 ### 新增 · `scripts/gen-mascot-assets.sh`（唯一源 → 四端位图）
 - 从 `docs/mascot.svg` 一次渲染 **56 个位图**，四端同源：Web 两端各 7 个（`favicon.ico` 3 帧、`apple-touch-icon` 180、`icon-192/512`、`icon-maskable-192/512`、`mascot.png` 400×400）；Flutter 五平台（Android 传统图标 5 档 + 自适应前景 5 档 · 108dp 画布 · 圆徽缩进 66dp 安全区 + `launch_image` 512 仅 xxxhdpi；iOS AppIcon 15 张压底 + LaunchImage 3 张；macOS 7 张；Windows `ico` 7 帧；web 4 张 + favicon）＝ 7+7+11+18+7+1+5
 - **幂等是硬要求，且一开始没做到**：ImageMagick 会往 PNG 嵌 `date:create/date:modify/date:timestamp` 文本块，其值取输出文件自身 mtime（1 秒粒度）⇒ 像素完全相同、字节却会变（实测 39/56 字节不同、像素零漂移）。修法是给**全部 magick 输出**加 `-define png:exclude-chunks=date,time`（`-strip` 无效，属性是写时重算的）。修后两次运行 **56 个位图逐字节相同**
-  - 归因要说准：56 个产出里 **44 个由 magick 写出**（`flat`/`soft`/`softflat` 三个函数 + 两处 `ico` 组装 + iOS LaunchImage，共 6 处调用点），另 **12 个由 `rsvg-convert` 直写**（Android 传统图标 5 档 + macOS 7 档）。后者不经过 `PNG_DEF`，**实测本就不嵌时间戳**（两跑零差异）—— 「加了 define 所以幂等」这句对那 12 个不成立
+  - 归因要说准（按写出方式分三档，**实测 56 = 42 + 12 + 2**）：**42 个由 magick 写出**（`flat`/`soft`/`softflat` 三个函数 + 两处 `ico` 组装 + iOS LaunchImage，共 6 处调用点，靠 `PNG_DEF`）、**12 个由 `rsvg-convert` 直写**（Android 传统图标 5 档 + macOS 7 档，不经 `PNG_DEF`，**实测本就不嵌时间戳**）、**2 个由 `cp` 拷贝**（两端 `mascot.png` ← `$MASTER`，天然同字节）—— 「加了 define 所以幂等」这句对后两档不成立
 - 基准图 `apps/flutter/assets/mascot.png` 缺失时从 SVG 重渲染（此前该文件只能手放，脚本无法从源重建）
 - 只出 `xxxhdpi` 一档的 `launch_image` 是**设计如此**：位图固有 dp = 像素 ÷ 密度倍率 ⇒ 512px = 128dp；放 `drawable/`（按 mdpi 解释）会变 512dp 撑爆屏
 

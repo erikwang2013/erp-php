@@ -68,6 +68,9 @@ const ASSET_DIRS = [
   'apps/flutter/android/app/src/main/res/mipmap-xxhdpi',
   'apps/flutter/android/app/src/main/res/mipmap-xxxhdpi',
   'apps/flutter/android/app/src/main/res/mipmap-anydpi-v26',
+  // HOS 直接拿吉祥物当应用图标，这些目录也必须在库（否则「删了/漏提交」两条路都看不见）
+  'apps/harmonyos/entry/src/main/resources/base/media',
+  'apps/harmonyos/AppScope/resources/base/media',
 ];
 // 生成器本身也必须入库：不提交它 ⇒ 位图在本仓不可复现、CI 也看不见产出者
 const TRACKED_REQUIRED = ['scripts/gen-mascot-assets.sh'];
@@ -122,9 +125,12 @@ console.log('① 四端 mascot.png 同源');
     'apps/harmonyos/entry/src/main/resources/base/media/start_icon.png',
     'apps/harmonyos/AppScope/resources/base/media/app_icon.png',
   ]) {
-    if (!existsSync(join(ROOT, p))) continue;
     const label = p.includes('AppScope') ? 'HOS AppScope/app_icon.png' : `HOS entry/${p.split('/').pop()}`;
-    if (src && md5(p) === src) OK(`${label} 与吉祥物同源`);
+    // 注意：这里**不能** `continue` —— 缺文件必须判失败。早先写成 continue 时「文件不存在」
+    // 既不进 OK 也不进 BAD，加上 HOS 目录原先不在 ASSET_DIRS 里 ⇒ 删掉 HOS 应用图标会
+    // 本机与 CI 一起静默通过（正是本条断言想守的那类）。
+    if (!existsSync(join(ROOT, p))) BAD(`缺少 ${p}（HOS 拿它当应用图标）`);
+    else if (src && md5(p) === src) OK(`${label} 与吉祥物同源`);
     else BAD(`${label} 与吉祥物不同源（该端拿它当应用图标）`);
   }
 }
