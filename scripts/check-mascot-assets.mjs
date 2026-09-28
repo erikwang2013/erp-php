@@ -21,6 +21,11 @@
  *      （`-define png:exclude-chunks=date,time`）。少了它，同一像素两次编码会得到不同
  *      字节（IM 会嵌 date:* 文本块，值取输出文件 mtime），「重跑生成器 ⇒ 位图零变化」
  *      这条判据就失效
+ *   ⑤ **应用标识五端一致**（v1.19.19 起）：Android（namespace + applicationId + Kotlin
+ *      package 与目录）／iOS 与 macOS 的全部 `PRODUCT_BUNDLE_IDENTIFIER`／Linux
+ *      `APPLICATION_ID`／HarmonyOS `bundleName` 必须同为 `xyz.erik.erp`（测试目标允许
+ *      `.RunnerTests` 后缀），且任何地方不得残留旧标识（`com.erik.admin_app` /
+ *      `com.erik.adminApp` / `xyz.erik.openadmin`）。标识散在 6 个文件里，漂移同样是静默的
  *
  * 三条刻意的不校验（都是实测后定的口径，避免被读成「全覆盖」）：
  *   · **不做像素比对** —— CI 这台机器没有 ImageMagick / rsvg-convert，像素级判据留在
@@ -214,6 +219,76 @@ console.log('④ 生成器幂等（PNG_DEF 覆盖每处 magick 输出）');
   }
 }
 
+// ---------- ⑤ 应用标识五端一致（v1.19.19 起） ----------
+console.log('⑤ 应用标识五端一致');
+{
+  const APP_ID = 'xyz.erik.erp';
+  const LEGACY = [/com\.erik\.admin_app/, /com\.erik\.adminApp/, /xyz\.erik\.openadmin/];
+  const ID_DECL = /PRODUCT_BUNDLE_IDENTIFIER\s*=\s*([^;]+);/g;
+  let checked = 0;
+
+  const checkFile = (rel, fn) => {
+    const txt = read(rel);
+    if (txt === null) BAD(`缺少 ${rel}`);
+    else fn(txt, rel);
+  };
+  const noLegacy = (txt, rel) => {
+    for (const re of LEGACY) {
+      if (re.test(txt)) BAD(`${rel} 里仍有旧标识 ${String(re).replace(/[\\^]/g, '')}`);
+    }
+  };
+  const eq = (got, want, label) => {
+    checked++;
+    if (got === want) OK(label);
+    else BAD(`${label}：期望 ${want}，实为 ${got}`);
+  };
+
+  // Android：namespace 与 applicationId 都必须是 APP_ID（namespace 还决定 R 类与 Kotlin 包）
+  checkFile('apps/flutter/android/app/build.gradle.kts', (t, f) => {
+    noLegacy(t, f);
+    eq((t.match(/namespace\s*=\s*"([^"]+)"/) || [])[1], APP_ID, 'Android namespace');
+    eq((t.match(/applicationId\s*=\s*"([^"]+)"/) || [])[1], APP_ID, 'Android applicationId');
+  });
+  // Android：Kotlin 的 package 行必须与所在目录逐段一致（改包名最常见的漏改一半）
+  checkFile(`apps/flutter/android/app/src/main/kotlin/${APP_ID.replace(/\./g, '/')}/MainActivity.kt`, (t, f) => {
+    noLegacy(t, f);
+    eq((t.match(/^package\s+([^\s;]+)/m) || [])[1], APP_ID, 'MainActivity 的 package');
+    okCount.n++; console.log(`  ✓ MainActivity 位于 kotlin/${APP_ID.replace(/\./g, '/')}/（目录与包名一致）`);
+  });
+  // iOS / macOS：所有 PRODUCT_BUNDLE_IDENTIFIER 只允许 APP_ID 与 APP_ID.RunnerTests 两种
+  for (const [rel, min] of [['apps/flutter/ios/Runner.xcodeproj/project.pbxproj', 5],
+                            ['apps/flutter/macos/Runner.xcodeproj/project.pbxproj', 3]]) {
+    checkFile(rel, (t, f) => {
+      noLegacy(t, f);
+      const ids = [...t.matchAll(ID_DECL)].map((m) => m[1].trim());
+      const allowed = new Set([APP_ID, `${APP_ID}.RunnerTests`]);
+      const bad = ids.filter((i) => !allowed.has(i));
+      checked += ids.length;
+      if (ids.length < min) BAD(`${f} 只找到 ${ids.length} 条 PRODUCT_BUNDLE_IDENTIFIER（下限 ${min}）—— 探针可能失效，拒绝空转通过`);
+      else if (bad.length) BAD(`${f} 有非约定标识：${[...new Set(bad)].join('、')}`);
+      else OK(`${f} 的 ${ids.length} 条标识全为 ${APP_ID} 或其 .RunnerTests`);
+    });
+  }
+  // macOS xcconfig / Linux APPLICATION_ID / HarmonyOS bundleName
+  checkFile('apps/flutter/macos/Runner/Configs/AppInfo.xcconfig', (t, f) => {
+    noLegacy(t, f);
+    eq((t.match(/^PRODUCT_BUNDLE_IDENTIFIER\s*=\s*(\S+)\s*$/m) || [])[1], APP_ID, 'macOS xcconfig 标识');
+  });
+  checkFile('apps/flutter/linux/CMakeLists.txt', (t, f) => {
+    noLegacy(t, f);
+    eq((t.match(/set\(APPLICATION_ID\s+"([^"]+)"\)/) || [])[1], APP_ID, 'Linux APPLICATION_ID');
+  });
+  checkFile('apps/harmonyos/AppScope/app.json5', (t, f) => {
+    noLegacy(t, f);
+    eq((t.match(/"bundleName"\s*:\s*"([^"]+)"/) || [])[1], APP_ID, 'HarmonyOS bundleName');
+  });
+
+  const MIN_ID_CHECKS = 12; // 防空转下限（实测 14：Android 2 + Kotlin 1 + iOS ≥5 + macOS ≥3 + xcconfig 1 + Linux 1 + HOS 1）
+  if (checked < MIN_ID_CHECKS) {
+    BAD(`只核到 ${checked} 条应用标识（下限 ${MIN_ID_CHECKS}）—— 探针可能失效，拒绝空转通过`);
+  }
+}
+
 // ---------- 汇总 ----------
 console.log(`\n通过 ${okCount.n} 项，失败 ${fail.length} 项。`);
 if (fail.length) {
@@ -221,4 +296,4 @@ if (fail.length) {
   for (const f of fail) console.log(`  · ${f}`);
   process.exit(1);
 }
-console.log('四端吉祥物不变量全部成立。');
+console.log('四端吉祥物同源 与 五端应用标识一致 两条不变量全部成立。');

@@ -31,6 +31,17 @@
 ### 影响
 - Android 换 `applicationId` = **换应用身份**：已装旧包名的设备会视为两个应用，原应用不会自动升级。发布前切换即无影响；若已在应用市场发布过，需另行处理（本仓未见发布痕迹）
 
+### 门禁 #17 扩一条 · 应用标识五端一致
+包名散在 6 个文件（Android gradle + Kotlin + 两个 pbxproj + xcconfig + CMakeLists + app.json5），**任何一处漂移同样是静默的** ⇒ 在 `scripts/check-mascot-assets.mjs` 增第 ⑤ 组断言：
+- Android `namespace` / `applicationId` / **Kotlin `package` 行与所在目录逐段一致**（改包名最常见的漏改一半）
+- iOS / macOS 的**全部** `PRODUCT_BUNDLE_IDENTIFIER` 只允许 `xyz.erik.erp` 与 `xyz.erik.erp.RunnerTests` 两种（新加 target 若用旧标识会红）
+- Linux `APPLICATION_ID`、HarmonyOS `bundleName`；并禁止任何文件残留三个旧标识
+- 防空转下限：核到的标识条数必须 ≥12（实测 15），pbxproj 两文件各自有下限（5 / 3）—— 探针失效时必须红而不是「检查了 0 条」
+
+### 验证（门禁扩展部分）
+- 门禁 rc=0，**31 项**全过（原 22 + 新 9）
+- **负控三条**（各摘一次、跑完还原并核 md5）：① `applicationId` 改成 `xyz.erik.other` ⇒ rc=1；② iOS 一个 target 塞回 `com.erik.adminApp` ⇒ rc=1 命中「旧标识」；③ Kotlin `package` 改成 `xyz.erik.wrong`（目录不动）⇒ rc=1 —— 还原后 md5 与基线一致、门禁复回 rc=0
+
 ## v1.19.18 (2026-09-28)
 
 **品牌吉祥物同源门禁批**：新增 `scripts/check-mascot-assets.mjs`（第 17 道门禁，挂 `docs` 作业）—— v1.19.17 建立的「四端吉祥物同源 + 品牌位引用未断」不变量，此前**没有任何门禁看着**（16 道逐条 grep 过，无一涉及位图/吉祥物/应用名），纯靠人肉维持；而 v1.19.17 那批之所以发生，正是因为它「问一句『都改了吗』当时没人能答」。范围：**0 产品代码改动**。
