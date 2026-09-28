@@ -6,8 +6,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:admin_app/app/pages/login/login_page.dart';
-import 'package:admin_app/app/widgets/captcha_verify_dialog.dart';
+import 'package:erik_erp/app/pages/login/login_page.dart';
+import 'package:erik_erp/app/widgets/captcha_verify_dialog.dart';
 
 void main() {
   Widget wrap() => const MaterialApp(home: LoginPage());

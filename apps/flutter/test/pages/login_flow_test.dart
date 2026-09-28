@@ -12,8 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:admin_app/app/pages/login/login_page.dart';
-import 'package:admin_app/app/services/auth_service.dart';
+import 'package:erik_erp/app/pages/login/login_page.dart';
+import 'package:erik_erp/app/services/auth_service.dart';
 
 /// 1x1 透明 PNG，作为验证码图片的 base64。
 const _kPng1x1 =

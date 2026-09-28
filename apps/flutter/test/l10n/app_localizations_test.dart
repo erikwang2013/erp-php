@@ -10,9 +10,9 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:admin_app/l10n/app_localizations.dart';
-import 'package:admin_app/l10n/app_localizations_zh.dart';
-import 'package:admin_app/l10n/app_localizations_en.dart';
+import 'package:erik_erp/l10n/app_localizations.dart';
+import 'package:erik_erp/l10n/app_localizations_zh.dart';
+import 'package:erik_erp/l10n/app_localizations_en.dart';
 
 void main() {
   group('arb 文件 key 完整性', () {

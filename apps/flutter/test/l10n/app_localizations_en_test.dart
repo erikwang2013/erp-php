@@ -9,7 +9,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:admin_app/app/config/menu_config.dart';
+import 'package:erik_erp/app/config/menu_config.dart';
 
 void main() {
   final zh = _loadArb('app_zh.arb');

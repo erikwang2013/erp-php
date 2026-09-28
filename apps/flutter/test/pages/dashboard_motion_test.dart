@@ -7,9 +7,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:admin_app/app/pages/dashboard/dashboard_page.dart';
-import 'package:admin_app/app/services/api_service.dart';
-import 'package:admin_app/app/widgets/empty_state.dart';
+import 'package:erik_erp/app/pages/dashboard/dashboard_page.dart';
+import 'package:erik_erp/app/services/api_service.dart';
+import 'package:erik_erp/app/widgets/empty_state.dart';
 
 import '../helpers/fake_http_client_adapter.dart';
 

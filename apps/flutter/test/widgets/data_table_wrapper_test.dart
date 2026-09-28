@@ -6,7 +6,7 @@ import 'package:data_table_2/data_table_2.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:admin_app/app/widgets/data_table_wrapper.dart';
+import 'package:erik_erp/app/widgets/data_table_wrapper.dart';
 
 void main() {
   Widget wrap(Widget child) => MaterialApp(

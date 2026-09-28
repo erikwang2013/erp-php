@@ -7,15 +7,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:admin_app/app/pages/finance/ar_ap_list_page.dart';
-import 'package:admin_app/app/pages/inventory/alert_list_page.dart';
-import 'package:admin_app/app/pages/inventory/inventory_list_page.dart';
-import 'package:admin_app/app/pages/product/product_list_page.dart';
-import 'package:admin_app/app/pages/project/project_list_page.dart';
-import 'package:admin_app/app/pages/sales/order_list_page.dart';
-import 'package:admin_app/app/pages/workflow/my_approval_page.dart';
-import 'package:admin_app/app/widgets/status_badge.dart';
-import 'package:admin_app/app/services/api_service.dart';
+import 'package:erik_erp/app/pages/finance/ar_ap_list_page.dart';
+import 'package:erik_erp/app/pages/inventory/alert_list_page.dart';
+import 'package:erik_erp/app/pages/inventory/inventory_list_page.dart';
+import 'package:erik_erp/app/pages/product/product_list_page.dart';
+import 'package:erik_erp/app/pages/project/project_list_page.dart';
+import 'package:erik_erp/app/pages/sales/order_list_page.dart';
+import 'package:erik_erp/app/pages/workflow/my_approval_page.dart';
+import 'package:erik_erp/app/widgets/status_badge.dart';
+import 'package:erik_erp/app/services/api_service.dart';
 
 import '../helpers/fake_http_client_adapter.dart';
 

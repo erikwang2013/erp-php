@@ -4,7 +4,7 @@
 
 ## v1.19.19 (2026-09-28)
 
-**应用包名统一批**：Flutter 四平台与 HarmonyOS 的**应用标识**由 `com.erik.admin_app` / `com.erik.adminApp` / `xyz.erik.openadmin` 三套统一为 **`xyz.erik.erp`**。范围：**0 代码逻辑改动**（纯构建标识）。
+**应用包名统一批**：Flutter 四平台与 HarmonyOS 的**应用标识**由 `com.erik.admin_app` / `com.erik.adminApp` / `xyz.erik.openadmin` 三套统一为 **`xyz.erik.erp`**；**Dart 包名**由 `admin_app` 改为 **`erik_erp`**（域名式在 Dart 语法上不成立）。范围：**0 代码逻辑改动**（纯标识 + 35 个测试文件的 import 串）。
 
 ### 改动 · 五端标识
 | 端 | 位置 | 前 → 后 |
@@ -15,11 +15,18 @@
 | macOS | `Configs/AppInfo.xcconfig:11` + `macos/Runner.xcodeproj/project.pbxproj` **3 处** | 同上 |
 | Linux | `linux/CMakeLists.txt:10` `APPLICATION_ID` | `com.erik.admin_app` → `xyz.erik.erp` |
 | HarmonyOS | `AppScope/app.json5:3` `bundleName` | `xyz.erik.openadmin` → `xyz.erik.erp` |
+| **Dart 包名** | `apps/flutter/pubspec.yaml:1` `name:` | `admin_app` → **`erik_erp`**（域名式 `xyz.erik.erp` 在 Dart 里语法不成立：包名不允许点号）|
 
-### 有意不改（都不是包名）
-- **Dart 包名 `admin_app`** —— 35 个测试文件 `import package:admin_app/`，且 Dart 包名**不允许点号**，`xyz.erik.erp` 在语法上就不成立
+### Dart 包名改名（`admin_app` → `erik_erp`）
+- `pubspec.yaml:1` + **35 个测试文件**的 `import 'package:admin_app/…'` → `package:erik_erp/…`（分布：`test/pages` 20、`test/widgets` 8、`test/services` 4、`test/l10n` 2、`test/` 1）；`lib/` 用相对 import，零改动
+- 改名后 `flutter pub get` → `Got dependencies!` rc=0（`.dart_tool/` 是 gitignore 的生成物，不入库）
+- **验证**：`flutter analyze` rc=0（`No issues found!`）；`flutter test` rc=0，**`+195 All tests passed`**（0 skip）—— 35 个 import 文件全部编译并通过，这是本次改名最硬的证据
+- 全仓 `package:admin_app/` 残留 **0 命中**（`grep` rc=1）
+
+### 有意不改（都不是「包名」）
 - **可执行/产物名**：`BINARY_NAME=admin_app`、`admin_app.exe`、`admin_app.app`、`Runner.rc` 的 `InternalName`/`OriginalFilename`（命名的是文件本体，改成域名式会让元数据与真实文件名矛盾）
 - **版权/公司串 `com.erik`**：`Runner.rc:92/96`、`AppInfo.xcconfig:14`
+- **macOS `PRODUCT_NAME`**：同时喂 `.app` 产物名且被 pbxproj/xcscheme 字面量引用（见 v1.19.17 的「已知」档）
 
 ### 验证
 - 全仓旧标识 **0 命中**（`grep` rc=1，rc 在单独行捕获、未经管道）

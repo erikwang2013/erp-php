@@ -5,8 +5,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:admin_app/app/l10n/app_l10n.dart';
-import 'package:admin_app/app/widgets/confirm_dialog.dart';
+import 'package:erik_erp/app/l10n/app_l10n.dart';
+import 'package:erik_erp/app/widgets/confirm_dialog.dart';
 
 void main() {
   /// 打开对话框，把 ConfirmDialog.show 的返回值写入 [resultBox]。

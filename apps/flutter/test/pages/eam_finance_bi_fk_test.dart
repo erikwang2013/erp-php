@@ -13,12 +13,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:admin_app/app/l10n/app_l10n.dart';
-import 'package:admin_app/app/pages/bi/dashboard_list_page.dart';
-import 'package:admin_app/app/pages/bi/dataset_list_page.dart';
-import 'package:admin_app/app/pages/eam/maintenance_plan_page.dart';
-import 'package:admin_app/app/pages/finance/exchange_rate_page.dart';
-import 'package:admin_app/app/services/api_service.dart';
+import 'package:erik_erp/app/l10n/app_l10n.dart';
+import 'package:erik_erp/app/pages/bi/dashboard_list_page.dart';
+import 'package:erik_erp/app/pages/bi/dataset_list_page.dart';
+import 'package:erik_erp/app/pages/eam/maintenance_plan_page.dart';
+import 'package:erik_erp/app/pages/finance/exchange_rate_page.dart';
+import 'package:erik_erp/app/services/api_service.dart';
 
 import '../helpers/fake_http_client_adapter.dart';
 

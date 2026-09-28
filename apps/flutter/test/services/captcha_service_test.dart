@@ -5,7 +5,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:admin_app/app/services/captcha_service.dart';
+import 'package:erik_erp/app/services/captcha_service.dart';
 
 import '../helpers/fake_http_client_adapter.dart';
 

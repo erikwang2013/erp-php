@@ -2,8 +2,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:admin_app/app/services/captcha_service.dart';
-import 'package:admin_app/app/widgets/captcha_verify_dialog.dart';
+import 'package:erik_erp/app/services/captcha_service.dart';
+import 'package:erik_erp/app/widgets/captcha_verify_dialog.dart';
 
 // 1x1 透明 PNG（单层 base64，与生产接口同格式）
 const String _kPng1x1 =

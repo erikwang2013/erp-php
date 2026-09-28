@@ -11,11 +11,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:admin_app/app/pages/quality/ipqc_list_page.dart';
-import 'package:admin_app/app/pages/quality/iqc_list_page.dart';
-import 'package:admin_app/app/pages/quality/nonconformity_list_page.dart';
-import 'package:admin_app/app/pages/quality/oqc_list_page.dart';
-import 'package:admin_app/app/services/api_service.dart';
+import 'package:erik_erp/app/pages/quality/ipqc_list_page.dart';
+import 'package:erik_erp/app/pages/quality/iqc_list_page.dart';
+import 'package:erik_erp/app/pages/quality/nonconformity_list_page.dart';
+import 'package:erik_erp/app/pages/quality/oqc_list_page.dart';
+import 'package:erik_erp/app/services/api_service.dart';
 
 import '../helpers/fake_http_client_adapter.dart';
 

@@ -5,7 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:admin_app/app/widgets/empty_state.dart';
+import 'package:erik_erp/app/widgets/empty_state.dart';
 
 void main() {
   testWidgets('默认空态:灰阶 mascot + 「暂无数据」', (tester) async {

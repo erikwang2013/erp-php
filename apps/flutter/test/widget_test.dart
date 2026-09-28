@@ -1,7 +1,7 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 // App 冒烟测试：应用能正常启动并渲染登录页。
 import 'package:flutter_test/flutter_test.dart';
-import 'package:admin_app/main.dart';
+import 'package:erik_erp/main.dart';
 
 void main() {
   testWidgets('Admin app smoke test — 启动后渲染登录页', (WidgetTester tester) async {

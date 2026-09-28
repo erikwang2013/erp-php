@@ -8,8 +8,8 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:admin_app/app/services/api_service.dart';
-import 'package:admin_app/app/services/export_service.dart';
+import 'package:erik_erp/app/services/api_service.dart';
+import 'package:erik_erp/app/services/export_service.dart';
 
 import '../helpers/fake_http_client_adapter.dart';
 

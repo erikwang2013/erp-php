@@ -10,13 +10,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:admin_app/app/pages/finance/payment_list_page.dart';
-import 'package:admin_app/app/pages/finance/receipt_list_page.dart';
-import 'package:admin_app/app/pages/hr/attendance_page.dart';
-import 'package:admin_app/app/pages/notification/notification_page.dart';
-import 'package:admin_app/app/pages/quality/iqc_list_page.dart';
-import 'package:admin_app/app/pages/quality/nonconformity_list_page.dart';
-import 'package:admin_app/app/services/api_service.dart';
+import 'package:erik_erp/app/pages/finance/payment_list_page.dart';
+import 'package:erik_erp/app/pages/finance/receipt_list_page.dart';
+import 'package:erik_erp/app/pages/hr/attendance_page.dart';
+import 'package:erik_erp/app/pages/notification/notification_page.dart';
+import 'package:erik_erp/app/pages/quality/iqc_list_page.dart';
+import 'package:erik_erp/app/pages/quality/nonconformity_list_page.dart';
+import 'package:erik_erp/app/services/api_service.dart';
 
 import '../helpers/fake_http_client_adapter.dart';
 

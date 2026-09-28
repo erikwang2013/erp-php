@@ -10,12 +10,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:admin_app/app/pages/oms/order_detail_page.dart';
-import 'package:admin_app/app/pages/sales/order_detail_page.dart';
-import 'package:admin_app/app/pages/workflow/approval_detail_page.dart';
-import 'package:admin_app/app/services/api_service.dart';
-import 'package:admin_app/app/widgets/reference_card.dart';
-import 'package:admin_app/app/widgets/status_badge.dart';
+import 'package:erik_erp/app/pages/oms/order_detail_page.dart';
+import 'package:erik_erp/app/pages/sales/order_detail_page.dart';
+import 'package:erik_erp/app/pages/workflow/approval_detail_page.dart';
+import 'package:erik_erp/app/services/api_service.dart';
+import 'package:erik_erp/app/widgets/reference_card.dart';
+import 'package:erik_erp/app/widgets/status_badge.dart';
 
 import '../helpers/fake_http_client_adapter.dart';
 

@@ -6,7 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:admin_app/app/widgets/permission_tree_picker.dart';
+import 'package:erik_erp/app/widgets/permission_tree_picker.dart';
 
 Map<String, dynamic> node(
   String id,
