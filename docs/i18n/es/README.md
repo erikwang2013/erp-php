@@ -760,3 +760,22 @@ Gracias a las siguientes personas por ayudar a mejorar la seguridad de este proy
 MIT
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+<!-- pet-expressions:start -->
+## Expresiones de la mascota · Pulpito
+
+<table align="center">
+<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="Sonrisa"><br><b>Sonrisa</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="Alegría"><br><b>Alegría</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="Llorar"><br><b>Llorar</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="Deprimido"><br><b>Deprimido</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="Aterrado"><br><b>Aterrado</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="Enfadado"><br><b>Enfadado</b><br><code>:emoji-angry:</code></td></tr>
+<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="Mimoso"><br><b>Mimoso</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="Adorable"><br><b>Adorable</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="Complacer"><br><b>Complacer</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="Tocar"><br><b>Tocar</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="Facepalm"><br><b>Facepalm</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="Lengua fuera"><br><b>Lengua fuera</b><br><code>:emoji-tongue:</code></td></tr>
+</table>
+
+> 12 formas animadas de color: Sonrisa / Alegría / Llorar / Deprimido / Aterrado / Enfadado / Mimoso / Adorable / Complacer / Tocar / Facepalm / Lengua fuera. Cada SVG incluye su expresión, efectos emocionales y animación completa, y respeta `prefers-reduced-motion`.
+<!-- pet-expressions:end -->
+
+<!-- assets-license:start -->
+## Licencia de recursos visuales
+
+Las mascotas, imágenes, iconos y emoji/expresiones de este proyecto (incluidos los SVG / PNG de `docs/pet-expressions/` y directorios similares) **no son recursos de código abierto**; los derechos de autor pertenecen al autor. No se permite copiar, modificar, redistribuir ni usar comercialmente sin autorización escrita previa; el uso comercial requiere una licencia comercial. Contacto: **erik@erik.xyz**. Consulte [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md) para más detalles.
+
+> El código sigue rigiéndose por la `LICENSE` existente del repositorio; los recursos de terceros (como el Go Gopher claramente atribuido) siguen bajo sus licencias originales.
+<!-- assets-license:end -->

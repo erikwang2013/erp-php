@@ -781,3 +781,22 @@ docker compose up -d
 MIT
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+<!-- pet-expressions:start -->
+## Выражения питомца проекта · Маленький осьминог
+
+<table align="center">
+<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="Улыбка"><br><b>Улыбка</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="Радость"><br><b>Радость</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="Плач"><br><b>Плач</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="Подавленность"><br><b>Подавленность</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="Ужас"><br><b>Ужас</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="Злость"><br><b>Злость</b><br><code>:emoji-angry:</code></td></tr>
+<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="Ласка"><br><b>Ласка</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="Милота"><br><b>Милота</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="Угождение"><br><b>Угождение</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="Стук"><br><b>Стук</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="Facepalm"><br><b>Facepalm</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="Язык"><br><b>Язык</b><br><code>:emoji-tongue:</code></td></tr>
+</table>
+
+> 12 цветных анимированных форм: Улыбка / Радость / Плач / Подавленность / Ужас / Злость / Ласка / Милота / Угождение / Стук / Facepalm / Язык. Каждый SVG содержит выражение, эмоциональные эффекты и полную анимацию и учитывает `prefers-reduced-motion`.
+<!-- pet-expressions:end -->
+
+<!-- assets-license:start -->
+## Лицензия на визуальные материалы
+
+Питомцы проекта, изображения, иконки и эмодзи/выражения (включая SVG / PNG в `docs/pet-expressions/` и аналогичных каталогах) **не являются открытыми ресурсами**; авторские права принадлежат автору. Без предварительного письменного разрешения запрещается копировать, изменять, распространять или использовать в коммерческих целях; для коммерческого использования требуется коммерческая лицензия. Контакт: **erik@erik.xyz**. Подробности: [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md).
+
+> Код по-прежнему регулируется существующей `LICENSE` репозитория; сторонние материалы (например, явно указанный Go Gopher) остаются под их исходными лицензиями.
+<!-- assets-license:end -->

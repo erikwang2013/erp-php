@@ -781,3 +781,22 @@ Agradecemos às seguintes pessoas por ajudarem a melhorar a segurança deste pro
 MIT
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+<!-- pet-expressions:start -->
+## Expressões da mascote · Polvinho
+
+<table align="center">
+<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="Sorriso"><br><b>Sorriso</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="Alegria"><br><b>Alegria</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="Chorar"><br><b>Chorar</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="Deprimido"><br><b>Deprimido</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="Aterrorizado"><br><b>Aterrorizado</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="Irritado"><br><b>Irritado</b><br><code>:emoji-angry:</code></td></tr>
+<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="Carinhoso"><br><b>Carinhoso</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="Fofo"><br><b>Fofo</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="Agradar"><br><b>Agradar</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="Bater"><br><b>Bater</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="Facepalm"><br><b>Facepalm</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="Língua para fora"><br><b>Língua para fora</b><br><code>:emoji-tongue:</code></td></tr>
+</table>
+
+> 12 formas animadas coloridas: Sorriso / Alegria / Chorar / Deprimido / Aterrorizado / Irritado / Carinhoso / Fofo / Agradar / Bater / Facepalm / Língua para fora. Cada SVG inclui sua expressão, efeitos emocionais e animação completa, e respeita `prefers-reduced-motion`.
+<!-- pet-expressions:end -->
+
+<!-- assets-license:start -->
+## Licença de recursos visuais
+
+As mascotes, imagens, ícones e emoji/expressões deste projeto (incluindo SVG / PNG em `docs/pet-expressions/` e diretórios semelhantes) **não são recursos open source**; os direitos autorais pertencem ao autor. Não é permitido copiar, modificar, redistribuir ou usar comercialmente sem autorização escrita prévia; o uso comercial exige uma licença comercial. Contato: **erik@erik.xyz**. Consulte [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md) para detalhes.
+
+> O código continua sob a `LICENSE` existente do repositório; recursos de terceiros (como o Go Gopher claramente atribuído) permanecem sob suas licenças originais.
+<!-- assets-license:end -->

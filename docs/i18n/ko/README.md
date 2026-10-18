@@ -764,3 +764,22 @@ GitHub Actions 지속적 통합 파이프라인: `.github/workflows/ci.yml`, 5�
 MIT
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+<!-- pet-expressions:start -->
+## 프로젝트 펫 표정 · 작은 문어
+
+<table align="center">
+<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="웃음"><br><b>웃음</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="기쁨"><br><b>기쁨</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="울음"><br><b>울음</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="우울"><br><b>우울</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="공포"><br><b>공포</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="분노"><br><b>분노</b><br><code>:emoji-angry:</code></td></tr>
+<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="애교"><br><b>애교</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="귀여움"><br><b>귀여움</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="아첨"><br><b>아첨</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="노크"><br><b>노크</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="얼굴 가리기"><br><b>얼굴 가리기</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="혀 내밀기"><br><b>혀 내밀기</b><br><code>:emoji-tongue:</code></td></tr>
+</table>
+
+> 12가지 컬러 애니메이션 형태: 웃음 / 기쁨 / 울음 / 우울 / 공포 / 분노 / 애교 / 귀여움 / 아첨 / 노크 / 얼굴 가리기 / 혀 내밀기. 각 SVG는 표정, 감정 효과, 전체 모션을 포함하며 `prefers-reduced-motion`을 준수합니다.
+<!-- pet-expressions:end -->
+
+<!-- assets-license:start -->
+## 시각 자산 라이선스
+
+이 프로젝트의 프로젝트 펫, 이미지, 아이콘, 이모지/표정(`docs/pet-expressions/` 등 디렉터리의 SVG / PNG 포함)은 **오픈소스 자산이 아니며** 저작권은 작성자에게 있습니다. 사전 서면 허가 없이 복제, 수정, 재배포 또는 상업적 사용을 할 수 없습니다. 상업적 사용에는 상업 라이선스가 필요합니다. 문의: **erik@erik.xyz**. 자세한 내용은 [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md)를 참조하세요.
+
+> 코드 부분은 저장소의 기존 `LICENSE`를 따릅니다. 제3자 자료(명시된 Go Gopher 등)는 원래 라이선스를 따릅니다.
+<!-- assets-license:end -->

@@ -2,6 +2,33 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.20 (2026-10-19)
+
+**项目宠物去背景批**：小八爪的视觉资产去掉圆形徽章底色，改为透明背景。范围：**0 代码逻辑改动**（SVG 源 + 生成位图 + 生成器/门禁说明）。
+
+### 改动 · 视觉
+- **12 个表情 SVG**（`docs/pet-expressions/*.svg`）与 **13 份吉祥物 SVG**（`docs/mascot.svg` + `docs/i18n/*/images/mascot.svg`）删除同一套背景元素：`bgGrad` 径向渐变、`r="192"` 填充圆、`r="178"` 白色描边圆
+- 12 份 i18n 镜像仍与中文源**逐字节一致**（md5 唯一值 1）
+- 重跑 `scripts/gen-mascot-assets.sh`：**60 个生成产物 + 1 个 400×400 基准图**全部重生成（Angular / React / Flutter Web+Windows+macOS+iOS+Android / HarmonyOS），共 **61 个位图**
+- iOS 与 PWA `any` 图标保留实底 `#EEF4FF` —— 这两个平台强制不透明，属平台约束，不是被去掉的徽章背景
+
+### 改动 · 生成器与门禁说明
+- `gen-mascot-assets.sh` 新增第 7 步：自动把基准图同步到 **HOS 的 4 份副本**（`mascot.png` + `entry/app_icon.png` + `entry/start_icon.png` + `AppScope/app_icon.png`）。此前靠手工 `cp`，改吉祥物后漏同步会让门禁 #17 ① 红
+- 产出计数 **56 → 60**（`cp` 2 → 6），过期注释「圆徽占源图 96%」「保留圆徽」按新几何更新
+- `check-mascot-assets.mjs` 与 CI `docs` 作业注释的「四条不变量」更正为「五条」（v1.19.19 已新增 ⑤ 应用标识五端一致）
+
+### 文档 · 12 语种镜像补齐（修既有发版阻断）
+- 上一提交 `867a976` 只在根 `README.md` 追加了「项目宠物表情形态」与「视觉资产授权」两节，12 份 `docs/i18n/*/README.md` 未跟进 ⇒ `check-doc-mirror` 报 **24 处标题数漂移**（每语种 24 vs 22），会挡住 release
+- 按各语种补齐两节（标题 + 12 表情表 + 授权段）；图片与授权链接分别使用 `../../../docs/pet-expressions/`、`../../../ASSETS-LICENSE.md`
+- 13 份 README 的 `##` 标题数均回到 **24**
+
+### 验证
+- `node scripts/check-mascot-assets.mjs`：**31 项全过、0 失败**
+- `node scripts/check-doc-mirror.mjs` rc=0（全部镜像结构与中文源一致）；`bash scripts/doc-stats.sh --check` rc=0（338 处标注一致）
+- 25 个 SVG 全部通过 XML 解析；吉祥物/表情渲染的 alpha 覆盖率约 **25%**（75% 透明）
+- 生成器幂等：重跑后 **61 个位图 md5 全等**
+- `bash -n scripts/gen-mascot-assets.sh` rc=0；HOS 4 份副本与基准图逐字节相同
+
 ## v1.19.19 (2026-09-28)
 
 **应用包名统一批**：Flutter 四平台与 HarmonyOS 的**应用标识**由 `com.erik.admin_app` / `com.erik.adminApp` / `xyz.erik.openadmin` 三套统一为 **`xyz.erik.erp`**；**Dart 包名**由 `admin_app` 改为 **`erik_erp`**（域名式在 Dart 语法上不成立）。范围：**0 代码逻辑改动**（纯标识 + 35 个测试文件的 import 串）。

@@ -759,3 +759,22 @@ Terima kasih kepada pihak berikut yang membantu meningkatkan keamanan proyek ini
 MIT
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+<!-- pet-expressions:start -->
+## Ekspresi Hewan Proyek · Gurita Kecil
+
+<table align="center">
+<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="Senyum"><br><b>Senyum</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="Gembira"><br><b>Gembira</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="Menangis"><br><b>Menangis</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="Murung"><br><b>Murung</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="Ketakutan"><br><b>Ketakutan</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="Marah"><br><b>Marah</b><br><code>:emoji-angry:</code></td></tr>
+<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="Manja"><br><b>Manja</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="Lucu"><br><b>Lucu</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="Menyenangkan"><br><b>Menyenangkan</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="Mengetuk"><br><b>Mengetuk</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="Facepalm"><br><b>Facepalm</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="Menjulurkan Lidah"><br><b>Menjulurkan Lidah</b><br><code>:emoji-tongue:</code></td></tr>
+</table>
+
+> 12 bentuk animasi berwarna: Senyum / Gembira / Menangis / Murung / Ketakutan / Marah / Manja / Lucu / Menyenangkan / Mengetuk / Facepalm / Menjulurkan Lidah. Setiap SVG menyertakan ekspresi, efek emosional, dan gerak penuh, serta menghormati `prefers-reduced-motion`.
+<!-- pet-expressions:end -->
+
+<!-- assets-license:start -->
+## Lisensi Aset Visual
+
+Hewan proyek, gambar, ikon, dan emoji/ekspresi dalam proyek ini (termasuk SVG / PNG di `docs/pet-expressions/` dan direktori serupa) **bukan aset open source**; hak cipta milik penulis. Dilarang menyalin, memodifikasi, mendistribusikan ulang, atau menggunakan secara komersial tanpa izin tertulis sebelumnya; penggunaan komersial memerlukan lisensi komersial. Kontak: **erik@erik.xyz**. Lihat [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md) untuk detail.
+
+> Kode tetap tunduk pada `LICENSE` yang ada di repositori; materi pihak ketiga (seperti Go Gopher yang disebutkan secara jelas) tetap tunduk pada lisensi aslinya.
+<!-- assets-license:end -->

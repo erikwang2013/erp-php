@@ -764,3 +764,22 @@ Merci aux personnes suivantes pour leur aide à l'amélioration de la sécurité
 MIT
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+<!-- pet-expressions:start -->
+## Expressions de la mascotte · Petit poulpe
+
+<table align="center">
+<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="Sourire"><br><b>Sourire</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="Joie"><br><b>Joie</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="Pleurer"><br><b>Pleurer</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="Déprimé"><br><b>Déprimé</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="Terrifié"><br><b>Terrifié</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="En colère"><br><b>En colère</b><br><code>:emoji-angry:</code></td></tr>
+<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="Câlin"><br><b>Câlin</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="Mignon"><br><b>Mignon</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="Plaire"><br><b>Plaire</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="Frapper"><br><b>Frapper</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="Facepalm"><br><b>Facepalm</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="Langue tirée"><br><b>Langue tirée</b><br><code>:emoji-tongue:</code></td></tr>
+</table>
+
+> 12 formes animées colorées : Sourire / Joie / Pleurer / Déprimé / Terrifié / En colère / Câlin / Mignon / Plaire / Frapper / Facepalm / Langue tirée. Chaque SVG contient son expression, ses effets émotionnels et son animation complète, et respecte `prefers-reduced-motion`.
+<!-- pet-expressions:end -->
+
+<!-- assets-license:start -->
+## Licence des ressources visuelles
+
+Les mascottes, images, icônes et emoji/expressions de ce projet (y compris les fichiers SVG / PNG dans `docs/pet-expressions/` et les répertoires similaires) **ne sont pas des ressources open source** ; le droit d'auteur appartient à l'auteur. Toute copie, modification, redistribution ou utilisation commerciale est interdite sans autorisation écrite préalable ; une licence commerciale est requise pour l'usage commercial. Contact : **erik@erik.xyz**. Voir [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md) pour plus de détails.
+
+> Le code reste régi par la `LICENSE` existante du dépôt ; les ressources tierces (comme le Go Gopher clairement attribué) restent sous leurs licences d'origine.
+<!-- assets-license:end -->

@@ -765,3 +765,22 @@ docker compose up -d
 MIT
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+<!-- pet-expressions:start -->
+## تعابير حيوان المشروع · الأخطبوط الصغير
+
+<table align="center">
+<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="ابتسامة"><br><b>ابتسامة</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="فرح"><br><b>فرح</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="بكاء"><br><b>بكاء</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="إحباط"><br><b>إحباط</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="رعب"><br><b>رعب</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="غضب"><br><b>غضب</b><br><code>:emoji-angry:</code></td></tr>
+<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="دلال"><br><b>دلال</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="لطف"><br><b>لطف</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="إرضاء"><br><b>إرضاء</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="طرق"><br><b>طرق</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="تغطية الوجه"><br><b>تغطية الوجه</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="إخراج اللسان"><br><b>إخراج اللسان</b><br><code>:emoji-tongue:</code></td></tr>
+</table>
+
+> 12 شكلاً متحركاً ملوّناً: ابتسامة / فرح / بكاء / إحباط / رعب / غضب / دلال / لطف / إرضاء / طرق / تغطية الوجه / إخراج اللسان. يحتوي كل SVG على تعبيره ومؤثراته العاطفية وحركته الكاملة، ويحترم `prefers-reduced-motion`.
+<!-- pet-expressions:end -->
+
+<!-- assets-license:start -->
+## ترخيص الأصول المرئية
+
+حيوانات المشروع والصور والأيقونات والرموز التعبيرية/التعابير في هذا المشروع (بما في ذلك ملفات SVG / PNG في `docs/pet-expressions/` والمجلدات المشابهة) **ليست أصولاً مفتوحة المصدر**، وحقوق النشر مملوكة للمؤلف. لا يُسمح بالنسخ أو التعديل أو إعادة التوزيع أو الاستخدام التجاري دون إذن كتابي مسبق؛ ويتطلب الاستخدام التجاري ترخيصاً تجارياً. للتواصل: **erik@erik.xyz**. راجع [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md) للتفاصيل.
+
+> يظل الكود خاضعاً لـ `LICENSE` الحالي للمستودع؛ وتبقى مواد الطرف الثالث (مثل Go Gopher المذكور صراحةً) خاضعة لتراخيصها الأصلية.
+<!-- assets-license:end -->

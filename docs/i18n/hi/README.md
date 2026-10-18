@@ -759,3 +759,22 @@ GitHub Actions सतत एकीकरण पाइपलाइन: `.github/w
 MIT
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+<!-- pet-expressions:start -->
+## प्रोजेक्ट पालतू भाव · छोटा ऑक्टोपस
+
+<table align="center">
+<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="मुस्कान"><br><b>मुस्कान</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="खुशी"><br><b>खुशी</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="रोना"><br><b>रोना</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="उदास"><br><b>उदास</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="भयभीत"><br><b>भयभीत</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="गुस्सा"><br><b>गुस्सा</b><br><code>:emoji-angry:</code></td></tr>
+<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="नखरे"><br><b>नखरे</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="प्यारा"><br><b>प्यारा</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="प्रसन्न करना"><br><b>प्रसन्न करना</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="खटखटाना"><br><b>खटखटाना</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="चेहरा ढंकना"><br><b>चेहरा ढंकना</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="जीभ निकालना"><br><b>जीभ निकालना</b><br><code>:emoji-tongue:</code></td></tr>
+</table>
+
+> 12 रंगीन एनिमेटेड रूप: मुस्कान / खुशी / रोना / उदास / भयभीत / गुस्सा / नखरे / प्यारा / प्रसन्न करना / खटखटाना / चेहरा ढंकना / जीभ निकालना। प्रत्येक SVG में उसका भाव, भावनात्मक प्रभाव और पूर्ण गति शामिल है, और यह `prefers-reduced-motion` का पालन करता है।
+<!-- pet-expressions:end -->
+
+<!-- assets-license:start -->
+## दृश्य संपत्ति लाइसेंस
+
+इस परियोजना के प्रोजेक्ट पालतू, चित्र, आइकन और इमोजी/भाव (जिनमें `docs/pet-expressions/` और समान निर्देशिकाओं की SVG / PNG फ़ाइलें शामिल हैं) **ओपन-सोर्स संपत्ति नहीं हैं**; कॉपीराइट लेखक के पास है। पूर्व लिखित अनुमति के बिना प्रतिलिपि, संशोधन, पुनर्वितरण या व्यावसायिक उपयोग की अनुमति नहीं है; व्यावसायिक उपयोग के लिए व्यावसायिक लाइसेंस आवश्यक है। संपर्क: **erik@erik.xyz**। विवरण के लिए [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md) देखें।
+
+> कोड रिपॉज़िटरी के मौजूदा `LICENSE` के अंतर्गत रहता है; तृतीय-पक्ष सामग्री (जैसे स्पष्ट रूप से उल्लिखित Go Gopher) अपने मूल लाइसेंस के अंतर्गत रहती है।
+<!-- assets-license:end -->

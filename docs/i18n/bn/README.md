@@ -781,3 +781,22 @@ GitHub Actions কন্টিনিউয়াস ইন্টিগ্রে�
 MIT
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+<!-- pet-expressions:start -->
+## প্রজেক্ট পেটের অভিব্যক্তি · ছোট অক্টোপাস
+
+<table align="center">
+<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="হাসি"><br><b>হাসি</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="আনন্দ"><br><b>আনন্দ</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="কান্না"><br><b>কান্না</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="বিষণ্ণ"><br><b>বিষণ্ণ</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="আতঙ্কিত"><br><b>আতঙ্কিত</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="রাগ"><br><b>রাগ</b><br><code>:emoji-angry:</code></td></tr>
+<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="আদুরে"><br><b>আদুরে</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="কিউট"><br><b>কিউট</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="সন্তুষ্ট করা"><br><b>সন্তুষ্ট করা</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="নক"><br><b>নক</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="মুখ ঢাকা"><br><b>মুখ ঢাকা</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="জিভ বের করা"><br><b>জিভ বের করা</b><br><code>:emoji-tongue:</code></td></tr>
+</table>
+
+> 12টি রঙিন অ্যানিমেটেড রূপ: হাসি / আনন্দ / কান্না / বিষণ্ণ / আতঙ্কিত / রাগ / আদুরে / কিউট / সন্তুষ্ট করা / নক / মুখ ঢাকা / জিভ বের করা। প্রতিটি SVG-তে তার অভিব্যক্তি, আবেগের প্রভাব ও সম্পূর্ণ মোশন রয়েছে এবং এটি `prefers-reduced-motion` মেনে চলে।
+<!-- pet-expressions:end -->
+
+<!-- assets-license:start -->
+## ভিজ্যুয়াল অ্যাসেট লাইসেন্স
+
+এই প্রকল্পের প্রজেক্ট পেট, ছবি, আইকন এবং ইমোজি/অভিব্যক্তি (যার মধ্যে `docs/pet-expressions/` ও অনুরূপ ডিরেক্টরির SVG / PNG রয়েছে) **ওপেন-সোর্স অ্যাসেট নয়**; কপিরাইট লেখকের। পূর্ব লিখিত অনুমতি ছাড়া অনুলিপি, পরিবর্তন, পুনর্বিতরণ বা বাণিজ্যিক ব্যবহার নিষিদ্ধ; বাণিজ্যিক ব্যবহারের জন্য বাণিজ্যিক লাইসেন্স প্রয়োজন। যোগাযোগ: **erik@erik.xyz**। বিস্তারিত: [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md)।
+
+> কোড রিপোজিটরির বিদ্যমান `LICENSE`-এর অধীনে থাকবে; তৃতীয় পক্ষের উপকরণ (যেমন স্পষ্টভাবে উল্লিখিত Go Gopher) তাদের মূল লাইসেন্সের অধীনে থাকে।
+<!-- assets-license:end -->

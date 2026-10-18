@@ -771,3 +771,22 @@ GitHub Actions 継続的インテグレーションパイプライン: `.github/
 MIT
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+<!-- pet-expressions:start -->
+## プロジェクトペットの表情 · 小八爪
+
+<table align="center">
+<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="笑顔"><br><b>笑顔</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="喜び"><br><b>喜び</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="泣く"><br><b>泣く</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="落ち込み"><br><b>落ち込み</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="恐怖"><br><b>恐怖</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="怒り"><br><b>怒り</b><br><code>:emoji-angry:</code></td></tr>
+<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="甘え"><br><b>甘え</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="萌え"><br><b>萌え</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="媚びる"><br><b>媚びる</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="ノック"><br><b>ノック</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="顔を覆う"><br><b>顔を覆う</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="舌を出す"><br><b>舌を出す</b><br><code>:emoji-tongue:</code></td></tr>
+</table>
+
+> 12 種類のカラーアニメーション形態：笑顔 / 喜び / 泣く / 落ち込み / 恐怖 / 怒り / 甘え / 萌え / 媚びる / ノック / 顔を覆う / 舌を出す。各 SVG は表情・感情エフェクト・全体モーションを備え、`prefers-reduced-motion` に従います。
+<!-- pet-expressions:end -->
+
+<!-- assets-license:start -->
+## ビジュアルアセットライセンス
+
+本プロジェクトのプロジェクトペット、画像、アイコン、絵文字/表情（`docs/pet-expressions/` などのディレクトリ内の SVG / PNG を含む）は **オープンソース資産ではありません**。著作権は作者に帰属します。書面による事前の許可なく、複製、改変、再配布、商業利用することはできません。商業利用には商業ライセンスが必要です。お問い合わせ先: **erik@erik.xyz**。詳細は [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md) をご覧ください。
+
+> コード部分はリポジトリ既存の `LICENSE` に従います。第三者の素材（明記されている Go Gopher など）は元のライセンスに従います。
+<!-- assets-license:end -->

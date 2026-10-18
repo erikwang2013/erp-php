@@ -7,16 +7,17 @@
 # 用途：从唯一源 docs/mascot.svg 渲染出四端所需的全部位图 —— Web favicon/PWA 图标、
 #       Flutter 五平台 launcher icon、Android/iOS 启动图，保证四端同源同形。
 #   用法: bash scripts/gen-mascot-assets.sh      （生成/覆盖，无参数）
-#   幂等: 逐字节可复现 —— 56 个产出按写出方式分三档：**42 个由 magick 写出**（每处都必须带
+#   幂等: 逐字节可复现 —— 60 个产出按写出方式分三档：**42 个由 magick 写出**（每处都必须带
 #         -define png:exclude-chunks=date,time，剔掉 PNG 里的 date:* 文本块，其值取输出文件
-#         mtime、1 秒粒度；否则同一像素两次编码字节会变 —— 实测 39/56 字节不同、像素零漂移。
+#         mtime、1 秒粒度；否则同一像素两次编码字节会变 —— 实测 39/60 字节不同、像素零漂移。
 #         `-strip` 无效：属性是写时重算的）、**12 个由 rsvg-convert 直写**（Android 传统图标
-#         5 档 + macOS 7 档，不经 define，实测本就不嵌时间戳）、**2 个由 cp 拷贝**（两端
-#         `mascot.png` ← `$MASTER`，天然同字节）。别把「幂等」全归因给 define。
+#         5 档 + macOS 7 档，不经 define，实测本就不嵌时间戳）、**6 个由 cp 拷贝**（Angular/
+#         React/HOS 的 `mascot.png` 与 HOS 三处应用图标副本 ← `$MASTER`，天然同字节）。
+#         别把「幂等」全归因给 define。
 #         判据是内容哈希：跑两次比对全部位图 md5 / `%#` 像素签名。
 #   依赖: rsvg-convert (librsvg2-bin)、magick (ImageMagick 7)
-#   约定: 圆徽占源图 96%（r=192 / viewBox 400），圆外透明。因此
-#         • 需要不透明底的平台（iOS / PWA"any"图标）压 #EEF4FF（圆徽自身底色）
+#   约定: 400×400 画布，图案居中、四周透明（2026-10-19 起去掉圆徽底色）。因此
+#         • 需要不透明底的平台（iOS / PWA"any"图标）压 #EEF4FF（浅色品牌底）
 #         • 会被系统裁剪的平台按安全区缩放：Android 自适应 66/108、PWA maskable 80%
 #         • 保留透明的平台（Android 传统图标 / macOS / Windows / HOS）用原图 alpha
 #   配套: docs/mascot.svg 是唯一真源；改图只改 SVG，再重跑本脚本。
@@ -28,7 +29,7 @@ cd "$(dirname "$0")/.."
 
 SVG="$(pwd)/docs/mascot.svg"
 MASTER="apps/flutter/assets/mascot.png"   # 400×400 基准位图（四端同源，与 HOS 端逐字节相同）
-FLAT="#EEF4FF"                            # 圆徽底色，用于必须不透明的平台
+FLAT="#EEF4FF"                            # 不透明平台的浅色品牌底
 PNG_DEF=(-define png:exclude-chunks=date,time)   # 见文件头「幂等」：保证逐字节可复现
 TMP=$(mktemp -d); trap 'rm -rf "$TMP"' EXIT
 
@@ -39,7 +40,7 @@ command -v magick >/dev/null || { echo "缺少 ImageMagick 7 (magick)" >&2; exit
 
 render() { rsvg-convert -w "$1" -h "$1" "$SVG" -o "$2"; }                 # 透明底正方形
 flat()   { render "$1" "$TMP/f.png"; magick "$TMP/f.png" -background "$FLAT" -alpha remove -alpha off "${PNG_DEF[@]}" "$2"; }
-soft()   { # $1 画布边长 $2 圆徽直径 $3 输出：圆徽按直径缩放后居中，透明底
+soft()   { # $1 画布边长 $2 安全区直径 $3 输出：内容按 1/0.96 缩放后居中，透明底
   local c=$1 d=$2 content
   content=$(awk -v c="$c" -v d="$d" 'BEGIN{printf "%d", (d/0.96)+0.5}')
   render "$content" "$TMP/p.png"
@@ -67,7 +68,7 @@ for spec in mdpi:48 hdpi:72 xhdpi:96 xxhdpi:144 xxxhdpi:192; do
   d=${spec%%:*}; px=${spec##*:}
   mkdir -p "drawable-$d"
   render "$px" "mipmap-$d/ic_launcher.png"
-  # 自适应图标前景（108dp 画布，圆徽缩进 66dp 安全区，避免被 OEM 圆形遮罩裁掉）
+  # 自适应图标前景（108dp 画布，内容缩进 66dp 安全区，避免被 OEM 圆形遮罩裁掉）
   soft "$((px * 108 / 48))" "$((px * 66 / 48))" "drawable-$d/ic_launcher_foreground.png"
 done
 # 启动图（冷启动窗口：白底 + 居中吉祥物）
@@ -91,7 +92,7 @@ for spec in "LaunchImage.png 168x185 120" "LaunchImage@2x.png 336x370 240" "Laun
   magick "$TMP/l.png" -background white -gravity center -extent "$2" "${PNG_DEF[@]}" "$IOS/LaunchImage.imageset/$1"
 done
 
-# ---------- 4. Flutter / macOS（允许 alpha，保留圆徽） ----------
+# ---------- 4. Flutter / macOS（允许 alpha，保留透明底） ----------
 for px in 16 32 64 128 256 512 1024; do
   render "$px" "apps/flutter/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_$px.png"
 done
@@ -106,5 +107,16 @@ flat 192 apps/flutter/web/icons/Icon-192.png
 flat 512 apps/flutter/web/icons/Icon-512.png
 softflat 192 154 apps/flutter/web/icons/Icon-maskable-192.png
 softflat 512 410 apps/flutter/web/icons/Icon-maskable-512.png
+
+# ---------- 7. HarmonyOS（直接复用基准位图：品牌位 + 三处应用图标副本） ----------
+# HOS 拿吉祥物当应用图标，四处必须与 $MASTER 逐字节相同（门禁 #17 ①）；此前靠手工 cp，
+# 改吉祥物后漏同步会让门禁红 —— 固定在本脚本内，改图只需重跑一次。
+for dst in \
+  apps/harmonyos/entry/src/main/resources/base/media/mascot.png \
+  apps/harmonyos/entry/src/main/resources/base/media/app_icon.png \
+  apps/harmonyos/entry/src/main/resources/base/media/start_icon.png \
+  apps/harmonyos/AppScope/resources/base/media/app_icon.png; do
+  cp "$MASTER" "$dst"
+done
 
 echo "吉祥物位图已生成（源：$SVG）"

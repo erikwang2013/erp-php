@@ -784,3 +784,22 @@ Dank an die folgenden Personen für ihre Hilfe bei der Verbesserung der Sicherhe
 MIT
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+
+<!-- pet-expressions:start -->
+## Projektpet-Ausdrücke · Kleiner Oktopus
+
+<table align="center">
+<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="Lächeln"><br><b>Lächeln</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="Freude"><br><b>Freude</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="Weinen"><br><b>Weinen</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="Niedergeschlagen"><br><b>Niedergeschlagen</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="Entsetzt"><br><b>Entsetzt</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="Wütend"><br><b>Wütend</b><br><code>:emoji-angry:</code></td></tr>
+<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="Schmeicheln"><br><b>Schmeicheln</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="Niedlich"><br><b>Niedlich</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="Gefallen"><br><b>Gefallen</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="Klopfen"><br><b>Klopfen</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="Facepalm"><br><b>Facepalm</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="Zunge heraus"><br><b>Zunge heraus</b><br><code>:emoji-tongue:</code></td></tr>
+</table>
+
+> 12 farbige animierte Formen: Lächeln / Freude / Weinen / Niedergeschlagen / Entsetzt / Wütend / Schmeicheln / Niedlich / Gefallen / Klopfen / Facepalm / Zunge heraus. Jede SVG enthält Ausdruck, Emotionseffekte und eine vollständige Animation und respektiert `prefers-reduced-motion`.
+<!-- pet-expressions:end -->
+
+<!-- assets-license:start -->
+## Lizenz für visuelle Assets
+
+Die Projektpets, Bilder, Icons und Emoji/Ausdrucksformen dieses Projekts (einschließlich SVG / PNG in `docs/pet-expressions/` und ähnlichen Verzeichnissen) sind **keine Open-Source-Assets**; das Urheberrecht liegt beim Autor. Ohne vorherige schriftliche Genehmigung ist Kopieren, Ändern, Weiterverteilen oder kommerzielle Nutzung nicht gestattet; für kommerzielle Nutzung ist eine Lizenz erforderlich. Kontakt: **erik@erik.xyz**. Details siehe [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md).
+
+> Der Code unterliegt weiterhin der bestehenden `LICENSE` des Repositories; Materialien Dritter (z. B. der klar zugeordnete Go Gopher) unterliegen ihren ursprünglichen Lizenzen.
+<!-- assets-license:end -->

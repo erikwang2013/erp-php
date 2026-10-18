@@ -36,10 +36,6 @@
       <stop offset="0%" stop-color="#5b9bf8"/>
       <stop offset="100%" stop-color="#1d4fc4"/>
     </linearGradient>
-    <radialGradient id="bgGrad" cx="50%" cy="38%" r="70%">
-      <stop offset="0%" stop-color="#eef4ff"/>
-      <stop offset="100%" stop-color="#e9e0fb"/>
-    </radialGradient>
     <path id="tentaclePath" d="M0,0 C6,25 19,45 10,68 C1,91 -11,109 -4,136 C1,158 5,175 3,190" fill="none" stroke="url(#bodyGrad)" stroke-width="16" stroke-linecap="round"/>
     <g id="tentacleUnit">
       <use href="#tentaclePath"/>
@@ -55,9 +51,6 @@
     </g>
   </defs>
 
-  
-  <circle cx="200" cy="200" r="192" fill="url(#bgGrad)"/>
-  <circle cx="200" cy="200" r="178" fill="none" stroke="#fff" stroke-width="3" opacity="0.7"/>
 
   
   <circle cx="92" cy="118" r="3" fill="#4dd0e1"></circle>
