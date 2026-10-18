@@ -1,0 +1,131 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="小八爪 · 讨好 Pleasing"><title>小八爪 · 讨好 Pleasing</title><desc>小八爪 的 讨好 表情形态 · animated expression form</desc><style>
+.ex-motion { animation: ex-nod 1.7s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+.ex-anim-tear { animation: ex-tear 1.8s ease-in infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-sweat { animation: ex-tear 1.5s ease-in infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-heart { animation: ex-heart 2.2s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-spark { animation: ex-spark 1.9s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-rain { animation: ex-rain 1.4s linear infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-confetti { animation: ex-confetti 2.4s linear infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-pulse { animation: ex-pulse 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-knock { animation: ex-knock 0.55s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-knockline { animation: ex-knockline 0.55s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-palm { animation: ex-palm 0.9s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-steam { animation: ex-steam 1.8s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-shock { animation: ex-shock 0.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-please { animation: ex-please 1.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.ex-anim-drift { animation: ex-drift 4.5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes ex-nod { 0%,100% { transform: translateY(0); } 50% { transform: translateY(4.16px); } }
+@keyframes ex-tear { 0% { transform: translateY(0); opacity: 0; } 18% { opacity: 1; } 100% { transform: translateY(14.3px); opacity: 0; } }
+@keyframes ex-heart { 0% { transform: translateY(0) scale(.65); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(-23.4px) scale(1.15); opacity: 0; } }
+@keyframes ex-spark { 0%,100% { transform: scale(.6) rotate(0deg); opacity: .3; } 50% { transform: scale(1.15) rotate(25deg); opacity: 1; } }
+@keyframes ex-rain { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translateY(15.6px); opacity: 0; } }
+@keyframes ex-confetti { 0% { transform: translateY(-4.55px) rotate(0deg); opacity: 1; } 100% { transform: translateY(20.8px) rotate(200deg); opacity: 0; } }
+@keyframes ex-pulse { 0%,100% { transform: scale(1); opacity: .35; } 50% { transform: scale(1.18); opacity: .7; } }
+@keyframes ex-knock { 0%,100% { transform: translateX(5.85px); } 35% { transform: translateX(0); } }
+@keyframes ex-knockline { 0%,100% { transform: scaleX(.6); opacity: .35; } 35% { transform: scaleX(1); opacity: 1; } }
+@keyframes ex-palm { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-1.56px) rotate(-4deg); } }
+@keyframes ex-steam { 0% { transform: translateY(0); opacity: .7; } 100% { transform: translateY(-11.7px); opacity: 0; } }
+@keyframes ex-shock { 0%,100% { transform: scaleX(.7); opacity: .4; } 50% { transform: scaleX(1.25); opacity: 1; } }
+@keyframes ex-please { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2.34px); } }
+@keyframes ex-drift { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-2.6px); } }
+@media (prefers-reduced-motion: reduce) {
+  .ex-motion, [class*="ex-anim-"] { animation: none !important; }
+}
+</style><g class="ex-motion ex-pleasing"><g class="ex-base"><defs>
+    <linearGradient id="bodyGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#5b9bf8"/>
+      <stop offset="100%" stop-color="#1d4fc4"/>
+    </linearGradient>
+    <radialGradient id="bgGrad" cx="50%" cy="38%" r="70%">
+      <stop offset="0%" stop-color="#eef4ff"/>
+      <stop offset="100%" stop-color="#e9e0fb"/>
+    </radialGradient>
+    <path id="tentaclePath" d="M0,0 C6,25 19,45 10,68 C1,91 -11,109 -4,136 C1,158 5,175 3,190" fill="none" stroke="url(#bodyGrad)" stroke-width="16" stroke-linecap="round"/>
+    <g id="tentacleUnit">
+      <use href="#tentaclePath"/>
+      <circle cx="6" cy="40" r="3.2" fill="#fff" opacity="0.85"/>
+      <circle cx="5" cy="78" r="3.4" fill="#fff" opacity="0.8"/>
+      <circle cx="-4" cy="108" r="3.6" fill="#fff" opacity="0.8"/>
+      <circle cx="-7" cy="142" r="3.8" fill="#fff" opacity="0.75"/>
+      <circle cx="-1" cy="170" r="4" fill="#fff" opacity="0.7"/>
+      <circle cx="3" cy="190" r="7" fill="#4dd0e1">
+        
+        
+      </circle>
+    </g>
+  </defs>
+
+  
+  <circle cx="200" cy="200" r="192" fill="url(#bgGrad)"/>
+  <circle cx="200" cy="200" r="178" fill="none" stroke="#fff" stroke-width="3" opacity="0.7"/>
+
+  
+  <circle cx="92" cy="118" r="3" fill="#4dd0e1"></circle>
+  <circle cx="308" cy="102" r="3" fill="#4dd0e1"></circle>
+  <circle cx="110" cy="298" r="2.5" fill="#6a1b9a"></circle>
+  <circle cx="292" cy="300" r="2.5" fill="#6a1b9a"></circle>
+
+  
+  <g stroke="#5b9bf8" fill="rgba(91,155,248,0.12)" stroke-width="1.5">
+    <circle cx="158" cy="255" r="9"></circle>
+    <circle cx="242" cy="265" r="7"></circle>
+    <circle cx="200" cy="250" r="5"></circle>
+    <circle cx="148" cy="240" r="5"></circle>
+  </g>
+
+  
+  <ellipse cx="200" cy="332" rx="118" ry="16" fill="rgba(29,79,196,0.10)">
+    
+  </ellipse>
+
+  
+  <g>
+    
+    <g>
+      
+
+      
+      <g transform="translate(200 208)">
+        <g transform="rotate(-82)"><g><use href="#tentacleUnit"/></g></g>
+        <g transform="rotate(-60)"><g><use href="#tentacleUnit"/></g></g>
+        <g transform="rotate(-38)"><g><use href="#tentacleUnit"/></g></g>
+        <g transform="rotate(-16)"><g><use href="#tentacleUnit"/></g></g>
+        <g transform="rotate(16)"><g><use href="#tentacleUnit"/></g></g>
+        <g transform="rotate(38)"><g><use href="#tentacleUnit"/></g></g>
+        <g transform="rotate(60)"><g><use href="#tentacleUnit"/></g></g>
+        <g transform="rotate(82)"><g><use href="#tentacleUnit"/></g></g>
+      </g>
+
+      
+      <g transform="translate(200 130)">
+        <circle r="70" fill="url(#bodyGrad)"/>
+        <ellipse cx="-20" cy="-26" rx="24" ry="14" fill="#fff" opacity="0.15" transform="rotate(-15)"/>
+        
+        <path d="M46,-60 Q58,-92 82,-100" fill="none" stroke="url(#bodyGrad)" stroke-width="7" stroke-linecap="round"/>
+        <circle cx="84" cy="-102" r="8" fill="#4dd0e1">
+          
+        </circle>
+        
+        <g transform="translate(-22 -8)">
+          <g>
+            
+            <ellipse rx="14" ry="12" fill="#0d1b3e"/>
+            <circle cx="5" cy="-4" r="4.5" fill="#fff"/>
+          </g>
+        </g>
+        
+        <g transform="translate(22 -8)">
+          <g>
+            
+            <ellipse rx="14" ry="12" fill="#0d1b3e"/>
+            <circle cx="-5" cy="-4" r="4.5" fill="#fff"/>
+          </g>
+        </g>
+        
+        <ellipse cx="-40" cy="14" rx="9" ry="5.5" fill="#ff8a80" opacity="0.55"/>
+        <ellipse cx="40" cy="14" rx="9" ry="5.5" fill="#ff8a80" opacity="0.55"/>
+        
+        <path d="M-18,20 Q0,34 18,20" fill="none" stroke="#0d1b3e" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </g>
+  </g></g><g class="ex-face"><ellipse cx="200" cy="139" rx="48" ry="41" fill="url(#bodyGrad)"/><path d="M 165.65,109 L 185.15,101.2" stroke="#FFFFFF" stroke-width="1.82" stroke-linecap="round"/><path d="M 234.35,109 L 214.85,101.2" stroke="#FFFFFF" stroke-width="1.82" stroke-linecap="round"/><ellipse cx="178" cy="122" rx="13" ry="14.82" fill="#FFFFFF" stroke="#0D1B3E" stroke-width="2.08"/><ellipse cx="178" cy="119.14" rx="7.54" ry="9.48" fill="#0D1B3E"/><circle cx="175.14" cy="114.99" r="2.6" fill="#FFFFFF"/><circle cx="181.12" cy="123.59" r="1.3" fill="#FFFFFF" opacity=".9"/><ellipse cx="222" cy="122" rx="13" ry="14.82" fill="#FFFFFF" stroke="#0D1B3E" stroke-width="2.08"/><ellipse cx="222" cy="119.14" rx="7.54" ry="9.48" fill="#0D1B3E"/><circle cx="219.14" cy="114.99" r="2.6" fill="#FFFFFF"/><circle cx="225.12" cy="123.59" r="1.3" fill="#FFFFFF" opacity=".9"/><path d="M 191.03,150.6 Q 200,160.9 208.97,150.6" fill="none" stroke="#FFFFFF" stroke-width="2.08" stroke-linecap="round"/><ellipse cx="168.25" cy="139.55" rx="10.14" ry="5.46" fill="#FF8FB3" opacity="0.55"/><ellipse cx="231.75" cy="139.55" rx="10.14" ry="5.46" fill="#FF8FB3" opacity="0.55"/><g transform="translate(0 0)"><path class="ex-anim-sweat" style="animation-delay:0.2s" d="M 240.2,101.72 C 244.49,108.58 244.49,114.88 240.2,114.88 C 235.91,114.88 235.91,108.58 240.2,101.72 Z" fill="#6FB2F0"/><circle cx="240.2" cy="108.3" r="1.26" fill="#FFFFFF" opacity=".8"/></g><path class="ex-anim-spark" style="animation-delay:0.3s" d="M 161.1,87.89 L 162.37,91.16 L 165.65,92.44 L 162.37,93.71 L 161.1,96.99 L 159.83,93.71 L 156.55,92.44 L 159.83,91.16 Z" fill="#5FBF9F"/><path class="ex-anim-spark" style="animation-delay:0.8s" d="M 240.46,94.76 L 241.55,97.57 L 244.36,98.66 L 241.55,99.75 L 240.46,102.56 L 239.36,99.75 L 236.56,98.66 L 239.36,97.57 Z" fill="#5FBF9F"/><g transform="translate(194.64 164.25) rotate(18)"><g class="ex-anim-please"><ellipse rx="4.09" ry="6.04" fill="#2C62D1" stroke="#0D1B3E" stroke-width="1.1"/><path d="M 0,-3.41 L 0,2.92" stroke="#0D1B3E" stroke-width="1" stroke-linecap="round" opacity=".5"/></g></g><g transform="translate(205.36 164.25) rotate(-18)"><g class="ex-anim-please"><ellipse rx="4.09" ry="6.04" fill="#2C62D1" stroke="#0D1B3E" stroke-width="1.1"/><path d="M 0,-3.41 L 0,2.92" stroke="#0D1B3E" stroke-width="1" stroke-linecap="round" opacity=".5"/></g></g></g></g></svg>
