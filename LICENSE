@@ -1,21 +1,25 @@
-MIT License
+项目授权条款 / Project License
+Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
-Copyright (c) 2021 walkor<walkor@workerman.net> and contributors (see https://github.com/walkor/webman/contributors)
+1. 本项目仅供个人学习、研究使用。
+2. 未经作者书面授权，禁止任何形式的商业使用，包括但不限于商业部署、付费服务、二次销售、SaaS 运营及以本项目为基础提供商业服务。
+3. 商业授权请联系 erik@erik.xyz。
+4. 对未经授权的商业使用，作者将在全球范围内依法追究法律责任，并保留终身追责的权利。
+5. 项目中的第三方组件仍遵循其各自原有的开源许可证。
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Personal study and research use only. Commercial use of any kind requires prior
+written authorization from the author (erik@erik.xyz). Unauthorized commercial use
+will be pursued for legal liability worldwide, and the author reserves the right to
+pursue such liability for life. Third-party components remain under their original
+licenses.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+-------------------------------------------------------------------------------
+第三方组件 / Third-party components
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+webman — Copyright (c) 2021 walkor <walkor@workerman.net> and contributors
+https://github.com/walkor/webman — MIT License
+
+本文件不改变第三方组件各自原有的许可证；相关版权与许可声明应予保留。
+This notice does not alter the original licenses of third-party components;
+their copyright and permission notices must be retained.
+-------------------------------------------------------------------------------
