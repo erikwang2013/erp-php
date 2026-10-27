@@ -199,13 +199,12 @@ mysql -h mysql -u root -p erp < database/install.sql
 | QMS 质量管理 | 5 | quality_inspection_standard, quality_ipqc_record, quality_iqc_record, quality_nonconformity, quality_oqc_record |
 | 会员中心 | 7 | member, member_balance_account, member_balance_log, member_coupon, member_coupon_template, member_point_account, member_point_log |
 | 开放平台 | 3 | openapi_app, webhook_delivery_log, webhook_subscription |
-| 打印模板 | 1 | print_template |
 | 税务 | 2 | tax_input_invoice, tax_issue_log |
 | 平台基础 | 3 | company, custom_field_definition, tenant |
 | 渠道 | 1 | channel |
 
 > 本清单由 `database/install.sql` 机械生成（2026-09-15，227 张表），模块归属与 `docs/ARCHITECTURE.md` §20 同一口径：**一表只归一列**，模块名沿用 §20 行名 —— 本表此前的「管理后台 + 系统」「产品基础」「采购 / 销售 / 库存」「财务基础 + 财务扩展」「CRM基础 + CRM扩展」已分别并入 系统管理 / 商品管理 / 采购管理·销售管理·库存管理 / 财务管理 / CRM（「基础 / 扩展」是分批落地产物，§20 已合并）。
-> 末 10 行（OMS / WMS / TMS / QMS / 会员中心 / 开放平台 / 打印模板 / 税务 / 平台基础 / 渠道，共 48 张）是**未计入 §20 任何一行**的后期域与共享表；`company` 同时被财务合并报表复用，`channel` 为 OMS 渠道字典。
+> 末 9 行（OMS / WMS / TMS / QMS / 会员中心 / 开放平台 / 税务 / 平台基础 / 渠道，共 47 张）是**未计入 §20 任何一行**的后期域与共享表；`company` 同时被财务合并报表复用，`channel` 为 OMS 渠道字典。
 > 自检（① 输出 227 行；③ 无输出即一张不漏、一张不重）：
 > ```bash
 > # ① install.sql 全量表名（schema 唯一事实源）

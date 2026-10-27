@@ -4,7 +4,7 @@
 
 ## Resumen
 
-El Sistema ERP Abierto (open-erp) cubre 23 dominios de negocio <!-- stats:modules=22 --> y 227 tablas de datos <!-- stats:tables=220 -->, y ofrece un sistema de gestión empresarial full-stack que va desde compra-venta-inventario hasta producción y fabricación, y desde contabilidad financiera hasta recursos humanos. Internacionalización: soporte de 13 idiomas (中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), con cambio automático de idioma mediante el encabezado de solicitud Accept-Language.
+El Sistema ERP Abierto (open-erp) cubre 23 dominios de negocio <!-- stats:modules=21 --> y 227 tablas de datos <!-- stats:tables=219 -->, y ofrece un sistema de gestión empresarial full-stack que va desde compra-venta-inventario hasta producción y fabricación, y desde contabilidad financiera hasta recursos humanos. Internacionalización: soporte de 13 idiomas (中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), con cambio automático de idioma mediante el encabezado de solicitud Accept-Language.
 
 > Documentación de API: tras iniciar el servicio, visite `http://localhost:8788/apidoc` para consultar la documentación interactiva de interfaces (generada automáticamente por erikwang2013/apidoc-php)
 
@@ -560,18 +560,18 @@ Registro de horas → agregación a la tarea → acumulación en el coste del pr
 
 | Dimensión | Cantidad |
 |------|------|
-| Módulos de negocio | 22 <!-- stats:modules=22 --> |
-| Tablas de base de datos | 220 <!-- stats:tables=220 --> |
-| Modelos de datos | 217 <!-- stats:models=217 --> |
-| Controladores | 157 <!-- stats:controllers=157 --> |
-| Servicios de negocio | 63 <!-- stats:services=63 --> |
+| Módulos de negocio | 21 <!-- stats:modules=21 --> |
+| Tablas de base de datos | 219 <!-- stats:tables=219 --> |
+| Modelos de datos | 216 <!-- stats:models=216 --> |
+| Controladores | 156 <!-- stats:controllers=156 --> |
+| Servicios de negocio | 62 <!-- stats:services=62 --> |
 | Rutas de API | 837 (generadas dinámicamente; ver `scripts/check-endpoints.php`, no participan en la verificación de doc-stats) |
 | Middlewares | 11 <!-- stats:middleware=11 --> |
-| Archivos fuente PHP | 473 <!-- stats:php_files=473 --> |
+| Archivos fuente PHP | 470 <!-- stats:php_files=470 --> |
 | Script de instalación de base de datos | Archivo único `database/install.sql` (227 tablas, todas las migraciones consolidadas) |
 | Páginas frontend (Flutter) | 119 (medido el 2026-09-22: archivos de página `.dart` bajo `apps/flutter/lib/app/pages/` (recursivo); no incluido en la verificación de doc-stats) |
 | Páginas frontend (HarmonyOS) | 52 (medido el 2026-09-22: archivos de página `.ets` bajo `apps/harmonyos/entry/src/main/ets/pages/` (recursivo); no incluido en la verificación de doc-stats) |
-| Pruebas unitarias | 110<!-- stats:test_files=110 --> archivos de prueba  / 1032<!-- stats:tests=1032 --> casos de prueba  / 4796<!-- stats:assertions=4796 --> aserciones  (recuento estático: número de métodos de prueba + puntos de llamada a aserciones, independiente del entorno de ejecución) |
+| Pruebas unitarias | 109<!-- stats:test_files=109 --> archivos de prueba  / 1022<!-- stats:tests=1022 --> casos de prueba  / 4759<!-- stats:assertions=4759 --> aserciones  (recuento estático: número de métodos de prueba + puntos de llamada a aserciones, independiente del entorno de ejecución) |
 
 > Las cifras anteriores se generan midiendo con `bash scripts/doc-stats.sh`; los elementos marcados con `<!-- stats:key=value -->`
 > los verifica automáticamente el CI (el job de docs en `.github/workflows/ci.yml`) contra los hechos del código; si hay desviación, se marca en rojo.

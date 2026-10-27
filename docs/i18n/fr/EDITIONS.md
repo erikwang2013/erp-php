@@ -14,9 +14,9 @@ Le système ERP Open est proposé en trois versions pour répondre aux besoins d
 | Dimension | Lite | Standard | Full |
 |------|:---:|:---:|:---:|
 | Branche | `lite` | `standard` | `full` |
-| Tables de données | 62 (valeur planifiée) | 72 (valeur planifiée) | 220 <!-- stats:tables=220 --> |
-| Contrôleurs | 48 (valeur planifiée) | 42 (valeur planifiée) | 157 <!-- stats:controllers=157 --> |
-| Modules métier | 6 (valeur planifiée) | 6 (valeur planifiée) | 22 <!-- stats:modules=22 --> |
+| Tables de données | 62 (valeur planifiée) | 72 (valeur planifiée) | 219 <!-- stats:tables=219 --> |
+| Contrôleurs | 48 (valeur planifiée) | 42 (valeur planifiée) | 156 <!-- stats:controllers=156 --> |
+| Modules métier | 6 (valeur planifiée) | 6 (valeur planifiée) | 21 <!-- stats:modules=21 --> |
 
 > **Méthodologie** : le dépôt n'implémente actuellement que la version complète (Full) en une seule base de code ; les colonnes Lite/Standard sont des valeurs de planification produit
 > (aucune branche correspondante, voir « Stratégie de branches » ci-dessous) et ne participent pas à la validation doc-stats.
@@ -186,7 +186,7 @@ Le système ERP Open est proposé en trois versions pour répondre aux besoins d
 |------|--------------------------|------|
 | Lite | 62 tables / 6 modules métier (valeur planifiée) | Pas d'approbation / notifications / RH / production / rapports |
 | Standard | 72 tables / 6 modules métier (valeur planifiée) | Modèle de données plus allégé |
-| Full | 227 tables <!-- stats:tables=220 --> / 23 modules métier <!-- stats:modules=22 --> | Capacités complètes de plateforme d'entreprise |
+| Full | 227 tables <!-- stats:tables=219 --> / 23 modules métier <!-- stats:modules=21 --> | Capacités complètes de plateforme d'entreprise |
 
 ---
 

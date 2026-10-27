@@ -27,7 +27,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟡 **P2** संचालन विश्वसनीयता | 1-2 सप्ताह | माइग्रेशन रोलबैक + स्वचालित बैकअप + TraceId + कतार दोहरा ड्राइवर | ✅ |
 | 🟣 **P3** अनुभव संवर्द्धन | 2-3 सप्ताह | BI बोर्ड + EAM + मल्टी-टेनेंट + DMS + 7 नई तालिकाएँ | ✅ |
 
-**परीक्षण**: 1032<!-- stats:tests=1032 --> tests, 4796<!-- stats:assertions=4796 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**परीक्षण**: 1022<!-- stats:tests=1022 --> tests, 4759<!-- stats:assertions=4759 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## फ़ीचर सूची
 

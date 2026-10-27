@@ -789,11 +789,6 @@ INSERT INTO `erp_openapi_app` (`id`, `app_name`, `app_key`, `app_secret`, `app_s
 (410000000000413001, 'd', 'd2', 'd', 'd', 1, 0, NOW(), NOW()),
 (410000000000414001, 'd', 'd3', 'd', 'd', 1, 0, NOW(), NOW());
 
-INSERT INTO `erp_print_template` (`id`, `code`, `name`, `target_type`, `content`, `paper_size`, `orientation`, `enabled`, `remark`, `created_at`, `updated_at`) VALUES
-(410000000000415001, 'DEMO-PRINT_TEMPLATE-1', '演示print_template', 'd', '演示数据', 'A4', 'portrait', 1, '演示数据', NOW(), NOW()),
-(410000000000416001, 'DEMO-PRINT_TEMPLATE-2', '演示print_template', 'd', '演示数据', 'A4', 'portrait', 1, '演示数据', NOW(), NOW()),
-(410000000000417001, 'DEMO-PRINT_TEMPLATE-3', '演示print_template', 'd', '演示数据', 'A4', 'portrait', 1, '演示数据', NOW(), NOW());
-
 INSERT INTO `erp_product_price` (`id`, `product_id`, `sku_id`, `price_type`, `customer_level_id`, `price`, `created_at`, `updated_at`) VALUES
 (410000000000418001, 410000000000000401, 410000000000000501, 'default', 410000000000000601, 0.00, NOW(), NOW()),
 (410000000000419001, 410000000000000402, 410000000000000502, 'default', 410000000000000602, 0.00, NOW(), NOW()),

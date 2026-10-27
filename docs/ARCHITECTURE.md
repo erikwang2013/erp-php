@@ -921,7 +921,7 @@ sequenceDiagram
 > `表数` 口径（2026-09-15 实测）：取 `database/install.sql` 的 227 张表，按表名前缀归属到唯一模块 —— 系统管理 `admin_*`+`system_config`+`operation_log`；
 > 商品管理 `product*`/`category`/`brand`/`warehouse`/`location`/`supplier`/`customer*`；采购管理 `purchase_*`+`supplier_assessment`；库存管理 `inventory*`/`transfer*`/`check_*`/`cost_record`；
 > 其余模块同名表前缀（`sales_*`→销售、`finance_*`→财务、`crm_*`→CRM、`approval_*`→审批、`notification*`→通知、`project*`→项目、`hr_*`→人力、`mfg_*`→生产、`report_*`→报表、`eam_*`→EAM、`dms_*`→DMS、`bi_*`→BI）。
-> 一表只归一列；后期新增域与共享表共 48 张（`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`print_template`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`）不计入本表任何一行。
+> 一表只归一列；后期新增域与共享表共 47 张（`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`）不计入本表任何一行。
 > 重算：``grep -o 'CREATE TABLE IF NOT EXISTS `erp_[a-z_]*`' database/install.sql | sed 's/.*`erp_\([a-z_]*\)`/\1/' | cut -d_ -f1 | sort | uniq -c | sort -rn``
 
 ### 20.1 P2-F2 服务层轻量提取记录（crm/hr/manufacturing/product 已完成抽取）

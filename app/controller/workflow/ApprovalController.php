@@ -36,7 +36,6 @@ class ApprovalController extends BaseController
      * 实测取值（2026-09-07，真库 erp_approval_instance / erp_approval_workflow 业务行均为 0；
      * target_type 由客户端 submit 自由传入、后端无白名单）的证据来源：
      *  - erp_approval_workflow.target_type 列注释: purchase_apply/purchase_order/expense/leave/other
-     *  - erp_print_template.target_type 注释示例: sales_order/purchase_order
      *  - Flutter workflow 提交流提示文案: '如 purchase_order / expense'
      *  - oms rma 审批走专用 in-table 字段(erp_oms_rma.approved_by/approved_at)，
      *    oms_order 无审批动作端点 → 实际不会出现 'rma'/'oms_order' 的 instance

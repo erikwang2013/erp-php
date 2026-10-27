@@ -4,7 +4,7 @@
 
 ## 概述
 
-开放ERP系统 (open-erp) 覆盖 23 个业务域 <!-- stats:modules=22 -->，227 张数据表 <!-- stats:tables=220 -->，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 13 语种支持（中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia），Accept-Language 请求头自动切换。
+开放ERP系统 (open-erp) 覆盖 23 个业务域 <!-- stats:modules=21 -->，227 张数据表 <!-- stats:tables=219 -->，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 13 语种支持（中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia），Accept-Language 请求头自动切换。
 
 > API 文档: 启动服务后访问 `http://localhost:8788/apidoc` 查看交互式接口文档（erikwang2013/apidoc-php 自动生成）
 
@@ -563,18 +563,18 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 维度 | 数量 |
 |------|------|
-| 业务模块 | 22 <!-- stats:modules=22 --> |
-| 数据库表 | 220 <!-- stats:tables=220 --> |
-| 数据模型 | 217 <!-- stats:models=217 --> |
-| 控制器 | 157 <!-- stats:controllers=157 --> |
-| 业务服务 | 63 <!-- stats:services=63 --> |
+| 业务模块 | 21 <!-- stats:modules=21 --> |
+| 数据库表 | 219 <!-- stats:tables=219 --> |
+| 数据模型 | 216 <!-- stats:models=216 --> |
+| 控制器 | 156 <!-- stats:controllers=156 --> |
+| 业务服务 | 62 <!-- stats:services=62 --> |
 | API 路由 | 837（动态生成，见 `scripts/check-endpoints.php`，不参与 doc-stats 校验）|
 | 中间件 | 11 <!-- stats:middleware=11 --> |
-| PHP 源文件 | 473 <!-- stats:php_files=473 --> |
+| PHP 源文件 | 470 <!-- stats:php_files=470 --> |
 | 数据库安装脚本 | 单文件 `database/install.sql`（227 张表，已并入全部迁移）|
 | 前端页面 (Flutter) | 119（2026-09-22 实测 `apps/flutter/lib/app/pages/` 下 `.dart` 页面文件数（递归），未纳入 doc-stats 校验）|
 | 前端页面 (HarmonyOS) | 52（2026-09-22 实测 `apps/harmonyos/entry/src/main/ets/pages/` 下 `.ets` 页面文件数（递归），未纳入 doc-stats 校验）|
-| 单元测试 | 110<!-- stats:test_files=110 --> 个测试文件  / 1032<!-- stats:tests=1032 --> 个测试用例  / 4796<!-- stats:assertions=4796 --> 条断言 （静态计数：测试方法数 + 断言调用点数，与运行环境无关）|
+| 单元测试 | 109<!-- stats:test_files=109 --> 个测试文件  / 1022<!-- stats:tests=1022 --> 个测试用例  / 4759<!-- stats:assertions=4759 --> 条断言 （静态计数：测试方法数 + 断言调用点数，与运行环境无关）|
 
 > 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `<!-- stats:key=value -->` 的项由 CI
 > （`.github/workflows/ci.yml` docs 作业）自动校验与代码事实一致，漂移即红。
@@ -622,7 +622,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 产能负荷 (M3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 工序报工/计件/委外核销 (M1+M2) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 流程设计器 (B3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 打印模板 (B1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 招聘/绩效/培训/社保 (H1-H4) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 点检扫码 (E1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 项目成本/预算 (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |

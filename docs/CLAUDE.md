@@ -28,7 +28,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + DMS | ✅ |
 （多租户 B5 已提前于 P2 交付：TenantScope 请求上下文 + erp_tenant，隔离中间件 seam 未注册）
 
-**测试**: 1032<!-- stats:tests=1032 --> tests, 4796<!-- stats:assertions=4796 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: 1022<!-- stats:tests=1022 --> tests, 4759<!-- stats:assertions=4759 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 
@@ -142,7 +142,6 @@ open-erp/
 │   │   ├── dms/                 # 文档分类/文档/版本 (2个)
 │   │   ├── open/                # 开放 API (1个)
 │   │   ├── platform/            # 自定义字段/租户 (2个)
-│   │   ├── print/               # 打印模板 (1个)
 │   │   └── bi/                  # BI看板/图表组件 (3个)
 │   ├── service/                 # 业务逻辑层（64 个文件 / 63 个服务类）
 │   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账

@@ -4,7 +4,7 @@
 
 ## 개요
 
-오픈ERP 시스템(open-erp)은 23개 업무 도메인 <!-- stats:modules=22 -->, 227개 데이터 테이블 <!-- stats:tables=220 -->을 포괄하며, 매입·판매·재고부터 생산 제조, 재무 회계부터 인사 관리까지의 풀스택 기업 관리 시스템을 제공합니다. 국제화: 13개 로케일 지원(중국어/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), Accept-Language 요청 헤더로 자동 전환됩니다.
+오픈ERP 시스템(open-erp)은 23개 업무 도메인 <!-- stats:modules=21 -->, 227개 데이터 테이블 <!-- stats:tables=219 -->을 포괄하며, 매입·판매·재고부터 생산 제조, 재무 회계부터 인사 관리까지의 풀스택 기업 관리 시스템을 제공합니다. 국제화: 13개 로케일 지원(중국어/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), Accept-Language 요청 헤더로 자동 전환됩니다.
 
 > API 문서: 서비스 시작 후 `http://localhost:8788/apidoc`에 접속하면 인터랙티브 인터페이스 문서를 볼 수 있습니다(erikwang2013/apidoc-php 자동 생성)
 
@@ -560,18 +560,18 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 차원 | 수량 |
 |------|------|
-| 업무 모듈 | 22 <!-- stats:modules=22 --> |
-| 데이터베이스 테이블 | 220 <!-- stats:tables=220 --> |
-| 데이터 모델 | 217 <!-- stats:models=217 --> |
-| 컨트롤러 | 157 <!-- stats:controllers=157 --> |
-| 업무 서비스 | 63 <!-- stats:services=63 --> |
+| 업무 모듈 | 21 <!-- stats:modules=21 --> |
+| 데이터베이스 테이블 | 219 <!-- stats:tables=219 --> |
+| 데이터 모델 | 216 <!-- stats:models=216 --> |
+| 컨트롤러 | 156 <!-- stats:controllers=156 --> |
+| 업무 서비스 | 62 <!-- stats:services=62 --> |
 | API 라우트 | 837(동적 생성, `scripts/check-endpoints.php` 참고, doc-stats 검증 미포함) |
 | 미들웨어 | 11 <!-- stats:middleware=11 --> |
-| PHP 소스 파일 | 473 <!-- stats:php_files=473 --> |
+| PHP 소스 파일 | 470 <!-- stats:php_files=470 --> |
 | 데이터베이스 설치 스크립트 | 단일 파일 `database/install.sql`(227개 테이블, 전체 마이그레이션 병합 완료) |
 | 프론트엔드 페이지 (Flutter) | 119(2026-09-22 실측, `apps/flutter/lib/app/pages/` 하위 `.dart` 페이지 파일 수(재귀), doc-stats 검증 미포함) |
 | 프론트엔드 페이지 (HarmonyOS) | 52(2026-09-22 실측, `apps/harmonyos/entry/src/main/ets/pages/` 하위 `.ets` 페이지 파일 수(재귀), doc-stats 검증 미포함) |
-| 단위 테스트 | 110<!-- stats:test_files=110 -->개 테스트 파일  / 1032<!-- stats:tests=1032 -->개 테스트 케이스  / 4796<!-- stats:assertions=4796 -->개 assertion (정적 카운트: 테스트 메서드 수 + 어설션 호출 지점 수, 실행 환경과 무관) |
+| 단위 테스트 | 109<!-- stats:test_files=109 -->개 테스트 파일  / 1022<!-- stats:tests=1022 -->개 테스트 케이스  / 4759<!-- stats:assertions=4759 -->개 assertion (정적 카운트: 테스트 메서드 수 + 어설션 호출 지점 수, 실행 환경과 무관) |
 
 > 위 숫자는 `bash scripts/doc-stats.sh`가 실측한 값입니다. `<!-- stats:key=value -->`로 표기된 항목은 CI
 > (`.github/workflows/ci.yml` docs 작업)가 코드 사실과의 일치를 자동 검증하며, 어긋나면 빨간불이 켜집니다.
