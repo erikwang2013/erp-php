@@ -15,6 +15,38 @@ The complete English documentation (README, Installation, API Reference, Archite
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
 
+## Open Source vs Commercial Edition
+
+The commercial edition is a strict superset of the open-source edition (same counting method; no controller, model, route, or table exists only in the open-source edition).
+
+| Dimension | Open source (this repo) | Commercial |
+|---|---|---|
+| Positioning | Core ERP for SMBs: purchasing, sales, inventory, finance, manufacturing, CRM, workflow, HR, reporting, OMS/WMS/TMS/QMS/EAM | Adds member/retail operations, BI/DMS, print and e-invoice, multi-channel notification, multi-tenancy, and more client surfaces |
+| Controllers | 138 | 147 |
+| Models | 208 | 225 |
+| Route declarations | 338 | 370 |
+| Tables | 211 | 227 |
+| Admin clients | Angular 22 + Flutter 3 Web | Angular 22 + React 19 + Flutter 3 Web |
+| Mobile client | — | HarmonyOS ArkTS (73 source files) |
+| Automated tests | 102 files / 933 cases / 4,178 assertions | 113 files / 1,057 cases / 5,070 assertions |
+| License | Personal study/research; commercial use requires written authorization | Commercial license; contact erik@erik.xyz |
+
+Commercial-only capabilities:
+
+- **Clients**: React 19 + Vite admin; HarmonyOS ArkTS mobile client (41 registered pages covering login, dashboard, product/inventory/purchasing/sales/OMS/WMS/TMS/manufacturing/HR/approval).
+- **Membership & retail**: stored value, points, coupons, member tiers/benefits (7 tables, 9 endpoints).
+- **BI**: dashboards, datasets, widgets (3 controllers + 2 tables).
+- **DMS**: document, category, and version management (2 controllers + 3 tables).
+- **Print templates**: placeholder rendering + dompdf PDF + QR labels.
+- **E-invoice**: issuing adapter + mock channel (a real tax-authority channel requires separate integration).
+- **Multi-channel notification**: SMS/email mock drivers, channel logs, and retries.
+- **Multi-tenancy**: tenant CRUD, provisioning/renewal/suspension/expiry reminders, and `TenantScope` request context; the README notes the middleware seam is reserved and not registered in the current configuration.
+- **Delivery**: a static product site under `site/`.
+
+The open-source edition retains the full core ERP: product/purchasing/sales/inventory/finance, CRM, approval workflow, project management, HR, manufacturing (BOM/MRP/work reporting/capacity), custom reports, OMS/WMS/TMS, QMS, EAM, Angular + Flutter admin clients, and 13-language backend messages.
+
+**Commercial licensing and delivery terms: erik@erik.xyz**
+
 ## 项目授权 / Project License
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
