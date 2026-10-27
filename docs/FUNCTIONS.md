@@ -288,11 +288,6 @@
 - 5 端点：reports/generate/reportShow/metrics/storeMetric（AnalyticsController）
 - 支持月度/季度/年度
 
-### 7.6 会员价值引擎（v1.4.0 交付）
-
-- 会员与储值：MemberService openMember/recharge/consume/refund
-- 积分与券：earnPoints/consumePoints/expirePoints 积分流水 + issueCoupon/redeemCoupon 券核销（MemberController / CouponController）
-
 ---
 
 ## 8. 审批工作流引擎
@@ -694,7 +689,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | v1.4.0 — 存货与生产成本 (F3) | 新增 | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — 制造执行 M1/M2/M3/M6 | 新增 | `app/service/manufacturing/`（WorkReportService/PieceWageService/SubcontractService/MfgCapacityService）+ `app/service/inventory/TraceService.php`（批次/序列号追溯与效期预警）+ 对应控制器 WorkReport/PieceWage/Subcontract/Capacity |
 | v1.4.0 — 财务资金/税务 F6/F5 + F7 | 新增 | `app/service/finance/FinanceBillService.php` + `BankReconService.php`（对账单导入/自动与手工核销）+ `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php`（EInvoiceAdapter/MockEInvoiceAdapter，真实税局为预留适配点）+ `app/service/sales/CreditControlService.php`（超限订单断言拦截） |
-| v1.4.0 — 会员/HR/项目 C1/H1-H4/P1 | 新增 | `app/service/retail/MemberService.php` + `app/controller/retail/`（MemberController/CouponController）+ `app/service/hr/`（RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService）+ `app/service/project/ProjectCostService.php` |
+| v1.4.0 — HR/项目 H1-H4/P1 | 新增 | `app/service/hr/`（RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService）+ `app/service/project/ProjectCostService.php` |
 | v1.4.0 — 平台/渠道 B3/B4/B7/E1 | 新增 | `app/controller/workflow/WorkflowDesignerController.php`（canvas_json 持久化）+ `app/service/notification/`（ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver，失败重试）+ `app/controller/notification/NotificationChannelController.php`（`tests/NotificationChannelTest.php` 5 例）+ `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php`（点检扫码） |
 | v1.17.0 — 多语言 (i18n) | 新增 | 后端：`resource/translations/`（13 语种目录 zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id，每语种 common+modules+validation 三文件，11 个语种各 542 条（zh_CN 533、en 30）；en 为英文即 key）+ `app/common/I18n.php`（`getLocale()` 解析 `Accept-Language` 首个标签、主语言子标签映射 zh*→zh_CN；`trans()` 非 en 走 `[请求语种, zh_CN, en]`→key，en 不落中文）+ `config/translation.php` + 生成脚本 `scripts/gen-be-locales.mjs`；前端：`apps/react/src/lib/i18n/`（`index.tsx` + `zhEn` + 11 语种文件）与 `apps/angular/src/app/core/`（`zh-en/`（index + part1..4）+ `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`）（11 新语种词典按语种懒加载，Angular 1453 / React 1447 键）+ `scripts/gen-fe-locales.mjs`；切换入口 = 顶栏地球图标 + 个人中心下拉；Flutter（`apps/flutter/lib/l10n/`）与 HarmonyOS（`entry/src/main/resources/`）仍为中/英两语种 |
 

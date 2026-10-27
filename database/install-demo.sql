@@ -617,40 +617,12 @@ INSERT INTO `erp_inventory_serial` (`id`, `product_id`, `sku_id`, `serial_code`,
 (410000000000293001, 410000000000000402, 410000000000000502, 'd2', 0, 0, 0, NOW(), NOW()),
 (410000000000294001, 410000000000000403, 410000000000000503, 'd3', 0, 0, 0, NOW(), NOW());
 
-INSERT INTO `erp_member` (`id`, `phone`, `name`, `level`, `customer_id`, `source`, `status`, `remark`, `created_at`, `updated_at`) VALUES
-(410000000000295001, '13800000001', '演示member', 0, 410000000000000701, 'manual', 1, '演示数据', NOW(), NOW()),
-(410000000000296001, '13800000002', '演示member', 0, 410000000000000702, 'manual', 1, '演示数据', NOW(), NOW()),
-(410000000000297001, '13800000003', '演示member', 0, 410000000000000703, 'manual', 1, '演示数据', NOW(), NOW());
 
-INSERT INTO `erp_member_balance_account` (`id`, `member_id`, `balance`, `created_at`, `updated_at`) VALUES
-(410000000000298001, 410000000000295001, 0.00, NOW(), NOW()),
-(410000000000299001, 410000000000296001, 0.00, NOW(), NOW()),
-(410000000000300001, 410000000000297001, 0.00, NOW(), NOW());
 
-INSERT INTO `erp_member_balance_log` (`id`, `member_id`, `biz_type`, `biz_id`, `amount`, `balance_after`, `operator_id`, `remark`, `created_at`) VALUES
-(410000000000301001, 410000000000295001, 'd', 0, 0.00, 0.00, 0, '演示数据', NOW()),
-(410000000000302001, 410000000000296001, 'd', 0, 0.00, 0.00, 0, '演示数据', NOW()),
-(410000000000303001, 410000000000297001, 'd', 0, 0.00, 0.00, 0, '演示数据', NOW());
 
-INSERT INTO `erp_member_coupon` (`id`, `member_id`, `template_id`, `status`, `received_at`, `order_source`, `created_at`, `updated_at`) VALUES
-(410000000000304001, 410000000000295001, 410000000000307001, 0, NOW(), 'd', NOW(), NOW()),
-(410000000000305001, 410000000000296001, 410000000000308001, 0, NOW(), 'd', NOW(), NOW()),
-(410000000000306001, 410000000000297001, 410000000000309001, 0, NOW(), 'd', NOW(), NOW());
 
-INSERT INTO `erp_member_coupon_template` (`id`, `name`, `coupon_type`, `threshold_amount`, `discount_value`, `valid_days`, `total_qty`, `issued_qty`, `status`, `created_at`, `updated_at`) VALUES
-(410000000000307001, '演示member_coupon_template', 1, 0.00, 0.00, 0, 0, 0, 1, NOW(), NOW()),
-(410000000000308001, '演示member_coupon_template', 1, 0.00, 0.00, 0, 0, 0, 1, NOW(), NOW()),
-(410000000000309001, '演示member_coupon_template', 1, 0.00, 0.00, 0, 0, 0, 1, NOW(), NOW());
 
-INSERT INTO `erp_member_point_account` (`id`, `member_id`, `points`, `created_at`, `updated_at`) VALUES
-(410000000000310001, 410000000000295001, 0, NOW(), NOW()),
-(410000000000311001, 410000000000296001, 0, NOW(), NOW()),
-(410000000000312001, 410000000000297001, 0, NOW(), NOW());
 
-INSERT INTO `erp_member_point_log` (`id`, `member_id`, `biz_type`, `biz_id`, `points`, `points_after`, `operator_id`, `remark`, `created_at`) VALUES
-(410000000000313001, 410000000000295001, 'd', 0, 0, 0, 0, '演示数据', NOW()),
-(410000000000314001, 410000000000296001, 'd', 0, 0, 0, 0, '演示数据', NOW()),
-(410000000000315001, 410000000000297001, 'd', 0, 0, 0, 0, '演示数据', NOW());
 
 INSERT INTO `erp_mfg_bom` (`id`, `product_id`, `code`, `name`, `version`, `status`, `created_at`, `updated_at`) VALUES
 (410000000000316001, 410000000000000401, 'DEMO-MFG_BOM-1', '演示mfg_bom', '1.0', 0, NOW(), NOW()),

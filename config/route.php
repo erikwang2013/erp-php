@@ -192,17 +192,6 @@ Route::group('/admin/v1', function () {
     Route::post('/finance/e-invoice/{id}/issue', [app\controller\finance\EInvoiceController::class, 'issue']);
     Route::post('/finance/e-invoice/{id}/void', [app\controller\finance\EInvoiceController::class, 'void']);
     Route::get('/finance/e-invoice/{id}/logs', [app\controller\finance\EInvoiceController::class, 'logs']);
-    // 会员零售（P2-C1）
-    Route::post('/member/open', [app\controller\retail\MemberController::class, 'open']);
-    Route::get('/member/overview', [app\controller\retail\MemberController::class, 'overview']);
-    Route::post('/member/recharge', [app\controller\retail\MemberController::class, 'recharge']);
-    Route::post('/member/consume', [app\controller\retail\MemberController::class, 'consume']);
-    Route::post('/member/refund', [app\controller\retail\MemberController::class, 'refund']);
-    Route::post('/member/points-earn', [app\controller\retail\MemberController::class, 'pointsEarn']);
-    Route::post('/member/points-consume', [app\controller\retail\MemberController::class, 'pointsConsume']);
-    Route::post('/member/points-expire', [app\controller\retail\MemberController::class, 'pointsExpire']);
-    Route::post('/coupon/issue', [app\controller\retail\CouponController::class, 'issue']);
-    Route::post('/coupon/redeem', [app\controller\retail\CouponController::class, 'redeem']);
     // 多租户（P2-B5）
     Route::get('/platform/tenant/list', [app\controller\platform\TenantController::class, 'list']);
     Route::get('/platform/tenant/expiry-warnings', [app\controller\platform\TenantController::class, 'expiryWarnings']);
