@@ -5049,8 +5049,6 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000001129, 0, '自定义字段-更新',           'put.admin/platform/custom-field',             3, '', '', 77, NOW(), NOW());
 
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-
-INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000871, 31000000000000801, '项目-删除',                 'delete.admin/project',                        3, '', '', 1, NOW(), NOW()),
 (31000000000000872, 31000000000000804, '项目成本-删除',             'delete.admin/project/cost',                   3, '', '', 1, NOW(), NOW()),
 (31000000000000873, 31000000000000802, '项目任务-删除',             'delete.admin/project/task',                   3, '', '', 1, NOW(), NOW()),
