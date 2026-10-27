@@ -51,7 +51,6 @@ const HIDDEN = new Set([
   'deleted_at',
   'password',
   'remember_token',
-  'tenant_id',
   'org_id',
   'version',
 ]);

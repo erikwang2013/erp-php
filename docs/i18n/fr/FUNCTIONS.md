@@ -4,7 +4,7 @@
 
 ## Présentation
 
-Le système ERP Open (open-erp) couvre 23 domaines métier <!-- stats:modules=21 --> et 227 tables de données <!-- stats:tables=217 -->, et fournit un système de gestion d'entreprise full-stack, des achats-stocks-ventes à la production, de la comptabilité aux ressources humaines. Internationalisation : 13 langues (中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), bascule automatique via l'en-tête de requête Accept-Language.
+Le système ERP Open (open-erp) couvre 23 domaines métier <!-- stats:modules=21 --> et 227 tables de données <!-- stats:tables=216 -->, et fournit un système de gestion d'entreprise full-stack, des achats-stocks-ventes à la production, de la comptabilité aux ressources humaines. Internationalisation : 13 langues (中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), bascule automatique via l'en-tête de requête Accept-Language.
 
 > Documentation API : après le démarrage du service, accédez à `http://localhost:8788/apidoc` pour consulter la documentation interactive des interfaces (générée automatiquement par erikwang2013/apidoc-php)
 
@@ -561,17 +561,17 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Dimension | Nombre |
 |------|------|
 | Modules métier | 21 <!-- stats:modules=21 --> |
-| Tables de base de données | 217 <!-- stats:tables=217 --> |
-| Modèles de données | 214 <!-- stats:models=214 --> |
-| Contrôleurs | 154 <!-- stats:controllers=154 --> |
-| Services métier | 55 <!-- stats:services=55 --> |
+| Tables de base de données | 216 <!-- stats:tables=216 --> |
+| Modèles de données | 213 <!-- stats:models=213 --> |
+| Contrôleurs | 153 <!-- stats:controllers=153 --> |
+| Services métier | 54 <!-- stats:services=54 --> |
 | Routes API | 837 (générées dynamiquement, voir `scripts/check-endpoints.php`, ne participent pas à la validation doc-stats) |
-| Middlewares | 11 <!-- stats:middleware=11 --> |
-| Fichiers sources PHP | 459 <!-- stats:php_files=459 --> |
+| Middlewares | 10 <!-- stats:middleware=10 --> |
+| Fichiers sources PHP | 454 <!-- stats:php_files=454 --> |
 | Script d'installation de la base de données | Fichier unique `database/install.sql` (227 tables, toutes les migrations fusionnées) |
 | Pages frontend (Flutter) | 119 (fichiers de page `.dart` sous `apps/flutter/lib/app/pages/` (récursif), mesuré le 2026-09-22, non inclus dans la validation doc-stats) |
 | Pages frontend (HarmonyOS) | 52 (fichiers de page `.ets` sous `apps/harmonyos/entry/src/main/ets/pages/` (récursif), mesuré le 2026-09-22, non inclus dans la validation doc-stats) |
-| Tests unitaires | 107<!-- stats:test_files=107 --> fichiers de test  / 991<!-- stats:tests=991 --> cas de test  / 4445<!-- stats:assertions=4445 --> assertions  (décompte statique : méthodes de test + points d'appel d'assertion, indépendant de l'environnement d'exécution) |
+| Tests unitaires | 104<!-- stats:test_files=104 --> fichiers de test  / 955<!-- stats:tests=955 --> cas de test  / 4273<!-- stats:assertions=4273 --> assertions  (décompte statique : méthodes de test + points d'appel d'assertion, indépendant de l'environnement d'exécution) |
 
 > Les chiffres ci-dessus sont mesurés par `bash scripts/doc-stats.sh` ; les éléments annotés `<!-- stats:key=value -->` sont vérifiés automatiquement par le CI (job docs de `.github/workflows/ci.yml`) pour être cohérents avec les faits du code — toute dérive fait passer au rouge.
 

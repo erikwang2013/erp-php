@@ -78,7 +78,7 @@ class ModelTimestampDeclarationTest extends TestCase
 
     /**
      * 反射 app/model/** 全部具体模型，取表名与两条关键声明的**默认值**
-     * （不实例化、不 boot，避免 Searchable / TenantScope 的启动副作用）。
+     * （不实例化、不 boot，避免 Searchable 的启动副作用）。
      *
      * @return array<string, array{file: string, table: string|null, timestamps: mixed, incrementing: mixed, updatedAt: mixed}>
      */

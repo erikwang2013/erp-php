@@ -1018,7 +1018,7 @@ P0(3-4周) → P1(4-6周) → P2(1-2周) → P3(2-3周) = 总计约13周
 现状:   Cors → SecurityFilter → RateLimit → TracingId → {路由组}
 P1 后:  Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {路由组}
 P2 后:  Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {路由组}
-P3 后:  Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {路由组}
+P3 后:  Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {路由组}
 ```
 
 ### 21.4 P0 目标架构 — Flutter Web 管理面板
@@ -1050,59 +1050,6 @@ P3 后:  Cors → SecurityFilter → RateLimit → TracingId → TenantScope →
 
 ---
 
-## 22. 多租户（预留能力，未启用）
+## 22. 多租户（已移除）
 
-> 版权声明同文件头：Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-
-### 22.1 定位与决策
-
-多租户在本项目中定位为**预留能力**，本期**不接线、不启用**（文档化降级）。与规划一致：
-SaaS 计费、租户自助开通等"多租户完整商业化方案"不在本项目建设范围内；本期仅保留最小
-代码骨架（中间件 + 模型 Trait）并给出启用步骤，供后续按需启用。
-注：§21.2 路线图 P3 中的"多租户隔离"据此调整为"预留能力（文档化降级）"，保留骨架、不接线。
-
-决策依据（2026-08 评审）：
-- 现有部署几乎全部为单租户，接线会引入不必要的隔离复杂度与回归风险；
-- 当前骨架存在技术缺陷（见 22.4），"接线即隔离"不成立，需先完成设计修正；
-- 隔离需为 227 张业务表逐表加列、逐模型启用，成本远超"最小接线"。
-
-### 22.2 现状事实（代码与配置核对）
-
-| 项 | 现状 |
-|----|------|
-| `app/middleware/TenantScope.php` | 存在，未注册；从 `X-Tenant-Code` 头读取租户编码并查 `erp_tenant` 注入上下文，头缺失时直接放行 |
-| `app/model/concerns/TenantScope.php` | 存在；4 个财务模型（`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`，公司族 `tenantScopeByCompany()` 返回 true）使用，按 `company_id` 过滤；因中间件未注册、请求上下文不会被注入，全局作用域当前不生效 |
-| `config/middleware.php` | 全局链：Cors → SecurityFilter → RateLimit → TracingId，无 TenantScope |
-| `config/route.php` /admin/v1 组 | AdminAuth → AdminPermission → OperationLog，无 TenantScope |
-| JWT 载荷 | 仅 `sub` / `username` / `token_type`，**无 tenant_id 声明**（`app/api/v1/controller/AuthController.php`） |
-| 数据库 | **全库无 tenant_id 列**（install.sql 亦无） |
-| 模型 | 4 个财务模型 use `TenantScope` trait（公司族，过滤 `company_id`）——试点隔离；租户上下文未注入时不加任何过滤 |
-
-### 22.3 启用步骤（预留参考，本期不执行）
-
-1. 注册中间件：在 `config/route.php` 的 /admin/v1 分组 `middleware()` 中追加
-   `app\middleware\TenantScope::class`（置于 AdminAuth 之后，确保已认证）。
-2. 请求方在请求头携带 `X-Tenant-Code`（租户编码字符串）。
-3. 为需要隔离的业务表增加 `tenant_id` 列（BIGINT + 索引）并回填存量数据；
-   字典/系统表（如 `erp_admin_user`、`erp_role`、`erp_permission`）不隔离。
-4. 在需要隔离的模型类中 `use app\model\concerns\TenantScope;`，自动按当前租户过滤。
-5. （可选）如需从 JWT 而非请求头取租户：扩展登录签发载荷增加 `tenant_id` 声明，
-   并在中间件中从 `$payload['tenant_id']` 读取。
-
-### 22.4 已知技术限制（启用前必须解决）
-
-- **信任边界（注册前必须解决）**：租户上下文来源为 `X-Tenant-Code` 请求头，属可伪造
-  输入；在 `erp_admin_user` 与公司/租户建立绑定（管理员归属判定）之前启用中间件，
-  会造成越权数据面缺口（任意已认证管理员可声明任意租户并读取其数据）。
-- **静态传递链路断裂（PHP 8.3 实测）已由 P2-4 B5 修复版取代**：`TenantScope` trait
-  现走请求上下文注入（`request()->tenantId` / `companyId`），该路径无静态状态，
-  常驻进程内跨请求串扰随之消除；trait 名静态门面已标记 `@deprecated`，仅供
-  测试/CLI 兜底。
-- **数据面缺口**：全库无 tenant_id 列，需逐表迁移；跨租户共享的字典表需设计豁免机制。
-
-### 22.5 验收口径
-
-本期验收 = 文档与代码一致：`config/middleware.php` 与 `config/route.php` 不含
-TenantScope 注册；中间件注释标注"已实现、默认未注册"并给出注册点与信任边界，
-Trait 注释标注请求上下文注入链路与回归线（无租户上下文时不参与过滤）；
-本节描述与代码现状逐条对应。
+多租户预留骨架（中间件、模型 Trait、`erp_tenant` 表、租户管理页面）已于 2026-10 移除，当前系统为单租户。原 `TenantScope` 中间件从未注册，财务模型不再启用租户作用域。

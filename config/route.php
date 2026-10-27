@@ -188,14 +188,6 @@ Route::group('/admin/v1', function () {
     Route::post('/finance/tax-input-invoice/{id}/verify', [app\controller\finance\TaxInvoicePoolController::class, 'verify']);
     Route::post('/finance/tax-input-invoice/{id}/check', [app\controller\finance\TaxInvoicePoolController::class, 'check']);
     Route::post('/finance/tax-input-invoice/{id}/deduct', [app\controller\finance\TaxInvoicePoolController::class, 'deduct']);
-    // 多租户（P2-B5）
-    Route::get('/platform/tenant/list', [app\controller\platform\TenantController::class, 'list']);
-    Route::get('/platform/tenant/expiry-warnings', [app\controller\platform\TenantController::class, 'expiryWarnings']);
-    Route::post('/platform/tenant/provision', [app\controller\platform\TenantController::class, 'provision']);
-    Route::post('/platform/tenant/suspend', [app\controller\platform\TenantController::class, 'suspend']);
-    Route::post('/platform/tenant/resume', [app\controller\platform\TenantController::class, 'resume']);
-    Route::post('/platform/tenant/expire-mark', [app\controller\platform\TenantController::class, 'expireMark']);
-    Route::post('/platform/tenant/renew', [app\controller\platform\TenantController::class, 'renew']);
     // 自定义字段（P2-B7）
     Route::get('/platform/custom-field', [app\controller\platform\CustomFieldController::class, 'list']);
     Route::post('/platform/custom-field', [app\controller\platform\CustomFieldController::class, 'create']);

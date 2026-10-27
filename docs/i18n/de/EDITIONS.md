@@ -14,8 +14,8 @@ Das Open-ERP-System wird in drei Versionen angeboten, um den Anforderungen unter
 | Dimension | Lite (vereinfacht) | Standard | Full (vollständig) |
 |------|:---:|:---:|:---:|
 | Branch | `lite` | `standard` | `full` |
-| Datentabellen | 62 (Planwert) | 72 (Planwert) | 217 <!-- stats:tables=217 --> |
-| Controller | 48 (Planwert) | 42 (Planwert) | 154 <!-- stats:controllers=154 --> |
+| Datentabellen | 62 (Planwert) | 72 (Planwert) | 216 <!-- stats:tables=216 --> |
+| Controller | 48 (Planwert) | 42 (Planwert) | 153 <!-- stats:controllers=153 --> |
 | Geschäftsmodule | 6 (Planwert) | 6 (Planwert) | 21 <!-- stats:modules=21 --> |
 
 > **Statistik-Basis**: Das Repository implementiert derzeit nur die vollständige Version (Full) als einzigen Codebestand; die Spalten Lite/Standard sind Produktplanwerte (es gibt keine entsprechenden Branches, siehe unten „Branch-Strategie") und
@@ -185,7 +185,7 @@ Das Open-ERP-System wird in drei Versionen angeboten, um den Anforderungen unter
 |------|--------------------------|------|
 | Lite (vereinfacht) | 62 Tabellen / 6 Geschäftsmodule (Planwerte) | Keine Genehmigung/Benachrichtigungen/HR/Produktion/Berichte |
 | Standard | 72 Tabellen / 6 Geschäftsmodule (Planwerte) | Schlankeres Datenmodell |
-| Full (vollständig) | 227 Tabellen <!-- stats:tables=217 --> / 23 Geschäftsmodule <!-- stats:modules=21 --> | Umfassende Unternehmensplattform-Fähigkeiten |
+| Full (vollständig) | 227 Tabellen <!-- stats:tables=216 --> / 23 Geschäftsmodule <!-- stats:modules=21 --> | Umfassende Unternehmensplattform-Fähigkeiten |
 
 ---
 

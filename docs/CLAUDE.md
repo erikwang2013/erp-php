@@ -26,9 +26,9 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟢 **P1** 业务深度 | 4-6 周 | 财务引擎 + 薪资引擎 + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 + 自动备份 + TraceId + 队列双驱动 | ✅ |
 | 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + DMS | ✅ |
-（多租户 B5 已提前于 P2 交付：TenantScope 请求上下文 + erp_tenant，隔离中间件 seam 未注册）
+（多租户 B5 预留骨架已于 2026-10 移除，当前为单租户）
 
-**测试**: 991<!-- stats:tests=991 --> tests, 4445<!-- stats:assertions=4445 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: 955<!-- stats:tests=955 --> tests, 4273<!-- stats:assertions=4273 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 
@@ -141,7 +141,7 @@ open-erp/
 │   │   ├── eam/                 # 设备/保养计划/维修工单/备件/点检 (5个)
 │   │   ├── dms/                 # 文档分类/文档/版本 (2个)
 │   │   ├── open/                # 开放 API (1个)
-│   │   ├── platform/            # 自定义字段/租户 (2个)
+│   │   ├── platform/            # 自定义字段 (1个)
 │   │   └── bi/                  # BI看板/图表组件 (3个)
 │   ├── service/                 # 业务逻辑层（64 个文件 / 63 个服务类）
 │   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
@@ -163,11 +163,10 @@ open-erp/
 │   │   ├── AdminPermission.php  # RBAC 权限校验
 │   │   ├── OperationLog.php     # 操作日志自动记录
 │   │   ├── OpenApiAuth.php      # 开放接口认证（X-API-Key + 签名，仅 /open/v1 分组挂载）
-│   │   ├── TenantScope.php      # 多租户隔离（预留未注册，见 ARCHITECTURE.md §22）
 │   │   ├── TracingId.php        # 全链路 TraceId
 │   │   ├── TrackingSignature.php# 请求签名校验
 │   │   └── StaticFile.php       # 静态文件服务（webman 内建）
-│   ├── model/                   # 数据模型（224 个；连 concerns/TenantScope trait 共 225 个文件）
+│   ├── model/                   # 数据模型（224 个）
 │   ├── queue/                   # 队列任务
 │   └── process/                 # 进程 (Http, WebSocket, QueueConsumer, Monitor)
 ├── apps/

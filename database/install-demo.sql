@@ -1000,11 +1000,6 @@ INSERT INTO `erp_tax_input_invoice` (`id`, `invoice_code`, `invoice_no`, `issue_
 (410000000000546001, 'd3', 'd3', CURDATE(), 'd', 'd', 'd', 'd', 0.00, 0.00, 0.00, 0, 0, 'd', 'manual', '演示数据', NOW(), NOW());
 
 
-INSERT INTO `erp_tenant` (`id`, `company_id`, `tenant_code`, `plan`, `status`, `expire_at`, `remark`, `created_by`, `created_at`, `updated_at`) VALUES
-(410000000000550001, 410000000000031001, 'd1', 1, 0, CURDATE(), '演示数据', 0, NOW(), NOW()),
-(410000000000551001, 410000000000032001, 'd2', 1, 0, CURDATE(), '演示数据', 0, NOW(), NOW()),
-(410000000000552001, 410000000000033001, 'd3', 1, 0, CURDATE(), '演示数据', 0, NOW(), NOW());
-
 INSERT INTO `erp_tms_carrier` (`id`, `code`, `name`, `type`, `website`, `tracking_url_template`, `api_provider`, `contact_phone`, `status`, `created_at`, `updated_at`) VALUES
 (410000000000553001, 'DEMO-TMS_CARRIER-1', '演示tms_carrier', 'express', 'd', 'd', 'd', 'd', 1, NOW(), NOW()),
 (410000000000554001, 'DEMO-TMS_CARRIER-2', '演示tms_carrier', 'express', 'd', 'd', 'd', 'd', 1, NOW(), NOW()),

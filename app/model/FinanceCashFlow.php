@@ -7,22 +7,15 @@ declare(strict_types=1);
 
 namespace app\model;
 
-use app\model\concerns\TenantScope;
 use Erikwang2013\WebmanScout\Searchable;
 use support\Model;
 
 /**
- * 现金流量表快照（公司族多租户试点模型：tenant 上下文下按 company_id 过滤）
+ * 现金流量表快照
  */
 class FinanceCashFlow extends Model
 {
     use Searchable;
-    use TenantScope;
-
-    protected static function tenantScopeByCompany(): bool
-    {
-        return true;
-    }
 
     protected $table = 'finance_cash_flow';
     protected $primaryKey = 'id';

@@ -950,27 +950,6 @@ CREATE TABLE IF NOT EXISTS `erp_company` (
     KEY `idx_parent_id` (`parent_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='组织/公司(多组织)';
 
-CREATE TABLE IF NOT EXISTS `erp_tenant` (
-    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
-    `company_id` BIGINT UNSIGNED NOT NULL COMMENT '公司ID(erp_company.id)，1:1唯一',
-    `tenant_code` VARCHAR(50) NOT NULL COMMENT '租户编码(对外标识，X-Tenant-Code请求头查表来源)',
-    `plan` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '套餐: 1=标准 2=专业 3=旗舰',
-    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=待开通 1=启用 2=停用 3=到期',
-    `expire_at` DATE NOT NULL COMMENT '到期日(含当日有效，Y-m-d)',
-    `opened_at` DATETIME DEFAULT NULL COMMENT '开通时间',
-    `remark` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '备注',
-    `created_by` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '创建人(erp_admin_user.id)，0=系统',
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    `deleted_at` DATETIME DEFAULT NULL COMMENT '软删除标记',
-    PRIMARY KEY (`id`),
-    UNIQUE KEY `uk_company` (`company_id`),
-    UNIQUE KEY `uk_tenant_code` (`tenant_code`),
-    KEY `idx_status` (`status`),
-    KEY `idx_expire_at` (`expire_at`),
-    KEY `idx_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='租户表(公司与租户1:1, P2-4 B5多租户)';
-
 CREATE TABLE IF NOT EXISTS `erp_finance_ledger` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `company_id` BIGINT UNSIGNED NOT NULL COMMENT '组织ID',
@@ -4994,16 +4973,9 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000869, 0, '自定义字段-删除',           'delete.admin/platform/custom-field',          3, '', '', 28, NOW(), NOW()),
 (31000000000000956, 0, '自定义字段-查看',           'get.admin/platform/custom-field',             3, '', '', 35, NOW(), NOW()),
-(31000000000000958, 0, '租户-到期预警',             'get.admin/platform/tenant/expiry-warnings',   3, '', '', 37, NOW(), NOW()),
-(31000000000000959, 0, '租户-列表',                 'get.admin/platform/tenant/list',              3, '', '', 38, NOW(), NOW()),
 (31000000000001057, 0, '自定义字段-创建',           'post.admin/platform/custom-field',            3, '', '', 60, NOW(), NOW()),
 (31000000000001058, 0, '自定义字段-字段模型',       'post.admin/platform/custom-field/schema',     3, '', '', 61, NOW(), NOW()),
 (31000000000001059, 0, '自定义字段-校验',           'post.admin/platform/custom-field/validate',   3, '', '', 62, NOW(), NOW()),
-(31000000000001062, 0, '租户-标记到期',             'post.admin/platform/tenant/expire-mark',      3, '', '', 65, NOW(), NOW()),
-(31000000000001063, 0, '租户-开通',                 'post.admin/platform/tenant/provision',        3, '', '', 66, NOW(), NOW()),
-(31000000000001064, 0, '租户-续费',                 'post.admin/platform/tenant/renew',            3, '', '', 67, NOW(), NOW()),
-(31000000000001065, 0, '租户-恢复',                 'post.admin/platform/tenant/resume',           3, '', '', 68, NOW(), NOW()),
-(31000000000001066, 0, '租户-停用',                 'post.admin/platform/tenant/suspend',          3, '', '', 69, NOW(), NOW()),
 (31000000000001129, 0, '自定义字段-更新',           'put.admin/platform/custom-field',             3, '', '', 77, NOW(), NOW());
 
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES

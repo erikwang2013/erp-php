@@ -4,7 +4,7 @@
 
 ## Ringkasan
 
-Sistem ERP Terbuka (open-erp) mencakup 23 domain bisnis <!-- stats:modules=21 -->, 227 tabel data <!-- stats:tables=217 -->, menyediakan sistem manajemen perusahaan full-stack mulai dari pembelian-penjualan-stok hingga manufaktur produksi, dari pembukuan keuangan hingga sumber daya manusia. Internasionalisasi: dukungan 13 bahasa (中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), peralihan otomatis melalui header permintaan Accept-Language.
+Sistem ERP Terbuka (open-erp) mencakup 23 domain bisnis <!-- stats:modules=21 -->, 227 tabel data <!-- stats:tables=216 -->, menyediakan sistem manajemen perusahaan full-stack mulai dari pembelian-penjualan-stok hingga manufaktur produksi, dari pembukuan keuangan hingga sumber daya manusia. Internasionalisasi: dukungan 13 bahasa (中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), peralihan otomatis melalui header permintaan Accept-Language.
 
 > Dokumen API: setelah layanan dimulai, akses `http://localhost:8788/apidoc` untuk melihat dokumen antarmuka interaktif (dihasilkan otomatis oleh erikwang2013/apidoc-php)
 
@@ -548,17 +548,17 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Dimensi | Jumlah |
 |------|------|
 | Modul bisnis | 21 <!-- stats:modules=21 --> |
-| Tabel database | 217 <!-- stats:tables=217 --> |
-| Model data | 214 <!-- stats:models=214 --> |
-| Controller | 154 <!-- stats:controllers=154 --> |
-| Layanan bisnis | 55 <!-- stats:services=55 --> |
+| Tabel database | 216 <!-- stats:tables=216 --> |
+| Model data | 213 <!-- stats:models=213 --> |
+| Controller | 153 <!-- stats:controllers=153 --> |
+| Layanan bisnis | 54 <!-- stats:services=54 --> |
 | Route API | 837 (dibuat dinamis, lihat `scripts/check-endpoints.php`, tidak ikut validasi doc-stats) |
-| Middleware | 11 <!-- stats:middleware=11 --> |
-| File sumber PHP | 459 <!-- stats:php_files=459 --> |
+| Middleware | 10 <!-- stats:middleware=10 --> |
+| File sumber PHP | 454 <!-- stats:php_files=454 --> |
 | Skrip instalasi database | file tunggal `database/install.sql` (227 tabel, semua migrasi telah digabungkan) |
 | Halaman frontend (Flutter) | 119 berkas halaman (2026-09-22, penghitungan berkas rekursif; statistik frontend tidak masuk validasi doc-stats) |
 | Halaman frontend (HarmonyOS) | 52 berkas halaman (2026-09-22, penghitungan berkas rekursif; statistik frontend tidak masuk validasi doc-stats) |
-| Unit test | 107<!-- stats:test_files=107 --> file pengujian  / 991<!-- stats:tests=991 --> kasus pengujian  / 4445<!-- stats:assertions=4445 --> asersi  (hitungan statis: jumlah metode pengujian + titik pemanggilan asersi, tidak bergantung pada lingkungan eksekusi) |
+| Unit test | 104<!-- stats:test_files=104 --> file pengujian  / 955<!-- stats:tests=955 --> kasus pengujian  / 4273<!-- stats:assertions=4273 --> asersi  (hitungan statis: jumlah metode pengujian + titik pemanggilan asersi, tidak bergantung pada lingkungan eksekusi) |
 
 > Angka di atas dihasilkan langsung oleh `bash scripts/doc-stats.sh`; item yang ditandai `<!-- stats:key=value -->` diverifikasi otomatis oleh CI
 > (job docs di `.github/workflows/ci.yml`) agar konsisten dengan fakta kode, penyimpangan berarti merah.

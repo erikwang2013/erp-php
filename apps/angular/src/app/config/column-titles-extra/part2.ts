@@ -89,7 +89,6 @@ export const COLUMN_TITLES_PART2: Record<string, string> = {
   tax_amount: '税额', // install.sql 列注释
   tax_rate_id: '税率ID', // install.sql 列注释
   taxable_amount: '计税金额', // install.sql 列注释
-  tenant_code: '租户编码', // install.sql 列注释
   ticket_id: '工单ID', // install.sql 列注释
   timesheet_id: '来源工时记录ID', // install.sql 列注释
   title_tpl: '标题模板', // install.sql 列注释

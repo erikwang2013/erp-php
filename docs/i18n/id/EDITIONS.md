@@ -14,8 +14,8 @@ Sistem ERP Terbuka menyediakan tiga edisi, menyesuaikan kebutuhan perusahaan dar
 | Dimensi | Edisi Ringkas (Lite) | Edisi Standar (Standard) | Edisi Lengkap (Full) |
 |------|:---:|:---:|:---:|
 | Cabang | `lite` | `standard` | `full` |
-| Tabel data | 62 (nilai rencana) | 72 (nilai rencana) | 217 <!-- stats:tables=217 --> |
-| Controller | 48 (nilai rencana) | 42 (nilai rencana) | 154 <!-- stats:controllers=154 --> |
+| Tabel data | 62 (nilai rencana) | 72 (nilai rencana) | 216 <!-- stats:tables=216 --> |
+| Controller | 48 (nilai rencana) | 42 (nilai rencana) | 153 <!-- stats:controllers=153 --> |
 | Modul bisnis | 6 (nilai rencana) | 6 (nilai rencana) | 21 <!-- stats:modules=21 --> |
 
 > **Metodologi statistik**: repositori saat ini hanya mengimplementasikan satu set kode edisi Lengkap (Full); kolom Lite/Standard adalah nilai perencanaan produk (tidak ada cabang terkait di codebase),
@@ -185,7 +185,7 @@ Sistem ERP Terbuka menyediakan tiga edisi, menyesuaikan kebutuhan perusahaan dar
 |------|--------------------------|------|
 | Lite (Ringkas) | 62 tabel / 6 modul bisnis (nilai rencana) | Tanpa persetujuan/notifikasi/HR/manufaktur/laporan |
 | Standard (Standar) | 72 tabel / 6 modul bisnis (nilai rencana) | Model data lebih ringkas |
-| Full (Lengkap) | 227 tabel <!-- stats:tables=217 --> / 23 modul bisnis <!-- stats:modules=21 --> | Kapabilitas platform perusahaan menyeluruh |
+| Full (Lengkap) | 227 tabel <!-- stats:tables=216 --> / 23 modul bisnis <!-- stats:modules=21 --> | Kapabilitas platform perusahaan menyeluruh |
 
 ---
 

@@ -47,8 +47,6 @@ const INSPECTION_STATUS = { 0: '待执行', 1: '已完成', 2: '异常待维修'
 const PROJECT_PRIORITY = { 1: '低', 2: '中', 3: '高', 4: '紧急' };
 /** erp_project_cost：`source_type` 来源: timesheet=工时归集 manual=手工录入；`category` 类别: 1=人工 2=材料 3=其他 */
 const COST_DICTS = { source_type: { timesheet: '工时归集', manual: '手工录入' }, category: { 1: '人工', 2: '材料', 3: '其他' } };
-/** erp_tenant：`plan` 套餐: 1=标准 2=专业 3=旗舰；`status` 状态: 0=待开通 1=启用 2=停用 3=到期 */
-const TENANT_DICTS = { plan: { 1: '标准', 2: '专业', 3: '旗舰' }, status: { 0: '待开通', 1: '启用', 2: '停用', 3: '到期' } };
 /** erp_report_schedule：`frequency` 发送频率: 1=每天 2=每周 3=每月；`enabled` 是否启用: 0=否 1=是 */
 const SCHEDULE_DICTS = { frequency: { 1: '每天', 2: '每周', 3: '每月' }, enabled: { 0: '否', 1: '是' } };
 /** erp_report_template：`status` 状态: 0=禁用 1=启用；`chart_type` 图表类型: table/bar/line/pie/kpi */
@@ -438,28 +436,6 @@ export const mgmtMenus: MenuGroup[] = [
       { label: '开放应用', path: '/platform/app', cfg: res('开放应用', '/admin/v1/openapi/app', { dicts: { status: { 0: '禁用', 1: '启用' } }, fields: [{ key: 'app_name', label: '应用名称', required: true }, { key: 'status', label: '状态', type: 'select', defaultValue: 1, options: [{ label: '启用', value: 1 }, { label: '禁用', value: 0 }] }], actions: [{ label: '重置密钥', icon: 'refresh', path: (r) => `/admin/v1/openapi/app/${String(r.id)}/reset-secret`, message: '密钥已重置' }, { label: '启停', icon: 'settings', path: (r) => `/admin/v1/openapi/app/${String(r.id)}/toggle-status`, message: '状态已切换' }] }) },
       { label: 'Webhook', path: '/platform/webhook', cfg: res('Webhook', '/admin/v1/openapi/webhook', { dicts: WEBHOOK_DICTS, fields: [{ key: 'app_id', label: '所属应用', required: true, source: { endpoint: '/admin/v1/openapi/app', labelKey: 'app_name' } }, { key: 'event', label: '订阅事件', type: 'textarea', required: true, full: true, help: '多个事件名用逗号或换行分隔；* 表示全部；仅允许字母、数字与 . _ -' }, { key: 'target_url', label: '回调地址', required: true }, { key: 'enabled', label: '是否启用', type: 'select', defaultValue: 1, options: [{ label: '启用', value: 1 }, { label: '禁用', value: 0 }] }], actions: [{ label: '测试投递', icon: 'send', path: (r) => `/admin/v1/openapi/webhook/${String(r.id)}/test`, message: '投递测试完成' }] }) },
       { label: '自定义字段', path: '/platform/custom-field', cfg: res('自定义字段', '/admin/v1/platform/custom-field', { dicts: CUSTOM_FIELD_DICTS }) },
-    ],
-  },
-  {
-    label: '租户管理',
-    icon: 'grid',
-    moduleKey: 'system',
-    children: [
-      {
-        label: '租户列表',
-        path: '/platform/tenant',
-        cfg: res('租户列表', '/admin/v1/platform/tenant/list', {
-          canDelete: false,
-          dicts: TENANT_DICTS,
-          filters: { key: 'status', label: '状态', options: [{ label: '全部', value: null }, { label: '待开通', value: 0 }, { label: '启用', value: 1 }, { label: '停用', value: 2 }, { label: '到期', value: 3 }] },
-          // 开通走专用 provision（自动建租户），续费需天数输入，均非泛型 CRUD 语义
-          actions: [
-            { label: '停用', icon: 'close', variant: 'icon-danger', path: (r) => (Number(r.status) === 1 ? '/admin/v1/platform/tenant/suspend' : null), body: (r) => ({ id: r.id }), message: '租户已停用' },
-            { label: '启用', icon: 'check', path: (r) => (Number(r.status) === 2 || Number(r.status) === 3 ? '/admin/v1/platform/tenant/resume' : null), body: (r) => ({ id: r.id }), message: '租户已启用' },
-          ],
-        }),
-      },
-      { label: '到期预警', path: '/platform/tenant-expiry', cfg: res('到期预警', '/admin/v1/platform/tenant/expiry-warnings', { canDelete: false, dicts: TENANT_DICTS, params: { days: 30 } }) },
     ],
   },
 ];
