@@ -734,11 +734,6 @@ INSERT INTO `erp_notification` (`id`, `user_id`, `title`, `type`, `source_type`,
 (410000000000380001, 0, '演示notification', 'system', 'd', 0, 0, NOW()),
 (410000000000381001, 0, '演示notification', 'system', 'd', 0, 0, NOW());
 
-INSERT INTO `erp_notification_channel_log` (`id`, `channel`, `to`, `subject`, `content`, `content_hash`, `status`, `message_id`, `error`, `sent_at`, `operator_id`, `created_at`, `updated_at`) VALUES
-(410000000000382001, 'd', 'd', 'd', '演示数据', 'd', 0, 0, 'd', NOW(), 0, NOW(), NOW()),
-(410000000000383001, 'd', 'd', 'd', '演示数据', 'd', 0, 0, 'd', NOW(), 0, NOW(), NOW()),
-(410000000000384001, 'd', 'd', 'd', '演示数据', 'd', 0, 0, 'd', NOW(), 0, NOW(), NOW());
-
 INSERT INTO `erp_notification_setting` (`id`, `user_id`, `notify_type`, `in_app`, `email`, `sms`, `created_at`, `updated_at`) VALUES
 (410000000000385001, 1, 'd1', 1, 0, 0, NOW(), NOW()),
 (410000000000386001, 2, 'd2', 1, 0, 0, NOW(), NOW()),

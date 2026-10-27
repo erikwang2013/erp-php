@@ -28,7 +28,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + DMS | ✅ |
 （多租户 B5 已提前于 P2 交付：TenantScope 请求上下文 + erp_tenant，隔离中间件 seam 未注册）
 
-**测试**: 1008<!-- stats:tests=1008 --> tests, 4599<!-- stats:assertions=4599 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: 991<!-- stats:tests=991 --> tests, 4445<!-- stats:assertions=4445 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 
@@ -129,7 +129,7 @@ open-erp/
 │   │   ├── finance/             # 应收应付/凭证/收付款/日记账/总账/明细账/三表/固定资产/税务/多币种/预算/成本利润中心/银行账户对账/费用/发票结算/合并报表/账期 (28个)
 │   │   ├── crm/                 # 商机/跟进/漏斗/联系人/公海池/报价/合同/营销/工单/分析 (10个)
 │   │   ├── workflow/            # 工作流定义/设计器/审批提交/批准/拒绝/撤回 (3个)
-│   │   ├── notification/        # 通知列表/已读/未读计数/通知渠道 (2个)
+│   │   ├── notification/        # 通知列表/已读/未读计数 (1个)
 │   │   ├── project/             # 项目/任务/工时记录/项目成本 (4个)
 │   │   ├── hr/                  # 部门/员工/职位/考勤/薪资/绩效/招聘/社保/培训 (9个)
 │   │   ├── manufacturing/       # BOM/生产订单/工艺路线/工作站/MRP/产能/领料/报工/计件工资/成本录入/委外及收发 (13个)
@@ -289,7 +289,7 @@ Redis 滑动窗口（Lua 原子化），默认 60 次/分钟/IP/路由：
 
 ## 已知技术债
 
-> 以下清单由 `grep -rn "new .*Service(" app/controller/` 实测（45 处），与代码事实一致。
+> 以下清单由 `grep -rn "new .*Service(" app/controller/` 实测（44 处），与代码事实一致。
 > **P5 不重构**：控制器直建服务为既有模式，仅在新建代码时改走容器注入（`support\Container`），存量代码维持现状。
 
 | 模块 | 直建服务数 | 说明 |
@@ -301,7 +301,6 @@ Redis 滑动窗口（Lua 原子化），默认 60 次/分钟/IP/路由：
 | quality | 2 | 检验/不合格品处理 |
 | hr | 2 | 薪资/考勤 |
 | platform | 1 | 租户 |
-| notification | 1 | 通知渠道 |
 
 ## 部署
 

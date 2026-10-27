@@ -196,10 +196,7 @@ Route::group('/admin/v1', function () {
     Route::post('/platform/tenant/resume', [app\controller\platform\TenantController::class, 'resume']);
     Route::post('/platform/tenant/expire-mark', [app\controller\platform\TenantController::class, 'expireMark']);
     Route::post('/platform/tenant/renew', [app\controller\platform\TenantController::class, 'renew']);
-    // 通知渠道 + 自定义字段（P2-B4+B7）
-    Route::post('/platform/notification-channel/send', [app\controller\notification\NotificationChannelController::class, 'send']);
-    Route::get('/platform/notification-channel/logs', [app\controller\notification\NotificationChannelController::class, 'logs']);
-    Route::post('/platform/notification-channel/retry', [app\controller\notification\NotificationChannelController::class, 'retry']);
+    // 自定义字段（P2-B7）
     Route::get('/platform/custom-field', [app\controller\platform\CustomFieldController::class, 'list']);
     Route::post('/platform/custom-field', [app\controller\platform\CustomFieldController::class, 'create']);
     Route::post('/platform/custom-field/validate', [app\controller\platform\CustomFieldController::class, 'validate']);

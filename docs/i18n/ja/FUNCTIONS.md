@@ -4,7 +4,7 @@
 
 ## 概要
 
-オープンERPシステム (open-erp) は 23 の業務ドメイン <!-- stats:modules=21 -->、227 のデータテーブル <!-- stats:tables=218 --> をカバーし、進銷存（仕入・在庫・販売）から生産製造、財務会計から人事管理までを提供するフルスタック企業管理システムです。国際化: 13 語種対応（中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia）、Accept-Language リクエストヘッダーで自動切替。
+オープンERPシステム (open-erp) は 23 の業務ドメイン <!-- stats:modules=21 -->、227 のデータテーブル <!-- stats:tables=217 --> をカバーし、進銷存（仕入・在庫・販売）から生産製造、財務会計から人事管理までを提供するフルスタック企業管理システムです。国際化: 13 語種対応（中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia）、Accept-Language リクエストヘッダーで自動切替。
 
 > API ドキュメント: サービス起動後に `http://localhost:8788/apidoc` へアクセスして対話型インターフェースドキュメントを確認（erikwang2013/apidoc-php 自動生成）
 
@@ -561,17 +561,17 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 観点 | 数量 |
 |------|------|
 | 業務モジュール | 21 <!-- stats:modules=21 --> |
-| データベーステーブル | 218 <!-- stats:tables=218 --> |
-| データモデル | 215 <!-- stats:models=215 --> |
-| コントローラー | 155 <!-- stats:controllers=155 --> |
-| 業務サービス | 59 <!-- stats:services=59 --> |
+| データベーステーブル | 217 <!-- stats:tables=217 --> |
+| データモデル | 214 <!-- stats:models=214 --> |
+| コントローラー | 154 <!-- stats:controllers=154 --> |
+| 業務サービス | 55 <!-- stats:services=55 --> |
 | API ルート | 837（動的生成、`scripts/check-endpoints.php` を参照、doc-stats 検証対象外）|
 | ミドルウェア | 11 <!-- stats:middleware=11 --> |
-| PHP ソースファイル | 465 <!-- stats:php_files=465 --> |
+| PHP ソースファイル | 459 <!-- stats:php_files=459 --> |
 | データベースインストールスクリプト | 単一ファイル `database/install.sql`（227 テーブル、全マイグレーション統合済み）|
 | フロントエンドページ (Flutter) | 119（2026-09-22 実測 `apps/flutter/lib/app/pages/` 配下の `.dart` ページファイル数（再帰）、doc-stats 検証対象外）|
 | フロントエンドページ (HarmonyOS) | 52（2026-09-22 実測 `apps/harmonyos/entry/src/main/ets/pages/` 配下の `.ets` ページファイル数（再帰）、doc-stats 検証対象外）|
-| ユニットテスト | 108<!-- stats:test_files=108 --> テストファイル  / 1008<!-- stats:tests=1008 --> テストケース  / 4599<!-- stats:assertions=4599 --> アサーション （静的計数：テストメソッド数 + アサーション呼び出し点数、実行環境に依存しません）|
+| ユニットテスト | 107<!-- stats:test_files=107 --> テストファイル  / 991<!-- stats:tests=991 --> テストケース  / 4445<!-- stats:assertions=4445 --> アサーション （静的計数：テストメソッド数 + アサーション呼び出し点数、実行環境に依存しません）|
 
 > 上記の数字は `bash scripts/doc-stats.sh` による実測値です。`<!-- stats:key=value -->` で注記された項目は CI
 > （`.github/workflows/ci.yml` の docs ジョブ）がコードの事実との一致を自動検証し、乖離があれば即レッドになります。

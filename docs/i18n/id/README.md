@@ -187,7 +187,7 @@ open-erp/
 │   ├── e2e-seed.sql             # Seed minimal E2E/CI
 │   └── backup/                 # Skrip backup/restore
 ├── docs/                       # Dokumentasi arsitektur, desain, keamanan, API
-├── tests/                      # Pengujian PHPUnit (<!-- stats:test_files=108 --> file pengujian, <!-- stats:tests=1008 --> metode pengujian, <!-- stats:assertions=4599 --> asersi)
+├── tests/                      # Pengujian PHPUnit (<!-- stats:test_files=107 --> file pengujian, <!-- stats:tests=991 --> metode pengujian, <!-- stats:assertions=4445 --> asersi)
 ├── resource/
 │   └── translations/           # Kamus pesan backend 13 bahasa (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
 │       ├── zh_CN/              # Terjemahan 中文 (565 entri)

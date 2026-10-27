@@ -1918,27 +1918,6 @@ CREATE TABLE IF NOT EXISTS `erp_custom_field_definition` (
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='自定义字段定义(B7, P2-5)';
 
-CREATE TABLE IF NOT EXISTS `erp_notification_channel_log` (
-    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
-    `channel` VARCHAR(20) NOT NULL COMMENT '渠道: sms=短信 mail=邮件(枚举含 inapp=站内，站内走erp_notification不入本表)',
-    `to` VARCHAR(200) NOT NULL COMMENT '接收方(手机号/邮箱)',
-    `subject` VARCHAR(200) NOT NULL DEFAULT '' COMMENT '主题/标题',
-    `content` TEXT NOT NULL COMMENT '内容',
-    `content_hash` CHAR(64) NOT NULL DEFAULT '' COMMENT '内容sha256(幂等键，与channel+to+成功时间窗组合判重)',
-    `status` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '状态: 0=发送中 1=成功 2=失败',
-    `message_id` VARCHAR(80) NOT NULL DEFAULT '' COMMENT '渠道返回消息ID(失败为空)',
-    `error` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '失败原因(成功为空)',
-    `sent_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '发送(尝试)时间，重试与幂等窗口均以其为准',
-    `operator_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '操作人(erp_admin_user.id)，0=系统',
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-    PRIMARY KEY (`id`),
-    KEY `idx_channel_status` (`channel`, `status`),
-    KEY `idx_to` (`to`),
-    KEY `idx_content_hash` (`content_hash`)
-
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='通知渠道发送日志(B4, P2-5)';
-
 -- ################################################################
 -- PART 13: 消息通知系统
 -- ################################################################
@@ -5015,14 +4994,11 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000869, 0, '自定义字段-删除',           'delete.admin/platform/custom-field',          3, '', '', 28, NOW(), NOW()),
 (31000000000000956, 0, '自定义字段-查看',           'get.admin/platform/custom-field',             3, '', '', 35, NOW(), NOW()),
-(31000000000000957, 0, '通知渠道-日志',             'get.admin/platform/notification-channel/logs', 3, '', '', 36, NOW(), NOW()),
 (31000000000000958, 0, '租户-到期预警',             'get.admin/platform/tenant/expiry-warnings',   3, '', '', 37, NOW(), NOW()),
 (31000000000000959, 0, '租户-列表',                 'get.admin/platform/tenant/list',              3, '', '', 38, NOW(), NOW()),
 (31000000000001057, 0, '自定义字段-创建',           'post.admin/platform/custom-field',            3, '', '', 60, NOW(), NOW()),
 (31000000000001058, 0, '自定义字段-字段模型',       'post.admin/platform/custom-field/schema',     3, '', '', 61, NOW(), NOW()),
 (31000000000001059, 0, '自定义字段-校验',           'post.admin/platform/custom-field/validate',   3, '', '', 62, NOW(), NOW()),
-(31000000000001060, 0, '通知渠道-重试',             'post.admin/platform/notification-channel/retry', 3, '', '', 63, NOW(), NOW()),
-(31000000000001061, 0, '通知渠道-发送',             'post.admin/platform/notification-channel/send', 3, '', '', 64, NOW(), NOW()),
 (31000000000001062, 0, '租户-标记到期',             'post.admin/platform/tenant/expire-mark',      3, '', '', 65, NOW(), NOW()),
 (31000000000001063, 0, '租户-开通',                 'post.admin/platform/tenant/provision',        3, '', '', 66, NOW(), NOW()),
 (31000000000001064, 0, '租户-续费',                 'post.admin/platform/tenant/renew',            3, '', '', 67, NOW(), NOW()),

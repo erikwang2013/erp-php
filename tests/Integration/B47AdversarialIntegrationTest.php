@@ -9,7 +9,6 @@ declare(strict_types=1);
 namespace tests\Integration;
 
 use app\model\CustomFieldDefinition;
-use app\service\notification\ChannelService;
 use app\service\platform\CustomFieldService;
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\QueryException;
@@ -17,50 +16,25 @@ use Illuminate\Database\Schema\Blueprint;
 use PHPUnit\Framework\Attributes\Group;
 
 /**
- * P2-5 B4+B7 对抗性集成测试（--group=integration）
+ * P2-5 B7 对抗性集成测试（--group=integration）
  *
- * 环境变量契约同 IntegrationTestCase；缺表按需自建（蓝图与 database/b4b7_channel.sql
- * 同构），erp_sales_order 缺 custom_fields 列时优雅跳过；行前缀 'B47T-'/'b47x%'
- * 自清理，绝不碰他人数据。对抗点：①幂等窗口 300s 命中最新/超窗重发/失败永不进窗
- * （行数=驱动调用可观测代理）；②Mock 确定性（接收方校验先于长度、500 边界、同秒
- * 序号 +1）；③retryFailures 只挑冷却外失败、翻转/仍败/刷 sent_at/限额升序；
- * ④B7 类型逐条拒收与必填边界（int 0 非空）；⑤CRUD 白名单、标识不可变、删除可重建；
- * ⑥JSON 中文读回等价（ksort 后 assertSame）、停用不影响旧值、非法 JSON 被拒。
+ * 环境变量契约同 IntegrationTestCase；缺表按需自建，erp_sales_order 缺 custom_fields
+ * 列时优雅跳过；行前缀 'b47x%' 自清理，绝不碰他人数据。对抗点：①B7 类型逐条拒收
+ * 与必填边界（int 0 非空）；②CRUD 白名单、标识不可变、删除可重建；③JSON 中文读回
+ * 等价（ksort 后 assertSame）、停用不影响旧值、非法 JSON 被拒。
  */
 #[Group('integration')]
 class B47AdversarialIntegrationTest extends IntegrationTestCase
 {
-    private const LOG_TABLE = 'notification_channel_log';
     private const DEF_TABLE = 'custom_field_definition';
     private const ORDER_TABLE = 'sales_order';
 
-    private ChannelService $channel;
     private CustomFieldService $fields;
-    private int $logIdBase; // 直插日志行 id 基座（自增、远小于雪花 id，升序可控）
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->requireTestDatabase();
-        self::createTableIfMissing(self::LOG_TABLE, static function (Blueprint $table): void {
-            $table->unsignedBigInteger('id')->primary();
-            $table->string('channel', 20);
-            $table->string('to', 200);
-            $table->string('subject', 200)->default('');
-            $table->text('content');
-            $table->char('content_hash', 64)->default('');
-            $table->unsignedTinyInteger('status')->default(0);
-            $table->string('message_id', 80)->default('');
-            $table->string('error', 500)->default('');
-            $table->dateTime('sent_at')->useCurrent();
-            $table->unsignedBigInteger('operator_id')->default(0);
-            $table->timestamp('created_at')->useCurrent();
-            $table->timestamp('updated_at')->useCurrent()->useCurrentOnUpdate();
-            $table->index(['channel', 'status']);
-            $table->index('to');
-            $table->index('content_hash');
-        });
-        Capsule::table(self::LOG_TABLE)->where('content', 'like', 'B47T%')->delete();
         self::createTableIfMissing(self::DEF_TABLE, static function (Blueprint $table): void {
             $table->unsignedBigInteger('id')->primary();
             $table->string('entity_type', 30);
@@ -77,41 +51,19 @@ class B47AdversarialIntegrationTest extends IntegrationTestCase
             $table->unique(['entity_type', 'field_key'], 'uk_entity_field');
         });
         Capsule::table(self::DEF_TABLE)->where('field_key', 'like', 'b47x%')->delete();
-        $this->channel = new ChannelService();
         $this->fields = new CustomFieldService();
-        $this->logIdBase = random_int(100_000_000_000, 900_000_000_000);
     }
 
     protected function tearDown(): void
     {
         if (self::$capsule !== null) {
-            foreach ([[self::LOG_TABLE, 'content', 'B47T%'], [self::DEF_TABLE, 'field_key', 'b47x%'], [self::ORDER_TABLE, 'code', 'B47T%']] as [$table, $col, $like]) {
+            foreach ([[self::DEF_TABLE, 'field_key', 'b47x%'], [self::ORDER_TABLE, 'code', 'B47T%']] as [$table, $col, $like]) {
                 if (Capsule::schema()->hasTable($table)) {
                     Capsule::table($table)->where($col, 'like', $like)->delete();
                 }
             }
         }
         parent::tearDown();
-    }
-
-    private static function secondsAgo(int $seconds): string
-    {
-        return date('Y-m-d H:i:s', time() - $seconds);
-    }
-
-    /** 直插发送日志行（构造历史状态；content 缺省走默认并据此补 content_hash） */
-    private function insertLogRow(array $overrides = []): void
-    {
-        $this->logIdBase++;
-        if (!array_key_exists('content_hash', $overrides)) {
-            $overrides['content_hash'] = hash('sha256', (string) ($overrides['content'] ?? 'B47T-直插行'));
-        }
-        Capsule::table(self::LOG_TABLE)->insert(array_merge([
-            'id' => $this->logIdBase, 'channel' => 'sms', 'to' => '13800138000', 'subject' => '',
-            'content' => 'B47T-直插行', 'content_hash' => hash('sha256', 'B47T-直插行'),
-            'status' => 2, 'message_id' => '', 'error' => '',
-            'sent_at' => date('Y-m-d H:i:s'), 'operator_id' => 0,
-        ], $overrides));
     }
 
     /** 创建定义并断言成功（返回启用态模型） */
@@ -140,208 +92,8 @@ class B47AdversarialIntegrationTest extends IntegrationTestCase
     {
         $schema = Capsule::schema();
         if (!$schema->hasTable(self::ORDER_TABLE) || !$schema->hasColumn(self::ORDER_TABLE, 'custom_fields')) {
-            self::markTestSkipped(self::ORDER_TABLE . ' 缺 custom_fields 列：请先导入 database/b4b7_channel.sql');
+            self::markTestSkipped(self::ORDER_TABLE . ' 缺 custom_fields 列：请先导入完整 schema');
         }
-    }
-
-    private function logRowCount(string $content, string $channel, string $to): int
-    {
-        return (int) Capsule::table(self::LOG_TABLE)->where('content', $content)->where('channel', $channel)->where('to', $to)->count();
-    }
-
-    public function testIdempotencyWindowReturnsExistingRecordWithoutResend(): void
-    {
-        $content = 'B47T-幂等窗口-催款通知';
-        $first = $this->channel->send('sms', '13800138000', '主题甲', $content);
-        $this->assertTrue($first['success']);
-        $this->assertFalse($first['dedup']);
-        // 二次 send：subject 不在判重键内 → dedup 命中既有记录，不重发不重落日志
-        $second = $this->channel->send('sms', '13800138000', '主题乙', $content);
-        $this->assertTrue($second['success']);
-        $this->assertTrue($second['dedup']);
-        $this->assertSame($first['message_id'], $second['message_id']);
-        $this->assertSame($first['log_id'], $second['log_id']);
-        $this->assertSame(1, $this->logRowCount($content, 'sms', '13800138000'));
-        $this->assertSame(1, (int) Capsule::table(self::LOG_TABLE)->where('content', $content)->count());
-    }
-
-    public function testIdempotencyExpiryResendNewestPickAndFailureNeverInWindow(): void
-    {
-        $content = 'B47T-窗口过期-账单提醒';
-        $first = $this->channel->send('sms', '13900139000', '', $content);
-        $this->assertTrue($first['success']);
-        Capsule::table(self::LOG_TABLE)->where('id', $first['log_id'])->update(['sent_at' => self::secondsAgo(301)]);
-        // 超窗（301s > 300s）→ 正常重发：新行、dedup=false
-        $resend = $this->channel->send('sms', '13900139000', '', $content);
-        $this->assertFalse($resend['dedup']);
-        $this->assertNotSame($first['log_id'], $resend['log_id']);
-        $this->assertSame(2, $this->logRowCount($content, 'sms', '13900139000'));
-        // 窗口内两行成功 → 命中最新一行（desc），返回其 message_id/log_id
-        $third = $this->channel->send('sms', '13900139000', '', $content);
-        $this->assertTrue($third['dedup']);
-        $this->assertSame($resend['log_id'], $third['log_id']);
-        $this->assertSame($resend['message_id'], $third['message_id']);
-        // 同 content 异 to → 不幂等
-        $other = $this->channel->send('sms', '13700137000', '', $content);
-        $this->assertFalse($other['dedup']);
-        $this->assertSame(1, $this->logRowCount($content, 'sms', '13700137000'));
-        // 失败记录不进窗口：同键反复失败每次都是新行（status=2 ×3、log_id 各异）
-        $failContent = 'B47T-失败不进窗口';
-        $ids = [];
-        for ($i = 0; $i < 3; $i++) {
-            $r = $this->channel->send('sms', '91234567890', '', $failContent);
-            $this->assertFalse($r['success']);
-            $this->assertFalse($r['dedup']);
-            $ids[] = $r['log_id'];
-        }
-        $this->assertSame(3, count(array_unique($ids)));
-        $this->assertSame(3, (int) Capsule::table(self::LOG_TABLE)->where('content', $failContent)->where('status', 2)->count());
-    }
-
-    public function testDriverValidationOrderLengthBoundaryAndSendGuards(): void
-    {
-        // 校验顺序：接收方先于长度——'9' 开头 + 超长内容仍报号码非法（双非法确定性）
-        $r1 = $this->channel->send('sms', '91234567890', '', 'B47T-' . str_repeat('好', 600));
-        $this->assertFalse($r1['success']);
-        $this->assertSame('接收方号码非法', $r1['error']);
-        $this->assertSame('', $r1['message_id']);
-        $this->assertNotNull($r1['log_id']);
-        $this->assertSame(2, (int) Capsule::table(self::LOG_TABLE)->where('id', $r1['log_id'])->value('status'));
-        $this->assertSame('接收方号码非法', (string) Capsule::table(self::LOG_TABLE)->where('id', $r1['log_id'])->value('error'));
-        // mb_strlen 边界：501（多字节汉字）拒；500 恰过成功
-        $long = $this->channel->send('sms', '13800138000', '', 'B47T-' . str_repeat('好', 496));
-        $this->assertFalse($long['success']);
-        $this->assertSame('内容超长', $long['error']);
-        $ok500 = $this->channel->send('sms', '13800138000', '', 'B47T-' . str_repeat('a', 495));
-        $this->assertTrue($ok500['success']);
-        $this->assertSame('', $ok500['error']);
-        // mail：无 @ 拒（先于长度）；合法邮箱 + 501 → 内容超长
-        $mail1 = $this->channel->send('mail', 'no-at-address', '', 'B47T-' . str_repeat('好', 600));
-        $this->assertFalse($mail1['success']);
-        $this->assertSame('接收方邮箱非法', $mail1['error']);
-        $mail2 = $this->channel->send('mail', 'user@example.com', '', 'B47T-' . str_repeat('好', 496));
-        $this->assertFalse($mail2['success']);
-        $this->assertSame('内容超长', $mail2['error']);
-        // 入参边界：channel 白名单外 / to 空 / content 空 → 拒绝且不落日志
-        $g1 = $this->channel->send('wechat', '13800138000', '', 'x');
-        $this->assertFalse($g1['success']);
-        $this->assertSame('不支持的渠道', $g1['error']);
-        $g2 = $this->channel->send('sms', '', '', 'x');
-        $this->assertFalse($g2['success']);
-        $this->assertSame('接收方不能为空', $g2['error']);
-        $g3 = $this->channel->send('sms', '13800138000', '', '');
-        $this->assertFalse($g3['success']);
-        $this->assertSame('内容不能为空', $g3['error']);
-        $this->assertNull($g1['log_id']);
-        $this->assertNull($g2['log_id']);
-        $this->assertNull($g3['log_id']);
-        $this->assertSame(0, (int) Capsule::table(self::LOG_TABLE)->where('channel', 'wechat')->count());
-    }
-
-    public function testMessageIdSequentialIncrementWithinSameSecond(): void
-    {
-        $a = $this->channel->send('sms', '13800138000', '', 'B47T-序号甲');
-        $b = $this->channel->send('sms', '13800138000', '', 'B47T-序号乙');
-        $this->assertTrue($a['success']);
-        $this->assertTrue($b['success']);
-        $this->assertMatchesRegularExpression('/^MOCK\d{14}_\d{4}$/', $a['message_id']);
-        $this->assertMatchesRegularExpression('/^MOCK\d{14}_\d{4}$/', $b['message_id']);
-        // 同一秒内连续成功 → 尾缀序号严格 +1（驱动进程内按秒计数）
-        if (substr($a['message_id'], 4, 14) === substr($b['message_id'], 4, 14)) {
-            $this->assertSame((string) ((int) substr($a['message_id'], -4) + 1), (string) ((int) substr($b['message_id'], -4)));
-        }
-    }
-
-    public function testRetryFailuresPicksOnlyAgedFailureFlipsAndRefreshesCooldown(): void
-    {
-        $flipContent = 'B47T-重试翻转';   // 收件人合法 → 重试成功后转 1
-        $stayContent = 'B47T-重试仍败';   // 9 开头 → 重试仍失败（error 刷新）
-        $freshContent = 'B47T-重试太新';  // 60s 冷却内 → 不挑
-        $okContent = 'B47T-重试成功旧行';  // 成功行 → 永不重试
-        $this->insertLogRow(['to' => '13800138000', 'content' => $flipContent, 'sent_at' => self::secondsAgo(120)]);
-        $this->insertLogRow(['to' => '91234567890', 'content' => $stayContent, 'error' => '旧错误', 'sent_at' => self::secondsAgo(120)]);
-        $this->insertLogRow(['content' => $freshContent, 'sent_at' => date('Y-m-d H:i:s')]);
-        $this->insertLogRow(['content' => $okContent, 'status' => 1, 'message_id' => 'MOCKold', 'sent_at' => self::secondsAgo(3600)]);
-        $retry = $this->channel->retryFailures();
-        $this->assertSame(['attempted' => 2, 'succeeded' => 1, 'failed' => 1, 'error' => ''], $retry);
-        $flip = Capsule::table(self::LOG_TABLE)->where('content', $flipContent)->first();
-        $this->assertSame(1, (int) $flip->status);
-        $this->assertMatchesRegularExpression('/^MOCK\d{14}_\d{4}$/', (string) $flip->message_id);
-        $this->assertSame('', (string) $flip->error);
-        $stay = Capsule::table(self::LOG_TABLE)->where('content', $stayContent)->first();
-        $this->assertSame(2, (int) $stay->status);
-        $this->assertSame('接收方号码非法', (string) $stay->error);
-        $this->assertSame('', (string) $stay->message_id);
-        $this->assertGreaterThanOrEqual(time() - 2, strtotime((string) $stay->sent_at), '失败重试也应刷新 sent_at');
-        $fresh = Capsule::table(self::LOG_TABLE)->where('content', $freshContent)->first();
-        $this->assertSame(2, (int) $fresh->status);
-        $this->assertSame('', (string) $fresh->error);
-        $ok = Capsule::table(self::LOG_TABLE)->where('content', $okContent)->first();
-        $this->assertSame(1, (int) $ok->status);
-        $this->assertSame('MOCKold', (string) $ok->message_id);
-        // 紧接第二次调用：全部候选 sent_at 已被刷新出冷却窗 → attempted=0
-        $again = $this->channel->retryFailures();
-        $this->assertSame(0, $again['attempted']);
-        $this->assertSame(0, $again['succeeded']);
-        $this->assertSame(0, $again['failed']);
-    }
-
-    public function testRetryFailuresChannelFilterLimitAndAscendingId(): void
-    {
-        $c1 = 'B47T-限额翻转';
-        $c2 = 'B47T-限额仍败';
-        $mailC = 'B47T-限额邮件';
-        $this->insertLogRow(['content' => $c1, 'sent_at' => self::secondsAgo(300)]);
-        $this->insertLogRow(['to' => '91234567890', 'content' => $c2, 'sent_at' => self::secondsAgo(300)]);
-        $this->insertLogRow(['channel' => 'mail', 'to' => 'user@example.com', 'content' => $mailC, 'sent_at' => self::secondsAgo(300)]);
-        // channel 过滤：mail 行不参与；计数与 DB 翻转一致
-        $filtered = $this->channel->retryFailures('sms');
-        $this->assertSame(2, $filtered['attempted']);
-        $this->assertSame(1, $filtered['succeeded']);
-        $this->assertSame(1, $filtered['failed']);
-        $this->assertSame(2, (int) Capsule::table(self::LOG_TABLE)->where('content', $mailC)->value('status'));
-        // limit=1 只挑 id 最低的候选（再限额1 翻转），再限额2 原样未触碰
-        $this->insertLogRow(['content' => 'B47T-再限额1', 'sent_at' => self::secondsAgo(300)]);
-        $this->insertLogRow(['to' => '91234567890', 'content' => 'B47T-再限额2', 'sent_at' => self::secondsAgo(300)]);
-        $lim = $this->channel->retryFailures(null, 1);
-        $this->assertSame(1, $lim['attempted']);
-        $this->assertSame(1, $lim['succeeded']);
-        $this->assertSame('', (string) Capsule::table(self::LOG_TABLE)->where('content', 'B47T-再限额2')->value('error'));
-        // 未知 channel 参数 → 直接拒绝不扫库
-        $bad = $this->channel->retryFailures('wechat');
-        $this->assertSame(['attempted' => 0, 'succeeded' => 0, 'failed' => 0, 'error' => '不支持的渠道'], $bad);
-    }
-
-    public function testSendLogsFilterPaginationDescAndWhitelistSemantics(): void
-    {
-        $mail = $this->channel->send('mail', 'b47t@example.com', '', 'B47T-日志邮件');
-        $ok = $this->channel->send('sms', '13800138000', '', 'B47T-日志成功');
-        $fail = $this->channel->send('sms', '91234567890', '', 'B47T-日志失败');
-        $this->assertTrue($mail['success']);
-        $this->assertTrue($ok['success']);
-        $this->assertFalse($fail['success']);
-        $all = $this->channel->sendLogs([], 1, 50);
-        $this->assertSame(3, $all['total']);
-        $this->assertSame($fail['log_id'], $all['list'][0]['id'], '倒序：最新在前');
-        $this->assertSame(2, $all['list'][0]['status']);
-        $this->assertSame('接收方号码非法', $all['list'][0]['error']);
-        $sms = $this->channel->sendLogs(['channel' => 'sms'], 1, 20);
-        $this->assertSame(2, $sms['total']);
-        $this->assertSame('sms', $sms['list'][0]['channel']);
-        $this->assertSame('sms', $sms['list'][1]['channel']);
-        // 非白名单 channel 过滤被忽略（返回全部）；status 字符串入参按整型过滤
-        $wechat = $this->channel->sendLogs(['channel' => 'wechat'], 1, 20);
-        $this->assertSame(3, $wechat['total']);
-        $failOnly = $this->channel->sendLogs(['status' => '2'], 1, 20);
-        $this->assertSame(1, $failOnly['total']);
-        // 分页：page 0 归 1（与 page 1 同首行）；pageSize 0 下限 1；翻页取中行
-        $zero = $this->channel->sendLogs([], 0, 1);
-        $one = $this->channel->sendLogs([], 1, 1);
-        $this->assertSame($one['list'][0]['id'], $zero['list'][0]['id']);
-        $this->assertSame(1, count($this->channel->sendLogs([], 1, 0)['list']));
-        $page2 = $this->channel->sendLogs([], 2, 1);
-        $this->assertSame(3, $page2['total']);
-        $this->assertSame($ok['log_id'], $page2['list'][0]['id']);
     }
 
     public function testDefinitionCreateWhitelistsAndDuplicateRejected(): void

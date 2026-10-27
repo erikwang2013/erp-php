@@ -8803,18 +8803,6 @@ parameters:
 			path: app/service/manufacturing/WorkReportService.php
 
 		-
-			message: '#^Cannot call method save\(\) on stdClass\.$#'
-			identifier: method.nonObject
-			count: 1
-			path: app/service/notification/ChannelService.php
-
-		-
-			message: '#^Parameter \#1 \$callback of method Illuminate\\Support\\Collection\<int,stdClass\>\:\:map\(\) expects callable\(stdClass, int\)\: array, Closure\(app\\model\\NotificationChannelLog\)\: array given\.$#'
-			identifier: argument.type
-			count: 1
-			path: app/service/notification/ChannelService.php
-
-		-
 			message: '#^Access to an undefined property app\\model\\Notification\:\:\$content\.$#'
 			identifier: property.notFound
 			count: 1

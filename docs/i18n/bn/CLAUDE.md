@@ -28,7 +28,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟣 **P3** এক্সপেরিয়েন্স এনহ্যান্সমেন্ট | 2-3 সপ্তাহ | BI কানবান + EAM + DMS | ✅ |
 (মাল্টি-টেন্যান্সি B5 আগেই P2-এ ডেলিভার হয়েছে: TenantScope রিকোয়েস্ট কনটেক্সট + erp_tenant, আইসোলেশন মিডলওয়্যার seam রেজিস্টার্ড নয়)
 
-**টেস্ট**: 1008<!-- stats:tests=1008 --> tests, 4599<!-- stats:assertions=4599 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**টেস্ট**: 991<!-- stats:tests=991 --> tests, 4445<!-- stats:assertions=4445 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## ফিচার তালিকা
 
