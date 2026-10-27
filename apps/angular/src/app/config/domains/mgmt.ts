@@ -384,17 +384,6 @@ export const mgmtMenus: MenuGroup[] = [
     ],
   },
   {
-    label: 'BI 看板',
-    icon: 'pie',
-    moduleKey: 'bi',
-    children: [
-      // erp_bi_dashboard.status 无 DDL 注释，码表在控制器自己身上：DashboardController.php:37 apidoc「状态,0=停用,1=启用」
-      { label: '看板布局', path: '/bi/dashboard', cfg: res('BI 看板', '/admin/v1/bi/dashboard', { moduleKey: 'bi', dicts: { status: { 0: '停用', 1: '启用' } }, fields: [{ key: 'name', label: '看板名称', required: true }] }) },
-      { label: '图表组件', path: '/bi/widget', cfg: res('图表组件', '/admin/v1/bi/widget', { moduleKey: 'bi', fields: [{ key: 'dashboard_id', label: '所属看板', required: true, source: { endpoint: '/admin/v1/bi/dashboard', labelKey: 'name' } }, { key: 'name', label: '组件名称', required: true }, { key: 'type', label: '组件类型', required: true }] }) },
-      { label: '数据集', path: '/bi/dataset', cfg: res('数据集', '/admin/v1/bi/dataset', { moduleKey: 'bi', fields: [{ key: 'name', label: '数据集名称', required: true }, { key: 'template_id', label: '报表模板', required: true, source: { endpoint: '/admin/v1/report', labelKey: 'name' } }] }) },
-    ],
-  },
-  {
     label: '设备管理',
     icon: 'settings',
     moduleKey: 'eam',
@@ -414,18 +403,6 @@ export const mgmtMenus: MenuGroup[] = [
       // erp_eam_spare_part.status 同 /eam/maintenance（无注释、同族同惯例）
       { label: '备件管理', path: '/eam/spare-part', cfg: res('备件管理', '/admin/v1/eam/spare-part', { moduleKey: 'eam', dicts: { status: { 0: '禁用', 1: '启用' } }, fields: [{ key: 'code', label: '备件编码', required: true }, { key: 'name', label: '备件名称', required: true }] }) },
       { label: '点检任务', path: '/eam/inspection', cfg: res('点检任务', '/admin/v1/eam/inspection', { moduleKey: 'eam', canDelete: false, dicts: { status: INSPECTION_STATUS }, fields: [{ key: 'equipment_id', label: '设备', required: true, source: { endpoint: '/admin/v1/eam/equipment', labelKey: 'name' } }, { key: 'task_date', label: '点检日期', required: true, type: 'date' }, { key: 'assignee_id', label: '负责人', source: { endpoint: '/admin/v1/user', labelKey: 'real_name' } }, { key: 'remark', label: '备注', type: 'textarea', full: true }], actions: [{ label: '取消点检', icon: 'close', path: (r) => `/admin/v1/eam/inspection/${String(r.id)}/cancel`, message: '已取消' }] }) },
-    ],
-  },
-  {
-    label: '文档管理',
-    icon: 'file',
-    moduleKey: 'dms',
-    children: [
-      // 码表取控制器：apidoc「状态,0=草稿,1=发布」+ `nullable|integer|between:0,1` 是写入路径，库里的行是 '0'/'1'。
-      // 列是 `VARCHAR(20) DEFAULT 'draft'`（install.sql:4314，无注释），唯一的字符串值就是 DDL 默认值 'draft' —— 补 draft 键兜住它
-      // （mapText 取 `dict[String(v)]`，数值字典在字符串列上照样命中 '0'/'1'，不是「永不命中」；Flutter 侧同为 '0'|'draft'）
-      // 'draft' 带引号不是笔误：G2 只比对字典字面量里的引号串集合，裸键的增删两端都看不见（负控实测）
-      { label: '文档列表', path: '/dms/document', cfg: res('文档管理', '/admin/v1/dms/document', { moduleKey: 'dms', dicts: { status: { 0: '草稿', 1: '发布', 'draft': '草稿' } }, fields: [{ key: 'title', label: '文档标题', required: true }, { key: 'category', label: '文档分类', required: true }, { key: 'content', label: '文档内容', type: 'textarea', full: true }] }) },
     ],
   },
   {

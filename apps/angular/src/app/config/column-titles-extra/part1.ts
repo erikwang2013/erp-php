@@ -51,7 +51,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   audited_by: '审核人ID', // install.sql 列注释
   audited_name: '审核人', // 非 DB 列：finance/invoice 的 audited_by 名称兄弟键
   auditor_id: '审核人ID', // install.sql 列注释
-  author: '作者', // dms_document 无注释
+  author: '作者',
   available_hours: '可用工时', // install.sql 列注释
   avatar: '头像URL', // install.sql 列注释
   awarded: '中标标记', // install.sql 列注释
@@ -84,8 +84,8 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   carrier_id: '承运商ID', // install.sql 列注释
   cash_journal_id: '日记账行ID', // install.sql 列注释
   cashed_at: '兑付/解付时间', // install.sql 列注释
-  change_note: '变更说明', // dms_document_version 无注释
-  changed_by: '变更人', // dms_document_version 无注释
+  change_note: '变更说明',
+  changed_by: '变更人',
   channel_order_no: '渠道订单号', // install.sql 列注释
   channel_store: '渠道店铺名称', // install.sql 列注释
   channels: '发送渠道', // install.sql 列注释
@@ -167,7 +167,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   disposition: '处置方式', // install.sql 列注释
   district: '区/县', // install.sql 列注释
   dock_location_id: '收货月台库位ID', // install.sql 列注释
-  document_id: '文档ID', // dms_document_version 无注释
+  document_id: '文档ID',
   early_grace: '早退宽限分钟数', // install.sql 列注释
   early_minutes: '早退分钟数', // install.sql 列注释
   electronic_no: '数电票号码', // install.sql 列注释
@@ -270,7 +270,7 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   last_status: '最近一次投递结果', // install.sql 列注释
   late_grace: '迟到宽限分钟数', // install.sql 列注释
   late_minutes: '迟到分钟数', // install.sql 列注释
-  layout: '布局', // bi_dashboard 无注释
+  layout: '布局',
   ledger_id: '账套ID', // install.sql 列注释
   length_cm: '长', // install.sql 列注释
   line_total: '含税金额', // install.sql 列注释

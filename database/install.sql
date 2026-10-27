@@ -30,7 +30,6 @@
 --   000026_seed_p3_permissions.sql    — P3权限种子
 --   000027_eam_spare_part.sql         — 设备备件(EAM)
 --   000028_seed_qms_permissions.sql   — QMS权限种子
---   000029_dms_category.sql           — 文档管理分类表
 --   000030_seed_service_permissions.sql — 财务报表/TMS运费/质检服务权限种子
 --
 -- 执行方式:
@@ -4061,34 +4060,6 @@ CREATE TABLE IF NOT EXISTS `erp_quality_nonconformity` (
 -- P3 Experience Enhancement Tables
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
-CREATE TABLE IF NOT EXISTS `erp_bi_dashboard` (
-    `id` BIGINT UNSIGNED NOT NULL,
-    `name` VARCHAR(200) NOT NULL DEFAULT '',
-    `layout` JSON DEFAULT NULL,
-    `user_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
-    `status` TINYINT NOT NULL DEFAULT 1,
-    `created_at` DATETIME NULL DEFAULT NULL,
-    `updated_at` DATETIME NULL DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `erp_bi_widget` (
-    `id` BIGINT UNSIGNED NOT NULL,
-    `dashboard_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
-    `name` VARCHAR(200) NOT NULL DEFAULT '',
-    `type` VARCHAR(50) NOT NULL DEFAULT 'table',
-    `dataset_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
-    `config` JSON DEFAULT NULL,
-    `position_x` INT NOT NULL DEFAULT 0,
-    `position_y` INT NOT NULL DEFAULT 0,
-    `width` INT NOT NULL DEFAULT 4,
-    `height` INT NOT NULL DEFAULT 3,
-    `created_at` DATETIME NULL DEFAULT NULL,
-    `updated_at` DATETIME NULL DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    INDEX `idx_dashboard_id` (`dashboard_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 CREATE TABLE IF NOT EXISTS `erp_eam_equipment` (
     `id` BIGINT UNSIGNED NOT NULL,
     `code` VARCHAR(100) NOT NULL DEFAULT '',
@@ -4138,34 +4109,6 @@ CREATE TABLE IF NOT EXISTS `erp_eam_repair_order` (
     INDEX `idx_equipment_id` (`equipment_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE IF NOT EXISTS `erp_dms_document` (
-    `id` BIGINT UNSIGNED NOT NULL,
-    `code` VARCHAR(100) NOT NULL DEFAULT '',
-    `title` VARCHAR(500) NOT NULL DEFAULT '',
-    `category` VARCHAR(100) NOT NULL DEFAULT '',
-    `version` INT NOT NULL DEFAULT 1,
-    `author` VARCHAR(100) NOT NULL DEFAULT '',
-    `status` VARCHAR(20) NOT NULL DEFAULT 'draft',
-    `content` LONGTEXT DEFAULT NULL,
-    `tags` VARCHAR(500) NOT NULL DEFAULT '',
-    `created_at` DATETIME NULL DEFAULT NULL,
-    `updated_at` DATETIME NULL DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    INDEX `idx_code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE IF NOT EXISTS `erp_dms_document_version` (
-    `id` BIGINT UNSIGNED NOT NULL,
-    `document_id` BIGINT UNSIGNED NOT NULL DEFAULT 0,
-    `version` INT NOT NULL DEFAULT 1,
-    `content` LONGTEXT DEFAULT NULL,
-    `changed_by` VARCHAR(100) NOT NULL DEFAULT '',
-    `change_note` VARCHAR(500) NOT NULL DEFAULT '',
-    `created_at` DATETIME NULL DEFAULT NULL,
-    `updated_at` DATETIME NULL DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    INDEX `idx_document_id` (`document_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 -- ============================================================
 -- P3 体验增强模块权限种子数据
 -- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
@@ -4183,27 +4126,13 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000207, 0, '文档管理(DMS)', 'dms', 1, 'folder', '/admin/dms', 19, NOW(), NOW());
 -- 子域目录 (type=1) — 挂载域菜单 id=31000000000000207 之下，叶子重挂各目录
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000700, 31000000000000205, 'BI看板', 'bi.dashboard', 1, '', '', 1, NOW(), NOW()),
-(31000000000000710, 31000000000000205, '看板组件', 'bi.widget', 1, '', '', 2, NOW(), NOW());
-INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000724, 31000000000000206, '设备台账', 'eam.equipment', 1, '', '', 1, NOW(), NOW()),
 (31000000000000725, 31000000000000206, '保养计划', 'eam.maintenance', 1, '', '', 2, NOW(), NOW()),
 (31000000000000726, 31000000000000206, '维修工单', 'eam.repair', 1, '', '', 3, NOW(), NOW());
-INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000730, 31000000000000207, '文档', 'dms.document', 1, '', '', 1, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — BI 看板
 -- ============================================================
-INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000701, 31000000000000700, 'BI看板-查看',   'get.admin/bi/dashboard', 3, '', '', 1, NOW(), NOW()),
-(31000000000000702, 31000000000000700, 'BI看板-创建',   'post.admin/bi/dashboard', 3, '', '', 2, NOW(), NOW()),
-(31000000000000703, 31000000000000700, 'BI看板-更新',   'put.admin/bi/dashboard', 3, '', '', 3, NOW(), NOW()),
-(31000000000000704, 31000000000000700, 'BI看板-删除',   'delete.admin/bi/dashboard', 3, '', '', 4, NOW(), NOW()),
-(31000000000000705, 31000000000000710, '看板组件-查看', 'get.admin/bi/widget', 3, '', '', 5, NOW(), NOW()),
-(31000000000000706, 31000000000000710, '看板组件-创建', 'post.admin/bi/widget', 3, '', '', 6, NOW(), NOW()),
-(31000000000000707, 31000000000000710, '看板组件-更新', 'put.admin/bi/widget', 3, '', '', 7, NOW(), NOW()),
-(31000000000000708, 31000000000000710, '看板组件-删除', 'delete.admin/bi/widget', 3, '', '', 8, NOW(), NOW());
 
 -- ============================================================
 -- API 权限 (type=3) — 设备管理 (EAM)
@@ -4225,12 +4154,6 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 -- ============================================================
 -- API 权限 (type=3) — 文档管理 (DMS)
 -- ============================================================
-INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000731, 31000000000000730, '文档-查看',   'get.admin/dms/document', 3, '', '', 1, NOW(), NOW()),
-(31000000000000732, 31000000000000730, '文档-创建',   'post.admin/dms/document', 3, '', '', 2, NOW(), NOW()),
-(31000000000000733, 31000000000000730, '文档-更新',   'put.admin/dms/document', 3, '', '', 3, NOW(), NOW()),
-(31000000000000734, 31000000000000730, '文档-删除',   'delete.admin/dms/document', 3, '', '', 4, NOW(), NOW()),
-(31000000000000735, 31000000000000207, '文档分类-查看', 'get.admin/dms/categories', 3, '', '', 5, NOW(), NOW());
 
 -- ============================================================
 -- 超级管理员角色 (ID=10000000000000001) 关联所有新增权限
@@ -4351,27 +4274,6 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000642, 31000000000000649, '不合格品-创建',   'post.admin/quality/nonconformity', 3, '', '', 30, NOW(), NOW()),
 (31000000000000643, 31000000000000649, '不合格品-更新',   'put.admin/quality/nonconformity', 3, '', '', 31, NOW(), NOW()),
 (31000000000000644, 31000000000000649, '不合格品-删除',   'delete.admin/quality/nonconformity', 3, '', '', 32, NOW(), NOW());
-
--- DMS Document Category Table
--- Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-
-CREATE TABLE IF NOT EXISTS `erp_dms_category` (
-    `id` BIGINT UNSIGNED NOT NULL,
-    `name` VARCHAR(100) NOT NULL DEFAULT '',
-    `sort` INT NOT NULL DEFAULT 0,
-    `status` TINYINT NOT NULL DEFAULT 1,
-    `created_at` DATETIME NULL DEFAULT NULL,
-    `updated_at` DATETIME NULL DEFAULT NULL,
-    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-INSERT INTO `erp_dms_category` (`id`, `name`, `sort`, `status`) VALUES
-(1, '制度规范', 1, 1),
-(2, '流程文档', 2, 1),
-(3, '技术文档', 3, 1),
-(4, '合同协议', 4, 1),
-(5, '培训材料', 5, 1),
-(6, '其他', 99, 1);
 
 -- ============================================================
 -- P0 寻源采购：询比价单 → 供应商报价 → 比价 → 中标 → 转采购订单 + 供应商准入评分
@@ -4883,11 +4785,6 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000001135, 31000000000000764, '报表-更新',                 'put.admin/report',                            3, '', '', 12, NOW(), NOW()),
 (31000000000001136, 31000000000000764, '报表订阅-更新',             'put.admin/report/schedule',                   3, '', '', 13, NOW(), NOW());
 
-INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
-(31000000000000823, 31000000000000205, '数据集-删除',               'delete.admin/bi/dataset',                     3, '', '', 3, NOW(), NOW()),
-(31000000000000889, 31000000000000205, '数据集-查看',               'get.admin/bi/dataset',                        3, '', '', 4, NOW(), NOW()),
-(31000000000000976, 31000000000000205, '数据集-创建',               'post.admin/bi/dataset',                       3, '', '', 5, NOW(), NOW()),
-(31000000000001083, 31000000000000205, '数据集-更新',               'put.admin/bi/dataset',                        3, '', '', 6, NOW(), NOW());
 
 INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `icon`, `path`, `sort`, `created_at`, `updated_at`) VALUES
 (31000000000000828, 31000000000000206, '备件-删除',                 'delete.admin/eam/spare-part',                 3, '', '', 4, NOW(), NOW()),

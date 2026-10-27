@@ -3,7 +3,7 @@
 // 路由可达性守卫：main.dart 的 _pageBuilders 里每个已实现页面，必须能在
 // getPages 里真正注册（= 出现在 menu_config.dart 的菜单路由，或 main.dart
 // 的显式 fadeUpPage 路由），否则页面写好了却在应用内点不到。
-// 该缺陷真实发生过：/bi/dataset 与 /eam/spare-part 曾只有 builder、无路由。
+// 该缺陷真实发生过：/eam/spare-part 曾只有 builder、无路由。
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';

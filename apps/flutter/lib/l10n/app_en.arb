@@ -164,7 +164,6 @@
   "omsFulfillmentTitle": "Fulfillment",
   "omsOrderTitle": "OMS Orders",
   "omsRmaTitle": "Returns (RMA)",
-
   "omsShippingMethod": "Shipping Method",
   "omsShippingFee": "Shipping Fee",
   "omsShippingFeeHint": "e.g. 10.00",
@@ -200,7 +199,6 @@
   "hrPositionTitle": "Positions",
   "hrSalaryItemTitle": "Payroll Items",
   "hrSalaryTitle": "Payroll",
-
   "hrRemark": "Description",
   "hrDate": "Date",
   "hrYes": "Yes",
@@ -897,64 +895,6 @@
   "qualityDispositionAccept": "Accept",
   "qualityStatusPending": "Pending",
   "qualityStatusCompleted": "Completed",
-  "biDashboardName": "Dashboard Name",
-  "biLayout": "Layout Config",
-  "biUserId": "User ID",
-  "biChartManage": "Manage Charts",
-  "biChartManageTitle": "Manage Charts — {name}",
-  "@biChartManageTitle": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "biChartAdd": "Add Chart",
-  "biChartEdit": "Edit Chart",
-  "biChartName": "Chart Name",
-  "biChartType": "Chart Type",
-  "biChartTypeLabel": "Type: {type}",
-  "biChartTypeBar": "Bar",
-  "biChartTypeKpi": "Metric",
-  "biChartTypeLine": "Line",
-  "biChartTypePie": "Pie",
-  "biChartTypeTable": "Table",
-  "@biChartTypeLabel": {
-    "placeholders": {
-      "type": {
-        "type": "String"
-      }
-    }
-  },
-  "biChartConfig": "Config JSON",
-  "biChartDeleteContent": "Are you sure you want to delete chart \"{name}\"?",
-  "@biChartDeleteContent": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
-  "biChartCount": "{count} total",
-  "@biChartCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "biChartEmpty": "No charts yet; click \"Add Chart\" to create one",
-  "biDatasetId": "Dataset ID",
-  "biPositionX": "X Position",
-  "biPositionY": "Y Position",
-  "biWidth": "Width",
-  "biHeight": "Height",
-  "biDatasetName": "Dataset Name",
-  "biTemplateId": "Template ID",
-  "biQuerySql": "Query SQL",
-  "biRowCount": "Rows",
-  "biGeneratedAt": "Generated At",
-  "biParams": "Params (JSON)",
   "workflowStatusApproving": "Approving",
   "workflowStatusApproved": "Approved",
   "workflowStatusRejected": "Rejected",
@@ -1312,15 +1252,10 @@
   "productCategoryTitle": "Categories",
   "productBrandTitle": "Brands",
   "productSpecTitle": "Specs",
-  "biDashboardTitle": "Dashboard",
-  "biDatasetTitle": "Datasets",
   "reportListTitle": "Reports",
   "reportScheduleTitle": "Schedules",
   "workflowListTitle": "Workflows",
   "workflowMyApprovalTitle": "My Approvals",
-  "dmsDocumentTitle": "Document List",
-  "dmsDocStatusDraft": "Draft",
-  "dmsDocStatusPublished": "Published",
   "notificationCenterTitle": "Notifications",
   "detailAllocateEmpty": "Add at least one allocation line",
   "detailAllocateProductId": "Product ID (numeric)",
@@ -1332,7 +1267,9 @@
   "detailConfirmOp": "Confirm “{action}”?",
   "@detailConfirmOp": {
     "placeholders": {
-      "action": {"type": "String"}
+      "action": {
+        "type": "String"
+      }
     }
   },
   "detailCreatedAt": "Created At",

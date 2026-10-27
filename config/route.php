@@ -549,13 +549,6 @@ Route::group('/admin/v1', function () {
     Route::post('/quality/inspection/pass-rate', [app\controller\quality\IncomingCheckController::class, 'passRate']);
 
     // ============================================================
-    // BI 数据看板
-    // ============================================================
-    Route::resource('/bi/dashboard', app\controller\bi\DashboardController::class);
-    Route::resource('/bi/widget', app\controller\bi\WidgetController::class);
-    Route::resource('/bi/dataset', app\controller\bi\DatasetController::class);
-
-    // ============================================================
     // 设备管理
     // ============================================================
     Route::resource('/eam/equipment', app\controller\eam\EquipmentController::class);
@@ -567,13 +560,6 @@ Route::group('/admin/v1', function () {
     Route::post('/eam/inspection/scan-execute', [app\controller\eam\EamInspectionController::class, 'scanExecute']);
     Route::post('/eam/inspection/{id}/cancel', [app\controller\eam\EamInspectionController::class, 'cancel']);
     Route::resource('/eam/inspection', app\controller\eam\EamInspectionController::class);
-
-    // ============================================================
-    // 文档管理
-    // ============================================================
-    Route::resource('/dms/document', app\controller\dms\DocumentController::class);
-    Route::get('/dms/categories', [app\controller\dms\CategoryController::class, 'index']);
-    Route::get('/dms/document/{id}/versions', [app\controller\dms\DocumentController::class, 'versions']);
 
     // P0 openapi：开放平台应用与 Webhook 订阅管理（静态动作先于 Route::resource 注册，避免 FastRoute 冲突）
     Route::post('/openapi/app/{id}/reset-secret', [app\admin\controller\OpenApiController::class, 'resetSecret']);

@@ -78,7 +78,7 @@ export const COLUMN_TITLES_PART2: Record<string, string> = {
   success: '是否成功', // install.sql 列注释
   supplier_range: '供应商范围', // install.sql 列注释
   symbol: '货币符号', // install.sql 列注释
-  tags: '标签', // dms_document 无注释
+  tags: '标签',
   target_amount: '目标金额', // 非 DB 列：比价矩阵行金额（target_price × quantity）
   target_audience: '目标受众', // install.sql 列注释
   target_center_id: '目标成本中心ID', // install.sql 列注释
@@ -115,7 +115,7 @@ export const COLUMN_TITLES_PART2: Record<string, string> = {
   valid_until: '有效期至', // 裁决：众数
   verify_at: '验真时间', // install.sql 列注释
   verify_status: '验真状态', // install.sql 列注释
-  version: '版本', // dms_document / dms_document_version 无注释
+  version: '版本',
   visible: '是否可见', // install.sql 列注释
   void_reason: '作废原因', // install.sql 列注释
   voucher_count: '凭证数', // 非 DB 列：现金流量表 report_data.voucher_count

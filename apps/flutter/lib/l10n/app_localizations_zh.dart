@@ -2253,104 +2253,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get qualityStatusCompleted => '已完成';
 
   @override
-  String get biDashboardName => '看板名称';
-
-  @override
-  String get biLayout => '布局配置';
-
-  @override
-  String get biUserId => '用户ID';
-
-  @override
-  String get biChartManage => '图表管理';
-
-  @override
-  String biChartManageTitle(String name) {
-    return '图表管理 — $name';
-  }
-
-  @override
-  String get biChartAdd => '新增图表';
-
-  @override
-  String get biChartEdit => '编辑图表';
-
-  @override
-  String get biChartName => '图表名称';
-
-  @override
-  String get biChartType => '图表类型';
-
-  @override
-  String biChartTypeLabel(String type) {
-    return '类型: $type';
-  }
-
-  @override
-  String get biChartTypeBar => '柱状';
-
-  @override
-  String get biChartTypeKpi => '指标';
-
-  @override
-  String get biChartTypeLine => '折线';
-
-  @override
-  String get biChartTypePie => '饼图';
-
-  @override
-  String get biChartTypeTable => '表格';
-
-  @override
-  String get biChartConfig => '配置JSON';
-
-  @override
-  String biChartDeleteContent(String name) {
-    return '确定要删除图表「$name」吗？';
-  }
-
-  @override
-  String biChartCount(int count) {
-    return '共 $count 个';
-  }
-
-  @override
-  String get biChartEmpty => '暂无图表，点击「新增图表」创建';
-
-  @override
-  String get biDatasetId => '数据集ID';
-
-  @override
-  String get biPositionX => 'X坐标';
-
-  @override
-  String get biPositionY => 'Y坐标';
-
-  @override
-  String get biWidth => '宽度';
-
-  @override
-  String get biHeight => '高度';
-
-  @override
-  String get biDatasetName => '数据集名称';
-
-  @override
-  String get biTemplateId => '模板ID';
-
-  @override
-  String get biQuerySql => '查询SQL';
-
-  @override
-  String get biRowCount => '行数';
-
-  @override
-  String get biGeneratedAt => '生成时间';
-
-  @override
-  String get biParams => '参数(JSON)';
-
-  @override
   String get workflowStatusApproving => '审批中';
 
   @override
@@ -2951,12 +2853,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get productSpecTitle => '商品规格';
 
   @override
-  String get biDashboardTitle => '仪表盘';
-
-  @override
-  String get biDatasetTitle => '数据集';
-
-  @override
   String get reportListTitle => '报表管理';
 
   @override
@@ -2967,15 +2863,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get workflowMyApprovalTitle => '我的审批';
-
-  @override
-  String get dmsDocumentTitle => '文档列表';
-
-  @override
-  String get dmsDocStatusDraft => '草稿';
-
-  @override
-  String get dmsDocStatusPublished => '发布';
 
   @override
   String get notificationCenterTitle => '通知中心';

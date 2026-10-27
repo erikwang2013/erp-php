@@ -188,8 +188,6 @@ $MATRIX = [
     ['质量管理', '/admin/v1', ['/quality/standard', '/quality/iqc', '/quality/ipqc', '/quality/oqc',
         '/quality/nonconformity'], []],
     ['设备管理', '/admin/v1', ['/eam/equipment', '/eam/maintenance', '/eam/repair', '/eam/spare-part'], []],
-    ['文档管理', '/admin/v1', ['/dms/document'], ['/dms/categories']],
-    ['BI 数据看板', '/admin/v1', ['/bi/dashboard', '/bi/widget', '/bi/dataset'], []],
 ];
 
 // ============================================================

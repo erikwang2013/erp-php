@@ -4,7 +4,7 @@
 
 ## Übersicht
 
-Das Open-ERP-System (open-erp) deckt 23 Geschäftsdomänen <!-- stats:modules=21 --> und 227 Datentabellen <!-- stats:tables=216 --> ab und bietet ein Full-Stack-Unternehmensverwaltungssystem von Einkauf/Verkauf/Lager bis Produktion und Fertigung, von Finanzbuchhaltung bis Personalwesen. Internationalisierung: 13 Sprachen unterstützt (中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), automatischer Sprachwechsel über den Accept-Language-Request-Header.
+Das Open-ERP-System (open-erp) deckt 23 Geschäftsdomänen <!-- stats:modules=19 --> und 227 Datentabellen <!-- stats:tables=211 --> ab und bietet ein Full-Stack-Unternehmensverwaltungssystem von Einkauf/Verkauf/Lager bis Produktion und Fertigung, von Finanzbuchhaltung bis Personalwesen. Internationalisierung: 13 Sprachen unterstützt (中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia), automatischer Sprachwechsel über den Accept-Language-Request-Header.
 
 > API-Dokumentation: Nach dem Start des Dienstes `http://localhost:8788/apidoc` aufrufen, um die interaktive Schnittstellendokumentation anzusehen (automatisch von erikwang2013/apidoc-php erzeugt)
 
@@ -556,18 +556,18 @@ Arbeitszeitbuchung → Zusammenführung auf die Aufgabe → Aggregation zu Proje
 
 | Dimension | Anzahl |
 |------|------|
-| Geschäftsmodule | 21 <!-- stats:modules=21 --> |
-| Datenbanktabellen | 216 <!-- stats:tables=216 --> |
-| Datenmodelle | 213 <!-- stats:models=213 --> |
-| Controller | 153 <!-- stats:controllers=153 --> |
+| Geschäftsmodule | 19 <!-- stats:modules=19 --> |
+| Datenbanktabellen | 211 <!-- stats:tables=211 --> |
+| Datenmodelle | 208 <!-- stats:models=208 --> |
+| Controller | 148 <!-- stats:controllers=148 --> |
 | Business-Services | 54 <!-- stats:services=54 --> |
 | API-Routen | 837 (dynamisch erzeugt, siehe `scripts/check-endpoints.php`, nimmt nicht an der doc-stats-Prüfung teil) |
 | Middleware | 10 <!-- stats:middleware=10 --> |
-| PHP-Quelldateien | 454 <!-- stats:php_files=454 --> |
+| PHP-Quelldateien | 444 <!-- stats:php_files=444 --> |
 | Datenbank-Installationsskript | Einzeldatei `database/install.sql` (227 Tabellen, alle Migrationen bereits integriert) |
 | Frontend-Seiten (Flutter) | 119 (Stand 2026-09-22, rekursive Dateizählung; nicht in der doc-stats-Prüfung enthalten) |
 | Frontend-Seiten (HarmonyOS) | 52 (Stand 2026-09-22, rekursive Dateizählung; nicht in der doc-stats-Prüfung enthalten) |
-| Unit-Tests | 104<!-- stats:test_files=104 --> Testdateien  / 955<!-- stats:tests=955 --> Testfälle  / 4273<!-- stats:assertions=4273 --> Assertions  (statische Zählung: Zahl der Testmethoden + Zahl der Assertion-Aufrufstellen, unabhängig von der Laufzeitumgebung) |
+| Unit-Tests | 102<!-- stats:test_files=102 --> Testdateien  / 933<!-- stats:tests=933 --> Testfälle  / 4178<!-- stats:assertions=4178 --> Assertions  (statische Zählung: Zahl der Testmethoden + Zahl der Assertion-Aufrufstellen, unabhängig von der Laufzeitumgebung) |
 
 > Die obigen Zahlen werden real von `bash scripts/doc-stats.sh` gemessen; mit `<!-- stats:key=value -->` markierte Einträge werden von CI
 > (docs-Job in `.github/workflows/ci.yml`) automatisch auf Übereinstimmung mit den Code-Fakten geprüft — Abweichungen werden rot.

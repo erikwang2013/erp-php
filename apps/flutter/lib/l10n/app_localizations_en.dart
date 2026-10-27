@@ -2277,104 +2277,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qualityStatusCompleted => 'Completed';
 
   @override
-  String get biDashboardName => 'Dashboard Name';
-
-  @override
-  String get biLayout => 'Layout Config';
-
-  @override
-  String get biUserId => 'User ID';
-
-  @override
-  String get biChartManage => 'Manage Charts';
-
-  @override
-  String biChartManageTitle(String name) {
-    return 'Manage Charts — $name';
-  }
-
-  @override
-  String get biChartAdd => 'Add Chart';
-
-  @override
-  String get biChartEdit => 'Edit Chart';
-
-  @override
-  String get biChartName => 'Chart Name';
-
-  @override
-  String get biChartType => 'Chart Type';
-
-  @override
-  String biChartTypeLabel(String type) {
-    return 'Type: $type';
-  }
-
-  @override
-  String get biChartTypeBar => 'Bar';
-
-  @override
-  String get biChartTypeKpi => 'Metric';
-
-  @override
-  String get biChartTypeLine => 'Line';
-
-  @override
-  String get biChartTypePie => 'Pie';
-
-  @override
-  String get biChartTypeTable => 'Table';
-
-  @override
-  String get biChartConfig => 'Config JSON';
-
-  @override
-  String biChartDeleteContent(String name) {
-    return 'Are you sure you want to delete chart \"$name\"?';
-  }
-
-  @override
-  String biChartCount(int count) {
-    return '$count total';
-  }
-
-  @override
-  String get biChartEmpty => 'No charts yet; click \"Add Chart\" to create one';
-
-  @override
-  String get biDatasetId => 'Dataset ID';
-
-  @override
-  String get biPositionX => 'X Position';
-
-  @override
-  String get biPositionY => 'Y Position';
-
-  @override
-  String get biWidth => 'Width';
-
-  @override
-  String get biHeight => 'Height';
-
-  @override
-  String get biDatasetName => 'Dataset Name';
-
-  @override
-  String get biTemplateId => 'Template ID';
-
-  @override
-  String get biQuerySql => 'Query SQL';
-
-  @override
-  String get biRowCount => 'Rows';
-
-  @override
-  String get biGeneratedAt => 'Generated At';
-
-  @override
-  String get biParams => 'Params (JSON)';
-
-  @override
   String get workflowStatusApproving => 'Approving';
 
   @override
@@ -2975,12 +2877,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get productSpecTitle => 'Specs';
 
   @override
-  String get biDashboardTitle => 'Dashboard';
-
-  @override
-  String get biDatasetTitle => 'Datasets';
-
-  @override
   String get reportListTitle => 'Reports';
 
   @override
@@ -2991,15 +2887,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workflowMyApprovalTitle => 'My Approvals';
-
-  @override
-  String get dmsDocumentTitle => 'Document List';
-
-  @override
-  String get dmsDocStatusDraft => 'Draft';
-
-  @override
-  String get dmsDocStatusPublished => 'Published';
 
   @override
   String get notificationCenterTitle => 'Notifications';

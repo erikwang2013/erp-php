@@ -912,15 +912,13 @@ sequenceDiagram
 | 生产制造 | controller/manufacturing/ (13个) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 21 |
 | 自定义报表 | controller/report/ (2个) | - ⚠控制器直查模型，已知技术债 | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
 | EAM 设备管理 | controller/eam/ (5个) | - ⚠控制器直查模型，已知技术债 | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 6 |
-| DMS 文档管理 | controller/dms/ (2个) | - ⚠控制器直查模型，已知技术债 | DmsCategory, DmsDocument, DmsDocumentVersion | 3 |
-| BI 看板 | controller/bi/ (3个) | - ⚠控制器直查模型，已知技术债 | BiDashboard, BiWidget | 2 |
 
 > 本表为早期模块映射（系统管理 + 15 个业务域）；后续新增的 oms / wms / tms / quality / open / platform / print / retail 8 个域未列入，
 > 全量清单见 `docs/CLAUDE.md` 项目结构树（`app/controller/` 共 23 个模块目录 / 139 个控制器，含顶层 Install、Index）。
 >
 > `表数` 口径（2026-09-15 实测）：取 `database/install.sql` 的 227 张表，按表名前缀归属到唯一模块 —— 系统管理 `admin_*`+`system_config`+`operation_log`；
 > 商品管理 `product*`/`category`/`brand`/`warehouse`/`location`/`supplier`/`customer*`；采购管理 `purchase_*`+`supplier_assessment`；库存管理 `inventory*`/`transfer*`/`check_*`/`cost_record`；
-> 其余模块同名表前缀（`sales_*`→销售、`finance_*`→财务、`crm_*`→CRM、`approval_*`→审批、`notification*`→通知、`project*`→项目、`hr_*`→人力、`mfg_*`→生产、`report_*`→报表、`eam_*`→EAM、`dms_*`→DMS、`bi_*`→BI）。
+> 其余模块同名表前缀（`sales_*`→销售、`finance_*`→财务、`crm_*`→CRM、`approval_*`→审批、`notification*`→通知、`project*`→项目、`hr_*`→人力、`mfg_*`→生产、`report_*`→报表、`eam_*`→EAM）。
 > 一表只归一列；后期新增域与共享表共 47 张（`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`）不计入本表任何一行。
 > 重算：``grep -o 'CREATE TABLE IF NOT EXISTS `erp_[a-z_]*`' database/install.sql | sed 's/.*`erp_\([a-z_]*\)`/\1/' | cut -d_ -f1 | sort | uniq -c | sort -rn``
 
@@ -1010,7 +1008,7 @@ P0(3-4周) → P1(4-6周) → P2(1-2周) → P3(2-3周) = 总计约13周
 | **P0** | 前端生态 | Flutter Web 全模块管理面板（14 模块 40+ 页）、通用组件库、HarmonyOS 对齐 |
 | **P1** | 业务深度 | 财务复式记账引擎、薪资计算引擎、MRP 引擎、质量管理模块、实时通知(WebSocket) |
 | **P2** | 运维可靠性 | 数据库迁移回滚、自动备份增强、OpenTelemetry 追踪、RabbitMQ 队列驱动 |
-| **P3** | 体验增强 | BI 可拖拽看板、设备管理(EAM)、多租户隔离、文档管理(DMS) |
+| **P3** | 体验增强 | 设备管理(EAM)、多租户隔离 |
 
 ### 21.3 中间件链演进
 
@@ -1046,7 +1044,7 @@ P3 后:  Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrad
 |------|----------|----------|
 | P0 | 0 | 纯前端，无表变更 |
 | P1 | 14 | 财务(2) + HR(3) + 制造(2) + 质量(5) + 通知(2) |
-| P3 | 7 | BI(2) + EAM(3) + DMS(2) |
+| P3 | 3 | EAM(3) |
 
 ---
 

@@ -147,16 +147,6 @@ INSERT INTO `erp_approval_workflow` (`id`, `code`, `name`, `target_type`, `enabl
 (410000000000011001, 'DEMO-APPROVAL_WORKFLOW-2', '演示approval_workflow', 'd', 1, '演示数据', 'd', NOW(), NOW()),
 (410000000000012001, 'DEMO-APPROVAL_WORKFLOW-3', '演示approval_workflow', 'd', 1, '演示数据', 'd', NOW(), NOW());
 
-INSERT INTO `erp_bi_dashboard` (`id`, `name`, `user_id`, `status`) VALUES
-(410000000000013001, '演示bi_dashboard', 0, 1),
-(410000000000014001, '演示bi_dashboard', 0, 1),
-(410000000000015001, '演示bi_dashboard', 0, 1);
-
-INSERT INTO `erp_bi_widget` (`id`, `dashboard_id`, `name`, `type`, `dataset_id`, `position_x`, `position_y`, `width`, `height`) VALUES
-(410000000000016001, 410000000000013001, '演示bi_widget', 'table', 410000000000496001, 0, 0, 4, 3),
-(410000000000017001, 410000000000014001, '演示bi_widget', 'table', 410000000000497001, 0, 0, 4, 3),
-(410000000000018001, 410000000000015001, '演示bi_widget', 'table', 410000000000498001, 0, 0, 4, 3);
-
 INSERT INTO `erp_category` (`id`, `parent_id`, `name`, `code`, `sort`, `status`, `created_at`, `updated_at`) VALUES
 (410000000000019001, 0, '演示category', 'DEMO-CATEGORY-1', 0, 1, NOW(), NOW()),
 (410000000000020001, 0, '演示category', 'DEMO-CATEGORY-2', 0, 1, NOW(), NOW()),
@@ -261,16 +251,6 @@ INSERT INTO `erp_custom_field_definition` (`id`, `entity_type`, `field_key`, `la
 (410000000000079001, 'd1', 'd1', '演示custom_field_definition', 'd', 0, 0, 1, NOW(), NOW()),
 (410000000000080001, 'd2', 'd2', '演示custom_field_definition', 'd', 0, 0, 1, NOW(), NOW()),
 (410000000000081001, 'd3', 'd3', '演示custom_field_definition', 'd', 0, 0, 1, NOW(), NOW());
-
-INSERT INTO `erp_dms_document` (`id`, `code`, `title`, `category`, `version`, `author`, `status`, `tags`) VALUES
-(410000000000082001, 'DEMO-DMS_DOCUMENT-1', '演示dms_document', 'd', 1, 'd', 'draft', 'd'),
-(410000000000083001, 'DEMO-DMS_DOCUMENT-2', '演示dms_document', 'd', 1, 'd', 'draft', 'd'),
-(410000000000084001, 'DEMO-DMS_DOCUMENT-3', '演示dms_document', 'd', 1, 'd', 'draft', 'd');
-
-INSERT INTO `erp_dms_document_version` (`id`, `document_id`, `version`, `changed_by`, `change_note`) VALUES
-(410000000000085001, 410000000000082001, 1, 'd', 'd'),
-(410000000000086001, 410000000000083001, 1, 'd', 'd'),
-(410000000000087001, 410000000000084001, 1, 'd', 'd');
 
 INSERT INTO `erp_eam_equipment` (`id`, `code`, `name`, `model`, `serial_number`, `category`, `location`, `department_id`, `status`) VALUES
 (410000000000088001, 'DEMO-EAM_EQUIPMENT-1', '演示eam_equipment', 'd', 'd', 'd', 'd', 410000000000229001, 1),

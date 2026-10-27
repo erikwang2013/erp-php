@@ -25,10 +25,10 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🔵 **P0** 前端生态 | 3-4 周 | 102 Flutter 菜单路由 + 41 HarmonyOS 页 + 4 通用组件 | ✅ |
 | 🟢 **P1** 业务深度 | 4-6 周 | 财务引擎 + 薪资引擎 + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 + 自动备份 + TraceId + 队列双驱动 | ✅ |
-| 🟣 **P3** 体验增强 | 2-3 周 | BI看板 + EAM + DMS | ✅ |
+| 🟣 **P3** 体验增强 | 2-3 周 | EAM | ✅ |
 （多租户 B5 预留骨架已于 2026-10 移除，当前为单租户）
 
-**测试**: 955<!-- stats:tests=955 --> tests, 4273<!-- stats:assertions=4273 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: 933<!-- stats:tests=933 --> tests, 4178<!-- stats:assertions=4178 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 
@@ -60,8 +60,6 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | TMS 运输管理 | 承运商/运费比价/运单面单/物流轨迹(webhook) |
 | QMS 质量管理 | 进料IQC/制程IPQC/出货OQC检验 + 检验标准 + 不合格品处理 |
 | EAM 设备管理 | 设备台账/保养计划/维修工单/备件管理 |
-| DMS 文档管理 | 文档分类/文档/版本管理 |
-| BI 看板 | 看板布局/图表组件 |
 
 ## 技术栈
 
@@ -139,10 +137,8 @@ open-erp/
 │   │   ├── tms/                 # 承运商/费率/运单/面单/轨迹 (6个)
 │   │   ├── quality/             # IQC/IPQC/OQC/检验标准/不合格品 (5个)
 │   │   ├── eam/                 # 设备/保养计划/维修工单/备件/点检 (5个)
-│   │   ├── dms/                 # 文档分类/文档/版本 (2个)
 │   │   ├── open/                # 开放 API (1个)
-│   │   ├── platform/            # 自定义字段 (1个)
-│   │   └── bi/                  # BI看板/图表组件 (3个)
+│   │   └── platform/            # 自定义字段 (1个)
 │   ├── service/                 # 业务逻辑层（64 个文件 / 63 个服务类）
 │   │   ├── finance/             # FinanceService: 应收应付自动生成+收付款核销+日记账
 │   │   ├── inventory/           # InventoryService: 出入库+移动加权平均成本核算

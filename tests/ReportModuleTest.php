@@ -181,7 +181,7 @@ class ReportModuleTest extends TestCase
         // execute() 白名单：从 install.sql 提取 `erp_\w+` 表名
         preg_match_all('/`(erp_\w+)`/', file_get_contents(base_path('database/install.sql')), $m);
         $allowed = array_unique($m[1]);
-        foreach (['erp_sales_order', 'erp_eam_equipment', 'erp_bi_dashboard', 'erp_approval_instance', 'erp_report_template'] as $t) {
+        foreach (['erp_sales_order', 'erp_eam_equipment', 'erp_approval_instance', 'erp_report_template'] as $t) {
             $this->assertContains($t, $allowed, "表 {$t} 应出现在白名单");
         }
         $this->assertNotContains('erp_evil; DROP TABLE x', $allowed, '白名单应拒绝注入式表名');

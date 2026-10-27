@@ -4,7 +4,7 @@
 
 ## 概述
 
-开放ERP系统 (open-erp) 覆盖 23 个业务域 <!-- stats:modules=21 -->，227 张数据表 <!-- stats:tables=216 -->，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 13 语种支持（中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia），Accept-Language 请求头自动切换。
+开放ERP系统 (open-erp) 覆盖 23 个业务域 <!-- stats:modules=19 -->，227 张数据表 <!-- stats:tables=211 -->，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 13 语种支持（中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia），Accept-Language 请求头自动切换。
 
 > API 文档: 启动服务后访问 `http://localhost:8788/apidoc` 查看交互式接口文档（erikwang2013/apidoc-php 自动生成）
 
@@ -561,18 +561,18 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 维度 | 数量 |
 |------|------|
-| 业务模块 | 21 <!-- stats:modules=21 --> |
-| 数据库表 | 216 <!-- stats:tables=216 --> |
-| 数据模型 | 213 <!-- stats:models=213 --> |
-| 控制器 | 153 <!-- stats:controllers=153 --> |
+| 业务模块 | 19 <!-- stats:modules=19 --> |
+| 数据库表 | 211 <!-- stats:tables=211 --> |
+| 数据模型 | 208 <!-- stats:models=208 --> |
+| 控制器 | 148 <!-- stats:controllers=148 --> |
 | 业务服务 | 54 <!-- stats:services=54 --> |
 | API 路由 | 837（动态生成，见 `scripts/check-endpoints.php`，不参与 doc-stats 校验）|
 | 中间件 | 10 <!-- stats:middleware=10 --> |
-| PHP 源文件 | 454 <!-- stats:php_files=454 --> |
+| PHP 源文件 | 444 <!-- stats:php_files=444 --> |
 | 数据库安装脚本 | 单文件 `database/install.sql`（227 张表，已并入全部迁移）|
 | 前端页面 (Flutter) | 119（2026-09-22 实测 `apps/flutter/lib/app/pages/` 下 `.dart` 页面文件数（递归），未纳入 doc-stats 校验）|
 | 前端页面 (HarmonyOS) | 52（2026-09-22 实测 `apps/harmonyos/entry/src/main/ets/pages/` 下 `.ets` 页面文件数（递归），未纳入 doc-stats 校验）|
-| 单元测试 | 104<!-- stats:test_files=104 --> 个测试文件  / 955<!-- stats:tests=955 --> 个测试用例  / 4273<!-- stats:assertions=4273 --> 条断言 （静态计数：测试方法数 + 断言调用点数，与运行环境无关）|
+| 单元测试 | 102<!-- stats:test_files=102 --> 个测试文件  / 933<!-- stats:tests=933 --> 个测试用例  / 4178<!-- stats:assertions=4178 --> 条断言 （静态计数：测试方法数 + 断言调用点数，与运行环境无关）|
 
 > 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `<!-- stats:key=value -->` 的项由 CI
 > （`.github/workflows/ci.yml` docs 作业）自动校验与代码事实一致，漂移即红。
@@ -633,9 +633,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 制造 — BOM/生产/MRP | ✅ | ✅ | ⚠️ 5/13 | ⚠️ 5 页 | v1.4.0 |
 | 质量管理 | ✅ | ✅ | ✅ 5/5 | 🔴 | 🟢 P1 |
 | 自定义报表 | ✅ | ⚠️ | ✅ 2/2 | 🔴 | 🔵 P0 |
-| BI 看板 | ✅ | ✅ | ⚠️ 2/3 | 🔴 | 🟣 P3 |
 | 设备管理 EAM | ✅ | ✅ | ⚠️ 4/5 | 🔴 | v1.4.0 |
-| 文档管理 DMS | ✅ | ✅ | ⚠️ 1/2 | 🔴 | 🟣 P3 |
 | 多语言 (i18n) | ✅ | ✅ | ⚠️ 仅中/英 | ⚠️ 仅中/英 | v1.17.0 |
 | 可观测性 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
 | 迁移回滚/备份 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
@@ -675,9 +673,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 模块 | 校正 | 代码证据 |
 |------|------|----------|
 | 质量管理 | 🔴 → ✅ | `app/controller/quality/`（5 控制器）+ `app/service/quality/QmsInspectionService.php` + `tests/QualityModuleTest.php` |
-| BI 看板 | 🔴 → ✅ | `app/controller/bi/`（3 控制器：Dashboard/Dataset/Widget）+ `tests/BiModuleTest.php` |
 | 设备管理 EAM | 🔴 → ✅（+E1 点检） | `app/controller/eam/`（5 控制器，含 `EamInspectionController.php`）+ `app/service/eam/EamInspectionService.php` + `tests/EamModuleTest.php` |
-| 文档管理 DMS | 🔴 → ✅ | `app/controller/dms/`（2 控制器）+ `tests/DmsModuleTest.php` |
 | 多租户 | ⚠️ → ⚠️（v1.4.0 部分启用） | `app/controller/platform/TenantController.php` + `app/service/platform/TenantService.php`（provision/suspend/resume/expireMark/renew/expiryWarnings 到期计费已交付）+ `tests/Integration/TenantScopeIntegrationTest.php`；隔离中间件 `app/middleware/TenantScope.php` 仍未注册（隔离未生效），故为部分启用 |
 | 报表合并 | ⚠️ → ✅（v1.4.0 交付） | `app/service/finance/ConsolidationService.php`（rateToBase/translateLedger 期末汇率折算、addElimination 子公司间抵销且借贷平衡校验、generateDraft 快照优先/无快照实时重算、issue 防重、latest/list；缺汇率即拒绝）+ 结果落 `app/model/FinanceConsolidationReport.php` + `tests/ConsolidationServiceTest.php`（3 例） |
 | 期末结转 | 🔴 → ⚠️ | `app/service/finance/PeriodCloseService.php:21` `closeProfitAndLoss()`（损益类科目汇总已实现，不生成结转凭证、无控制器端点）+ `tests/PeriodCloseServiceTest.php`（4 例） |
