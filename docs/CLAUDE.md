@@ -28,7 +28,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟣 **P3** 体验增强 | 2-3 周 | EAM | ✅ |
 （多租户 B5 预留骨架已于 2026-10 移除，当前为单租户）
 
-**测试**: 933<!-- stats:tests=933 --> tests, 4178<!-- stats:assertions=4178 --> assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**测试**: 933[](#stats:tests=933) tests, 4178[](#stats:assertions=4178) assertions（23 skipped）— ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 功能清单
 

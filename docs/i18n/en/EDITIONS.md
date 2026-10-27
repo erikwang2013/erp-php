@@ -4,7 +4,7 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 >
-> Statistics are collected live by `bash scripts/doc-stats.sh` and marked in the docs with `<!-- stats:key=value -->`.
+> Statistics are collected live by `bash scripts/doc-stats.sh` and marked in the docs with `[](#stats:key=value)`.
 > CI (the docs job in `.github/workflows/ci.yml`) automatically verifies that docs stay consistent with the code facts; drift turns red.
 
 The Open ERP System provides three editions to fit the needs of businesses of different sizes.
@@ -16,9 +16,9 @@ The Open ERP System provides three editions to fit the needs of businesses of di
 | Dimension | Lite (简化版) | Standard (标准版) | Full (完整版) |
 |------|:---:|:---:|:---:|
 | Branch | `lite` | `standard` | `full` |
-| Data tables | 62 (planned) | 72 (planned) | 211 <!-- stats:tables=211 --> |
-| Controllers | 48 (planned) | 42 (planned) | 148 <!-- stats:controllers=148 --> |
-| Business modules | 6 (planned) | 6 (planned) | 19 <!-- stats:modules=19 --> |
+| Data tables | 62 (planned) | 72 (planned) | 211 [](#stats:tables=211) |
+| Controllers | 48 (planned) | 42 (planned) | 148 [](#stats:controllers=148) |
+| Business modules | 6 (planned) | 6 (planned) | 19 [](#stats:modules=19) |
 
 > **Measurement note**: the repository currently implements only one codebase — the Full edition; the Lite/Standard columns are product planning values (no corresponding branches exist, see "Branch Strategy" below) and are not subject to doc-stats validation. The Full column numbers are measured by `scripts/doc-stats.sh` (211 tables / 128 controllers / 19 business modules), consistent with the appendix measurement in `docs/FUNCTIONS.md`.
 > **Branch facts** (measured 2026-09-22 with `git branch -a` + `git ls-remote --heads origin`): both locally and on the remote the repository has only the single branch `main`; the `lite` / `standard` / `full` branches have **been deleted** (a 2026-08-31 measurement still found all three coexisting, all stopped at the 2026-08-17 commit `eea90c0`, with no differences between them and 38 commits behind `main`). That archived commit is still in `main`'s history (`git merge-base --is-ancestor eea90c0 main` holds), so edition differences can now only be traced through commits and tags — there is no edition branch left in the repository to check out.
@@ -181,7 +181,7 @@ The Open ERP System provides three editions to fit the needs of businesses of di
 |------|--------------------------|------|
 | Lite (简化版) | 62 tables / 6 business modules (planned) | No approval/notification/HR/manufacturing/reports |
 | Standard (标准版) | 72 tables / 6 business modules (planned) | Leaner data model |
-| Full (完整版) | 211 tables <!-- stats:tables=211 --> / 19 business modules <!-- stats:modules=19 --> | Comprehensive enterprise platform capabilities |
+| Full (完整版) | 211 tables [](#stats:tables=211) / 19 business modules [](#stats:modules=19) | Comprehensive enterprise platform capabilities |
 
 ---
 

@@ -28,7 +28,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟣 **P3** Experience enhancement | 2-3 weeks | EAM | ✅ |
 (The multi-tenancy B5 scaffold was removed in 2026-10; the system is single-tenant)
 
-**Tests**: 933<!-- stats:tests=933 --> tests, 4178<!-- stats:assertions=4178 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**Tests**: 933[](#stats:tests=933) tests, 4178[](#stats:assertions=4178) assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## Feature List
 

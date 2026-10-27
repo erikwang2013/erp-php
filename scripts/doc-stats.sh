@@ -7,7 +7,7 @@
 # 用途：统计项目代码规模的「真实数字」，供 docs/ 引用与 CI 校验。
 #   - 默认模式：输出稳定 key=value 行（每行一个统计键），供文档与 CI 解析；
 #   - --check 模式：生成当前统计后，扫描 docs/**/*.md 与根 README.md 中形如
-#     <!-- stats:key=value --> 的注释标注，逐键比对，漂移即非零退出。
+#     [](#stats:key=value) 的注释标注，逐键比对，漂移即非零退出。
 #   - --fix 模式：同样先采集，再就地把标注改写为实测值，最后复验（漂移自愈）。
 #
 # 口径：全部统计键都是「源码静态计数」，不执行 phpunit、不连数据库、不读环境变量，
@@ -115,7 +115,7 @@ collect() {
 }
 
 # ------------------------------------------------------------
-# check_docs —— 校验 docs/**/*.md 中的 <!-- stats:key=value --> 标注
+# check_docs —— 校验 docs/**/*.md 中的 [](#stats:key=value) 标注
 # 与实测统计是否一致；任一不匹配（或标注了脚本不存在的键）即失败退出 1。
 # ------------------------------------------------------------
 check_docs() {
@@ -132,7 +132,7 @@ check_docs() {
   echo "校验范围: $docs_dir + 根目录 README.md"
   echo ""
 
-  # grep -rnoE 输出格式: 文件:行号:<!-- stats:key=value -->
+  # grep -rnoE 输出格式: 文件:行号:[](#stats:key=value)
   while IFS= read -r line; do
     [[ -z "$line" ]] && continue
     file="${line%%:*}"
@@ -141,10 +141,10 @@ check_docs() {
     ann="${rest#*:}"
 
     # 提取 key 与标注值
-    inner="${ann#<!-- stats:}"
-    inner="${inner% -->}"
+    inner="${ann#*stats:}"
     key="${inner%%=*}"
     val="${inner#*=}"
+    val="${val%)}"
 
     checked=$((checked + 1))
     actual="$(grep -m1 "^${key}=" "$STATS_FILE" | cut -d= -f2- || true)"
@@ -160,18 +160,21 @@ check_docs() {
     # 展示值校验：标注若紧跟在某数字之后（数字 + 空白 + 标注），该数字即给人看的
     # 「展示值」，必须与标注一致。否则标注是绿的、正文却是旧数字（--fix 原先只改
     # 标注，不动展示值，于是 227 的标注旁边写着 163 也能通过校验）。
-    if [[ "$(sed -n "${lineno}p" "$file")" =~ ([0-9]+)[[:space:]]*"$ann" ]]; then
-      shown="${BASH_REMATCH[1]}"
-      if [[ "$shown" != "$val" ]]; then
+    line_text="$(sed -n "${lineno}p" "$file")"
+    pos="$(awk -v line="$line_text" -v a="$ann" 'BEGIN{print index(line,a)}')"
+    if [[ "$pos" -gt 1 ]]; then
+      prefix="${line_text:0:$((pos-1))}"
+      shown="$(printf '%s' "$prefix" | grep -oE '[0-9]+[[:space:]]*$' | tr -d '[:space:]' || true)"
+      if [[ -n "$shown" && "$shown" != "$val" ]]; then
         echo "✗ $file:$lineno — 展示值 ${shown} ≠ 标注 ${key}=${val}"
         fail=$((fail + 1))
       fi
     fi
-  done < <(grep -rnoE '<!-- stats:[a-zA-Z0-9_]+=[0-9]+ -->' "$docs_dir" "$ROOT/README.md" --include='*.md' 2>/dev/null || true)
+  done < <(grep -rnoE '\[\]\(#stats:[a-zA-Z0-9_]+=[0-9]+\)' "$docs_dir" "$ROOT/README.md" --include='*.md' 2>/dev/null || true)
 
   echo ""
   if [[ $checked -eq 0 ]]; then
-    echo "✗ 未在 $docs_dir 中找到任何 <!-- stats:key=value --> 标注（无可校验项）"
+    echo "✗ 未在 $docs_dir 中找到任何 [](#stats:key=value) 标注（无可校验项）"
     return 1
   fi
   if [[ $fail -ne 0 ]]; then
@@ -183,7 +186,7 @@ check_docs() {
 }
 
 # ------------------------------------------------------------
-# fix_docs —— 把 docs/**/*.md 中的 <!-- stats:key=value --> 标注改写为实测值。
+# fix_docs —— 把 docs/**/*.md 中的 [](#stats:key=value) 标注改写为实测值。
 # 只对齐文档中「已出现」的键（不为未使用的键无中生有）；实测不可用
 # （unknown/空，如无 vendor 时 phpunit 解析失败）时保留原值，宁可不改也不写坏数字。
 # 改完立即交由 check_docs 复验，因此返回码即最终一致性结论。
@@ -202,14 +205,14 @@ fix_docs() {
   echo "对齐范围: $docs_dir + 根目录 README.md"
   echo ""
 
-  keys="$(grep -rhoE '<!-- stats:[a-zA-Z0-9_]+=' "$docs_dir" "$ROOT/README.md" --include='*.md' 2>/dev/null \
+  keys="$(grep -rhoE '\[\]\(#stats:[a-zA-Z0-9_]+=' "$docs_dir" "$ROOT/README.md" --include='*.md' 2>/dev/null \
     | sed -E 's/.*stats:([a-zA-Z0-9_]+)=/\1/' | sort -u || true)"
   if [[ -z "$keys" ]]; then
-    echo "✗ 未找到任何 <!-- stats:key=value --> 标注（无可对齐项）"
+    echo "✗ 未找到任何 [](#stats:key=value) 标注（无可对齐项）"
     return 1
   fi
 
-  # 逐键生成 sed 表达式。标注格式固定为 `<!-- stats:key=value -->`（单空格），
+  # 逐键生成 sed 表达式。标注格式固定为 `[](#stats:key=value)`，
   # 按完整 key + = 精确匹配，故 controllers 不会误伤 controllers_admin。
   expr=""
   while IFS= read -r key; do
@@ -219,12 +222,12 @@ fix_docs() {
       echo "! stats:${key} 实测不可用（${val:-空}），保留原值跳过"
       continue
     fi
-    expr+="s|<!-- stats:${key}=[0-9]+ -->|<!-- stats:${key}=${val} -->|g"$'\n'
-    # 展示值同步：标注紧跟数字时（`163 <!-- stats:tables=227 -->`），那个数字是给人看的
+    expr+="s|\[\]\(#stats:${key}=[0-9]+\)|[](#stats:${key}=${val})|g"$'\n'
+    # 展示值同步：标注紧跟数字时（`163 [](#stats:tables=227)`），那个数字是给人看的
     # 展示值，一并改写。要求「数字 + 仅空白 + 标注」严格相邻，故 `（23 skipped）<!-- … -->`
     # 这类中间夹了别的字符的标注不会误伤。展示值与标注本就不同（人为写错）时，只能改标注，
     # 需人工订正展示值 —— 由 check_docs 的展示值校验报红提示。
-    expr+="s|([0-9]+)([[:space:]]*<!-- stats:${key}=)[0-9]+( -->)|${val}\2${val}\3|g"$'\n'
+    expr+="s|([0-9]+)([[:space:]]*\[\]\(#stats:${key}=)[0-9]+(\))|${val}\2${val}\3|g"$'\n'
   done <<< "$keys"
 
   if [[ -z "$expr" ]]; then
@@ -236,10 +239,10 @@ fix_docs() {
   printf '%s' "$expr" > "$script"
   while IFS= read -r f; do
     [[ -z "$f" ]] && continue
-    if grep -qE '<!-- stats:[a-zA-Z0-9_]+=[0-9]+ -->' "$f"; then
+    if grep -qE '\[\]\(#stats:[a-zA-Z0-9_]+=[0-9]+\)' "$f"; then
       sed -i -E -f "$script" "$f" && echo "  ✓ $f"
     fi
-  done < <(grep -rlE '<!-- stats:[a-zA-Z0-9_]+=' "$docs_dir" "$ROOT/README.md" --include='*.md' 2>/dev/null || true)
+  done < <(grep -rlE '\[\]\(#stats:[a-zA-Z0-9_]+=' "$docs_dir" "$ROOT/README.md" --include='*.md' 2>/dev/null || true)
   rm -f "$script"
   echo ""
 

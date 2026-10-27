@@ -187,7 +187,7 @@ open-erp/
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
-├── tests/                      # PHPUnit 测试（102<!-- stats:test_files=102 --> 个测试文件，933<!-- stats:tests=933 --> 个测试方法，4178<!-- stats:assertions=4178 --> 条断言；口径见 docs/FUNCTIONS.md 附录）
+├── tests/                      # PHPUnit 测试（102[](#stats:test_files=102) 个测试文件，933[](#stats:tests=933) 个测试方法，4178[](#stats:assertions=4178) 条断言；口径见 docs/FUNCTIONS.md 附录）
 ├── resource/
 │   └── translations/           # 13 语种后端消息词典 (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
 │       ├── zh_CN/              # 中文翻译 (565 条)
@@ -670,7 +670,7 @@ GitHub Actions 持续集成流水线：`.github/workflows/ci.yml`，五个作业
 |------|------|
 | `php`（矩阵 PHP 8.3 / 8.4，带 MySQL 8 + Redis 7 服务） | composer 校验与安全审计 → `php -l` → **PHPStan**（level 5 + baseline）→ **PHP CS Fixer**（dry-run）→ 导入全量 `install.sql` → **PHPUnit**（含集成用例）→ pcov 覆盖率采集 → 覆盖率门槛（整体 ≥ 4%、`app/service` ≥ 10%，逐步收紧） |
 | `flutter` | `flutter analyze` + `flutter test`（`continue-on-error: true`，待环境稳定后收紧） |
-| `docs` | `bash scripts/doc-stats.sh --check`：校验 README 与 docs 中 `<!-- stats:key=value -->` 标注与源码实测计数一致（控制器/服务/模型/表/测试数等），漂移即红 |
+| `docs` | `bash scripts/doc-stats.sh --check`：校验 README 与 docs 中 `[](#stats:key=value)` 标注与源码实测计数一致（控制器/服务/模型/表/测试数等），漂移即红 |
 | `e2e` | 起 webman 真实服务 → 健康检查 → HTTP 核心链路冒烟 + 管理端 API 覆盖 |
 | `release` | push 至 `main` 且上述作业通过后按 patch+1 打 tag 并发 Release（见下） |
 
@@ -756,7 +756,7 @@ push 至 `main` 且 php / docs / e2e 检查全部通过后，`ci.yml` 的 `relea
 
 ## 项目授权 / Project License
 
-Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+Copyright (c) 2026 erik erik@erik.xyz — https://erik.xyz
 
 - 本项目仅供个人学习、研究使用。
 - 未经作者书面授权，禁止任何形式的商业使用（包括但不限于商业部署、付费服务、二次销售、SaaS 运营及以本项目为基础提供商业服务）。

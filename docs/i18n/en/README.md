@@ -2,9 +2,9 @@
 
 A full-stack ERP system built on webman v2 + Flutter.
 
-<div align="center"><img src="images/mascot.svg" alt="open-erp octopus mascot Little Octopus" width="150"></div>
+![open-erp octopus mascot Little Octopus](images/mascot.svg)
 
-<div align="center">🌐 [中文](../../../README.md) | English</div>
+🌐 [中文](../../../README.md) | English
 
 > [中文版](../../../README.md) | [Editions](EDITIONS.md) | [Architecture](ARCHITECTURE.md) | [System Architecture](#system-architecture-diagram) | [Design](DESIGN.md) | [Security](SECURITY.md) | [API Reference](API.md) | [Functions](FUNCTIONS.md)
 
@@ -188,7 +188,7 @@ open-erp/
 │   ├── e2e-seed.sql             # Minimal E2E/CI seed
 │   └── backup/                 # Backup/restore scripts
 ├── docs/                       # Architecture, design, security, API docs
-├── tests/                      # PHPUnit tests (<!-- stats:test_files=102 --> test files, <!-- stats:tests=933 --> test methods, <!-- stats:assertions=4178 --> assertions)
+├── tests/                      # PHPUnit tests ([](#stats:test_files=102) test files, [](#stats:tests=933) test methods, [](#stats:assertions=4178) assertions)
 ├── resource/
 │   └── translations/           # Backend message dictionaries for 13 locales (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
 │       ├── zh_CN/              # Chinese translations (565 entries)
@@ -709,7 +709,7 @@ Thanks to the following people for helping improve this project's security (full
 
 ## 项目授权 / Project License
 
-Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+Copyright (c) 2026 erik erik@erik.xyz — https://erik.xyz
 
 - 本项目仅供个人学习、研究使用。
 - 未经作者书面授权，禁止任何形式的商业使用（包括但不限于商业部署、付费服务、二次销售、SaaS 运营及以本项目为基础提供商业服务）。
@@ -721,18 +721,25 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
 ## Project Pet Expressions · Little Octopus
 
-<table align="center">
-<tr><td align="center"><img src="../../../docs/pet-expressions/smile.svg" width="88" alt="Smile"><br><b>Smile</b><br><code>:emoji-smile:</code></td><td align="center"><img src="../../../docs/pet-expressions/joy.svg" width="88" alt="Joy"><br><b>Joy</b><br><code>:emoji-joy:</code></td><td align="center"><img src="../../../docs/pet-expressions/cry.svg" width="88" alt="Cry"><br><b>Cry</b><br><code>:emoji-cry:</code></td><td align="center"><img src="../../../docs/pet-expressions/depressed.svg" width="88" alt="Depressed"><br><b>Depressed</b><br><code>:emoji-depressed:</code></td><td align="center"><img src="../../../docs/pet-expressions/terrified.svg" width="88" alt="Terrified"><br><b>Terrified</b><br><code>:emoji-terrified:</code></td><td align="center"><img src="../../../docs/pet-expressions/angry.svg" width="88" alt="Angry"><br><b>Angry</b><br><code>:emoji-angry:</code></td></tr>
-<tr><td align="center"><img src="../../../docs/pet-expressions/coquettish.svg" width="88" alt="Coquettish"><br><b>Coquettish</b><br><code>:emoji-coquettish:</code></td><td align="center"><img src="../../../docs/pet-expressions/cute.svg" width="88" alt="Cute"><br><b>Cute</b><br><code>:emoji-cute:</code></td><td align="center"><img src="../../../docs/pet-expressions/pleasing.svg" width="88" alt="Pleasing"><br><b>Pleasing</b><br><code>:emoji-pleasing:</code></td><td align="center"><img src="../../../docs/pet-expressions/knocking.svg" width="88" alt="Knocking"><br><b>Knocking</b><br><code>:emoji-knocking:</code></td><td align="center"><img src="../../../docs/pet-expressions/facepalm.svg" width="88" alt="Facepalm"><br><b>Facepalm</b><br><code>:emoji-facepalm:</code></td><td align="center"><img src="../../../docs/pet-expressions/tongue.svg" width="88" alt="Tongue"><br><b>Tongue</b><br><code>:emoji-tongue:</code></td></tr>
-</table>
+| Image | Name | Code |
+|---|---|---|
+| ![Smile](../../../docs/pet-expressions/smile.svg) | Smile | `:emoji-smile:` |
+| ![Joy](../../../docs/pet-expressions/joy.svg) | Joy | `:emoji-joy:` |
+| ![Cry](../../../docs/pet-expressions/cry.svg) | Cry | `:emoji-cry:` |
+| ![Depressed](../../../docs/pet-expressions/depressed.svg) | Depressed | `:emoji-depressed:` |
+| ![Terrified](../../../docs/pet-expressions/terrified.svg) | Terrified | `:emoji-terrified:` |
+| ![Angry](../../../docs/pet-expressions/angry.svg) | Angry | `:emoji-angry:` |
+| ![Coquettish](../../../docs/pet-expressions/coquettish.svg) | Coquettish | `:emoji-coquettish:` |
+| ![Cute](../../../docs/pet-expressions/cute.svg) | Cute | `:emoji-cute:` |
+| ![Pleasing](../../../docs/pet-expressions/pleasing.svg) | Pleasing | `:emoji-pleasing:` |
+| ![Knocking](../../../docs/pet-expressions/knocking.svg) | Knocking | `:emoji-knocking:` |
+| ![Facepalm](../../../docs/pet-expressions/facepalm.svg) | Facepalm | `:emoji-facepalm:` |
+| ![Tongue](../../../docs/pet-expressions/tongue.svg) | Tongue | `:emoji-tongue:` |
 
 > 12 colorful animated forms: Smile / Joy / Cry / Depressed / Terrified / Angry / Coquettish / Cute / Pleasing / Knocking / Facepalm / Tongue. Each SVG includes its expression, emotional effects and full motion, and respects `prefers-reduced-motion`.
-<!-- pet-expressions:end -->
 
-<!-- assets-license:start -->
 ## Visual Assets License
 
 The project pets, images, icons and emoji/expression forms in this repository (including SVG / PNG files under `docs/pet-expressions/` and similar directories) are **not open-source assets**; copyright belongs to the author. No copying, modification, redistribution or commercial use is permitted without prior written permission; commercial use requires a commercial license. Contact: **erik@erik.xyz**. See [ASSETS-LICENSE.md](../../../ASSETS-LICENSE.md) for details.
 
 > Code remains under the repository's existing `LICENSE`; third-party assets (such as the clearly attributed Go Gopher) remain under their original licenses.
-<!-- assets-license:end -->

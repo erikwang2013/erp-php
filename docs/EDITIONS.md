@@ -2,7 +2,7 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 >
-> 统计数字由 `bash scripts/doc-stats.sh` 实时采集，文档中以 `<!-- stats:key=value -->` 标注，
+> 统计数字由 `bash scripts/doc-stats.sh` 实时采集，文档中以 `[](#stats:key=value)` 标注，
 > CI（`.github/workflows/ci.yml` 的 docs 作业）自动校验文档与代码事实一致，漂移即红。
 
 开放ERP系统提供三个版本，适应不同规模企业的需求。
@@ -14,9 +14,9 @@
 | 维度 | 简化版 (Lite) | 标准版 (Standard) | 完整版 (Full) |
 |------|:---:|:---:|:---:|
 | 分支 | `lite` | `standard` | `full` |
-| 数据表 | 62（规划值） | 72（规划值） | 211 <!-- stats:tables=211 --> |
-| 控制器 | 48（规划值） | 42（规划值） | 148 <!-- stats:controllers=148 --> |
-| 业务模块 | 6（规划值） | 6（规划值） | 19 <!-- stats:modules=19 --> |
+| 数据表 | 62（规划值） | 72（规划值） | 211 [](#stats:tables=211) |
+| 控制器 | 48（规划值） | 42（规划值） | 148 [](#stats:controllers=148) |
+| 业务模块 | 6（规划值） | 6（规划值） | 19 [](#stats:modules=19) |
 
 > **统计口径**：仓库当前只实现完整版（Full）一套代码；Lite/Standard 列为产品规划值
 > （无对应分支，见下文「分支策略」），不参与 doc-stats 校验。
@@ -187,7 +187,7 @@
 |------|--------------------------|------|
 | Lite (简化版) | 62 表 / 6 业务模块（规划值） | 无审批/通知/HR/制造/报表 |
 | Standard (标准版) | 72 表 / 6 业务模块（规划值） | 更精简的数据模型 |
-| Full (完整版) | 216 表 <!-- stats:tables=211 --> / 21 业务模块 <!-- stats:modules=19 --> | 全面的企业平台能力 |
+| Full (完整版) | 216 表 [](#stats:tables=211) / 21 业务模块 [](#stats:modules=19) | 全面的企业平台能力 |
 
 ---
 

@@ -1,6 +1,6 @@
 # open-erp 管理端 (Flutter)
 
-> Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+> Copyright (c) 2026 erik erik@erik.xyz — https://erik.xyz
 
 开放ERP系统（webman v2 + Flutter 全栈 ERP）的管理端前端，使用 Flutter 3.x 构建，支持 Web（PC 管理后台风格）、iOS、Android、macOS、Windows、Linux 多平台。
 

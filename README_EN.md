@@ -12,7 +12,7 @@ The complete English documentation (README, Installation, API Reference, Archite
 
 → **[docs/i18n/en/README.md](docs/i18n/en/README.md)**
 
-Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+Copyright (c) 2026 erik erik@erik.xyz — https://erik.xyz
 
 
 ## Open Source vs Commercial Edition
@@ -64,7 +64,7 @@ The open-source edition retains the full core ERP: product/purchasing/sales/inve
 
 ## 项目授权 / Project License
 
-Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
+Copyright (c) 2026 erik erik@erik.xyz — https://erik.xyz
 
 - 本项目仅供个人学习、研究使用。
 - 未经作者书面授权，禁止任何形式的商业使用（包括但不限于商业部署、付费服务、二次销售、SaaS 运营及以本项目为基础提供商业服务）。
