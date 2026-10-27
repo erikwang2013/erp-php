@@ -14,9 +14,9 @@ O Sistema ERP Aberto oferece três versões para atender às necessidades de emp
 | Dimensão | Lite | Standard | Full |
 |------|:---:|:---:|:---:|
 | Branch | `lite` | `standard` | `full` |
-| Tabelas de dados | 62 (valor planejado) | 72 (valor planejado) | 227 <!-- stats:tables=227 --> |
-| Controladores | 48 (valor planejado) | 42 (valor planejado) | 159 <!-- stats:controllers=159 --> |
-| Módulos de negócio | 6 (valor planejado) | 6 (valor planejado) | 23 <!-- stats:modules=23 --> |
+| Tabelas de dados | 62 (valor planejado) | 72 (valor planejado) | 220 <!-- stats:tables=220 --> |
+| Controladores | 48 (valor planejado) | 42 (valor planejado) | 157 <!-- stats:controllers=157 --> |
+| Módulos de negócio | 6 (valor planejado) | 6 (valor planejado) | 22 <!-- stats:modules=22 --> |
 
 > **Critério das estatísticas**: o repositório implementa atualmente apenas a versão Full (um único código); as colunas Lite/Standard são valores planejados do produto
 > (sem branches correspondentes, ver «Estratégia de branches» abaixo) e não participam da validação do doc-stats.
@@ -186,7 +186,7 @@ O Sistema ERP Aberto oferece três versões para atender às necessidades de emp
 |------|--------------------------|------|
 | Lite | 62 tabelas / 6 módulos de negócio (valores planejados) | Sem aprovação/notificações/RH/manufatura/relatórios |
 | Standard | 72 tabelas / 6 módulos de negócio (valores planejados) | Modelo de dados mais enxuto |
-| Full | 227 tabelas <!-- stats:tables=227 --> / 23 módulos de negócio <!-- stats:modules=23 --> | Capacidade completa de plataforma empresarial |
+| Full | 227 tabelas <!-- stats:tables=220 --> / 23 módulos de negócio <!-- stats:modules=22 --> | Capacidade completa de plataforma empresarial |
 
 ---
 

@@ -4,7 +4,7 @@
 
 ## 概述
 
-开放ERP系统 (open-erp) 覆盖 23 个业务域 <!-- stats:modules=23 -->，227 张数据表 <!-- stats:tables=227 -->，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 13 语种支持（中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia），Accept-Language 请求头自动切换。
+开放ERP系统 (open-erp) 覆盖 23 个业务域 <!-- stats:modules=22 -->，227 张数据表 <!-- stats:tables=220 -->，提供从进销存到生产制造、从财务核算到人力资源的全栈企业管理系统。国际化: 13 语种支持（中文/English/日本語/한국어/Deutsch/Français/Español/Português/Русский/العربية/हिन्दी/বাংলা/Bahasa Indonesia），Accept-Language 请求头自动切换。
 
 > API 文档: 启动服务后访问 `http://localhost:8788/apidoc` 查看交互式接口文档（erikwang2013/apidoc-php 自动生成）
 
@@ -563,18 +563,18 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 | 维度 | 数量 |
 |------|------|
-| 业务模块 | 23 <!-- stats:modules=23 --> |
-| 数据库表 | 227 <!-- stats:tables=227 --> |
-| 数据模型 | 224 <!-- stats:models=224 --> |
-| 控制器 | 159 <!-- stats:controllers=159 --> |
-| 业务服务 | 64 <!-- stats:services=64 --> |
+| 业务模块 | 22 <!-- stats:modules=22 --> |
+| 数据库表 | 220 <!-- stats:tables=220 --> |
+| 数据模型 | 217 <!-- stats:models=217 --> |
+| 控制器 | 157 <!-- stats:controllers=157 --> |
+| 业务服务 | 63 <!-- stats:services=63 --> |
 | API 路由 | 837（动态生成，见 `scripts/check-endpoints.php`，不参与 doc-stats 校验）|
 | 中间件 | 11 <!-- stats:middleware=11 --> |
-| PHP 源文件 | 483 <!-- stats:php_files=483 --> |
+| PHP 源文件 | 473 <!-- stats:php_files=473 --> |
 | 数据库安装脚本 | 单文件 `database/install.sql`（227 张表，已并入全部迁移）|
 | 前端页面 (Flutter) | 119（2026-09-22 实测 `apps/flutter/lib/app/pages/` 下 `.dart` 页面文件数（递归），未纳入 doc-stats 校验）|
 | 前端页面 (HarmonyOS) | 52（2026-09-22 实测 `apps/harmonyos/entry/src/main/ets/pages/` 下 `.ets` 页面文件数（递归），未纳入 doc-stats 校验）|
-| 单元测试 | 113<!-- stats:test_files=113 --> 个测试文件  / 1057<!-- stats:tests=1057 --> 个测试用例  / 5070<!-- stats:assertions=5070 --> 条断言 （静态计数：测试方法数 + 断言调用点数，与运行环境无关）|
+| 单元测试 | 110<!-- stats:test_files=110 --> 个测试文件  / 1032<!-- stats:tests=1032 --> 个测试用例  / 4796<!-- stats:assertions=4796 --> 条断言 （静态计数：测试方法数 + 断言调用点数，与运行环境无关）|
 
 > 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `<!-- stats:key=value -->` 的项由 CI
 > （`.github/workflows/ci.yml` docs 作业）自动校验与代码事实一致，漂移即红。

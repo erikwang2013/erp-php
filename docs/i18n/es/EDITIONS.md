@@ -14,9 +14,9 @@ El sistema ERP abierto ofrece tres ediciones para adaptarse a las necesidades de
 | Dimensión | Edición Lite | Edición Standard | Edición Full |
 |------|:---:|:---:|:---:|
 | Rama | `lite` | `standard` | `full` |
-| Tablas de datos | 62 (valor planificado) | 72 (valor planificado) | 227 <!-- stats:tables=227 --> |
-| Controladores | 48 (valor planificado) | 42 (valor planificado) | 159 <!-- stats:controllers=159 --> |
-| Módulos de negocio | 6 (valor planificado) | 6 (valor planificado) | 23 <!-- stats:modules=23 --> |
+| Tablas de datos | 62 (valor planificado) | 72 (valor planificado) | 220 <!-- stats:tables=220 --> |
+| Controladores | 48 (valor planificado) | 42 (valor planificado) | 157 <!-- stats:controllers=157 --> |
+| Módulos de negocio | 6 (valor planificado) | 6 (valor planificado) | 22 <!-- stats:modules=22 --> |
 
 > **Criterio de cálculo**: el repositorio actualmente solo implementa la edición Full como un único conjunto de código; las columnas Lite/Standard son valores planificados del producto
 > (sin rama correspondiente, véase más abajo «Estrategia de ramas») y no participan en la verificación de doc-stats.
@@ -186,7 +186,7 @@ El sistema ERP abierto ofrece tres ediciones para adaptarse a las necesidades de
 |------|--------------------------|------|
 | Lite (edición simplificada) | 62 tablas / 6 módulos de negocio (valores planificados) | Sin aprobación/notificaciones/RR. HH./manufactura/informes |
 | Standard (edición estándar) | 72 tablas / 6 módulos de negocio (valores planificados) | Modelo de datos más simplificado |
-| Full (edición completa) | 227 tablas <!-- stats:tables=227 --> / 23 módulos de negocio <!-- stats:modules=23 --> | Capacidad integral de plataforma empresarial |
+| Full (edición completa) | 227 tablas <!-- stats:tables=220 --> / 23 módulos de negocio <!-- stats:modules=22 --> | Capacidad integral de plataforma empresarial |
 
 ---
 
