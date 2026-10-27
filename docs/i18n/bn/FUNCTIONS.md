@@ -287,11 +287,6 @@
 - রিপোর্ট স্বয়ংক্রিয় তৈরি (JSON ডেটা স্ন্যাপশট)
 - মাসিক/ত্রৈমাসিক/বার্ষিক সাপোর্ট
 
-### 7.6 মেম্বার ভ্যালু ইঞ্জিন (v1.4.0 ডেলিভারি)
-
-- মেম্বার ও স্টোরড ভ্যালু: MemberService openMember/recharge/consume/refund
-- পয়েন্ট ও কুপন: earnPoints/consumePoints/expirePoints পয়েন্ট লেজার + issueCoupon/redeemCoupon কুপন রিডেম্পশন (MemberController / CouponController)
-
 ---
 
 ## 8. অ্যাপ্রুভাল ওয়ার্কফ্লো ইঞ্জিন
@@ -632,7 +627,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | প্রজেক্ট কস্ট/বাজেট (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | বিল/ব্যাংক-এন্টারপ্রাইজ রিকনসিলিয়েশন (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | ইনপুট ইনভয়েস পুল/ইলেকট্রনিক ইনভয়েস (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| মেম্বার ভ্যালু (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | মাল্টি-টেন্যান্ট (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 আংশিকভাবে সক্রিয় |
 | চ্যানেল নোটিফিকেশন/কাস্টম ফিল্ড (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | প্রজেক্ট ম্যানেজমেন্ট | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -693,7 +687,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | v1.4.0 — ইনভেন্টরি ও উৎপাদন খরচ (F3) | নতুন | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — ম্যানুফ্যাকচারিং এক্সিকিউশন M1/M2/M3/M6 | নতুন | `app/service/manufacturing/` (WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php` (ব্যাচ/সিরিয়াল ট্রেসেবিলিটি ও মেয়াদ সতর্কতা) + সংশ্লিষ্ট কন্ট্রোলার WorkReport/PieceWage/Subcontract/Capacity |
 | v1.4.0 — ফাইন্যান্স ফান্ড/ট্যাক্স F6/F5 + F7 | নতুন | `app/service/finance/FinanceBillService.php` + `BankReconService.php` (ব্যাংক স্টেটমেন্ট ইমপোর্ট/স্বয়ংক্রিয় ও ম্যানুয়াল মিলিয়ে লেখা) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php` (EInvoiceAdapter/MockEInvoiceAdapter, প্রকৃত ট্যাক্স অফিসের জন্য সংরক্ষিত অ্যাডাপ্টার পয়েন্ট) + `app/service/sales/CreditControlService.php` (লিমিট ছাড়ানো অর্ডার অ্যাসারশনে ইন্টারসেপ্ট) |
-| v1.4.0 — মেম্বার/HR/প্রজেক্ট C1/H1-H4/P1 | নতুন | `app/service/retail/MemberService.php` + `app/controller/retail/` (MemberController/CouponController) + `app/service/hr/` (RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
 | v1.4.0 — প্ল্যাটফর্ম/চ্যানেল B3/B4/B7/E1 | নতুন | `app/controller/workflow/WorkflowDesignerController.php` (canvas_json পার্সিস্টেন্স) + `app/service/notification/` (ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, ব্যর্থ হলে রিট্রাই) + `app/controller/notification/NotificationChannelController.php` (`tests/NotificationChannelTest.php` ৫টি কেস) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php` (পয়েন্ট-চেক QR স্ক্যান) |
 | v1.17.0 — বহুভাষা (i18n) | নতুন | ব্যাকএন্ড: `resource/translations/` (১৩ ভাষা ডিরেক্টরি zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, প্রতি ভাষায় common+modules+validation তিন ফাইল, ১১টি ভাষায় প্রতিটি ৫৪২টি (zh_CN ৫৩৩、en ৩০); en-এ ইংরেজিই key) + `app/common/I18n.php` (`getLocale()` `Accept-Language`-এর প্রথম ট্যাগ পার্স করে, প্রধান ভাষার সাব-ট্যাগ ম্যাপিং zh*→zh_CN; `trans()` অ-`en`-এ `[রিকোয়েস্টের ভাষা, zh_CN, en]`→key, en চীনায় পড়ে না) + `config/translation.php` + জেনারেটর স্ক্রিপ্ট `scripts/gen-be-locales.mjs`; ফ্রন্টএন্ড: `apps/react/src/lib/i18n/` (`index.tsx` + `zhEn` + ১১ ভাষার ফাইল) ও `apps/angular/src/app/core/` (`zh-en/` (index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`) (১১টি নতুন ভাষার অভিধান ভাষা অনুযায়ী লেজি-লোড, Angular 1453 / React 1447 key) + `scripts/gen-fe-locales.mjs`; সুইচ এন্ট্রি = টপবারের গ্লোব আইকন + ব্যক্তিগত কেন্দ্রের ড্রপডাউন; Flutter (`apps/flutter/lib/l10n/`) ও HarmonyOS (`entry/src/main/resources/`) এখনও zh/en দুই ভাষা |
 

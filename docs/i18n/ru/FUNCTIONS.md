@@ -288,11 +288,6 @@
 - 5 эндпоинтов: reports/generate/reportShow/metrics/storeMetric (AnalyticsController)
 - Поддержка периодов: месяц/квартал/год
 
-### 7.6 Движок ценности участников программы лояльности (поставлено в v1.4.0)
-
-- Участники и депозиты: MemberService openMember/recharge/consume/refund
-- Баллы и купоны: earnPoints/consumePoints/expirePoints — движение баллов + issueCoupon/redeemCoupon — погашение купонов (MemberController / CouponController)
-
 ---
 
 ## 8. Движок workflow согласования
@@ -633,7 +628,6 @@
 | Стоимость проекта/бюджет (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Векселя/сверка с банком (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Пул входящих счетов/электронные счета (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| Ценность участника программы лояльности (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Мультитенантность (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0, включено частично |
 | Уведомления каналов/пользовательские поля (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Управление проектами | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -695,7 +689,6 @@
 | v1.4.0 — запасы и себестоимость производства (F3) | добавлено | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — исполнение производства M1/M2/M3/M6 | добавлено | `app/service/manufacturing/` (WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php` (прослеживаемость партий/серийных номеров и предупреждения о сроке) + соответствующие контроллеры WorkReport/PieceWage/Subcontract/Capacity |
 | v1.4.0 — финансы/налоги F6/F5 + F7 | добавлено | `app/service/finance/FinanceBillService.php` + `BankReconService.php` (импорт выписки/автоматическое и ручное сопоставление) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php` (EInvoiceAdapter/MockEInvoiceAdapter, реальный канал налоговой службы — зарезервированная точка адаптации) + `app/service/sales/CreditControlService.php` (блокировка заказов сверх лимита) |
-| v1.4.0 — лояльность/HR/проекты C1/H1-H4/P1 | добавлено | `app/service/retail/MemberService.php` + `app/controller/retail/` (MemberController/CouponController) + `app/service/hr/` (RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
 | v1.4.0 — платформа/каналы B3/B4/B7/E1 | добавлено | `app/controller/workflow/WorkflowDesignerController.php` (персистентность в canvas_json) + `app/service/notification/` (ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, повтор при сбое) + `app/controller/notification/NotificationChannelController.php` (`tests/NotificationChannelTest.php`, 5 кейсов) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php` (сканирование при осмотре) |
 | v1.17.0 — мультиязычность (i18n) | добавлено | Бэкенд: `resource/translations/` (13 каталогов языков zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, в каждом три файла common+modules+validation, у 11 языков по 542 записи, `zh_CN` 533, `en` 30; en — «английский как key») + `app/common/I18n.php` (`getLocale()` разбирает первый тег `Accept-Language` и отображает подтег основного языка zh*→zh_CN; `trans()` для не-en идёт по `[язык запроса, zh_CN, en]`→key, для en китайский не подставляется) + `config/translation.php` + скрипт генерации `scripts/gen-be-locales.mjs`; фронтенд: `apps/react/src/lib/i18n/` (`index.tsx` + `zhEn` + 11 файлов языков) и `apps/angular/src/app/core/` (`zh-en/` (index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`) (словари 11 новых языков загружаются лениво, Angular 1453 / React 1447 ключ) + `scripts/gen-fe-locales.mjs`; точка переключения = значок глобуса в верхней панели + выпадающий список в личном кабинете; Flutter (`apps/flutter/lib/l10n/`) и HarmonyOS (`entry/src/main/resources/`) по-прежнему поддерживают только китайский и английский |
 

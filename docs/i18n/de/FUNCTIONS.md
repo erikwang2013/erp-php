@@ -285,11 +285,6 @@ Das Open-ERP-System (open-erp) deckt 23 Geschäftsdomänen <!-- stats:modules=22
 - 5 Endpunkte: reports/generate/reportShow/metrics/storeMetric (AnalyticsController)
 - Unterstützt monatlich/quartalsweise/jährlich
 
-### 7.6 Mitgliederwert-Engine (v1.4.0 geliefert)
-
-- Mitglieder und Guthaben: MemberService openMember/recharge/consume/refund
-- Punkte und Gutscheine: earnPoints/consumePoints/expirePoints Punktejournal + issueCoupon/redeemCoupon Gutscheineinlösung (MemberController / CouponController)
-
 ---
 
 ## 8. Genehmigungsworkflow-Engine
@@ -626,7 +621,6 @@ Arbeitszeitbuchung → Zusammenführung auf die Aufgabe → Aggregation zu Proje
 | Projektkosten/Budget (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Wechselpapiere/Bankabstimmung (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Eingangsrechnungspool/E-Rechnung (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| Mitgliederwert (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Multi-Mandant (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 teilweise aktiviert |
 | Kanalbenachrichtigung/benutzerdefinierte Felder (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Projektmanagement | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -696,7 +690,6 @@ Grundlage dieser Vollständigkeitskorrektur (Dateiexistenz kann durch `bash scri
 | v1.4.0 — Bestands- und Produktionskostenrechnung (F3) | neu | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — Fertigungsausführung M1/M2/M3/M6 | neu | `app/service/manufacturing/` (WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php` (Chargen-/Seriennummern-Rückverfolgung und Verfallsdatumswarnung) + zugehörige Controller WorkReport/PieceWage/Subcontract/Capacity |
 | v1.4.0 — Finanzmittel/Steuern F6/F5 + F7 | neu | `app/service/finance/FinanceBillService.php` + `BankReconService.php` (Kontoauszugsimport / automatische und manuelle Abstimmung) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php` (EInvoiceAdapter/MockEInvoiceAdapter, die echte Steuerbehörde ist der vorbereitete Anpassungspunkt) + `app/service/sales/CreditControlService.php` (Abfangen von Bestellungen über dem Limit per Assertion) |
-| v1.4.0 — Mitglieder/HR/Projekt C1/H1-H4/P1 | neu | `app/service/retail/MemberService.php` + `app/controller/retail/` (MemberController/CouponController) + `app/service/hr/` (RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
 | v1.4.0 — Plattform/Kanäle B3/B4/B7/E1 | neu | `app/controller/workflow/WorkflowDesignerController.php` (canvas_json-Persistenz) + `app/service/notification/` (ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, Wiederholung bei Fehlschlag) + `app/controller/notification/NotificationChannelController.php` (`tests/NotificationChannelTest.php` 5 Fälle) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php` (Prüfungs-QR-Scan) |
 | v1.17.0 — Mehrsprachigkeit (i18n) | neu | Backend: `resource/translations/` (13 Sprachverzeichnisse zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, je Sprache die drei Dateien common+modules+validation, 11 Sprachen mit je 542 Einträgen (zh_CN 533, en 30); bei en gilt „Englisch ist der Key") + `app/common/I18n.php` (`getLocale()` wertet das erste Tag aus `Accept-Language` aus, Mapping der Hauptsprach-Subtags zh*→zh_CN; `trans()` geht für Nicht-en über `[Anfragesprache, zh_CN, en]`→Key, bei en wird kein Chinesisch hinterlegt) + `config/translation.php` + Generatorskript `scripts/gen-be-locales.mjs`; Frontend: `apps/react/src/lib/i18n/` (`index.tsx` + `zhEn` + 11 Sprachdateien) und `apps/angular/src/app/core/` (`zh-en/` (index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`) (die Wörterbücher der 11 neuen Sprachen werden je Sprache per Lazy-Loading geladen, Angular 1453 / React 1447 Schlüssel) + `scripts/gen-fe-locales.mjs`; Umschaltpunkte = Globus-Symbol in der oberen Leiste + Dropdown im persönlichen Bereich; Flutter (`apps/flutter/lib/l10n/`) und HarmonyOS (`entry/src/main/resources/`) bleiben bei zwei Sprachen (Chinesisch/Englisch) |
 > Detaillierte Roadmap-Designspezifikation: `superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`

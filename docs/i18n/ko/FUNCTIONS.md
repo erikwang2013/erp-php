@@ -287,11 +287,6 @@
 - 리포트 자동 생성(JSON 데이터 스냅샷)
 - 월간/분기/연간 지원
 
-### 7.6 멤버 가치 엔진(v1.4.0 전달)
-
-- 멤버와 선불 충전: MemberService openMember/recharge/consume/refund
-- 포인트와 쿠폰: earnPoints/consumePoints/expirePoints 포인트 이력 + issueCoupon/redeemCoupon 쿠폰 사용(MemberController / CouponController)
-
 ---
 
 ## 8. 승인 워크플로 엔진
@@ -630,7 +625,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 프로젝트 원가/예산 (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 어음/은행 거래 대사 (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 매입 세금계산서 풀/전자세금계산서 (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 멤버 가치 (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 멀티테넌트 (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 일부 활성화 |
 | 채널 알림/커스텀 필드 (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 프로젝트 관리 | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -691,7 +685,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | v1.4.0 — 재고·생산 원가 (F3) | 신설 | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — 제조 실행 M1/M2/M3/M6 | 신설 | `app/service/manufacturing/`(WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php`(로트/시리얼 추적과 유효기간 경고) + 대응 컨트롤러 WorkReport/PieceWage/Subcontract/Capacity |
 | v1.4.0 — 재무 자금/세무 F6/F5 + F7 | 신설 | `app/service/finance/FinanceBillService.php` + `BankReconService.php`(거래내역 가져오기/자동·수동 상계) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php`(EInvoiceAdapter/MockEInvoiceAdapter, 실제 세무 당국은 예약 어댑터 지점) + `app/service/sales/CreditControlService.php`(한도 초과 주문 단언 차단) |
-| v1.4.0 — 멤버/HR/프로젝트 C1/H1-H4/P1 | 신설 | `app/service/retail/MemberService.php` + `app/controller/retail/`(MemberController/CouponController) + `app/service/hr/`(RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
 | v1.4.0 — 플랫폼/채널 B3/B4/B7/E1 | 신설 | `app/controller/workflow/WorkflowDesignerController.php`(canvas_json 영속화) + `app/service/notification/`(ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, 실패 재시도) + `app/controller/notification/NotificationChannelController.php`(`tests/NotificationChannelTest.php` 5건) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php`(점검 스캔) |
 | v1.17.0 — 다국어 (i18n) | 신설 | 백엔드: `resource/translations/`(13개 로케일 디렉터리 zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, 로케일마다 common+modules+validation 3개 파일, 11개 로케일 각 542건(zh_CN 533, en 30). en은 영어가 곧 key) + `app/common/I18n.php`(`getLocale()`이 `Accept-Language` 첫 태그를 파싱하고 주 언어 서브태그를 zh*→zh_CN으로 매핑. `trans()`는 en이 아니면 `[요청 로케일, zh_CN, en]` 순으로 조회하고 en은 중국어로 폴백하지 않음) + `config/translation.php` + 생성 스크립트 `scripts/gen-be-locales.mjs`; 프론트엔드: `apps/react/src/lib/i18n/`(`index.tsx` + `zhEn` + 11개 로케일 파일)과 `apps/angular/src/app/core/`(`zh-en/`(index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`)(11개 신규 로케일 사전을 로케일별 지연 로딩, Angular 1453 / React 1447 키) + `scripts/gen-fe-locales.mjs`; 전환 진입점 = 상단 바 지구본 아이콘 + 개인 센터 드롭다운; Flutter(`apps/flutter/lib/l10n/`)와 HarmonyOS(`entry/src/main/resources/`)는 여전히 중/영 2개 로케일 |
 

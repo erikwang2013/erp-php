@@ -287,11 +287,6 @@
 - レポート自動生成（JSON データスナップショット）
 - 月次/四半期/年次対応
 
-### 7.6 会員価値エンジン（v1.4.0 納品）
-
-- 会員とチャージ：MemberService openMember/recharge/consume/refund
-- ポイントとクーポン：earnPoints/consumePoints/expirePoints のポイント流水 + issueCoupon/redeemCoupon のクーポン消込（MemberController / CouponController）
-
 ---
 
 ## 8. 承認ワークフローエンジン
@@ -630,7 +625,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | プロジェクト原価/予算 (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 手形/銀行勘定調整 (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 仕入プール/電子インボイス (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 会員価値 (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | マルチテナント (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 部分的有効化 |
 | チャネル通知/カスタムフィールド (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | プロジェクト管理 | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -691,7 +685,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | v1.4.0 — 棚卸資産と生産原価 (F3) | 新規 | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — 製造実行 M1/M2/M3/M6 | 新規 | `app/service/manufacturing/`（WorkReportService/PieceWageService/SubcontractService/MfgCapacityService）+ `app/service/inventory/TraceService.php`（ロット/シリアル追跡と期限アラート）+ 対応コントローラー WorkReport/PieceWage/Subcontract/Capacity |
 | v1.4.0 — 財務資金/税務 F6/F5 + F7 | 新規 | `app/service/finance/FinanceBillService.php` + `BankReconService.php`（明細取込/自動・手動消込）+ `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php`（EInvoiceAdapter/MockEInvoiceAdapter、実際の税務当局はアダプターポイント）+ `app/service/sales/CreditControlService.php`（限度超過注文のアサーションによる遮断） |
-| v1.4.0 — 会員/HR/プロジェクト C1/H1-H4/P1 | 新規 | `app/service/retail/MemberService.php` + `app/controller/retail/`（MemberController/CouponController）+ `app/service/hr/`（RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService）+ `app/service/project/ProjectCostService.php` |
 | v1.4.0 — プラットフォーム/チャネル B3/B4/B7/E1 | 新規 | `app/controller/workflow/WorkflowDesignerController.php`（canvas_json の永続化）+ `app/service/notification/`（ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver、失敗時リトライ）+ `app/controller/notification/NotificationChannelController.php`（`tests/NotificationChannelTest.php` 5 例）+ `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php`（点検コードスキャン） |
 | v1.17.0 — 多言語 (i18n) | 新規 | バックエンド：`resource/translations/`（13 語種ディレクトリ zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id、各語種 common+modules+validation の 3 ファイル、11 語種は各 542 条（zh_CN 533、en 30）；en は英語すなわち key）+ `app/common/I18n.php`（`getLocale()` が `Accept-Language` の先頭タグを解析し、主言語サブタグをマッピング zh*→zh_CN；`trans()` は en 以外なら `[リクエスト語種, zh_CN, en]`→key の順に解決し、en は中国語にフォールバックしない）+ `config/translation.php` + 生成スクリプト `scripts/gen-be-locales.mjs`；フロントエンド：`apps/react/src/lib/i18n/`（`index.tsx` + `zhEn` + 11 語種ファイル）と `apps/angular/src/app/core/`（`zh-en/`（index + part1..4）+ `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`）（11 新語種の辞書は語種ごとに遅延読み込み、Angular 1453 / React 1447 キー）+ `scripts/gen-fe-locales.mjs`；切替入口 = トップバーの地球アイコン + 個人センターのドロップダウン；Flutter（`apps/flutter/lib/l10n/`）と HarmonyOS（`entry/src/main/resources/`）は依然として中/英の 2 語種 |
 

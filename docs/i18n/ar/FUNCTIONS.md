@@ -281,10 +281,6 @@
 - توليد تلقائي للتقارير (لقطة بيانات JSON)
 - دعم شهري/ربع سنوي/سنوي
 
-### 7.6 محرك قيمة العضوية (سُلّم في v1.4.0)
-- العضوية والتخزين: MemberService openMember/recharge/consume/refund
-- النقاط والكوبونات: earnPoints/consumePoints/expirePoints لسجل النقاط + issueCoupon/redeemCoupon لإلغاء الكوبون (MemberController / CouponController)
-
 ---
 
 ## 8. محرك سير عمل الموافقات
@@ -616,7 +612,6 @@
 | تكلفة المشروع/الميزانية (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | السندات/التسوية البنكية (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | مجمع المدخلات/الفواتير الإلكترونية (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| قيمة العضوية (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | تعدد المستأجرين (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 تفعيل جزئي |
 | قنوات الإشعار/الحقول المخصصة (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | إدارة المشاريع | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -677,7 +672,6 @@
 | v1.4.0 — المخزون وتكلفة الإنتاج (F3) | جديد | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — تنفيذ التصنيع M1/M2/M3/M6 | جديد | `app/service/manufacturing/` (WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php` (تتبع الدفعات/الأرقام التسلسلية والتنبيه بالصلاحية) + وحدات التحكم المقابلة WorkReport/PieceWage/Subcontract/Capacity |
 | v1.4.0 — أموال المالية/الضرائب F6/F5 + F7 | جديد | `app/service/finance/FinanceBillService.php` + `BankReconService.php` (استيراد كشف الحساب والمقاصة التلقائية واليدوية) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php` (EInvoiceAdapter/MockEInvoiceAdapter، وقناة مصلحة الضرائب الحقيقية نقطة تكيّف محجوزة) + `app/service/sales/CreditControlService.php` (اعتراض الأوامر المتجاوزة للحد) |
-| v1.4.0 — العضوية/الموارد البشرية/المشروع C1/H1-H4/P1 | جديد | `app/service/retail/MemberService.php` + `app/controller/retail/` (MemberController/CouponController) + `app/service/hr/` (RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
 | v1.4.0 — المنصة/القنوات B3/B4/B7/E1 | جديد | `app/controller/workflow/WorkflowDesignerController.php` (persist في canvas_json) + `app/service/notification/` (ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver، مع إعادة المحاولة عند الفشل) + `app/controller/notification/NotificationChannelController.php` (`tests/NotificationChannelTest.php` 5 حالات) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php` (مسح نقطة التفتيش) |
 | v1.17.0 — تعدد اللغات (i18n) | جديد | الخلفية: `resource/translations/` (13 دليل لغة zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id، ولكل لغة ملفات common+modules+validation الثلاثة، واللغات الـ 11 بـ 542 مدخلًا لكل لغة (zh_CN 533، en 30)؛ وen قاموسه «الإنجليزية هي المفتاح») + `app/common/I18n.php` (`getLocale()` تحلّل أول وسم من `Accept-Language` وتربط اللغة الرئيسية zh*→zh_CN؛ و`trans()` لغير en تسلك `[لغة الطلب, zh_CN, en]`←key، وen لا ترجع للنص الصيني) + `config/translation.php` + سكربت التوليد `scripts/gen-be-locales.mjs`؛ الواجهة: `apps/react/src/lib/i18n/` (`index.tsx` + `zhEn` + 11 ملف لغة) و`apps/angular/src/app/core/` (`zh-en/` (index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`) (قواميس اللغات الـ 11 الجديدة تُحمَّل كسولًا حسب اللغة، Angular 1453 مفتاحًا / React 1447 مفتاحًا) + `scripts/gen-fe-locales.mjs`؛ ومدخل التبديل = أيقونة الكرة الأرضية في الشريط العلوي + القائمة المنسدلة في المركز الشخصي؛ ولا يزال Flutter (`apps/flutter/lib/l10n/`) وHarmonyOS (`entry/src/main/resources/`) بلغتين (الصينية/الإنجليزية) |
 

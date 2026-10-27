@@ -288,11 +288,6 @@ The Open ERP System (open-erp) covers 23 business domains <!-- stats:modules=22 
 - 5 endpoints: reports/generate/reportShow/metrics/storeMetric (AnalyticsController)
 - Monthly/quarterly/yearly supported
 
-### 7.6 Membership Value Engine (delivered in v1.4.0)
-
-- Membership and stored value: MemberService openMember/recharge/consume/refund
-- Points and coupons: earnPoints/consumePoints/expirePoints point ledgers + issueCoupon/redeemCoupon coupon redemption (MemberController / CouponController)
-
 ---
 
 ## 8. Approval Workflow Engine
@@ -633,7 +628,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Project cost/budget (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Bills/bank reconciliation (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Input invoice pool/e-invoices (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| Membership value (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Multi-tenancy (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 partially enabled |
 | Channel notification/custom fields (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Project management | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -694,7 +688,6 @@ The basis for this round's completion corrections (file existence can be corrobo
 | v1.4.0 — inventory and production cost (F3) | Added | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — manufacturing execution M1/M2/M3/M6 | Added | `app/service/manufacturing/` (WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php` (batch/serial traceability and expiry alerts) + the corresponding WorkReport/PieceWage/Subcontract/Capacity controllers |
 | v1.4.0 — finance treasury/tax F6/F5 + F7 | Added | `app/service/finance/FinanceBillService.php` + `BankReconService.php` (statement import/automatic and manual reconciliation) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php` (EInvoiceAdapter/MockEInvoiceAdapter; the real tax bureau is a reserved adaptation point) + `app/service/sales/CreditControlService.php` (assertion-based blocking of over-limit orders) |
-| v1.4.0 — membership/HR/project C1/H1-H4/P1 | Added | `app/service/retail/MemberService.php` + `app/controller/retail/` (MemberController/CouponController) + `app/service/hr/` (RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
 | v1.4.0 — platform/channels B3/B4/B7/E1 | Added | `app/controller/workflow/WorkflowDesignerController.php` (canvas_json persistence) + `app/service/notification/` (ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, with failure retry) + `app/controller/notification/NotificationChannelController.php` (`tests/NotificationChannelTest.php` 5 cases) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php` (spot-check scanning) |
 | v1.17.0 — multi-language (i18n) | Added | Backend: `resource/translations/` (13 locale directories zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, each with common+modules+validation in three files, each of the other 11 locales 542 entries (zh_CN 533, en 30); en is English-as-key) + `app/common/I18n.php` (`getLocale()` resolves the first `Accept-Language` tag and maps the primary subtag zh*→zh_CN; `trans()` for non-en follows `[request locale, zh_CN, en]`→key, and en never falls back to Chinese) + `config/translation.php` + the generator `scripts/gen-be-locales.mjs`; Frontend: `apps/react/src/lib/i18n/` (`index.tsx` + `zhEn` + 11 locale files) and `apps/angular/src/app/core/` (`zh-en/` (index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`) (the 11 new locale dictionaries are lazily loaded per locale; Angular 1453 / React 1447 keys) + `scripts/gen-fe-locales.mjs`; switch entry points = the top-bar globe icon + the personal-center dropdown; Flutter (`apps/flutter/lib/l10n/`) and HarmonyOS (`entry/src/main/resources/`) remain Chinese/English only |
 

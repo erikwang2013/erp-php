@@ -287,11 +287,6 @@
 - रिपोर्ट स्वतः उत्पन्न (JSON डेटा स्नैपशॉट)
 - मासिक/त्रैमासिक/वार्षिक समर्थित
 
-### 7.6 सदस्यता मूल्य इंजन (v1.4.0 डिलीवरी)
-
-- सदस्यता और स्टोर्ड वैल्यू: MemberService openMember/recharge/consume/refund
-- अंक और कूपन: earnPoints/consumePoints/expirePoints अंक प्रवाह + issueCoupon/redeemCoupon कूपन निपटान (MemberController / CouponController)
-
 ---
 
 ## 8. अनुमोदन वर्कफ़्लो इंजन
@@ -630,7 +625,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | परियोजना लागत/बजट (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | बिल/बैंक-उद्यम समाधान (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | इनपुट पूल/ई-बिल (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| सदस्यता मूल्य (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | मल्टी-टेनेंट (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 आंशिक रूप से सक्षम |
 | चैनल अधिसूचना/कस्टम फ़ील्ड (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | परियोजना प्रबंधन | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -691,7 +685,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | v1.4.0 — इन्वेंटरी और उत्पादन लागत (F3) | नया | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — विनिर्माण निष्पादन M1/M2/M3/M6 | नया | `app/service/manufacturing/` (WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php` (बैच/सीरियल नंबर ट्रेसिंग और समाप्ति चेतावनी) + संबंधित कंट्रोलर WorkReport/PieceWage/Subcontract/Capacity |
 | v1.4.0 — वित्त कोष/कर F6/F5 + F7 | नया | `app/service/finance/FinanceBillService.php` + `BankReconService.php` (विवरण आयात/स्वचालित व मैनुअल मिलान) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php` (EInvoiceAdapter/MockEInvoiceAdapter, वास्तविक कर विभाग हेतु आरक्षित अनुकूलन बिंदु) + `app/service/sales/CreditControlService.php` (सीमा-अतिक्रमण ऑर्डर assertion अवरोध) |
-| v1.4.0 — सदस्यता/HR/परियोजना C1/H1-H4/P1 | नया | `app/service/retail/MemberService.php` + `app/controller/retail/` (MemberController/CouponController) + `app/service/hr/` (RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
 | v1.4.0 — प्लेटफ़ॉर्म/चैनल B3/B4/B7/E1 | नया | `app/controller/workflow/WorkflowDesignerController.php` (canvas_json स्थायीकरण) + `app/service/notification/` (ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, विफलता पुनःप्रयास) + `app/controller/notification/NotificationChannelController.php` (`tests/NotificationChannelTest.php` 5 उदाहरण) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php` (निरीक्षण स्कैन) |
 | v1.17.0 — बहुभाषा (i18n) | नया | बैकएंड: `resource/translations/` (13 भाषा निर्देशिकाएँ zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, प्रत्येक भाषा में common+modules+validation तीन फ़ाइलें, 11 भाषाओं में प्रत्येक 542 प्रविष्टियाँ (zh_CN 533, en 30); en में अंग्रेज़ी ही key है) + `app/common/I18n.php` (`getLocale()` `Accept-Language` का पहला टैग पार्स करता है, मुख्य भाषा उप-टैग मैपिंग zh*→zh_CN; `trans()` en के अलावा `[अनुरोध भाषा, zh_CN, en]`→key क्रम में, en चीनी में नहीं गिरता) + `config/translation.php` + जनरेटर स्क्रिप्ट `scripts/gen-be-locales.mjs`; फ्रंटएंड: `apps/react/src/lib/i18n/` (`index.tsx` + `zhEn` + 11 भाषा फ़ाइलें) और `apps/angular/src/app/core/` (`zh-en/` (index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`) (11 नई भाषा शब्दकोश भाषा अनुसार लेज़ी-लोड, Angular 1453 / React 1447 key) + `scripts/gen-fe-locales.mjs`; स्विचिंग प्रवेश = शीर्ष बार का ग्लोब आइकन + व्यक्तिगत केंद्र ड्रॉपडाउन; Flutter (`apps/flutter/lib/l10n/`) और HarmonyOS (`entry/src/main/resources/`) अभी भी चीनी/अंग्रेज़ी दो भाषाएँ |
 

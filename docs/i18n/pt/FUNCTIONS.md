@@ -295,11 +295,6 @@ O Sistema ERP Aberto (open-erp) cobre 23 domínios de negócio <!-- stats:module
 
 ---
 
-### 7.6 Motor de valor do cliente (entregue na v1.4.0)
-
-- Membros e saldo armazenado: MemberService openMember/recharge/consume/refund
-- Pontos e cupons: earnPoints/consumePoints/expirePoints no extrato de pontos + issueCoupon/redeemCoupon para baixa de cupons (MemberController / CouponController)
-
 ---
 
 ## 8. Mecanismo de fluxo de aprovação
@@ -646,7 +641,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Custo/orçamento de projeto (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Títulos/conciliação bancária (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Pool de entradas/faturamento eletrônico (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| Valor do cliente (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Multi-tenant (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0, ativação parcial |
 | Notificações de canal/campos personalizados (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Gestão de projetos | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -707,7 +701,6 @@ Base das correções de completude desta versão (a existência dos arquivos pod
 | v1.4.0 — estoque e custo de produção (F3) | novo | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — execução de manufatura M1/M2/M3/M6 | novo | `app/service/manufacturing/` (WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php` (rastreabilidade de lotes/números de série e alerta de validade) + os controllers correspondentes WorkReport/PieceWage/Subcontract/Capacity |
 | v1.4.0 — recursos e tributos financeiros F6/F5 + F7 | novo | `app/service/finance/FinanceBillService.php` + `BankReconService.php` (importação de extrato/conciliação automática e manual) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php` (EInvoiceAdapter/MockEInvoiceAdapter, autoridade fiscal real como ponto de adaptação reservado) + `app/service/sales/CreditControlService.php` (bloqueio por asserção de pedidos acima do limite) |
-| v1.4.0 — membros/RH/projetos C1/H1-H4/P1 | novo | `app/service/retail/MemberService.php` + `app/controller/retail/` (MemberController/CouponController) + `app/service/hr/` (RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
 | v1.4.0 — plataforma/canais B3/B4/B7/E1 | novo | `app/controller/workflow/WorkflowDesignerController.php` (persistência em canvas_json) + `app/service/notification/` (ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, com novas tentativas em caso de falha) + `app/controller/notification/NotificationChannelController.php` (`tests/NotificationChannelTest.php` 5 casos) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php` (inspeção por leitura de QR) |
 | v1.17.0 — multilíngue (i18n) | novo | Backend: `resource/translations/` (13 diretórios de idioma zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, cada idioma com os três arquivos common+modules+validation, cada um dos 11 idiomas com 542 entradas (zh_CN 533, en 30); em `en` o inglês é a chave) + `app/common/I18n.php` (`getLocale()` resolve a primeira tag de `Accept-Language` e mapeia a sub-tag do idioma principal zh*→zh_CN; `trans()` para idiomas diferentes de en percorre `[idioma da requisição, zh_CN, en]`→key e, para `en`, não cai no chinês) + `config/translation.php` + script gerador `scripts/gen-be-locales.mjs`; frontend: `apps/react/src/lib/i18n/` (`index.tsx` + `zhEn` + 11 arquivos de idioma) e `apps/angular/src/app/core/` (`zh-en/` (index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`) (dicionários dos 11 novos idiomas carregados sob demanda por idioma, com Angular 1453 / React 1447 chaves) + `scripts/gen-fe-locales.mjs`; ponto de troca = ícone globe na barra superior + menu suspenso do centro pessoal; Flutter (`apps/flutter/lib/l10n/`) e HarmonyOS (`entry/src/main/resources/`) continuam com dois idiomas (chinês/inglês) |
 

@@ -281,10 +281,6 @@ Sistem ERP Terbuka (open-erp) mencakup 23 domain bisnis <!-- stats:modules=22 --
 - Laporan dibuat otomatis (snapshot data JSON)
 - Mendukung bulanan/kuartalan/tahunan
 
-### 7.6 Mesin Nilai Member (dikirim v1.4.0)
-- Member dan saldo tersimpan: MemberService openMember/recharge/consume/refund
-- Poin dan voucher: earnPoints/consumePoints/expirePoints mutasi poin + issueCoupon/redeemCoupon pemakaian voucher (MemberController / CouponController)
-
 ---
 
 ## 8. Mesin Alur Persetujuan
@@ -616,7 +612,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Biaya Proyek/Anggaran (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Nota/Rekonsiliasi Bank-Perusahaan (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Kolam Masukan/E-Faktur (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| Nilai Member (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Multi-Tenant (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 aktif sebagian |
 | Notifikasi Kanal/Field Kustom (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Manajemen Proyek | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -677,7 +672,6 @@ Dasar koreksi kelengkapan kali ini (keberadaan file dapat dibuktikan oleh `bash 
 | v1.4.0 — Persediaan dan Biaya Produksi (F3) | Baru | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — Eksekusi Manufaktur M1/M2/M3/M6 | Baru | `app/service/manufacturing/` (WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php` (penelusuran batch/nomor seri dan peringatan masa berlaku) + controller terkait WorkReport/PieceWage/Subcontract/Capacity |
 | v1.4.0 — Dana Keuangan/Perpajakan F6/F5 + F7 | Baru | `app/service/finance/FinanceBillService.php` + `BankReconService.php` (impor rekening koran/penyelesaian otomatis dan manual) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php` (EInvoiceAdapter/MockEInvoiceAdapter, otoritas pajak nyata sebagai titik adaptasi cadangan) + `app/service/sales/CreditControlService.php` (pencegatan dengan asersi untuk pesanan melampaui batas) |
-| v1.4.0 — Member/HR/Proyek C1/H1-H4/P1 | Baru | `app/service/retail/MemberService.php` + `app/controller/retail/` (MemberController/CouponController) + `app/service/hr/` (RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
 | v1.4.0 — Platform/Kanal B3/B4/B7/E1 | Baru | `app/controller/workflow/WorkflowDesignerController.php` (persistensi canvas_json) + `app/service/notification/` (ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, percobaan ulang saat gagal) + `app/controller/notification/NotificationChannelController.php` (`tests/NotificationChannelTest.php` 5 kasus) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php` (inspeksi pemindaian kode) |
 | v1.17.0 — Multi-bahasa (i18n) | Baru | Backend: `resource/translations/` (13 direktori bahasa zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, setiap bahasa tiga berkas common+modules+validation, 11 bahasa masing-masing 542 entri (zh_CN 533, en 30); en adalah Inggris sebagai key) + `app/common/I18n.php` (`getLocale()` mengurai label pertama `Accept-Language`, memetakan sub-label bahasa utama zh*→zh_CN; `trans()` untuk non-en menempuh `[bahasa permintaan, zh_CN, en]`→key, en tidak jatuh ke 中文) + `config/translation.php` + skrip generator `scripts/gen-be-locales.mjs`; Frontend: `apps/react/src/lib/i18n/` (`index.tsx` + `zhEn` + 11 berkas bahasa) dan `apps/angular/src/app/core/` (`zh-en/` (index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`) (kamus 11 bahasa baru dimuat lambat per bahasa, Angular 1453 / React 1447 kunci) + `scripts/gen-fe-locales.mjs`; pintu masuk peralihan = ikon globe bilah atas + dropdown pusat pribadi; Flutter (`apps/flutter/lib/l10n/`) dan HarmonyOS (`entry/src/main/resources/`) masih dua bahasa 中文/Inggris |
 

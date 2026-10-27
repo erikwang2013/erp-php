@@ -287,11 +287,6 @@ Le système ERP Open (open-erp) couvre 23 domaines métier <!-- stats:modules=22
 - Génération automatique des rapports (instantané des données JSON)
 - Prise en charge mensuel / trimestriel / annuel
 
-### 7.6 Moteur de valeur des membres (livré en v1.4.0)
-
-- Membres et portefeuille : MemberService openMember/recharge/consume/refund
-- Points et coupons : earnPoints/consumePoints/expirePoints flux de points + issueCoupon/redeemCoupon utilisation des coupons (MemberController / CouponController)
-
 ---
 
 ## 8. Moteur de workflow d'approbation
@@ -629,7 +624,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Coûts de projet / budget (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Effets / rapprochement bancaire (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Pool d'entrées / factures électroniques (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| Valeur des membres (C1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Multi-tenant (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 activation partielle |
 | Notification de canaux / champs personnalisés (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | Gestion de projets | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -690,7 +684,6 @@ Justifications de cette correction d'achèvement (l'existence des fichiers peut 
 | v1.4.0 — stocks et coûts de production (F3) | Nouveau | `app/controller/manufacturing/MaterialIssueController.php` + `CostEntryController.php` + `app/service/manufacturing/MfgCostService.php` + `MfgCostVoucherRule.php` |
 | v1.4.0 — exécution de fabrication M1/M2/M3/M6 | Nouveau | `app/service/manufacturing/` (WorkReportService/PieceWageService/SubcontractService/MfgCapacityService) + `app/service/inventory/TraceService.php` (traçabilité par lots/numéros de série et alerte de péremption) + contrôleurs correspondants WorkReport/PieceWage/Subcontract/Capacity |
 | v1.4.0 — trésorerie/fiscalité F6/F5 + F7 | Nouveau | `app/service/finance/FinanceBillService.php` + `BankReconService.php` (import des relevés/lettrage automatique et manuel) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php` (EInvoiceAdapter/MockEInvoiceAdapter, canal réel de l'administration fiscale réservé comme point d'adaptation) + `app/service/sales/CreditControlService.php` (assertion bloquant les commandes hors limite) |
-| v1.4.0 — membres/RH/projet C1/H1-H4/P1 | Nouveau | `app/service/retail/MemberService.php` + `app/controller/retail/` (MemberController/CouponController) + `app/service/hr/` (RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService) + `app/service/project/ProjectCostService.php` |
 | v1.4.0 — plateforme/canaux B3/B4/B7/E1 | Nouveau | `app/controller/workflow/WorkflowDesignerController.php` (persistance canvas_json) + `app/service/notification/` (ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, nouvelle tentative en cas d'échec) + `app/controller/notification/NotificationChannelController.php` (`tests/NotificationChannelTest.php` 5 cas) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php` (pointage par scan) |
 | v1.17.0 — multilingue (i18n) | Nouveau | Backend : `resource/translations/` (13 répertoires de langue zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, trois fichiers common+modules+validation par langue, 542 entrées pour chacune des 11 langues (zh_CN 533, en 30) ; l'anglais est la clé pour `en`) + `app/common/I18n.php` (`getLocale()` lit la première balise de `Accept-Language` et mappe la sous-balise de langue principale zh*→zh_CN ; `trans()` hors `en` passe par `[langue de la requête, zh_CN, en]`→clé, `en` ne retombe pas sur le chinois) + `config/translation.php` + script de génération `scripts/gen-be-locales.mjs` ; frontend : `apps/react/src/lib/i18n/` (`index.tsx` + `zhEn` + 11 fichiers de langue) et `apps/angular/src/app/core/` (`zh-en/` (index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`) (dictionnaires des 11 nouvelles langues chargés paresseusement par langue, Angular 1453 / React 1447 clés) + `scripts/gen-fe-locales.mjs` ; points de bascule = icône globe de la barre supérieure + menu déroulant de l'espace personnel ; Flutter (`apps/flutter/lib/l10n/`) et HarmonyOS (`entry/src/main/resources/`) restent en chinois/anglais |
 

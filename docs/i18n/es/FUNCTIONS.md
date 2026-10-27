@@ -287,11 +287,6 @@ El Sistema ERP Abierto (open-erp) cubre 23 dominios de negocio <!-- stats:module
 - Generación automática de informes (instantánea de datos en JSON)
 - Soporte mensual/trimestral/anual
 
-### 7.6 Motor de valor de los miembros (entregado en v1.4.0)
-
-- Miembros y saldo prepago: MemberService openMember/recharge/consume/refund
-- Puntos y cupones: earnPoints/consumePoints/expirePoints como flujo de puntos + issueCoupon/redeemCoupon para la compensación de cupones (MemberController / CouponController)
-
 ---
 
 ## 8. Motor de flujo de aprobación
