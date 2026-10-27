@@ -188,10 +188,6 @@ Route::group('/admin/v1', function () {
     Route::post('/finance/tax-input-invoice/{id}/verify', [app\controller\finance\TaxInvoicePoolController::class, 'verify']);
     Route::post('/finance/tax-input-invoice/{id}/check', [app\controller\finance\TaxInvoicePoolController::class, 'check']);
     Route::post('/finance/tax-input-invoice/{id}/deduct', [app\controller\finance\TaxInvoicePoolController::class, 'deduct']);
-    // 数电票出口（P2-F5）
-    Route::post('/finance/e-invoice/{id}/issue', [app\controller\finance\EInvoiceController::class, 'issue']);
-    Route::post('/finance/e-invoice/{id}/void', [app\controller\finance\EInvoiceController::class, 'void']);
-    Route::get('/finance/e-invoice/{id}/logs', [app\controller\finance\EInvoiceController::class, 'logs']);
     // 多租户（P2-B5）
     Route::get('/platform/tenant/list', [app\controller\platform\TenantController::class, 'list']);
     Route::get('/platform/tenant/expiry-warnings', [app\controller\platform\TenantController::class, 'expiryWarnings']);

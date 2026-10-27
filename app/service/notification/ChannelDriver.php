@@ -12,8 +12,8 @@ namespace app\service\notification;
  * 通知渠道驱动接口（B4, P2-5）
  *
  * 每个渠道一个驱动：sms → MockChannelDriver、mail → MailMockChannelDriver。
- * 真实 SMS/邮件网关为后续适配器（同 F5 EInvoiceAdapter 抽象先例）：在
- * ChannelService 的渠道 map 处替换驱动即可，驱动返回值契约与发送日志
+ * 真实 SMS/邮件网关为后续适配器：在 ChannelService 的渠道 map 处替换驱动即可，
+ * 驱动返回值契约与发送日志
  * 结构不变。send() 只做渠道语义校验与投递，幂等与日志由 ChannelService
  * 负责，驱动不得自己建日志。
  */

@@ -4589,22 +4589,6 @@ CREATE TABLE IF NOT EXISTS `erp_tax_input_invoice` (
     KEY `idx_issue_date` (`issue_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='进项发票池(P2-F5)';
 
-CREATE TABLE IF NOT EXISTS `erp_tax_issue_log` (
-    `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
-    `invoice_id` BIGINT UNSIGNED NOT NULL COMMENT '发票ID(erp_finance_invoice.id)',
-    `action` VARCHAR(10) NOT NULL COMMENT '动作: issue=开票 void=红冲',
-    `bill_no` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '数电票号码(平台回写，失败为空)',
-    `platform` VARCHAR(30) NOT NULL DEFAULT 'mock' COMMENT '平台适配器标识(platform())',
-    `request` JSON DEFAULT NULL COMMENT '请求报文(适配器入参)',
-    `response` JSON DEFAULT NULL COMMENT '响应报文(适配器返回值)',
-    `success` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '是否成功: 0=失败 1=成功',
-    `error` VARCHAR(500) NOT NULL DEFAULT '' COMMENT '失败原因',
-    `operator_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '操作人ID',
-    `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (`id`),
-    KEY `idx_invoice_id` (`invoice_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='数电票开票/红冲日志(P2-F5)';
-
 CREATE TABLE IF NOT EXISTS `erp_finance_invoice_match_log` (
     `id` BIGINT UNSIGNED NOT NULL COMMENT '主键ID，由snowflake生成',
     `invoice_id` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '发票ID(0=校验未通过的拟开票尝试)',
@@ -4816,7 +4800,6 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000000908, 31000000000000005, '合并报表-列表',             'get.admin/finance/consolidation/list',        3, '', '', 49, NOW(), NOW()),
 (31000000000000909, 31000000000000005, '成本中心-查看',             'get.admin/finance/cost-center',               3, '', '', 50, NOW(), NOW()),
 (31000000000000910, 31000000000000005, '币种-查看',                 'get.admin/finance/currency',                  3, '', '', 51, NOW(), NOW()),
-(31000000000000911, 31000000000000005, '电子发票-查看',             'get.admin/finance/e-invoice',                 3, '', '', 52, NOW(), NOW()),
 (31000000000000912, 31000000000000005, '汇率-查看',                 'get.admin/finance/exchange-rate',             3, '', '', 53, NOW(), NOW()),
 (31000000000000913, 31000000000000005, '发票-查看',                 'get.admin/finance/invoice',                   3, '', '', 54, NOW(), NOW()),
 (31000000000000914, 31000000000000005, '会计期间-列表',             'get.admin/finance/ledger/period-list',        3, '', '', 55, NOW(), NOW()),
@@ -4839,7 +4822,6 @@ INSERT INTO `erp_admin_permission` (`id`, `parent_id`, `name`, `slug`, `type`, `
 (31000000000001002, 31000000000000005, '合并报表-出具',             'post.admin/finance/consolidation/issue',      3, '', '', 72, NOW(), NOW()),
 (31000000000001003, 31000000000000005, '成本中心-创建',             'post.admin/finance/cost-center',              3, '', '', 73, NOW(), NOW()),
 (31000000000001004, 31000000000000005, '币种-创建',                 'post.admin/finance/currency',                 3, '', '', 74, NOW(), NOW()),
-(31000000000001005, 31000000000000005, '电子发票-创建',             'post.admin/finance/e-invoice',                3, '', '', 75, NOW(), NOW()),
 (31000000000001006, 31000000000000005, '汇率-创建',                 'post.admin/finance/exchange-rate',            3, '', '', 76, NOW(), NOW()),
 (31000000000001007, 31000000000000005, '发票-创建',                 'post.admin/finance/invoice',                  3, '', '', 77, NOW(), NOW()),
 (31000000000001008, 31000000000000005, '会计期间-结账',             'post.admin/finance/ledger/period-close',      3, '', '', 78, NOW(), NOW()),

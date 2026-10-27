@@ -251,10 +251,9 @@
 - 票据全生命周期：FinanceBillService store/update/endorse（背书）/discount（贴现）/collect（托收）/cash（兑现）/reject + dueWarnings 到期预警
 - 银企对账：BankReconService importStatement 流水导入、autoReconcile/manualReconcile/unreconcile 核销、reconReport 对账报告
 
-### 6.15 进项发票池与数电票（v1.4.0 交付）
+### 6.15 进项发票池（v1.4.0 交付）
 
 - 进项池：TaxInvoicePoolService registerOne/registerBatch/verify/check/deduct/deductStats；查验走 MockTaxVerifier（真实税局通道为适配点）
-- 数电票：EInvoiceService issueInvoice/voidInvoice/issueLogs，经 EInvoiceAdapter/MockEInvoiceAdapter（真实税局通道为适配点）
 
 ---
 
@@ -626,7 +625,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 点检扫码 (E1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 项目成本/预算 (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 票据/银企对账 (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 进项池/数电票 (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
+| 进项池 (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 多租户 (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 部分启用 |
 | 渠道通知/自定义字段 (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
 | 项目管理 | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
@@ -667,7 +666,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 > （`resource/translations/<locale>/`，13 目录）与 `Accept-Language` 协商为 ✅；Flutter / HarmonyOS 端仍为中/英两语种，
 > 故前端两列计 ⚠️；Angular / React 端已具备 13 语种词典（不参与本矩阵列）。
 > **v1.4.0 批次（2026-09-05）**：44 行中 21 行标注 v1.4.0（含 1 行「部分启用」= 多租户 (B5) 行），
-> 覆盖多组织/合并报表/存货成本（F1-F3）、制造 M1/M2/M3/M6、信用 F7、票据/银企/进项池/数电票 F6/F5、
+> 覆盖多组织/合并报表/存货成本（F1-F3）、制造 M1/M2/M3/M6、信用 F7、票据/银企/进项池 F6/F5、
 > HR H1-H4、平台 B1-B5/B7、点检 E1、项目成本 P1；证据见下方「代码证据」。
 
 ### 代码证据（2026-09-05 校正；含 v1.17.0 批次）

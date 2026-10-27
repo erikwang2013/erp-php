@@ -1004,10 +1004,6 @@ INSERT INTO `erp_tax_input_invoice` (`id`, `invoice_code`, `invoice_no`, `issue_
 (410000000000545001, 'd2', 'd2', CURDATE(), 'd', 'd', 'd', 'd', 0.00, 0.00, 0.00, 0, 0, 'd', 'manual', '演示数据', NOW(), NOW()),
 (410000000000546001, 'd3', 'd3', CURDATE(), 'd', 'd', 'd', 'd', 0.00, 0.00, 0.00, 0, 0, 'd', 'manual', '演示数据', NOW(), NOW());
 
-INSERT INTO `erp_tax_issue_log` (`id`, `invoice_id`, `action`, `bill_no`, `platform`, `success`, `error`, `operator_id`, `created_at`) VALUES
-(410000000000547001, 410000000000169001, 'd', 'd', 'mock', 0, 'd', 0, NOW()),
-(410000000000548001, 410000000000170001, 'd', 'd', 'mock', 0, 'd', 0, NOW()),
-(410000000000549001, 410000000000171001, 'd', 'd', 'mock', 0, 'd', 0, NOW());
 
 INSERT INTO `erp_tenant` (`id`, `company_id`, `tenant_code`, `plan`, `status`, `expire_at`, `remark`, `created_by`, `created_at`, `updated_at`) VALUES
 (410000000000550001, 410000000000031001, 'd1', 1, 0, CURDATE(), '演示数据', 0, NOW(), NOW()),
