@@ -18,11 +18,11 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 > 架构文档: `docs/ARCHITECTURE.md` §21
 > 功能矩阵: `docs/FUNCTIONS.md` §19
 
-**当前综合评分 89/100** — 全量路线图 P0~P3 已完成，23 模块全栈覆盖，生产可用。
+**当前综合评分 89/100** — 全量路线图 P0~P3 已完成，19 模块全栈覆盖，生产可用。
 
 | 阶段 | 工期 | 交付物 | 状态 |
 |------|------|--------|------|
-| 🔵 **P0** 前端生态 | 3-4 周 | 102 Flutter 菜单路由 + 41 HarmonyOS 页 + 4 通用组件 | ✅ |
+| 🔵 **P0** 前端生态 | 3-4 周 | 63 Flutter 菜单入口 + 117 页面 + 4 通用组件 | ✅ |
 | 🟢 **P1** 业务深度 | 4-6 周 | 财务引擎 + 薪资引擎 + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** 运维可靠性 | 1-2 周 | 迁移回滚 + 自动备份 + TraceId + 队列双驱动 | ✅ |
 | 🟣 **P3** 体验增强 | 2-3 周 | EAM | ✅ |
@@ -79,10 +79,8 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - Flutter 3.x，源码目录 `apps/flutter/`
 - Web 端按 PC 管理后台风格设计（非移动端 App 风格）
 - 支持客户端和管理员端
-- HarmonyOS ArkTS，源码目录 `apps/harmonyos/`
 - Angular 22 CLI + ng-zorro-antd，源码目录 `apps/angular/`（Web 管理后台）
-- React 19 + Vite，源码目录 `apps/react/`（Web 管理后台）
-- 四端同源后端：Angular / React 与 Flutter 一样走 `/admin/v1`、`/api/v1`、`/open/v1`，开发期由各自 dev server 代理到 webman
+- 双端同源后端：Angular 与 Flutter 一样走 `/admin/v1`、`/api/v1`、`/open/v1`，开发期由各自 dev server 代理到 webman
 
 ### 国际化（13 语种）
 - 语种清单：`zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`
@@ -90,9 +88,8 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   - 「英文即 key」：`en` 的 common/modules 留空；`validation.php` 的键是框架规则名，只译值
   - 生成器：`scripts/gen-be-locales.mjs`
 - 前端词典（Angular）：源 `apps/angular/src/app/core/zh-en/part1..4.ts`（1456 条）→ 产物 `apps/angular/src/app/core/zh-<code>.ts`
-- 前端词典（React）：源 `apps/react/src/lib/i18n/zhEn.ts`（1451 条）→ 产物 `apps/react/src/lib/i18n/zh<Code>.ts`
   - 11 个新语种词典各自动态 `import()` 成独立 chunk，缺词条回退中文原文
-  - 生成器：`scripts/gen-fe-locales.mjs --app angular|react`
+  - 生成器：`scripts/gen-fe-locales.mjs --app angular`
 - 运行期：切换语言即切换请求头 `Accept-Language`，后端按语种返回文案（`app/common/I18n.php` + `config/translation.php`）
 
 ## 项目结构
@@ -176,18 +173,13 @@ open-erp/
 │   │   └── src/app/
 │   │       ├── core/            # ApiService / AuthStore / I18n 服务 + 语种词典（zh-en/ 源，zh-<code>.ts 产物）
 │   │       └── config/ layout/ pages/ ui/
-│   ├── react/                   # React 19 + Vite Web 管理后台
-│   │   └── src/
-│   │       ├── lib/i18n/        # 源词典 zhEn.ts + 11 个语种 zh<Code>.ts（按语种懒加载）
-│   │       └── components/ layout/ pages/ state/ config/domains/ styles/
-│   └── harmonyos/              # HarmonyOS 客户端
 ├── config/                     # 配置文件
 │   ├── route.php               # 路由 + API 版本策略
 │   ├── middleware.php           # 全局中间件注册
 │   ├── translation.php          # 语言配置
 │   └── plugin/                  # 插件配置（erikwang2013/*；apidoc 见 erikwang2013/apidoc/）
 ├── database/
-│   ├── install.sql              # 完整安装SQL（227 张表 + 种子数据，全部迁移已并入）
+│   ├── install.sql              # 完整安装SQL（211 张表 + 种子数据，全部迁移已并入）
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 数据库备份脚本
 │       ├── backup.sh           # mysqldump+gzip，30天保留
@@ -276,11 +268,6 @@ Redis 滑动窗口（Lua 原子化），默认 60 次/分钟/IP/路由：
 - 使用 GetX 状态管理，`ApiService` 单例（Dio + JWT 拦截器）
 - Token 持久化使用 `shared_preferences`
 - 响应式断点: 移动端 (< 768px) 与桌面端 (>= 768px)
-
-### HarmonyOS
-- 使用 `@ohos.net.http` 原生 HTTP 客户端
-- Token 无感刷新：401 时自动调用 `/api/v1/auth/refresh`
-- 刷新失败自动重定向登录页
 
 ## 已知技术债
 

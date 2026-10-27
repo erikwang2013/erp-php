@@ -4,7 +4,7 @@
 
 <div align="center"><img src="docs/mascot.svg" alt="open-erp 章鱼吉祥物 小八爪" width="150"></div>
 
-> 🌐 中文 | [English](docs/i18n/en/README.md) | [한국어](docs/i18n/ko/README.md) | [Русский](docs/i18n/ru/README.md) | [Deutsch](docs/i18n/de/README.md) | [Français](docs/i18n/fr/README.md) | [Español](docs/i18n/es/README.md) | [Português](docs/i18n/pt/README.md) | [हिन्दी](docs/i18n/hi/README.md) | [العربية](docs/i18n/ar/README.md) | [বাংলা](docs/i18n/bn/README.md) | [Bahasa Indonesia](docs/i18n/id/README.md) | [日本語](docs/i18n/ja/README.md)
+> 🌐 中文 | [English](docs/i18n/en/README.md)
 
 > [English version](docs/i18n/en/README.md) |[版本对比](docs/EDITIONS.md) | [架构设计图](docs/ARCHITECTURE.md) | [系统架构图](#系统架构图) | [设计文档](docs/DESIGN.md) | [安全架构](docs/SECURITY.md) | [API 参考](docs/API.md) | [功能手册](docs/FUNCTIONS.md)
 
@@ -21,7 +21,7 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 - **配置化能力**：多节点审批工作流（含可视化流程设计器画布）、客户信用额度实时拦截、批次/序列号全链路正反向追溯
 - **数据可追溯**：业务流水逐笔留痕，库存批次与序列号贯穿 入库→领用→出库→追溯 全生命周期，成本核算到单据行级
 - **部署友好**：Docker Compose v2 一键启动（MySQL/Redis/Elasticsearch），本地 `composer install` 亦可直接运行
-- **国际化**：13 语种（zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id），后端消息与 Angular 管理端界面全覆盖，前端词典按语种懒加载，README 另提供 12 语言文档
+- **国际化**：13 语种（zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id），后端消息与 Angular 管理端界面全覆盖，前端词典按语种懒加载
 
 ## 功能清单
 
@@ -74,7 +74,6 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 | | 点检扫码闭环 | 扫码点检，异常自动联动维修工单 |
 | 🌐 平台与开放 | API 路径版本化 | 管理端 /admin/v1、客户端 /api/v1、开放 /open/v1（无版本请求头）|
 | | 表单自定义字段 | 主档表 custom_fields JSON 扩展 + 校验 |
-| | 多租户架构 | erp_tenant 租户 + TenantScope 请求上下文 + 到期计费（中间件 seam 预留未注册）|
 | | 多语言 | 13 语种（后端消息 + Angular 管理端界面），词典按语种懒加载成独立 chunk，切换入口常驻顶栏 globe 与个人中心下拉 |
 
 ## ERP 模块
@@ -159,11 +158,9 @@ open-erp/
 │   │   ├── hr/                 # 部门/员工/职位/考勤/请假/薪资/招聘/绩效/社保/培训 (9 个)
 │   │   ├── manufacturing/      # BOM/工单/工艺/工作站/MRP/报工/委外/成本/产能 (13 个)
 │   │   ├── report/             # 报表模板/数据集/执行/定时调度 (2 个)
-│   │   ├── platform/           # 多租户/自定义字段 (2 个)
+│   │   ├── platform/           # 自定义字段 (1 个)
 │   │   ├── quality/            # 质检 (5 个)
 │   │   ├── eam/                # 设备/保养/维修/备件/点检 (5 个)
-│   │   ├── bi/                 # 商业智能 (3 个)
-│   │   ├── dms/                # 文档管理 (2 个)
 │   │   ├── oms/                # OMS订单/履约/RMA/渠道 (4 个)
 │   │   ├── wms/                # 库区/库位/ASN/收货/上架/波次/拣货/打包 (8 个)
 │   │   ├── tms/                # 承运商/服务/费率/运单/轨迹/运费发票 (6 个)
@@ -221,7 +218,7 @@ open-erp/
 
 ![Functional Modules](./docs/diagrams/functional-modules-cn.svg)
 
-**23 大业务域、227 张数据表、159 个控制器**: 涵盖认证安全、仪表盘、系统管理、安全防护、运维监控、商品管理、采购、销售、库存、财务(14子模块)、CRM(10子模块)、审批工作流、消息通知、项目管理、人力资源、生产制造(MRP)、自定义报表、订单管理(OMS)、仓储管理(WMS)、运输管理(TMS)、质量管理(QMS)、设备管理(EAM)、文档管理(DMS)、BI看板。
+**19 大业务域、211 张数据表、128 个控制器**: 涵盖认证安全、仪表盘、系统管理、安全防护、运维监控、商品管理、采购、销售、库存、财务(14子模块)、CRM(10子模块)、审批工作流、消息通知、项目管理、人力资源、生产制造(MRP)、自定义报表、订单管理(OMS)、仓储管理(WMS)、运输管理(TMS)、质量管理(QMS)、设备管理(EAM)。
 
 ### 请求生命周期
 
@@ -366,7 +363,7 @@ docker compose ps --format "table {{.Name}}\t{{.Status}}"
 
 ### 2. 功能导航
 
-登录后通过侧边栏进入各业务模块：仪表盘、商品、采购、销售、库存、财务、CRM、审批工作流、消息通知、项目、人力资源、生产制造、自定义报表、OMS/WMS/TMS、BI 看板及系统管理（用户/角色/配置/日志）。桌面端为固定侧边栏，手机端折叠为抽屉。
+登录后通过侧边栏进入各业务模块：仪表盘、商品、采购、销售、库存、财务、CRM、审批工作流、消息通知、项目、人力资源、生产制造、自定义报表、OMS/WMS/TMS 及系统管理（用户/角色/配置/日志）。桌面端为固定侧边栏，手机端折叠为抽屉。
 
 ### 3. 权限与安全
 
@@ -624,7 +621,7 @@ flutter analyze          # 静态检查（CI 同款）
 ```
 
 - **布局**: 侧边栏（可折叠 64px/240px）+ 顶栏 + 内容区，响应式三断点（手机/平板/桌面）
-- **覆盖范围**: 22 个顶层菜单项（21 个分组 + 独立的仪表盘）、102 个可路由页面、119 个页面文件（菜单在 `lib/app/config/menu_config.dart` 声明，页面在 `lib/app/pages/`）—— 仪表盘、系统管理、商品管理、往来单位、采购管理、销售管理、库存管理、财务管理、CRM、订单管理、仓储管理、运输管理、生产制造、质量管理、人力资源、项目管理、审批工作流、通知中心、自定义报表、BI 看板、设备管理、文档管理
+- **覆盖范围**: 19 个顶层菜单项（18 个分组 + 独立的仪表盘）、63 个菜单入口、117 个页面文件（菜单在 `lib/app/config/menu_config.dart` 声明，页面在 `lib/app/pages/`）—— 仪表盘、系统管理、商品管理、往来单位、采购管理、销售管理、库存管理、财务管理、CRM、订单管理、仓储管理、运输管理、生产制造、质量管理、人力资源、项目管理、审批工作流、通知中心、自定义报表、设备管理
 - **状态管理**: GetX（`ApiService` 单例 + `AuthService` Token 持久化）
 - **仪表盘**: 统计卡片、销售趋势折线、Top 商品、订单状态分布、应收应付账龄、库存概览（fl_chart）
 - **导出**: Excel/PDF 导出（`ExportService`），PDF 含不可移除版权信息
@@ -704,59 +701,24 @@ push 至 `main` 且 php / docs / e2e 检查全部通过后，`ci.yml` 的 `relea
 |:---:|:---:|
 | ![微信](./docs/weixinpay.png "微信") | ![支付宝](./docs/alipay.png "支付宝") |
 
-### 全球转账（银行汇款 / Global Bank Transfer）
-
-**收款人信息**
-
-- 收款人姓名：WANG KEXUN
-- 收款账户号码：881015918251
-
-**收款银行**
-
-- ZA Bank SWIFT Code：AABLHKHHXXX
-- 银行名称：ZA Bank Limited
-- 银行编号：387
-- 银行地址：Core F, Cyberport 3, 100 Cyberport Road, Hong Kong
-
-**跨境汇款代理银行（如需）**
-
-> 此为代理银行（中转银行）信息，非收款银行信息。请向汇款银行查询是否需要提供。
-
-- 汇入港元、人民币及美元：Citibank N.A. Hong Kong — SWIFT `CITIHKHXXXX`，银行编号 006，分行 Hong Kong Branch，分行编号 391，Citibank Tower, Citibank Plaza, 3 Garden Road, Central, Hong Kong
-- 汇入其他币种：THE BANK OF NEW YORK MELLON — SWIFT `IRVTUS3NXXX`，240 GREENWICH STREET, NEW YORK, United States
-
-### 虚拟币打赏 (Crypto Donation)
-
-如果这个项目对你有帮助，欢迎扫描二维码打赏支持，谢谢！
-
-| 主网 (Network) | 二维码 (QR Code) | 钱包地址 (Wallet Address) |
-|---|---|---|
-| BNB Smart Chain (BEP20) | [<img src="docs/coin/1.jpg" width="150" alt="BNB Smart Chain (BEP20)">](docs/coin/1.jpg) | `0x355d429f97511897ccb4e271ec888205f9ab6629` |
-| Tron (TRC20) | [<img src="docs/coin/2.jpg" width="150" alt="Tron (TRC20)">](docs/coin/2.jpg) | `TEdDHWLajt1XvqtPDWmQctdrJaC3pzZZzz` |
-| Ethereum (ERC20) | [<img src="docs/coin/3.jpg" width="150" alt="Ethereum (ERC20)">](docs/coin/3.jpg) | `0x355d429f97511897ccb4e271ec888205f9ab6629` |
-| Aptos | [<img src="docs/coin/4.jpg" width="150" alt="Aptos">](docs/coin/4.jpg) | `0x836e3780edfc3f7b2372b39e2a1a3a5d7adfaccd96c726f21cfde1b50dd68030` |
-| Plasma | [<img src="docs/coin/5.jpg" width="150" alt="Plasma">](docs/coin/5.jpg) | `0x355d429f97511897ccb4e271ec888205f9ab6629` |
-| Polygon POS | [<img src="docs/coin/6.jpg" width="150" alt="Polygon POS">](docs/coin/6.jpg) | `0x355d429f97511897ccb4e271ec888205f9ab6629` |
-| Solana | [<img src="docs/coin/7.jpg" width="150" alt="Solana">](docs/coin/7.jpg) | `2hfhboHdmdrYsY25XfQSsEWxq5ip4EQsR7f4AzSRMUyr` |
-| The Open Network (TON) | [<img src="docs/coin/8.jpg" width="150" alt="The Open Network (TON)">](docs/coin/8.jpg) | `UQB9kFQohzmXUir9QSSZq01iwl9aQZIDdBpNmDklljRtCoGK` |
-| Arbitrum One | [<img src="docs/coin/9.jpg" width="150" alt="Arbitrum One">](docs/coin/9.jpg) | `0x355d429f97511897ccb4e271ec888205f9ab6629` |
-| AVAX C-Chain | [<img src="docs/coin/10.jpg" width="150" alt="AVAX C-Chain">](docs/coin/10.jpg) | `0x355d429f97511897ccb4e271ec888205f9ab6629` |
-
----
-
 ## 致谢
 
 感谢以下人士帮助改进本项目的安全（完整说明见 [`docs/SECURITY.md` §13](docs/SECURITY.md#13-安全致谢)）：
 
 - **kta1kri** —— 指出 `assert_env_not_placeholder()` 无法阻止 `.env.example` 中的公开值被静默用于生产，即该守卫的防护宣称与实际能力不符（v1.19.13 修复）。
 
-## License
-
-MIT
+## 项目授权 / Project License
 
 Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
-<!-- pet-expressions:start -->
+- 本项目仅供个人学习、研究使用。
+- 未经作者书面授权，禁止任何形式的商业使用（包括但不限于商业部署、付费服务、二次销售、SaaS 运营及以本项目为基础提供商业服务）。
+- 商业授权请联系 **erik@erik.xyz**。
+- 未经授权的商业使用，作者将在全球范围内依法追究法律责任，并保留终身追责的权利。
+- 第三方组件仍遵循其各自原有的许可证；视觉资产适用仓库内的 ASSETS-LICENSE.md（如适用）。
+
+**English:** This project is provided for personal study and research only. Commercial use of any kind requires prior written authorization from the author (erik@erik.xyz). Unauthorized commercial use will be pursued for legal liability worldwide, and the author reserves the right to pursue such liability for life. Third-party components remain under their original licenses; visual assets are governed by ASSETS-LICENSE.md where applicable.
+
 ## 项目宠物表情形态 · 小八爪
 
 <table align="center">
@@ -777,4 +739,3 @@ SVG / PNG）**不是开源资产**，版权归作者所有。未经书面许可�
 
 > 代码部分仍遵循仓库原有 `LICENSE`；第三方素材（如明确标注的 Go Gopher 等）仍遵循其原许可证。
 <!-- assets-license:end -->
-

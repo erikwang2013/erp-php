@@ -1,3 +1,5 @@
+> 2026-10 清理：React 管理端已移除；本文件保留为 Angular/Flutter 设计历史参考。
+
 # V3 内容区设计 —「经营台账」(Business Ledger)
 
 ## 设计主张

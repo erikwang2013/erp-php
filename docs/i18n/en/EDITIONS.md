@@ -1,3 +1,5 @@
+> 2026-10 cleanup: the React admin and HarmonyOS client were removed; counts below reflect the historical v1.17.0 snapshot except where noted.
+
 # Edition Comparison
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
@@ -18,7 +20,7 @@ The Open ERP System provides three editions to fit the needs of businesses of di
 | Controllers | 48 (planned) | 42 (planned) | 148 <!-- stats:controllers=148 --> |
 | Business modules | 6 (planned) | 6 (planned) | 19 <!-- stats:modules=19 --> |
 
-> **Measurement note**: the repository currently implements only one codebase — the Full edition; the Lite/Standard columns are product planning values (no corresponding branches exist, see "Branch Strategy" below) and are not subject to doc-stats validation. The Full column numbers are measured by `scripts/doc-stats.sh` (227 tables / 159 controllers / 23 business modules), consistent with the appendix measurement in `docs/FUNCTIONS.md`.
+> **Measurement note**: the repository currently implements only one codebase — the Full edition; the Lite/Standard columns are product planning values (no corresponding branches exist, see "Branch Strategy" below) and are not subject to doc-stats validation. The Full column numbers are measured by `scripts/doc-stats.sh` (211 tables / 128 controllers / 19 business modules), consistent with the appendix measurement in `docs/FUNCTIONS.md`.
 > **Branch facts** (measured 2026-09-22 with `git branch -a` + `git ls-remote --heads origin`): both locally and on the remote the repository has only the single branch `main`; the `lite` / `standard` / `full` branches have **been deleted** (a 2026-08-31 measurement still found all three coexisting, all stopped at the 2026-08-17 commit `eea90c0`, with no differences between them and 38 commits behind `main`). That archived commit is still in `main`'s history (`git merge-base --is-ancestor eea90c0 main` holds), so edition differences can now only be traced through commits and tags — there is no edition branch left in the repository to check out.
 
 ---
@@ -32,11 +34,11 @@ The Open ERP System provides three editions to fit the needs of businesses of di
 - **13 languages across the whole platform** (zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id):
   - Backend response messages in `resource/translations/<locale>/` — `zh_CN` 565 entries, each of the other 11 locales 544 entries, `en` 30 entries
     (scope: leaf entries across the three files; the `attributes` field labels in `validation.php` count, their group keys do not — `zh_CN` has 21 more because it translates 21 field labels. The `en` row is "English is the key", so its dictionaries are nearly empty)
-  - Admin UIs: Angular source dictionary 1456 keys, React 1451 keys × 11 new locales; **lazily loaded per locale**, each locale becoming its own chunk
+  - Admin UIs: Angular source dictionary 1456 keys × 11 new locales **lazily loaded per locale**, each locale becoming its own chunk
   - Generators: `scripts/gen-be-locales.mjs` (backend), `scripts/gen-fe-locales.mjs` (frontend, `--app angular|react`)
   - Switch entry points: a dedicated **globe icon** in the top bar + a dropdown in the personal center (identical on both ends)
-- **Flutter and HarmonyOS remain Chinese/English only** and were not part of this round.
-- **Impact on the tables below**: the Full column went from 163 tables / 122 controllers / 19 business modules to **227 / 159 / 23**;
+- **Flutter remains Chinese/English only** and was not part of this round (the HarmonyOS client was removed in 2026-10).
+- **Impact on the tables below**: the Full column went from 163 tables / 122 controllers / 19 business modules to **227 / 159 / 23** (later reduced to **211 / 128 / 19** by the 2026-10 cleanup);
   the completion matrix gained a "Multi-language (i18n)" row (module rows 44 → 45, backend API 39 → 40, business logic 33 → 34);
   note that after the duplicate "multi-tenancy" row was merged in the 2026-09-15 matrix, the module rows fell back to 44 (backend API 39, business logic 33) —
   the preceding sentence is the incremental scope as of v1.17.0 and is kept as-is.
@@ -51,9 +53,9 @@ The Open ERP System provides three editions to fit the needs of businesses of di
 - **P0 multi-organization and cost accounting**: independent accounting per organization (Company/LedgerPeriod), a consolidated-report engine (period-end FX translation + inter-subsidiary elimination,
   snapshots preferentially landing in FinanceConsolidationReport), and inventory/production cost accounting (material issue + cost collection).
 - **P1 manufacturing execution and collaboration**: operation reporting / piece-rate wages / subcontracting issue-receive / capacity load / batch-serial traceability (M1/M2/M6/M3), credit control (F7),
-  the approval-process canvas (B3), print templates (B1), HR payroll (H1/H2), equipment spot-check scanning (E1), project costs (P1).
-- **P2 differentiation and ecosystem**: the membership system (C1), bill ledger and bank reconciliation (F6), input VAT pool and fully-digitalized e-invoices (F5, the real tax bureau is an adaptation point),
-  multi-driver channels with failure retry (B4), custom fields (B7), multi-tenant expiry billing (B5 — the tenant isolation middleware is still not registered, so it is only partially enabled),
+  the approval-process canvas (B3), HR payroll (H1/H2), equipment spot-check scanning (E1), project costs (P1).
+- **P2 differentiation and ecosystem**: the bill ledger and bank reconciliation (F6), input VAT pool (F5),
+  custom fields (B7),
   training and social insurance (H3/H4).
 - **Feature matrix**: of 44 module rows, 33 are double ✅; 21 rows are marked v1.4.0 (including 1 partially enabled), see `docs/FUNCTIONS.md` §19.
 
@@ -75,7 +77,7 @@ The Open ERP System provides three editions to fit the needs of businesses of di
 | Health check / Prometheus metrics | ✔ | ✔ | ✔ |
 | JWT authentication + click captcha | ✔ | ✔ | ✔ |
 | 7-layer security protection | ✔ | ✔ | ✔ |
-| Internationalization (i18n) 13 locales (Angular/React; Flutter/HarmonyOS still Chinese/English) | — | — | ✔ |
+| Internationalization (i18n) 13 locales (Angular; Flutter still Chinese/English) | — | — | ✔ |
 
 ### Products & Master Data
 
@@ -179,7 +181,7 @@ The Open ERP System provides three editions to fit the needs of businesses of di
 |------|--------------------------|------|
 | Lite (简化版) | 62 tables / 6 business modules (planned) | No approval/notification/HR/manufacturing/reports |
 | Standard (标准版) | 72 tables / 6 business modules (planned) | Leaner data model |
-| Full (完整版) | 227 tables <!-- stats:tables=211 --> / 23 business modules <!-- stats:modules=19 --> | Comprehensive enterprise platform capabilities |
+| Full (完整版) | 211 tables <!-- stats:tables=211 --> / 19 business modules <!-- stats:modules=19 --> | Comprehensive enterprise platform capabilities |
 
 ---
 

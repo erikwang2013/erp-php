@@ -36,13 +36,14 @@
 
 - **管理端从两套变三套**：Angular 22（`apps/angular/`）与 React 19 + Vite（`apps/react/`）加入，
   与既有 Flutter 3.x Web（`apps/flutter/`）并列，三端共用同一套 `/admin/v1`、`/api/v1`、`/open/v1` 接口。
+  > 2026-10 清理：React 端与 HarmonyOS 客户端已移除，当前管理端为 Angular + Flutter。
 - **全平台 13 语种**（zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id）：
   - 后端响应消息 `resource/translations/<locale>/`——`zh_CN` 565 条、其余 11 个语种各 544 条、`en` 30 条
     （口径：三文件叶子条目，`validation.php` 的 `attributes` 字段标签计入、其组键不计——`zh_CN` 因译出 21 个字段标签而多 21 条。`en` 行「英文即 key」，词典近乎为空）
-  - 管理端界面：Angular 源词典 1456 键、React 1451 键 × 11 个新语种；**按语种懒加载**、每语种各成一个 chunk
+  - 管理端界面：Angular 源词典 1456 键 × 11 个新语种（React 端已移除）；**按语种懒加载**、每语种各成一个 chunk
   - 生成器：`scripts/gen-be-locales.mjs`（后端）、`scripts/gen-fe-locales.mjs`（前端，`--app angular|react`）
   - 切换入口：顶栏**独立 globe 图标** + 个人中心下拉（两端一致）
-- **Flutter 与 HarmonyOS 仍为中/英两语种**，未纳入本轮。
+- **Flutter 仍为中/英两语种**，未纳入本轮（HarmonyOS 客户端已移除）。
 - **对下表的影响**：Full 列 163 表 / 122 控制器 / 19 业务模块 → **227 / 159 / 23**；
   完成度矩阵新增「多语言 (i18n)」行（模块行 44 → 45，后端 API 39 → 40，业务逻辑 33 → 34）；
   注：2026-09-15 合并矩阵中重复的「多租户」行后，模块行回落至 44（后端 API 39、业务逻辑 33），
@@ -82,7 +83,7 @@
 | 健康检查 / Prometheus 指标 | ✔ | ✔ | ✔ |
 | JWT 认证 + 点击验证码 | ✔ | ✔ | ✔ |
 | 7 层纵深防御安全防护 | ✔ | ✔ | ✔ |
-| 国际化 (i18n) 13 语种（Angular/React；Flutter/HarmonyOS 仍中/英） | — | — | ✔ |
+| 国际化 (i18n) 13 语种（Angular；Flutter 仍中/英） | — | — | ✔ |
 
 ### 商品与基础数据
 

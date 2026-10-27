@@ -1,3 +1,5 @@
+> 2026-10 note: this is a historical test snapshot; DMS, the notification-channel layer, e-invoice mock, multi-tenancy, and the React/HarmonyOS clients have since been removed, so their cases are no longer maintained.
+
 # Test Report — 2026-08-26
 
 > Update: 2026-08-27 — all 5 legacy items closed; test numbers 505/2342/26 → 513/2368/32; incidentally fixed 4 → 5 issues. Old values see the "Update Log" at the end.

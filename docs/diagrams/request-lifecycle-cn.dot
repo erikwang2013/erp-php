@@ -14,7 +14,7 @@ digraph RequestLifecycleCN {
     fontname="Arial Bold";
     labelloc="t";
 
-    client [label="客户端\nFlutter / 鸿蒙 / API", shape="box",
+    client [label="客户端\nFlutter / API", shape="box",
             style="filled,rounded", fillcolor="#1a237e", fontcolor="white",
             fontsize=12, fontname="Arial Bold", penwidth=2];
 
@@ -28,7 +28,7 @@ digraph RequestLifecycleCN {
 
     adminauth [label="管理端认证中间件\n解码 JWT 令牌\n检查黑名单 (Redis)\n检查过期时间\n设置认证上下文", fillcolor="#e8f5e9", color="#2e7d32"];
     adminperm [label="管理端权限中间件\n从 Redis 缓存加载权限\n(缓存 60 秒)\n匹配 方法.路径\n与权限树比对\nRBAC 决策", fillcolor="#e8f5e9", color="#2e7d32"];
-    oplog [label="操作日志中间件\n捕获请求数据\n检测来源平台\n(Flutter/鸿蒙/API等)\n记录到数据库 (异步)", fillcolor="#e8f5e9", color="#2e7d32"];
+    oplog [label="操作日志中间件\n捕获请求数据\n检测来源平台\n(Flutter/API等)\n记录到数据库 (异步)", fillcolor="#e8f5e9", color="#2e7d32"];
 
     node [fontsize=10];
     pubctrl [label="公开控制器\n/health /api/docs /install\n执行业务逻辑并返回", fillcolor="#fff8e1", color="#f9a825"];

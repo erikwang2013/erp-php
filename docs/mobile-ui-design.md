@@ -1,6 +1,6 @@
 # open-erp 移动/桌面响应式管理端 — 视觉与交互规范
 
-适用:Flutter `apps/flutter`(Material 3)+ HarmonyOS `apps/harmonyos`(ArkUI)。两端同 token、同骨架、平台原生实现。本文件为总纲(≤480 行);token 明细/可抄代码在 `docs/mobile-ui-design-ext.md`(附录 A/B/C)。
+适用:Flutter `apps/flutter`(Material 3)。> 2026-10 清理：HarmonyOS 客户端已移除，本文件仅保留 Flutter 设计口径。
 
 ## 1. 设计原则与信息架构
 
@@ -93,7 +93,7 @@
 
 ## 3. 排版
 
-字号单位:Flutter px == HarmonyOS fp == vp,数字同值直抄。中文行高 1.5,数字行高 1.3。
+字号单位:Flutter px。中文行高 1.5,数字行高 1.3。
 
 | token | 字号 | 字重 | 用途 |
 |---|---|---|---|
@@ -197,33 +197,6 @@
 4. 新页面按 5.2 骨架;旧页按批次替换:断点判定用现有 PHONE<768/TABLET768-1199/DESKTOP≥1200(responsive_framework 已配,勿新增断点)。
 5. 深色:沿用现有 dark 开关;AppTokens.dark 生效后核对每页硬编码 Color(0xFF…) 清零(除 image 占位)。
 
-### 8.2 HarmonyOS(`apps/harmonyos`)
-1. `resources/base/element/color.json` 扩为 2.2 全表(light 值);新建 `resources/dark/element/color.json` 同 key 填 dark 值(系统深色自动切换);string.json 不动。
-2. 页面硬编码替换映射(旧 hex → 新 token;token 未建则按本表新增):
-
-| 旧 hex(次数) | 新 token | 说明 |
-|---|---|---|
-| #FFFFFF(213) | surface / text_on_primary(文字场景) | 底色与按钮白字分开改 |
-| #F5F5F5(55) | bg_page / surface_alt | 页面底 |
-| #F0F0F0(12) | surface_alt | hover/填充 |
-| #EEEEEE(124) | divider | 分割线/描边 |
-| #DCDCDC(0 现有) | border | 输入/控件描边(设计引入) |
-| #CCCCCC(19) | text_disabled | 禁用字/填充 |
-| #999999(35) | text_hint | 占位/说明 |
-| #666666(38) | text_secondary | 次要文字 |
-| #333333(111) | text_primary | 正文/标题 |
-| #000000(1) | text_primary(或 scrim 场景判) | — |
-| #1677FF(74) | primary | 主按钮/链接(按压 #0958D9→primary_pressed) |
-| #99BBFF(14) | primary_disabled | 提交中按钮 |
-| #E6F0FF(18) | primary_bg | 选中/徽标底 |
-| #FF4D4F(53) | danger | 危险/删除(文字浅底场景换 danger_text #CF1322) |
-| #FFE6E6(25) | danger_bg | 危险浅底 |
-| #52C41A(24) | success | 成功(浅底文字场景 success_text) |
-| #E6FFF0(12) | success_bg | 成功浅底 |
-
-   替换工具:`rg '#[0-9A-Fa-f]{6}' pages -l`,逐文件以 token 引用替换,禁止新增未登记 hex;16 色之外新色一律补登记再使用。
-3. 公共组件(新建,命名与 Flutter 侧对齐):`common/TopBar.ets`、`common/FormDialog.ets`(含 ConfirmDialog 导出)、`common/DetailCard.ets`、`common/FilterBar.ets`(搜索+chips)、`common/EmptyView/ErrorView/LoadingView` 提升为带 token 三态容器(现有 Components.ets 内改造,接受插槽/重试回调)。改造目标:29 页复制的 @State 模板收敛为每域一个页面骨架。
-4. 统计卡/图表配色等 2.2 末注;图标 rawfile 静态映射补齐 8 个核心图标:search/plus/edit/trash/back/arrow-right/eye/eye-off(其余按需)。
 
 ### 8.3 两端一致性执行顺序
 P1 色彩 token(两端改完,截图对 2.2 表)→ P2 公共组件收敛(先 Flutter,HOS 同步同参)→ P3 列表页骨架逐域替换(两端同域同周)→ P4 表单/详情/统计卡 → P5 Dashboard 配置化 + 深色核对。

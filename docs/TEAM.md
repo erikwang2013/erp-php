@@ -12,7 +12,7 @@
 | 维度 | 现状 | 对团队的含义 |
 |------|------|--------------|
 | 后端 | webman (Workerman) PHP 8.3+，**23 个业务模块**、159 控制器、63 服务、224 模型、227 张表、11 中间件（schema 以 database/install.sql 为唯一事实源） | 单体大而全，按业务域分工，防止单 agent 上下文爆炸 |
-| 前端 | Flutter **102 菜单路由**（`lib/app/config/menu_config.dart`；`main.dart` 的 getPages 共 110 条 = 102 菜单 + 登录/个人中心/6 详情页）+ HarmonyOS **41 页**（`main_pages.json`），覆盖全部模块 | 双端并行维护，需要专职前端角色 |
+| 前端 | Flutter **63 菜单入口 / 117 页面文件**（`lib/app/config/menu_config.dart`），覆盖全部保留模块 | Flutter 单端维护 |
 | 质量基线 | PHPUnit 933<!-- stats:tests=933 --> 测试 / 4178<!-- stats:assertions=4178 --> 断言、PHPStan + baseline、CS-Fixer、CI 多版本矩阵 | 已具备纪律，测试/审查角色直接嵌入流水线 |
 | 版本矩阵 | 仅 `main` 一条分支（`lite` / `standard` / `full` 已删除，归档提交 `eea90c0` 仍在 `main` 历史中） | 无版本分支可同步，版本差异以 tag 追溯，见 `docs/EDITIONS.md`「分支策略」 |
 | 路线图 | P0~P3 已交付（综合评分 89/100），进入日常迭代与演进期 | 团队规模按任务类型伸缩，非项目制大编制 |
@@ -38,7 +38,6 @@
 |------|-----------------|----------|----------|
 | **业务引擎专家** | 自定义 `business-engineer` | 财务 / 薪资 / MRP 等算法型模块 | 复式记账引擎、薪资计算引擎、MRP 引擎的算法补强与边界处理（A 档"工业级"要求） |
 | **前端工程师（Flutter）** | 自定义 `frontend-flutter` | 任何涉及 `apps/flutter/` 的改动 | Web 管理面板页面、GetX 状态、ApiService/导出联动、102 路由维护 |
-| **前端工程师（HarmonyOS）** | 自定义 `frontend-harmonyos` | 任何涉及 `apps/harmonyos/` 的改动 | ArkTS 页面、token 无感刷新、与 Flutter 功能集对齐（41 页维护） |
 | **安全/DevOps 工程师** | `consensus/security-manager` + `performance-benchmarker` | 安全加固、性能、部署 | 7 层纵深防御回归、Docker/gRPC 子服务、迁移回滚、可观测性、Prometheus 指标 |
 
 ### 2.3 按需角色（任务触发，2 角色）
@@ -71,9 +70,9 @@
 
 | 任务类型 | 编排 | 参与角色 |
 |----------|------|----------|
-| 新模块 / 新功能（如 DMS、BI 深化） | pipeline | Lead → 架构师(表设计) → 后端 → 测试 → 审查 |
+| 新模块 / 新功能（跨模块） | pipeline | Lead → 架构师(表设计) → 后端 → 测试 → 审查 |
 | 引擎级算法（复式记账 / 薪资 / MRP） | pipeline + TDD | Lead → 业务引擎专家(设计) → 测试(边界用例先行) → 审查 |
-| 前端页面（Flutter / HarmonyOS 并行） | fan-out | Lead → 前端×2 + 后端(API 对齐) 并行 → Lead 汇总 |
+| 前端页面（Flutter） | fan-out | Lead → 前端×2 + 后端(API 对齐) 并行 → Lead 汇总 |
 | 跨模块数据流（采购→库存→应付等） | pipeline | Lead → 架构师 → 后端 → 测试 → 审查 |
 | 微服务拆分 / 大规模重构 | supervisor | Lead ↔ 架构师 + 后端 + 审查 多轮 |
 | 安全 / 性能专项 | 单线程深挖 | Lead → 安全/DevOps 工程师 → 审查 |
@@ -100,7 +99,7 @@ composer audit     # 无高危依赖漏洞
 | 日常维护 / 小修 | 1-2 人 | Lead 直接处理，避免过度编排 |
 | 单模块迭代 | 3 人 | Lead + 后端 + 测试 |
 | 跨模块功能 | 4-5 人 | Lead + 架构师 + 后端 + 测试 + 审查 |
-| 前端双端并行 | 4-5 人 | Lead + Flutter + HarmonyOS + 后端(API) + 测试 |
+| 前端 + 后端 | 3-4 人 | Lead + Flutter + 后端(API) + 测试 |
 | 引擎级 / 复杂重构 | 5-7 人 | 上述全量 + 业务引擎专家或安全/DevOps |
 
 > 与 `.claude-flow/config.yaml`（`maxAgents: 15`、`hierarchical-mesh`、`consensus` 协调策略）兼容，单次任务占用不超过上限。
@@ -112,7 +111,7 @@ composer audit     # 无高危依赖漏洞
 1. **补齐角色定义**：`.claude/agents/` 已有 planner / sparc / testing / swarm / consensus，缺 `business-engineer`、`frontend-flutter`、`frontend-harmonyos`、`researcher`、`edition-coordinator` 五个定义；按现有 YAML/MD 格式各加一个文件即完成挂载；
 2. **固化路由**：将 §3.3 路由表写入 `.claude-flow/hooks` 的 routing 逻辑，让 `UserPromptSubmit` 钩子自动把任务派给对应角色；
 3. **记忆分域**：`.claude-flow` 已开 `agentScopes`（`defaultScope: project`），建议按 `backend / frontend / ops / security` 四域存档，避免财务引擎上下文污染前端任务；
-4. **试点运行**：挑一个跨模块任务（如 DMS 深化或 BI 看板迭代）按 §3.3 路由完整跑一轮，验证消息链与门禁后推广。
+4. **试点运行**：挑一个跨模块任务按 §3.3 路由完整跑一轮，验证消息链与门禁后推广。
 
 ---
 

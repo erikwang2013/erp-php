@@ -117,7 +117,7 @@ digraph SecurityArchitectureCN {
         fontsize=12; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#e0f7fa"; color="#00838f"; penwidth=2;
         L10a [label="操作日志\nPOST/PUT/DELETE 自动记录\n用户/IP/来源/参数", fillcolor="#b2ebf2", color="#0097a7"];
-        L10b [label="来源端检测\n识别8种平台\nFlutter/鸿蒙/API等", fillcolor="#b2ebf2", color="#0097a7"];
+        L10b [label="来源端检测\n识别8种平台\nFlutter/API等", fillcolor="#b2ebf2", color="#0097a7"];
         L10c [label="Prometheus 指标\n5 项监控指标\n请求/用户/数据库/内存", fillcolor="#b2ebf2", color="#0097a7"];
         L10d [label="健康检查\nGET /health\n数据库/Redis/ES 连通性", fillcolor="#b2ebf2", color="#0097a7"];
     }

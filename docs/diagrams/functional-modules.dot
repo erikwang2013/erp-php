@@ -237,23 +237,12 @@ digraph FunctionalModules {
         ea4 [label="Spare Parts\nStock+Issue", fillcolor="#ffccbc", color="#ff5722"];
     }
 
-    subgraph cluster_dms { label="DOCUMENT (DMS)"; fontsize=12; fontname="Arial Bold";
-        style="filled,rounded"; fillcolor="#e1f5fe"; color="#01579b"; penwidth=2;
-        dm1 [label="Doc Category\nTree Structure", fillcolor="#b3e5fc", color="#0288d1"];
-        dm2 [label="Document\nUpload+Access", fillcolor="#b3e5fc", color="#0288d1"];
-        dm3 [label="Version Control\nHistory", fillcolor="#b3e5fc", color="#0288d1"];
-    }
 
-    subgraph cluster_bi { label="BI DASHBOARDS"; fontsize=12; fontname="Arial Bold";
-        style="filled,rounded"; fillcolor="#eceff1"; color="#455a64"; penwidth=2;
-        bi1 [label="Dashboard\nLayout Config", fillcolor="#cfd8dc", color="#546e7a"];
-        bi2 [label="Chart Widgets\nMetric Display", fillcolor="#cfd8dc", color="#546e7a"];
-    }
 
     root -> a1; root -> d1; root -> ad1; root -> se1; root -> op1;
     root -> pd1; root -> pu1; root -> sl1; root -> iv1; root -> fn1;
     root -> cr1; root -> wf1; root -> nf1; root -> pm1; root -> hr1;
     root -> mg1; root -> rp1;
     root -> om1; root -> wm1; root -> tm1;
-    root -> q1; root -> ea1; root -> dm1; root -> bi1;
+    root -> q1; root -> ea1;
 }

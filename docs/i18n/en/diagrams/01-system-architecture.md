@@ -4,7 +4,6 @@
 flowchart TB
     subgraph clients["Client Layer"]
         flutter["Flutter Web<br/>PC Admin Panel"]
-        harmony["HarmonyOS ArkTS<br/>Mobile/Tablet Client"]
     end
 
     subgraph gateway["Gateway Layer"]
@@ -26,7 +25,6 @@ flowchart TB
     end
 
     flutter --> nginx
-    harmony --> nginx
     nginx --> auth
     auth --> perm
     perm --> admin
@@ -41,7 +39,6 @@ flowchart TB
     public --> redis
 
     style flutter fill:#1677FF,color:#fff
-    style harmony fill:#1677FF,color:#fff
     style nginx fill:#722ED1,color:#fff
     style auth fill:#FA8C16,color:#fff
     style perm fill:#FA8C16,color:#fff

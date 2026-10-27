@@ -34,7 +34,7 @@
 ### 1.4 操作审计
 - 自动记录所有 POST/PUT/DELETE 操作
 - 记录操作人、动作、方法、路径、IP、参数（敏感字段脱敏）、时间
-- 8 平台来源端自动检测（Web/Flutter/HarmonyOS/API 等）
+- 8 平台来源端自动检测（Web/Flutter/
 - 只读查询，不可删除或修改
 
 ### 1.5 安全防护
@@ -571,7 +571,7 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | PHP 源文件 | 444 <!-- stats:php_files=444 --> |
 | 数据库安装脚本 | 单文件 `database/install.sql`（227 张表，已并入全部迁移）|
 | 前端页面 (Flutter) | 119（2026-09-22 实测 `apps/flutter/lib/app/pages/` 下 `.dart` 页面文件数（递归），未纳入 doc-stats 校验）|
-| 前端页面 (HarmonyOS) | 52（2026-09-22 实测 `apps/harmonyos/entry/src/main/ets/pages/` 下 `.ets` 页面文件数（递归），未纳入 doc-stats 校验）|
+| 前端页面 (| 52（2026-09-22 实测 `apps/harmonyos/entry/src/main/ets/pages/` 下 `.ets` 页面文件数（递归），未纳入 doc-stats 校验）|
 | 单元测试 | 102<!-- stats:test_files=102 --> 个测试文件  / 933<!-- stats:tests=933 --> 个测试用例  / 4178<!-- stats:assertions=4178 --> 条断言 （静态计数：测试方法数 + 断言调用点数，与运行环境无关）|
 
 > 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `<!-- stats:key=value -->` 的项由 CI
@@ -595,78 +595,72 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 
 ### 矩阵
 
-| 模块 | 后端 API | 业务逻辑 | Flutter | HarmonyOS | 下一阶段 |
-|------|----------|----------|---------|-----------|----------|
-| 系统管理 | ✅ | ✅ | ⚠️ 9/14 | ⚠️ 5 页 | 🔵 P0 |
-| 仪表盘 | ✅ | ✅ | ✅ 2 页 | ⚠️ 1 页 | 🔵 P0 |
-| 商品基础数据 | ✅ | ✅ | ✅ 7/7 | ⚠️ 1/7 | 🔵 P0 |
-| 采购管理 | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
-| 销售管理 | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
-| 库存管理 | ✅ | ✅ | ✅ 5/5 | ⚠️ 1/5 | 🔵 P0 |
-| 财务 — 凭证/应收应付 | ✅ | ⚠️ | ✅ 16 页 | 🔴 | 🔵 P0 |
-| 财务 — 总账/三表 | ⚠️ | 🔴 | ⚠️ 3 页（动作深度待核） | 🔴 | 🟢 P1 |
-| 财务 — 报表合并 | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 财务 — 多组织核算 (F1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 财务 — 期末结转 | 🔴 | ⚠️ | 🔴 | 🔴 | 🟢 P1 |
-| 财务 — 存货成本核算 (F3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| CRM 全模块 | ✅ | ✅ | ✅ 10/10 | 🔴 | 🔵 P0 |
-| OMS 订单管理 | ✅ | ✅ | ✅ 4/4 | ⚠️ 4 页 | 🔵 P0 |
-| WMS 仓储管理 | ✅ | ✅ | ⚠️ 7/8 | ⚠️ 7 页 | 🔵 P0 |
-| TMS 运输管理 | ✅ | ✅ | ⚠️ 5/6 | ⚠️ 5 页 | 🔵 P0 |
-| 审批工作流 | ✅ | ✅ | ⚠️ 2/3 | ⚠️ 1 页 | v1.4.0 |
-| 通知系统 | ✅ | ✅ | ⚠️ 1/2 | 🔴 | v1.4.0 |
-| 信用控制 (F7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 追溯链/近效期 (M6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 产能负荷 (M3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 工序报工/计件/委外核销 (M1+M2) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 流程设计器 (B3) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 招聘/绩效/培训/社保 (H1-H4) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 点检扫码 (E1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 项目成本/预算 (P1) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 票据/银企对账 (F6) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 进项池 (F5) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 多租户 (B5) | ✅ | ⚠️ | 🔴 | 🔴 | v1.4.0 部分启用 |
-| 渠道通知/自定义字段 (B4+B7) | ✅ | ✅ | 🔴 | 🔴 | v1.4.0 |
-| 项目管理 | ✅ | ✅ | ✅ 3/3 | 🔴 | 🔵 P0 |
-| HR — 组织/考勤/请假 | ✅ | ⚠️ | ✅ 5/5 | ⚠️ 3 页 | 🔵 P0 |
-| HR — 薪资引擎 | ⚠️ | 🔴 | ⚠️ 2 页 | 🔴 | 🟢 P1 |
-| 制造 — BOM/生产/MRP | ✅ | ✅ | ⚠️ 5/13 | ⚠️ 5 页 | v1.4.0 |
-| 质量管理 | ✅ | ✅ | ✅ 5/5 | 🔴 | 🟢 P1 |
-| 自定义报表 | ✅ | ⚠️ | ✅ 2/2 | 🔴 | 🔵 P0 |
-| 设备管理 EAM | ✅ | ✅ | ⚠️ 4/5 | 🔴 | v1.4.0 |
-| 多语言 (i18n) | ✅ | ✅ | ⚠️ 仅中/英 | ⚠️ 仅中/英 | v1.17.0 |
-| 可观测性 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
-| 迁移回滚/备份 | ⚠️ | 🔴 | N/A | N/A | 🟡 P2 |
-
+| 模块 | 后端 API | 业务逻辑 | Flutter | 下一阶段 |
+|------|----------|----------|---------|----------|
+| 系统管理 | ✅ | ✅ | ⚠️ 9/14 | 🔵 P0 |
+| 仪表盘 | ✅ | ✅ | ✅ 2 页 | 🔵 P0 |
+| 商品基础数据 | ✅ | ✅ | ✅ 7/7 | 🔵 P0 |
+| 采购管理 | ✅ | ⚠️ | ✅ 5/5 | 🔵 P0 |
+| 销售管理 | ✅ | ⚠️ | ✅ 5/5 | 🔵 P0 |
+| 库存管理 | ✅ | ✅ | ✅ 5/5 | 🔵 P0 |
+| 财务 — 凭证/应收应付 | ✅ | ⚠️ | ✅ 16 页 | 🔵 P0 |
+| 财务 — 总账/三表 | ⚠️ | 🔴 | ⚠️ 3 页（动作深度待核） | 🟢 P1 |
+| 财务 — 报表合并 | ✅ | ✅ | 🔴 | v1.4.0 |
+| 财务 — 多组织核算 (F1) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 财务 — 期末结转 | 🔴 | ⚠️ | 🔴 | 🟢 P1 |
+| 财务 — 存货成本核算 (F3) | ✅ | ✅ | 🔴 | v1.4.0 |
+| CRM 全模块 | ✅ | ✅ | ✅ 10/10 | 🔵 P0 |
+| OMS 订单管理 | ✅ | ✅ | ✅ 4/4 | 🔵 P0 |
+| WMS 仓储管理 | ✅ | ✅ | ⚠️ 7/8 | 🔵 P0 |
+| TMS 运输管理 | ✅ | ✅ | ⚠️ 5/6 | 🔵 P0 |
+| 审批工作流 | ✅ | ✅ | ⚠️ 2/3 | v1.4.0 |
+| 通知系统 | ✅ | ✅ | ⚠️ 1/2 | v1.4.0 |
+| 信用控制 (F7) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 追溯链/近效期 (M6) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 产能负荷 (M3) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 工序报工/计件/委外核销 (M1+M2) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 流程设计器 (B3) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 招聘/绩效/培训/社保 (H1-H4) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 点检扫码 (E1) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 项目成本/预算 (P1) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 票据/银企对账 (F6) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 进项池 (F5) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 自定义字段 (B7) | ✅ | ✅ | 🔴 | v1.4.0 |
+| 项目管理 | ✅ | ✅ | ✅ 3/3 | 🔵 P0 |
+| HR — 组织/考勤/请假 | ✅ | ⚠️ | ✅ 5/5 | 🔵 P0 |
+| HR — 薪资引擎 | ⚠️ | 🔴 | ⚠️ 2 页 | 🟢 P1 |
+| 制造 — BOM/生产/MRP | ✅ | ✅ | ⚠️ 5/13 | v1.4.0 |
+| 质量管理 | ✅ | ✅ | ✅ 5/5 | 🟢 P1 |
+| 自定义报表 | ✅ | ⚠️ | ✅ 2/2 | 🔵 P0 |
+| 设备管理 EAM | ✅ | ✅ | ⚠️ 4/5 | v1.4.0 |
+| 多语言 (i18n) | ✅ | ✅ | ⚠️ 仅中/英 | v1.17.0 |
+| 可观测性 | ⚠️ | 🔴 | N/A | 🟡 P2 |
+| 迁移回滚/备份 | ⚠️ | 🔴 | N/A | 🟡 P2 |
 ### 统计
 
 | 维度 | ✅ 完成 | ⚠️ 骨架 | 🔴 缺失 | N/A | 完成率 |
 |------|---------|----------|---------|-----|--------|
-| 模块 (44) | 33 | 11 | 0 | 0 | 75% |
+| 模块 (43) | 33 | 10 | 0 | 0 | 77% |
 | 后端 API | 39 | 4 | 1 | 0 | 89% |
 | 业务逻辑 | 33 | 7 | 4 | 0 | 75% |
 | Flutter 前端 | 12 | 12 | 18 | 2 | 29% |
-| HarmonyOS | 0 | 13 | 29 | 2 | 0%（✅ 计；13 行已有页面 ⚠️）|
 
 > **统计口径（2026-09-05 校正）**：模块行按「后端 API 与业务逻辑均实现」计——双 ✅=完成，
-> 未达双 ✅ 即计骨架 ⚠️（含「部分启用」行：多租户 B5 隔离中间件未注册等历史待补项，见代码证据）；
+> 未达双 ✅ 即计骨架 ⚠️（历史「部分启用」的多租户 B5 行已于 2026-10 移除）；
 > 后端 API / 业务逻辑 两行按矩阵对应列统计，完成率分母扣除 N/A 行（可观测性、迁移回滚无前端）。
-> **Flutter / HarmonyOS 列（2026-08-27 起改为「页面动作覆盖」口径）**：✅=该模块存在页面且页面文件数 ≥ 后端控制器数
+> **Flutter 列（2026-08-27 起改为「页面动作覆盖」口径）**：✅=该模块存在页面且页面文件数 ≥ 后端控制器数
 > （`n/n` 或页数标注）；⚠️=有页面但页面文件数 < 后端控制器数（部分覆盖）；🔴=无页面；**待核**=页面存在但
-> 动作深度（增删改查闭环）未逐页核验。**各行页数为 2026-08-27 快照口径**（`apps/flutter/lib/app/pages/<模块>/`
-> 与 `apps/harmonyos/entry/src/main/ets/pages/**` 文件数，当期为 Flutter 107 页 / HarmonyOS 35 页）；
-> 2026-09-22 复测全量为 Flutter 119 页 / HarmonyOS 52 页（**逐行页数未按新口径重算**，✅/⚠️ 判定沿用 2026-08-27 快照），
-> 未纳入后端 doc-stats 校验；HarmonyOS 完成率 0% 系 ✅ 计数（0/42），实际 13 行已有页面（⚠️ 部分覆盖），非整列缺失。
-> **2026-09-15 去重**：矩阵原含两行「多租户」（`多租户 (B5)` 与 `多租户`，业务逻辑列 ✅ / ⚠️ 互相矛盾），
-> 已按上述口径合并为一行「多租户 (B5)」计 ⚠️（隔离中间件未注册），模块行 45 → 44。
+> 动作深度（增删改查闭环）未逐页核验。**各行页数为 2026-08-27 快照口径**（`apps/flutter/lib/app/pages/<模块>/` 文件数，当期为 Flutter 117 页（**逐行页数未按新口径重算**，✅/⚠️ 判定沿用 2026-08-27 快照），未纳入后端 doc-stats 校验。
+> **2026-10 清理**：多租户预留骨架（B5）已整体移除，矩阵不再保留该行。
 > **v1.17.0 批次（2026-09-15）**：新增「多语言 (i18n)」行（44 行中 1 行标注 v1.17.0）——后端 13 语种词典
-> （`resource/translations/<locale>/`，13 目录）与 `Accept-Language` 协商为 ✅；Flutter / HarmonyOS 端仍为中/英两语种，
-> 故前端两列计 ⚠️；Angular / React 端已具备 13 语种词典（不参与本矩阵列）。
-> **v1.4.0 批次（2026-09-05）**：44 行中 21 行标注 v1.4.0（含 1 行「部分启用」= 多租户 (B5) 行），
+> （`resource/translations/<locale>/`，13 目录）与 `Accept-Language` 协商为 ✅；Flutter 端仍为中/英两语种，故前端列计 ⚠️；Angular 端已具备 13 语种词典（不参与本矩阵列）。
+> **v1.4.0 批次（2026-09-05）**：43 行中 20 行标注 v1.4.0，
 > 覆盖多组织/合并报表/存货成本（F1-F3）、制造 M1/M2/M3/M6、信用 F7、票据/银企/进项池 F6/F5、
 > HR H1-H4、平台 B1-B5/B7、点检 E1、项目成本 P1；证据见下方「代码证据」。
 
 ### 代码证据（2026-09-05 校正；含 v1.17.0 批次）
+
+> 以下为历史批次记录，其中数电票 Mock、通知渠道层、多租户、DMS/BI、React/HarmonyOS 组件已于 2026-10 移除。
 
 本次完成度校正依据（文件存在性可由 `bash scripts/doc-stats.sh` 与 `find` 佐证）：
 
@@ -674,7 +668,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 |------|------|----------|
 | 质量管理 | 🔴 → ✅ | `app/controller/quality/`（5 控制器）+ `app/service/quality/QmsInspectionService.php` + `tests/QualityModuleTest.php` |
 | 设备管理 EAM | 🔴 → ✅（+E1 点检） | `app/controller/eam/`（5 控制器，含 `EamInspectionController.php`）+ `app/service/eam/EamInspectionService.php` + `tests/EamModuleTest.php` |
-| 多租户 | ⚠️ → ⚠️（v1.4.0 部分启用） | `app/controller/platform/TenantController.php` + `app/service/platform/TenantService.php`（provision/suspend/resume/expireMark/renew/expiryWarnings 到期计费已交付）+ `tests/Integration/TenantScopeIntegrationTest.php`；隔离中间件 `app/middleware/TenantScope.php` 仍未注册（隔离未生效），故为部分启用 |
 | 报表合并 | ⚠️ → ✅（v1.4.0 交付） | `app/service/finance/ConsolidationService.php`（rateToBase/translateLedger 期末汇率折算、addElimination 子公司间抵销且借贷平衡校验、generateDraft 快照优先/无快照实时重算、issue 防重、latest/list；缺汇率即拒绝）+ 结果落 `app/model/FinanceConsolidationReport.php` + `tests/ConsolidationServiceTest.php`（3 例） |
 | 期末结转 | 🔴 → ⚠️ | `app/service/finance/PeriodCloseService.php:21` `closeProfitAndLoss()`（损益类科目汇总已实现，不生成结转凭证、无控制器端点）+ `tests/PeriodCloseServiceTest.php`（4 例） |
 | v1.4.0 — 多组织核算 (F1) | 新增 | `app/controller/finance/CompanyController.php` + `LedgerPeriodController.php`（独立核算主体与会计期间） |
@@ -683,6 +676,6 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | v1.4.0 — 财务资金/税务 F6/F5 + F7 | 新增 | `app/service/finance/FinanceBillService.php` + `BankReconService.php`（对账单导入/自动与手工核销）+ `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php`（EInvoiceAdapter/MockEInvoiceAdapter，真实税局为预留适配点）+ `app/service/sales/CreditControlService.php`（超限订单断言拦截） |
 | v1.4.0 — HR/项目 H1-H4/P1 | 新增 | `app/service/hr/`（RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService）+ `app/service/project/ProjectCostService.php` |
 | v1.4.0 — 平台/渠道 B3/B4/B7/E1 | 新增 | `app/controller/workflow/WorkflowDesignerController.php`（canvas_json 持久化）+ `app/service/notification/`（ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver，失败重试）+ `app/controller/notification/NotificationChannelController.php`（`tests/NotificationChannelTest.php` 5 例）+ `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php`（点检扫码） |
-| v1.17.0 — 多语言 (i18n) | 新增 | 后端：`resource/translations/`（13 语种目录 zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id，每语种 common+modules+validation 三文件，11 个语种各 542 条（zh_CN 533、en 30）；en 为英文即 key）+ `app/common/I18n.php`（`getLocale()` 解析 `Accept-Language` 首个标签、主语言子标签映射 zh*→zh_CN；`trans()` 非 en 走 `[请求语种, zh_CN, en]`→key，en 不落中文）+ `config/translation.php` + 生成脚本 `scripts/gen-be-locales.mjs`；前端：`apps/react/src/lib/i18n/`（`index.tsx` + `zhEn` + 11 语种文件）与 `apps/angular/src/app/core/`（`zh-en/`（index + part1..4）+ `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`）（11 新语种词典按语种懒加载，Angular 1453 / React 1447 键）+ `scripts/gen-fe-locales.mjs`；切换入口 = 顶栏地球图标 + 个人中心下拉；Flutter（`apps/flutter/lib/l10n/`）与 HarmonyOS（`entry/src/main/resources/`）仍为中/英两语种 |
+| v1.17.0 — 多语言 (i18n) | 新增 | 后端：`resource/translations/`（13 语种目录 zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id，每语种 common+modules+validation 三文件，11 个语种各 542 条（zh_CN 533、en 30）；en 为英文即 key）+ `app/common/I18n.php`（`getLocale()` 解析 `Accept-Language` 首个标签、主语言子标签映射 zh*→zh_CN；`trans()` 非 en 走 `[请求语种, zh_CN, en]`→key，en 不落中文）+ `config/translation.php` + 生成脚本 `scripts/gen-be-locales.mjs`；前端：`apps/react/src/lib/i18n/`（`index.tsx` + `zhEn` + 11 语种文件）与 `apps/angular/src/app/core/`（`zh-en/`（index + part1..4）+ `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`）（11 新语种词典按语种懒加载，Angular 1453 / React 1447 键）+ `scripts/gen-fe-locales.mjs`；切换入口 = 顶栏地球图标 + 个人中心下拉；Flutter（`apps/flutter/lib/l10n/`）与|
 
 > 详细路线图设计规范: `docs/superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`

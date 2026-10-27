@@ -26,29 +26,3 @@ flowchart TD
     style sidebar fill:#722ED1,color:#fff
 ```
 
-## HarmonyOS Page Routing
-
-```mermaid
-flowchart LR
-    entry["EntryAbility"]
-    entry -->|"No Token"| loginH["LoginPage"]
-    entry -->|"Has Token"| dashH["DashboardPage"]
-
-    loginH -->|"Login success replaceUrl"| dashH
-
-    dashH -->|"pushUrl"| userList["UserListPage"]
-    dashH -->|"pushUrl"| profile["ProfilePage"]
-
-    userList -->|"pushUrl"| userDetail["UserDetailPage"]
-    userList -->|"router.back"| dashH
-    userDetail -->|"router.back"| userList
-
-    profile -->|"Logout confirm replaceUrl"| loginH
-    profile -->|"router.back"| dashH
-
-    style loginH fill:#1677FF,color:#fff
-    style dashH fill:#52C41A,color:#fff
-    style userList fill:#FA8C16,color:#fff
-    style userDetail fill:#FA8C16,color:#fff
-    style profile fill:#722ED1,color:#fff
-```

@@ -12,9 +12,9 @@
 <!-- client -->
 <g id="node1" class="node">
 <title>client</title>
-<path fill="#1a237e" stroke="black" stroke-width="2" d="M313,-1546.96C313,-1546.96 221,-1546.96 221,-1546.96 215,-1546.96 209,-1540.96 209,-1534.96 209,-1534.96 209,-1522.96 209,-1522.96 209,-1516.96 215,-1510.96 221,-1510.96 221,-1510.96 313,-1510.96 313,-1510.96 319,-1510.96 325,-1516.96 325,-1522.96 325,-1522.96 325,-1534.96 325,-1534.96 325,-1540.96 319,-1546.96 313,-1546.96"/>
+<path fill="#1a237e" stroke="black" stroke-width="2" d="M296.5,-1546.96C296.5,-1546.96 237.5,-1546.96 237.5,-1546.96 231.5,-1546.96 225.5,-1540.96 225.5,-1534.96 225.5,-1534.96 225.5,-1522.96 225.5,-1522.96 225.5,-1516.96 231.5,-1510.96 237.5,-1510.96 237.5,-1510.96 296.5,-1510.96 296.5,-1510.96 302.5,-1510.96 308.5,-1516.96 308.5,-1522.96 308.5,-1522.96 308.5,-1534.96 308.5,-1534.96 308.5,-1540.96 302.5,-1546.96 296.5,-1546.96"/>
 <text text-anchor="middle" x="267" y="-1532.36" font-family="Arial Bold" font-size="12.00" fill="white">客户端</text>
-<text text-anchor="middle" x="267" y="-1519.36" font-family="Arial Bold" font-size="12.00" fill="white">Flutter / 鸿蒙 / API</text>
+<text text-anchor="middle" x="267" y="-1519.36" font-family="Arial Bold" font-size="12.00" fill="white">Flutter / API</text>
 </g>
 <!-- nginx -->
 <g id="node2" class="node">
@@ -172,7 +172,7 @@
 <text text-anchor="middle" x="164" y="-484.93" font-family="Arial" font-size="10.00">操作日志中间件</text>
 <text text-anchor="middle" x="164" y="-473.93" font-family="Arial" font-size="10.00">捕获请求数据</text>
 <text text-anchor="middle" x="164" y="-462.93" font-family="Arial" font-size="10.00">检测来源平台</text>
-<text text-anchor="middle" x="164" y="-451.93" font-family="Arial" font-size="10.00">(Flutter/鸿蒙/API等)</text>
+<text text-anchor="middle" x="164" y="-451.93" font-family="Arial" font-size="10.00">(Flutter/API等)</text>
 <text text-anchor="middle" x="164" y="-440.93" font-family="Arial" font-size="10.00">记录到数据库 (异步)</text>
 </g>
 <!-- adminperm&#45;&gt;oplog -->

@@ -46,7 +46,7 @@ The Open ERP System (open-erp) is a full-stack enterprise resource planning syst
 ### 2.4 Operation Audit
 - Auto-records all POST/PUT/DELETE operations
 - Records: operator, action, method, path, IP, parameters (sensitive fields masked), time
-- Auto-detects 8 platform sources (Web/Flutter/HarmonyOS/API, etc.)
+- Auto-detects 8 platform sources (Web/Flutter/API, etc.)
 - Query-only; cannot be deleted or modified
 
 ### 2.5 Security Protection

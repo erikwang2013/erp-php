@@ -12,9 +12,7 @@
 flowchart TB
     subgraph "Client Layer"
         A1["Flutter Web<br/>PC Admin Console<br/>(Port 3000)"]
-        A2["HarmonyOS ArkTS<br/>Phone/Tablet Client"]
         A3["Angular 22 + ng-zorro<br/>Web Admin Console"]
-        A4["React 19 + Vite<br/>Web Admin Console"]
     end
 
     subgraph "Gateway/Edge Layer (Nginx Edge)"
@@ -38,14 +36,11 @@ flowchart TB
     end
 
     subgraph "External"
-        E1["DevEco Studio<br/>HarmonyOS build"]
         E2["Flutter SDK<br/>Web build"]
     end
 
     A1 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
-    A2 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     A3 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
-    A4 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     B1 --> C0
     C0 --> C1
     C1 --> C2
@@ -60,9 +55,7 @@ flowchart TB
     C1 --> D3
 
     style A1 fill:#1677FF,color:#fff
-    style A2 fill:#1677FF,color:#fff
     style A3 fill:#1677FF,color:#fff
-    style A4 fill:#1677FF,color:#fff
     style B1 fill:#722ED1,color:#fff
     style C0 fill:#EB2F96,color:#fff
     style C1 fill:#FA8C16,color:#fff
@@ -155,7 +148,7 @@ As the system evolves from a pure admin console into a complete ERP system, the 
 
 | Layer | Directory | Description |
 |------|------|------|
-| Business controllers | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 (23 business domains, plus top-level Install / Index), organized per module, handling business requests |
+| Business controllers | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,open,platform}/` | 128 (19 business domains, plus top-level Install / Index), organized per module, handling business requests |
 | Business services | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 service classes / 64 files / 20 module subdirectories; covering inventory stock in/out + costing, finance AR/AP + write-off, notification sending |
 
 ### Internationalization (13 Languages)
@@ -166,7 +159,6 @@ Locale resolution lives in `getLocale()` in `app/common/I18n.php` (called by `I1
 |----|----------|------|--------|
 | Backend | `resource/translations/<locale>/{common,modules,validation}.php` | 13 locale directories; `zh_CN` 565 entries, each of the other 11 locales 544 entries, `en` 30 entries (leaf-entry scope; the `attributes` field labels in `validation.php` count, their group keys do not) | `scripts/gen-be-locales.mjs` |
 | Angular | source `apps/angular/src/app/core/zh-en/part1..4.ts` → artifacts `core/zh-<code>.ts` | 1456 source entries | `scripts/gen-fe-locales.mjs --app angular` |
-| React | source `apps/react/src/lib/i18n/zhEn.ts` → artifacts `lib/i18n/zh<Code>.ts` | 1451 source entries | `scripts/gen-fe-locales.mjs --app react` |
 
 - Languages: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`.
 - Backend "English is the key": `en`'s common/modules are left empty; the keys in `validation.php` are framework rule names, so only the values are translated.
@@ -600,35 +592,6 @@ flowchart TD
 
 ---
 
-## 11. HarmonyOS Page Routing
-
-```mermaid
-flowchart LR
-    EA["EntryAbility<br/>startup"]
-    EA -->|"no Token"| LP["LoginPage<br/>login page"]
-    EA -->|"has Token"| DP["DashboardPage<br/>dashboard"]
-
-    LP -->|"login success<br/>replaceUrl"| DP
-
-    DP -->|"pushUrl"| ULP["UserListPage<br/>user list"]
-    DP -->|"pushUrl"| PP["ProfilePage<br/>profile center"]
-
-    ULP -->|"pushUrl"| UDP["UserDetailPage<br/>user detail/create/edit"]
-    ULP -->|"router.back"| DP
-    UDP -->|"router.back"| ULP
-
-    PP -->|"logout<br/>replaceUrl"| LP
-    PP -->|"router.back"| DP
-
-    style LP fill:#1677FF,color:#fff
-    style DP fill:#52C41A,color:#fff
-    style ULP fill:#FA8C16,color:#fff
-    style UDP fill:#FA8C16,color:#fff
-    style PP fill:#722ED1,color:#fff
-```
-
----
-
 ## 12. Defense in Depth Overview
 
 ```mermaid
@@ -726,9 +689,7 @@ graph TB
     subgraph Client["Client Layer"]
         FW["Flutter Web<br/>PC Admin Panel"]
         FA["Flutter App<br/>iOS/Android/macOS/Windows/Linux"]
-        HW["HarmonyOS<br/>HarmonyOS Native App"]
         NG["Angular 22 + ng-zorro<br/>Web Admin Console"]
-        RC["React 19 + Vite<br/>Web Admin Console"]
     end
 
     subgraph Gateway["API Gateway Layer"]
@@ -759,7 +720,7 @@ graph TB
     end
 
     subgraph Data["Data Layer"]
-        MySQL["MySQL 8.0<br/>227 Business Tables"]
+        MySQL["MySQL 8.0<br/>211 Business Tables"]
         Redis["Redis 7<br/>Cache/Rate Limiting/Session"]
         ES["Elasticsearch 8<br/>Full-Text Search"]
     end
@@ -910,16 +871,14 @@ sequenceDiagram
 | Manufacturing | controller/manufacturing/ (13) | ManufacturingService | MfgBom, MfgProductionOrder, MfgRouting, MfgWorkstation, MfgMrpPlan | 21 |
 | Custom Reports | controller/report/ (2) | - ⚠ controller queries model directly, known tech debt | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
 | EAM Equipment Management | controller/eam/ (5) | - ⚠ controller queries model directly, known tech debt | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 6 |
-| DMS Document Management | controller/dms/ (2) | - ⚠ controller queries model directly, known tech debt | DmsCategory, DmsDocument, DmsDocumentVersion | 3 |
-| BI Dashboards | controller/bi/ (3) | - ⚠ controller queries model directly, known tech debt | BiDashboard, BiWidget | 2 |
 
 > This table is an early module mapping (system management + 15 business domains); the 8 domains added later — oms / wms / tms / quality / open / platform / print / retail — are not listed;
-> the full list is in the `docs/CLAUDE.md` project structure tree (`app/controller/` has 23 module directories / 139 controllers in total, including the top-level Install and Index).
+> the full list is in the `docs/CLAUDE.md` project structure tree (`app/controller/` has 19 module directories / 128 controllers in total, including the top-level Install and Index).
 >
-> `Tables` caliber (measured 2026-09-15): take the 227 tables in `database/install.sql` and attribute each to exactly one module by table-name prefix — system management `admin_*`+`system_config`+`operation_log`;
+> `Tables` caliber (measured 2026-09-15): take the 211 tables in `database/install.sql` and attribute each to exactly one module by table-name prefix — system management `admin_*`+`system_config`+`operation_log`;
 > product management `product*`/`category`/`brand`/`warehouse`/`location`/`supplier`/`customer*`; purchase management `purchase_*`+`supplier_assessment`; inventory management `inventory*`/`transfer*`/`check_*`/`cost_record`;
-> the remaining modules use their same-named table prefixes (`sales_*`→sales, `finance_*`→finance, `crm_*`→CRM, `approval_*`→approval, `notification*`→notification, `project*`→project, `hr_*`→HR, `mfg_*`→manufacturing, `report_*`→reports, `eam_*`→EAM, `dms_*`→DMS, `bi_*`→BI).
-> One table is attributed to only one column; the domains added later plus shared tables total 48 tables (`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`print_template`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`) and are not counted in any row of this table.
+> the remaining modules use their same-named table prefixes (`sales_*`→sales, `finance_*`→finance, `crm_*`→CRM, `approval_*`→approval, `notification*`→notification, `project*`→project, `hr_*`→HR, `mfg_*`→manufacturing, `report_*`→reports, `eam_*`→EAM, `dms_*`/`bi_*` removed).
+> One table is attributed to only one column; the domains added later plus shared tables total 40 tables (`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`custom_field_definition`/`tax_*`) and are not counted in any row of this table.
 > Recompute: ``grep -o 'CREATE TABLE IF NOT EXISTS `erp_[a-z_]*`' database/install.sql | sed 's/.*`erp_\([a-z_]*\)`/\1/' | cut -d_ -f1 | sort | uniq -c | sort -rn``
 
 ### 20.1 P2-F2 Lightweight Service-Layer Extraction Record (crm/hr/manufacturing/product extraction completed)
@@ -1008,10 +967,10 @@ P0(3-4 weeks) → P1(4-6 weeks) → P2(1-2 weeks) → P3(2-3 weeks) = ~13 weeks 
 
 | Phase | Name | Core Deliverables |
 |------|------|----------|
-| **P0** | Frontend ecosystem | Flutter Web full-module admin panel (14 modules 40+ pages), common component library, HarmonyOS alignment |
+| **P0** | Frontend ecosystem | Flutter Web full-module admin panel (14 modules 40+ pages), common component library |
 | **P1** | Business depth | Finance double-entry engine, payroll calculation engine, MRP engine, quality management module, real-time notifications (WebSocket) |
 | **P2** | Ops reliability | Database migration rollback, auto backup enhancement, OpenTelemetry tracing, RabbitMQ queue driver |
-| **P3** | Experience enhancement | BI drag-and-drop dashboards, equipment management (EAM), multi-tenant isolation, document management (DMS) |
+| **P3** | Experience enhancement | equipment management (EAM) |
 
 ### 21.3 Middleware Chain Evolution
 
@@ -1019,7 +978,7 @@ P0(3-4 weeks) → P1(4-6 weeks) → P2(1-2 weeks) → P3(2-3 weeks) = ~13 weeks 
 Current:  Cors → SecurityFilter → RateLimit → TracingId → {route group}
 After P1: Cors → SecurityFilter → RateLimit → WebSocketUpgrade → {route group}
 After P2: Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {route group}
-After P3: Cors → SecurityFilter → RateLimit → TracingId → TenantScope → WebSocketUpgrade → {route group}
+After P3: Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrade → {route group}
 ```
 
 ### 21.4 P0 Target Architecture — Flutter Web Admin Panel
@@ -1047,7 +1006,7 @@ After P3: Cors → SecurityFilter → RateLimit → TracingId → TenantScope �
 |------|----------|----------|
 | P0 | 0 | Pure frontend, no table changes |
 | P1 | 14 | Finance(2) + HR(3) + Manufacturing(2) + Quality(5) + Notifications(2) |
-| P3 | 7 | BI(2) + EAM(3) + DMS(2) |
+| P3 | 3 | EAM(3) |
 
 ---
 

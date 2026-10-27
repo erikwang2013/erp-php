@@ -16,7 +16,7 @@ digraph RequestLifecycle {
     labelloc="t";
 
     // Client
-    client [label="Client\nFlutter / HarmonyOS / API", shape="box",
+    client [label="Client\nFlutter / API", shape="box",
             style="filled,rounded", fillcolor="#1a237e", fontcolor="white",
             fontsize=12, fontname="Arial Bold", penwidth=2];
 
@@ -33,7 +33,7 @@ digraph RequestLifecycle {
     // Auth
     adminauth [label="AdminAuth Middleware\nDecode JWT Token\nCheck Blacklist (Redis)\nCheck Expiry\nSet Auth Context", fillcolor="#e8f5e9", color="#2e7d32"];
     adminperm [label="AdminPermission Middleware\nLoad Permissions from Redis Cache\n(TTL 60s)\nMatch method.path\nagainst Permission Tree\nRBAC Decision", fillcolor="#e8f5e9", color="#2e7d32"];
-    oplog [label="OperationLog Middleware\nCapture Request Data\nDetect Source Platform\n(Flutter/HarmonyOS/API etc)\nLog to DB (async)", fillcolor="#e8f5e9", color="#2e7d32"];
+    oplog [label="OperationLog Middleware\nCapture Request Data\nDetect Source Platform\n(Flutter/API etc)\nLog to DB (async)", fillcolor="#e8f5e9", color="#2e7d32"];
 
     // Controllers
     node [fontsize=10];

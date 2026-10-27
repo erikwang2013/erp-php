@@ -11,15 +11,14 @@
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                        客户端层                               │
-│  ┌──────────────────────┐  ┌──────────────────────────────┐  │
-│  │  Flutter Web (PC)    │  │  HarmonyOS ArkTS (Mobile)    │  │
-│  │  管理后台 (桌面风格)   │  │  客户端 (手机/平板/2in1)      │  │
-│  └──────────┬───────────┘  └──────────────┬───────────────┘  │
-└─────────────┼──────────────────────────────┼─────────────────┘
-              │        HTTPS / JSON          │
-              │   Authorization: Bearer JWT  │
-┌─────────────┼──────────────────────────────┼─────────────────┐
-│             ▼                              ▼                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │  Flutter Web (PC) 管理后台 (桌面风格)                     │  │
+│  └────────────────────────────┬─────────────────────────────┘  │
+└───────────────────────────────┼────────────────────────────────┘
+                                │        HTTPS / JSON
+                                │   Authorization: Bearer JWT
+┌───────────────────────────────┼────────────────────────────────┐
+│                               ▼                                │
 │  ┌──────────────────────────────────────────────────────┐    │
 │  │                   API 网关层                          │    │
 │  │  AdminAuth(认证) → AdminPermission(授权) → Controller │    │
@@ -331,20 +330,6 @@ curl http://localhost:8788/api/v2/auth/login
 
 特性: 侧边栏可折叠、Material 3 双主题、数据表格高密度、弹窗 Dialog、鼠标悬停交互
 
-### 5.2 HarmonyOS 移动端
-
-页面路由:
-
-| 页面 | 路由 | 说明 |
-|------|------|------|
-| LoginPage | `pages/LoginPage` | 用户名密码 + 点击验证码登录 |
-| DashboardPage | `pages/DashboardPage` | 统计卡片 + 最近操作 |
-| UserListPage | `pages/UserListPage` | 用户列表，搜索 + 下拉刷新 + 上滑加载 |
-| UserDetailPage | `pages/UserDetailPage` | 新增/编辑/查看/删除（AlertDialog 确认） |
-| ProfilePage | `pages/ProfilePage` | 个人中心，退出登录（AlertDialog 确认） |
-
-数据流: Page ← DataService ← ApiService (JWT Bearer) ← HTTP ← webman
-
 ## 6. 安全设计
 
 ### 6.1 纵深防御
@@ -464,4 +449,3 @@ GitHub Actions 持续集成定义在 `.github/workflows/ci.yml`：
 | Redis | 6.x | 7.x 哨兵模式 |
 | Nginx | 1.20+ | 反向代理 + gzip + SSL |
 | Flutter SDK | 3.41+ | 最新稳定版 |
-| HarmonyOS | API 12 | DevEco Studio 5.x |

@@ -61,8 +61,8 @@
 </g>
 <g id="clust11" class="cluster">
 <title>cluster_L10</title>
-<path fill="#e0f7fa" stroke="#00838f" stroke-width="2" d="M246,-205.48C246,-205.48 965,-205.48 965,-205.48 971,-205.48 977,-211.48 977,-217.48 977,-217.48 977,-284.22 977,-284.22 977,-290.22 971,-296.22 965,-296.22 965,-296.22 246,-296.22 246,-296.22 240,-296.22 234,-290.22 234,-284.22 234,-284.22 234,-217.48 234,-217.48 234,-211.48 240,-205.48 246,-205.48"/>
-<text text-anchor="middle" x="605.5" y="-282.62" font-family="Arial Bold" font-size="12.00">LAYER 10: Audit &amp; Monitoring</text>
+<path fill="#e0f7fa" stroke="#00838f" stroke-width="2" d="M260,-205.48C260,-205.48 965,-205.48 965,-205.48 971,-205.48 977,-211.48 977,-217.48 977,-217.48 977,-284.22 977,-284.22 977,-290.22 971,-296.22 965,-296.22 965,-296.22 260,-296.22 260,-296.22 254,-296.22 248,-290.22 248,-284.22 248,-284.22 248,-217.48 248,-217.48 248,-211.48 254,-205.48 260,-205.48"/>
+<text text-anchor="middle" x="612.5" y="-282.62" font-family="Arial Bold" font-size="12.00">LAYER 10: Audit &amp; Monitoring</text>
 </g>
 <g id="clust12" class="cluster">
 <title>cluster_L11</title>
@@ -464,26 +464,26 @@
 <!-- L10b -->
 <g id="node40" class="node">
 <title>L10b</title>
-<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="708" cy="-240.35" rx="78.48" ry="26.74"/>
-<text text-anchor="middle" x="708" y="-248.15" font-family="Arial" font-size="9.00">Source Detection</text>
-<text text-anchor="middle" x="708" y="-238.15" font-family="Arial" font-size="9.00">8 Platforms Identified</text>
-<text text-anchor="middle" x="708" y="-228.15" font-family="Arial" font-size="9.00">Flutter/HarmonyOS/API</text>
+<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="715" cy="-240.35" rx="72.25" ry="26.74"/>
+<text text-anchor="middle" x="715" y="-248.15" font-family="Arial" font-size="9.00">Source Detection</text>
+<text text-anchor="middle" x="715" y="-238.15" font-family="Arial" font-size="9.00">8 Platforms Identified</text>
+<text text-anchor="middle" x="715" y="-228.15" font-family="Arial" font-size="9.00">Flutter/API</text>
 </g>
 <!-- L10c -->
 <g id="node41" class="node">
 <title>L10c</title>
-<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="522" cy="-240.35" rx="93.18" ry="26.74"/>
-<text text-anchor="middle" x="522" y="-248.15" font-family="Arial" font-size="9.00">Prometheus Metrics</text>
-<text text-anchor="middle" x="522" y="-238.15" font-family="Arial" font-size="9.00">5 Gauge Indicators</text>
-<text text-anchor="middle" x="522" y="-228.15" font-family="Arial" font-size="9.00">Requests/Users/DB/Memory</text>
+<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="536" cy="-240.35" rx="93.18" ry="26.74"/>
+<text text-anchor="middle" x="536" y="-248.15" font-family="Arial" font-size="9.00">Prometheus Metrics</text>
+<text text-anchor="middle" x="536" y="-238.15" font-family="Arial" font-size="9.00">5 Gauge Indicators</text>
+<text text-anchor="middle" x="536" y="-228.15" font-family="Arial" font-size="9.00">Requests/Users/DB/Memory</text>
 </g>
 <!-- L10d -->
 <g id="node42" class="node">
 <title>L10d</title>
-<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="328" cy="-240.35" rx="86.03" ry="26.74"/>
-<text text-anchor="middle" x="328" y="-248.15" font-family="Arial" font-size="9.00">Health Check</text>
-<text text-anchor="middle" x="328" y="-238.15" font-family="Arial" font-size="9.00">GET /health</text>
-<text text-anchor="middle" x="328" y="-228.15" font-family="Arial" font-size="9.00">DB/Redis/ES Connectivity</text>
+<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="342" cy="-240.35" rx="86.03" ry="26.74"/>
+<text text-anchor="middle" x="342" y="-248.15" font-family="Arial" font-size="9.00">Health Check</text>
+<text text-anchor="middle" x="342" y="-238.15" font-family="Arial" font-size="9.00">GET /health</text>
+<text text-anchor="middle" x="342" y="-228.15" font-family="Arial" font-size="9.00">DB/Redis/ES Connectivity</text>
 </g>
 <!-- L12a -->
 <g id="node46" class="node">

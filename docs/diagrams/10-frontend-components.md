@@ -26,29 +26,3 @@ flowchart TD
     style sidebar fill:#722ED1,color:#fff
 ```
 
-## HarmonyOS 页面路由
-
-```mermaid
-flowchart LR
-    entry["EntryAbility"]
-    entry -->|"无Token"| loginH["LoginPage"]
-    entry -->|"有Token"| dashH["DashboardPage"]
-
-    loginH -->|"登录成功replaceUrl"| dashH
-
-    dashH -->|"pushUrl"| userList["UserListPage"]
-    dashH -->|"pushUrl"| profile["ProfilePage"]
-
-    userList -->|"pushUrl"| userDetail["UserDetailPage"]
-    userList -->|"router.back"| dashH
-    userDetail -->|"router.back"| userList
-
-    profile -->|"退出确认replaceUrl"| loginH
-    profile -->|"router.back"| dashH
-
-    style loginH fill:#1677FF,color:#fff
-    style dashH fill:#52C41A,color:#fff
-    style userList fill:#FA8C16,color:#fff
-    style userDetail fill:#FA8C16,color:#fff
-    style profile fill:#722ED1,color:#fff
-```

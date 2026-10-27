@@ -11,15 +11,14 @@
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                        客户端层                               │
-│  ┌──────────────────────┐  ┌──────────────────────────────┐  │
-│  │  Flutter Web (PC)    │  │  HarmonyOS ArkTS (Mobile)    │  │
-│  │  管理后台 (桌面风格)   │  │  客户端 (手机/平板/2in1)      │  │
-│  └──────────┬───────────┘  └──────────────┬───────────────┘  │
-└─────────────┼──────────────────────────────┼─────────────────┘
-              │        HTTPS / JSON          │
-              │   Authorization: Bearer JWT  │
-┌─────────────┼──────────────────────────────┼─────────────────┐
-│             ▼                              ▼                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │  Flutter Web (PC) 管理后台 (桌面风格)                     │  │
+│  └────────────────────────────┬─────────────────────────────┘  │
+└───────────────────────────────┼────────────────────────────────┘
+                                │        HTTPS / JSON
+                                │   Authorization: Bearer JWT
+┌───────────────────────────────┼────────────────────────────────┐
+│                               ▼                                │
 │  ┌──────────────────────────────────────────────────────┐    │
 │  │                   API 网关层                          │    │
 │  │  AdminAuth(认证) → AdminPermission(授权) → Controller │    │
@@ -331,20 +330,6 @@ The frontend pops a confirmation dialog before triggering a delete, collects the
 
 Features: collapsible sidebar, Material 3 dual themes, high-density data tables, dialog popups, hover interactions
 
-### 5.2 HarmonyOS Mobile
-
-Page routing:
-
-| Page | Route | Description |
-|------|------|------|
-| LoginPage | `pages/LoginPage` | Username/password + click captcha login |
-| DashboardPage | `pages/DashboardPage` | Stat cards + recent operations |
-| UserListPage | `pages/UserListPage` | User list, search + pull-to-refresh + scroll-up loading |
-| UserDetailPage | `pages/UserDetailPage` | Add/edit/view/delete (AlertDialog confirmation) |
-| ProfilePage | `pages/ProfilePage` | Profile center, logout (AlertDialog confirmation) |
-
-Data flow: Page ← DataService ← ApiService (JWT Bearer) ← HTTP ← webman
-
 ## 6. Security Design
 
 ### 6.1 Defense in Depth
@@ -464,4 +449,3 @@ The `GET /metrics` endpoint (`MetricsController`) exposes 5 gauge metrics in Pro
 | Redis | 6.x | 7.x sentinel mode |
 | Nginx | 1.20+ | reverse proxy + gzip + SSL |
 | Flutter SDK | 3.41+ | latest stable |
-| HarmonyOS | API 12 | DevEco Studio 5.x |

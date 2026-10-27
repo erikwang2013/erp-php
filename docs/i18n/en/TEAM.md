@@ -12,7 +12,7 @@
 | Dimension | Current State | Implication for the Team |
 |------|------|--------------|
 | Backend | webman (Workerman) PHP 8.3+, **23 business modules**, 159 controllers, 63 services, 224 models, 227 tables, 11 middleware (schema uses database/install.sql as its single source of truth) | Large all-in-one monolith; divide work by business domain to prevent single-agent context explosion |
-| Frontend | Flutter **102 menu routes** (`lib/app/config/menu_config.dart`; `main.dart`'s getPages totals 110 entries = 102 menus + login/profile + 6 detail pages) + HarmonyOS **41 pages** (`main_pages.json`), covering all modules | Two frontends maintained in parallel; dedicated frontend roles required |
+| Frontend | Flutter **63 menu entries / 117 page files** (`lib/app/config/menu_config.dart`), covering all retained modules | Flutter single-frontend maintenance |
 | Quality baseline | PHPUnit 933<!-- stats:tests=933 --> tests / 4178<!-- stats:assertions=4178 --> assertions, PHPStan + baseline, CS-Fixer, CI multi-version matrix | Discipline already in place; testing/review roles plug directly into the pipeline |
 | Version matrix | Only the `main` branch (`lite` / `standard` / `full` have been deleted; the archived commit `eea90c0` is still in `main`'s history) | No edition branch left to sync; edition differences are traced through tags, see "Branch Strategy" in `docs/EDITIONS.md` |
 | Roadmap | P0~P3 delivered (overall score 89/100), entering daily iteration and evolution phase | Team scales by task type, not a large permanent project staff |
@@ -38,7 +38,6 @@
 |------|-----------------|----------|----------|
 | **Business Engine Expert** | custom `business-engineer` | Algorithm-heavy modules such as finance / payroll / MRP | Algorithm hardening and boundary handling for the double-entry engine, payroll engine, MRP engine (A-tier "industrial-grade" requirement) |
 | **Frontend Engineer (Flutter)** | custom `frontend-flutter` | Any change touching `apps/flutter/` | Web admin panel pages, GetX state, ApiService/export integration, 102-route maintenance |
-| **Frontend Engineer (HarmonyOS)** | custom `frontend-harmonyos` | Any change touching `apps/harmonyos/` | ArkTS pages, token silent refresh, feature alignment with Flutter (41-page maintenance) |
 | **Security/DevOps Engineer** | `consensus/security-manager` + `performance-benchmarker` | Security hardening, performance, deployment | 7-layer defense-in-depth regression, Docker/gRPC sub-services, migration rollback, observability, Prometheus metrics |
 
 ### 2.3 On-Demand Roles (task-triggered, 2 roles)
@@ -71,9 +70,9 @@
 
 | Task Type | Orchestration | Participating Roles |
 |----------|------|----------|
-| New module / new feature (e.g. DMS, BI deepening) | pipeline | Lead → Architect(table design) → Backend → Test → Review |
+| New module / new feature (cross-module) | pipeline | Lead → Architect(table design) → Backend → Test → Review |
 | Engine-level algorithms (double-entry / payroll / MRP) | pipeline + TDD | Lead → Business Engine Expert(design) → Test(boundary cases first) → Review |
-| Frontend pages (Flutter / HarmonyOS in parallel) | fan-out | Lead → Frontend×2 + Backend(API alignment) in parallel → Lead aggregates |
+| Frontend pages (Flutter) | fan-out | Lead → Frontend + Backend(API alignment) in parallel → Lead aggregates |
 | Cross-module data flows (purchase→inventory→AP, etc.) | pipeline | Lead → Architect → Backend → Test → Review |
 | Microservice split / large-scale refactor | supervisor | Lead ↔ Architect + Backend + Review, multiple rounds |
 | Security / performance specials | single-thread deep dive | Lead → Security/DevOps Engineer → Review |
@@ -100,7 +99,7 @@ Database-related changes must go through the architect (227 tables, schema uses 
 | Daily maintenance / small fixes | 1-2 people | Lead handles directly; avoid over-orchestration |
 | Single-module iteration | 3 people | Lead + Backend + Test |
 | Cross-module features | 4-5 people | Lead + Architect + Backend + Test + Review |
-| Dual-frontend parallel | 4-5 people | Lead + Flutter + HarmonyOS + Backend(API) + Test |
+| Frontend + backend | 3-4 people | Lead + Flutter + Backend(API) + Test |
 | Engine-level / complex refactors | 5-7 people | All of the above + Business Engine Expert or Security/DevOps |
 
 > Compatible with `.claude-flow/config.yaml` (`maxAgents: 15`, `hierarchical-mesh`, `consensus` coordination strategy); a single task's usage never exceeds the limit.
@@ -112,7 +111,7 @@ Database-related changes must go through the architect (227 tables, schema uses 
 1. **Fill in role definitions**: `.claude/agents/` already has planner / sparc / testing / swarm / consensus; five definitions are missing — `business-engineer`, `frontend-flutter`, `frontend-harmonyos`, `researcher`, `edition-coordinator`; adding one file each in the existing YAML/MD format completes the mounting;
 2. **Solidify routing**: write the §3.3 routing table into the routing logic of `.claude-flow/hooks` so the `UserPromptSubmit` hook auto-dispatches tasks to the corresponding role;
 3. **Memory partitioning**: `.claude-flow` already has `agentScopes` enabled (`defaultScope: project`); recommend archiving by the four domains `backend / frontend / ops / security` to avoid finance-engine context polluting frontend tasks;
-4. **Pilot run**: pick one cross-module task (e.g. DMS deepening or BI dashboard iteration), run a full round per §3.3 routing, verify the message chain and quality gate, then roll out.
+4. **Pilot run**: pick one cross-module task, run a full round per §3.3 routing, verify the message chain and quality gate, then roll out.
 
 ---
 

@@ -61,8 +61,8 @@
 </g>
 <g id="clust11" class="cluster">
 <title>cluster_L10</title>
-<path fill="#e0f7fa" stroke="#00838f" stroke-width="2" d="M271,-205.48C271,-205.48 930,-205.48 930,-205.48 936,-205.48 942,-211.48 942,-217.48 942,-217.48 942,-284.22 942,-284.22 942,-290.22 936,-296.22 930,-296.22 930,-296.22 271,-296.22 271,-296.22 265,-296.22 259,-290.22 259,-284.22 259,-284.22 259,-217.48 259,-217.48 259,-211.48 265,-205.48 271,-205.48"/>
-<text text-anchor="middle" x="600.5" y="-282.62" font-family="Arial Bold" font-size="12.00">第 10 层: 审计与监控</text>
+<path fill="#e0f7fa" stroke="#00838f" stroke-width="2" d="M299,-205.48C299,-205.48 930,-205.48 930,-205.48 936,-205.48 942,-211.48 942,-217.48 942,-217.48 942,-284.22 942,-284.22 942,-290.22 936,-296.22 930,-296.22 930,-296.22 299,-296.22 299,-296.22 293,-296.22 287,-290.22 287,-284.22 287,-284.22 287,-217.48 287,-217.48 287,-211.48 293,-205.48 299,-205.48"/>
+<text text-anchor="middle" x="614.5" y="-282.62" font-family="Arial Bold" font-size="12.00">第 10 层: 审计与监控</text>
 </g>
 <g id="clust12" class="cluster">
 <title>cluster_L11</title>
@@ -464,26 +464,26 @@
 <!-- L10b -->
 <g id="node40" class="node">
 <title>L10b</title>
-<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="664" cy="-240.35" rx="62.45" ry="26.74"/>
-<text text-anchor="middle" x="664" y="-248.15" font-family="Arial" font-size="9.00">来源端检测</text>
-<text text-anchor="middle" x="664" y="-238.15" font-family="Arial" font-size="9.00">识别8种平台</text>
-<text text-anchor="middle" x="664" y="-228.15" font-family="Arial" font-size="9.00">Flutter/鸿蒙/API等</text>
+<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="678" cy="-240.35" rx="48.17" ry="26.74"/>
+<text text-anchor="middle" x="678" y="-248.15" font-family="Arial" font-size="9.00">来源端检测</text>
+<text text-anchor="middle" x="678" y="-238.15" font-family="Arial" font-size="9.00">识别8种平台</text>
+<text text-anchor="middle" x="678" y="-228.15" font-family="Arial" font-size="9.00">Flutter/API等</text>
 </g>
 <!-- L10c -->
 <g id="node41" class="node">
 <title>L10c</title>
-<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="514" cy="-240.35" rx="73.58" ry="26.74"/>
-<text text-anchor="middle" x="514" y="-248.15" font-family="Arial" font-size="9.00">Prometheus 指标</text>
-<text text-anchor="middle" x="514" y="-238.15" font-family="Arial" font-size="9.00">5 项监控指标</text>
-<text text-anchor="middle" x="514" y="-228.15" font-family="Arial" font-size="9.00">请求/用户/数据库/内存</text>
+<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="542" cy="-240.35" rx="73.58" ry="26.74"/>
+<text text-anchor="middle" x="542" y="-248.15" font-family="Arial" font-size="9.00">Prometheus 指标</text>
+<text text-anchor="middle" x="542" y="-238.15" font-family="Arial" font-size="9.00">5 项监控指标</text>
+<text text-anchor="middle" x="542" y="-228.15" font-family="Arial" font-size="9.00">请求/用户/数据库/内存</text>
 </g>
 <!-- L10d -->
 <g id="node42" class="node">
 <title>L10d</title>
-<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="347" cy="-240.35" rx="79.81" ry="26.74"/>
-<text text-anchor="middle" x="347" y="-248.15" font-family="Arial" font-size="9.00">健康检查</text>
-<text text-anchor="middle" x="347" y="-238.15" font-family="Arial" font-size="9.00">GET /health</text>
-<text text-anchor="middle" x="347" y="-228.15" font-family="Arial" font-size="9.00">数据库/Redis/ES 连通性</text>
+<ellipse fill="#b2ebf2" stroke="#0097a7" stroke-width="1.5" cx="375" cy="-240.35" rx="79.81" ry="26.74"/>
+<text text-anchor="middle" x="375" y="-248.15" font-family="Arial" font-size="9.00">健康检查</text>
+<text text-anchor="middle" x="375" y="-238.15" font-family="Arial" font-size="9.00">GET /health</text>
+<text text-anchor="middle" x="375" y="-228.15" font-family="Arial" font-size="9.00">数据库/Redis/ES 连通性</text>
 </g>
 <!-- L12a -->
 <g id="node46" class="node">

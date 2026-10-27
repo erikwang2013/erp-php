@@ -18,15 +18,15 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 > Architecture doc: `ARCHITECTURE.md` §21
 > Feature matrix: `FUNCTIONS.md` §19
 
-**Current overall score 89/100** — full roadmap P0~P3 completed, 23 modules full-stack coverage, production-ready.
+**Current overall score 89/100** — full roadmap P0~P3 completed, 19 modules full-stack coverage, production-ready.
 
 | Phase | Duration | Deliverables | Status |
 |------|------|--------|------|
-| 🔵 **P0** Frontend ecosystem | 3-4 weeks | 102 Flutter routes + 41 HarmonyOS pages + 4 shared components | ✅ |
+| 🔵 **P0** Frontend ecosystem | 3-4 weeks | 63 Flutter menu entries + 117 pages + 4 shared components | ✅ |
 | 🟢 **P1** Business depth | 4-6 weeks | Finance engine + payroll engine + MRP + QMS + WebSocket | ✅ |
 | 🟡 **P2** Operations reliability | 1-2 weeks | Migration rollback + auto backup + TraceId + dual queue drivers | ✅ |
-| 🟣 **P3** Experience enhancement | 2-3 weeks | BI dashboards + EAM + DMS | ✅ |
-(Multi-tenancy B5 was delivered ahead of schedule in P2: TenantScope request context + erp_tenant; the isolation middleware seam is not registered)
+| 🟣 **P3** Experience enhancement | 2-3 weeks | EAM | ✅ |
+(The multi-tenancy B5 scaffold was removed in 2026-10; the system is single-tenant)
 
 **Tests**: 933<!-- stats:tests=933 --> tests, 4178<!-- stats:assertions=4178 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
@@ -60,8 +60,6 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | TMS transportation management | Carriers/freight rate comparison/shipments & labels/tracking events (webhook) |
 | QMS quality management | Incoming IQC/in-process IPQC/outgoing OQC inspection + inspection standards + nonconformity handling |
 | EAM equipment management | Equipment register/maintenance plans/repair orders/spare parts |
-| DMS document management | Document categories/documents/version management |
-| BI dashboards | Dashboard layouts/chart widgets |
 
 ## Tech Stack
 
@@ -81,10 +79,8 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 - Flutter 3.x, source directory `apps/flutter/`
 - Web is designed in PC admin console style (not mobile app style)
 - Supports both client and administrator ends
-- HarmonyOS ArkTS, source directory `apps/harmonyos/`
 - Angular 22 CLI + ng-zorro-antd, source directory `apps/angular/` (web admin console)
-- React 19 + Vite, source directory `apps/react/` (web admin console)
-- All four frontends share one backend: Angular / React use `/admin/v1`, `/api/v1`, `/open/v1` just like Flutter, with each dev server proxying to webman during development
+- Both frontends share one backend: Angular uses `/admin/v1`, `/api/v1`, `/open/v1` just like Flutter, with each dev server proxying to webman during development
 
 ### Internationalization (13 Languages)
 - Language list: `zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`
@@ -92,9 +88,8 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
   - "English is the key": `en`'s common/modules are left empty; the keys in `validation.php` are framework rule names, so only the values are translated
   - Generator: `scripts/gen-be-locales.mjs`
 - Frontend dictionary (Angular): source `apps/angular/src/app/core/zh-en/part1..4.ts` (1456 entries) → artifacts `apps/angular/src/app/core/zh-<code>.ts`
-- Frontend dictionary (React): source `apps/react/src/lib/i18n/zhEn.ts` (1451 entries) → artifacts `apps/react/src/lib/i18n/zh<Code>.ts`
   - Each of the 11 new locale dictionaries is dynamically `import()`ed into its own chunk; missing entries fall back to the original Chinese text
-  - Generator: `scripts/gen-fe-locales.mjs --app angular|react`
+  - Generator: `scripts/gen-fe-locales.mjs --app angular`
 - Runtime: switching language switches the `Accept-Language` request header, and the backend returns text per locale (`app/common/I18n.php` + `config/translation.php`)
 
 ## Project Structure
@@ -144,7 +139,6 @@ open-erp/
 │   │   ├── platform/            # Custom fields/tenants (2)
 │   │   ├── print/               # Print templates (1)
 │   │   ├── retail/              # Coupons/members (2)
-│   │   └── bi/                  # BI dashboards/chart widgets (3)
 │   ├── service/                 # Business logic layer (64 files / 63 service classes)
 │   │   ├── finance/             # FinanceService: AR-AP auto-generation + receipt-payment reconciliation + journals
 │   │   ├── inventory/           # InventoryService: stock in/out + moving weighted average costing
@@ -165,11 +159,10 @@ open-erp/
 │   │   ├── AdminPermission.php  # RBAC permission validation
 │   │   ├── OperationLog.php     # Auto operation-log recording
 │   │   ├── OpenApiAuth.php      # Open API authentication (X-API-Key + signature, mounted on the /open/v1 group only)
-│   │   ├── TenantScope.php      # Multi-tenant isolation (reserved, not registered; see ARCHITECTURE.md §22)
 │   │   ├── TracingId.php        # End-to-end TraceId
 │   │   ├── TrackingSignature.php# Request signature validation
 │   │   └── StaticFile.php       # Static file serving (built into webman)
-│   ├── model/                   # Data models (224; 225 files including the concerns/TenantScope trait)
+│   ├── model/                   # Data models (224)
 │   ├── queue/                   # Queue tasks
 │   └── process/                 # Processes (Http, WebSocket, QueueConsumer, Monitor)
 ├── apps/
@@ -183,18 +176,16 @@ open-erp/
 │   │   └── src/app/
 │   │       ├── core/            # ApiService / AuthStore / I18n services + locale dictionaries (zh-en/ source, zh-<code>.ts artifacts)
 │   │       └── config/ layout/ pages/ ui/
-│   ├── react/                   # React 19 + Vite web admin console
 │   │   └── src/
 │   │       ├── lib/i18n/        # Source dictionary zhEn.ts + 11 locale files zh<Code>.ts (lazy-loaded per locale)
 │   │       └── components/ layout/ pages/ state/ config/domains/ styles/
-│   └── harmonyos/              # HarmonyOS client
 ├── config/                     # Config files
 │   ├── route.php               # Routes + API version strategy
 │   ├── middleware.php           # Global middleware registration
 │   ├── translation.php          # Language config
 │   └── plugin/                  # Plugin configs (erikwang2013/*; apidoc in erikwang2013/apidoc/)
 ├── database/
-│   ├── install.sql              # Full install SQL (227 tables + seed data, all migrations merged)
+│   ├── install.sql              # Full install SQL (211 tables + seed data, all migrations merged)
 │   ├── e2e-seed.sql             # E2E/CI minimal seed
 │   └── backup/                 # Database backup scripts
 │       ├── backup.sh           # mysqldump+gzip, 30-day retention
@@ -284,10 +275,6 @@ Redis sliding window (Lua atomic), default 60 times/minute/IP/route:
 - Token persistence via `shared_preferences`
 - Responsive breakpoints: mobile (< 768px) and desktop (>= 768px)
 
-### HarmonyOS
-- Native HTTP client via `@ohos.net.http`
-- Token silent refresh: auto-calls `/api/v1/auth/refresh` on 401
-- Refresh failure auto-redirects to the login page
 
 ## Known Technical Debt
 

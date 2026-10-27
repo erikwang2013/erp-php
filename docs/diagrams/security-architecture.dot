@@ -128,7 +128,7 @@ digraph SecurityArchitecture {
         fontsize=12; fontname="Arial Bold";
         style="filled,rounded"; fillcolor="#e0f7fa"; color="#00838f"; penwidth=2;
         L10a [label="Operation Logging\nPOST/PUT/DELETE Auto\nUser/IP/Source/Params", fillcolor="#b2ebf2", color="#0097a7"];
-        L10b [label="Source Detection\n8 Platforms Identified\nFlutter/HarmonyOS/API", fillcolor="#b2ebf2", color="#0097a7"];
+        L10b [label="Source Detection\n8 Platforms Identified\nFlutter/API", fillcolor="#b2ebf2", color="#0097a7"];
         L10c [label="Prometheus Metrics\n5 Gauge Indicators\nRequests/Users/DB/Memory", fillcolor="#b2ebf2", color="#0097a7"];
         L10d [label="Health Check\nGET /health\nDB/Redis/ES Connectivity", fillcolor="#b2ebf2", color="#0097a7"];
     }

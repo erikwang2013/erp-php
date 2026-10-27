@@ -12,9 +12,7 @@
 flowchart TB
     subgraph "客户端层"
         A1["Flutter Web<br/>PC 管理后台<br/>(Port 3000)"]
-        A2["HarmonyOS ArkTS<br/>手机/平板客户端"]
         A3["Angular 22 + ng-zorro<br/>Web 管理后台"]
-        A4["React 19 + Vite<br/>Web 管理后台"]
     end
 
     subgraph "网关/边缘层 (Nginx Edge)"
@@ -38,14 +36,11 @@ flowchart TB
     end
 
     subgraph "外部"
-        E1["DevEco Studio<br/>HarmonyOS 构建"]
         E2["Flutter SDK<br/>Web 构建"]
     end
 
     A1 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
-    A2 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     A3 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
-    A4 -->|"HTTPS / JSON<br/>JWT Bearer"| B1
     B1 --> C0
     C0 --> C1
     C1 --> C2
@@ -60,9 +55,7 @@ flowchart TB
     C1 --> D3
 
     style A1 fill:#1677FF,color:#fff
-    style A2 fill:#1677FF,color:#fff
     style A3 fill:#1677FF,color:#fff
-    style A4 fill:#1677FF,color:#fff
     style B1 fill:#722ED1,color:#fff
     style C0 fill:#EB2F96,color:#fff
     style C1 fill:#FA8C16,color:#fff
@@ -155,7 +148,7 @@ flowchart TD
 
 | 层级 | 目录 | 说明 |
 |------|------|------|
-| 业务控制器 | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,dms,open,platform,print,retail,bi}/` | 139 个（23 个业务域，另有顶层 Install / Index），按模块划分，处理业务请求 |
+| 业务控制器 | `app/controller/{product,purchase,sales,inventory,finance,crm,workflow,notification,project,hr,manufacturing,report,oms,wms,tms,quality,eam,open,platform}/` | 128 个（19 个业务域，另有顶层 Install / Index），按模块划分，处理业务请求 |
 | 业务服务 | `app/service/{finance,inventory,notification,crm,hr,manufacturing,oms,wms,tms,quality,…}/` | 63 个服务类 / 64 个文件 / 20 个模块子目录；含库存出入库+成本核算、财务应收应付+核销、通知发送 |
 
 ### 国际化（13 语种）
@@ -166,7 +159,6 @@ flowchart TD
 |----|----------|------|--------|
 | 后端 | `resource/translations/<locale>/{common,modules,validation}.php` | 13 个语种目录；`zh_CN` 565 条、其余 11 个语种各 544 条、`en` 30 条（叶子条目口径，`validation.php` 的 `attributes` 字段标签计入、其组键不计） | `scripts/gen-be-locales.mjs` |
 | Angular | 源 `apps/angular/src/app/core/zh-en/part1..4.ts` → 产物 `core/zh-<code>.ts` | 源词典 1456 条 | `scripts/gen-fe-locales.mjs --app angular` |
-| React | 源 `apps/react/src/lib/i18n/zhEn.ts` → 产物 `lib/i18n/zh<Code>.ts` | 源词典 1451 条 | `scripts/gen-fe-locales.mjs --app react` |
 
 - 语种：`zh_CN` `en` `ja` `ko` `de` `fr` `es` `pt` `ru` `ar` `hi` `bn` `id`。
 - 后端「英文即 key」：`en` 的 common/modules 留空；`validation.php` 的键是框架规则名，只译值。
@@ -601,35 +593,6 @@ flowchart TD
 
 ---
 
-## 11. HarmonyOS 页面路由
-
-```mermaid
-flowchart LR
-    EA["EntryAbility<br/>启动"]
-    EA -->|"无 Token"| LP["LoginPage<br/>登录页"]
-    EA -->|"有 Token"| DP["DashboardPage<br/>仪表盘"]
-
-    LP -->|"登录成功<br/>replaceUrl"| DP
-
-    DP -->|"pushUrl"| ULP["UserListPage<br/>用户列表"]
-    DP -->|"pushUrl"| PP["ProfilePage<br/>个人中心"]
-
-    ULP -->|"pushUrl"| UDP["UserDetailPage<br/>用户详情/新增/编辑"]
-    ULP -->|"router.back"| DP
-    UDP -->|"router.back"| ULP
-
-    PP -->|"退出登录<br/>replaceUrl"| LP
-    PP -->|"router.back"| DP
-
-    style LP fill:#1677FF,color:#fff
-    style DP fill:#52C41A,color:#fff
-    style ULP fill:#FA8C16,color:#fff
-    style UDP fill:#FA8C16,color:#fff
-    style PP fill:#722ED1,color:#fff
-```
-
----
-
 ## 12. 安全纵深防御全景
 
 ```mermaid
@@ -730,9 +693,7 @@ graph TB
     subgraph Client["客户端层"]
         FW["Flutter Web<br/>PC管理后台"]
         FA["Flutter App<br/>iOS/Android/macOS/Windows/Linux"]
-        HW["HarmonyOS<br/>鸿蒙原生App"]
         NG["Angular 22 + ng-zorro<br/>Web管理后台"]
-        RC["React 19 + Vite<br/>Web管理后台"]
     end
 
     subgraph Gateway["API 网关层"]
@@ -913,10 +874,10 @@ sequenceDiagram
 | 自定义报表 | controller/report/ (2个) | - ⚠控制器直查模型，已知技术债 | ReportTemplate, ReportDataset, ReportField, ReportFilter, ReportSchedule | 5 |
 | EAM 设备管理 | controller/eam/ (5个) | - ⚠控制器直查模型，已知技术债 | EamEquipment, EamMaintenancePlan, EamRepairOrder, EamSparePart, EamInspectionTask, EamInspectionResult | 6 |
 
-> 本表为早期模块映射（系统管理 + 15 个业务域）；后续新增的 oms / wms / tms / quality / open / platform / print / retail 8 个域未列入，
-> 全量清单见 `docs/CLAUDE.md` 项目结构树（`app/controller/` 共 23 个模块目录 / 139 个控制器，含顶层 Install、Index）。
+> 本表为早期模块映射（系统管理 + 15 个业务域）；后续新增的 oms / wms / tms / quality / open / platform 6 个域未列入，
+> 全量清单见 `docs/CLAUDE.md` 项目结构树（`app/controller/` 共 19 个模块目录 / 128 个控制器，含顶层 Install、Index）。
 >
-> `表数` 口径（2026-09-15 实测）：取 `database/install.sql` 的 227 张表，按表名前缀归属到唯一模块 —— 系统管理 `admin_*`+`system_config`+`operation_log`；
+> `表数` 口径（2026-09-15 实测）：取 `database/install.sql` 的 211 张表，按表名前缀归属到唯一模块 —— 系统管理 `admin_*`+`system_config`+`operation_log`；
 > 商品管理 `product*`/`category`/`brand`/`warehouse`/`location`/`supplier`/`customer*`；采购管理 `purchase_*`+`supplier_assessment`；库存管理 `inventory*`/`transfer*`/`check_*`/`cost_record`；
 > 其余模块同名表前缀（`sales_*`→销售、`finance_*`→财务、`crm_*`→CRM、`approval_*`→审批、`notification*`→通知、`project*`→项目、`hr_*`→人力、`mfg_*`→生产、`report_*`→报表、`eam_*`→EAM）。
 > 一表只归一列；后期新增域与共享表共 47 张（`oms_`/`wms_`/`tms_`/`quality_`/`openapi_`/`webhook_`/`member_`/`company`/`tenant`/`channel`/`custom_field_definition`/`tax_*`）不计入本表任何一行。
@@ -1005,10 +966,10 @@ P0(3-4周) → P1(4-6周) → P2(1-2周) → P3(2-3周) = 总计约13周
 
 | 阶段 | 名称 | 核心交付 |
 |------|------|----------|
-| **P0** | 前端生态 | Flutter Web 全模块管理面板（14 模块 40+ 页）、通用组件库、HarmonyOS 对齐 |
+| **P0** | 前端生态 | Flutter Web 全模块管理面板（14 模块 40+ 页）、通用组件库 |
 | **P1** | 业务深度 | 财务复式记账引擎、薪资计算引擎、MRP 引擎、质量管理模块、实时通知(WebSocket) |
 | **P2** | 运维可靠性 | 数据库迁移回滚、自动备份增强、OpenTelemetry 追踪、RabbitMQ 队列驱动 |
-| **P3** | 体验增强 | 设备管理(EAM)、多租户隔离 |
+| **P3** | 体验增强 | 设备管理(EAM) |
 
 ### 21.3 中间件链演进
 
