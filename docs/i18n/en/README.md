@@ -198,7 +198,7 @@ open-erp/
 │   ├── e2e-seed.sql             # Minimal E2E/CI seed
 │   └── backup/                 # Backup/restore scripts
 ├── docs/                       # Architecture, design, security, API docs
-├── tests/                      # PHPUnit tests (<!-- stats:test_files=109 --> test files, <!-- stats:tests=1022 --> test methods, <!-- stats:assertions=4759 --> assertions)
+├── tests/                      # PHPUnit tests (<!-- stats:test_files=108 --> test files, <!-- stats:tests=1008 --> test methods, <!-- stats:assertions=4599 --> assertions)
 ├── resource/
 │   └── translations/           # Backend message dictionaries for 13 locales (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
 │       ├── zh_CN/              # Chinese translations (565 entries)

@@ -4,7 +4,7 @@
 
 ## Visão geral
 
-O Sistema ERP Aberto (open-erp) cobre 23 domínios de negócio <!-- stats:modules=21 -->, 227 tabelas de dados <!-- stats:tables=219 -->, oferecendo um sistema de gestão empresarial full-stack que vai de compras/vendas/estoque a produção industrial, e de contabilidade financeira a recursos humanos. Internacionalização: suporte bilíngue Chinês/English, com alternância automática pelo cabeçalho Accept-Language.
+O Sistema ERP Aberto (open-erp) cobre 23 domínios de negócio <!-- stats:modules=21 -->, 227 tabelas de dados <!-- stats:tables=218 -->, oferecendo um sistema de gestão empresarial full-stack que vai de compras/vendas/estoque a produção industrial, e de contabilidade financeira a recursos humanos. Internacionalização: suporte bilíngue Chinês/English, com alternância automática pelo cabeçalho Accept-Language.
 
 > Documentação da API: após iniciar o serviço, acesse `http://localhost:8788/apidoc` para ver a documentação interativa da interface (gerada automaticamente pelo erikwang2013/apidoc-php)
 
@@ -577,17 +577,17 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Dimensão | Quantidade |
 |------|------|
 | Módulos de negócio | 21 <!-- stats:modules=21 --> |
-| Tabelas do banco de dados | 219 <!-- stats:tables=219 --> |
-| Modelos de dados | 216 <!-- stats:models=216 --> |
-| Controladores | 156 <!-- stats:controllers=156 --> |
-| Serviços de negócio | 62 <!-- stats:services=62 --> |
+| Tabelas do banco de dados | 218 <!-- stats:tables=218 --> |
+| Modelos de dados | 215 <!-- stats:models=215 --> |
+| Controladores | 155 <!-- stats:controllers=155 --> |
+| Serviços de negócio | 59 <!-- stats:services=59 --> |
 | Rotas da API | 837 (geradas dinamicamente, ver `scripts/check-endpoints.php`, não participam da validação do doc-stats) |
 | Middlewares | 11 <!-- stats:middleware=11 --> |
-| Arquivos-fonte PHP | 470 <!-- stats:php_files=470 --> |
+| Arquivos-fonte PHP | 465 <!-- stats:php_files=465 --> |
 | Script de instalação do banco | Arquivo único `database/install.sql` (227 tabelas, todas as migrações incorporadas) |
 | Páginas front-end (Flutter) | 119 (medido em 2026-09-22: arquivos de página `.dart` em `apps/flutter/lib/app/pages/` (recursivo), não incluído na validação do doc-stats) |
 | Páginas front-end (HarmonyOS) | 52 (medido em 2026-09-22: arquivos de página `.ets` em `apps/harmonyos/entry/src/main/ets/pages/` (recursivo), não incluído na validação do doc-stats) |
-| Testes unitários | 113 arquivos de teste <!-- stats:test_files=109 --> / 1022<!-- stats:tests=1022 --> casos de teste / 4759<!-- stats:assertions=4759 --> asserções (contagem estática: número de métodos de teste + pontos de chamada de asserção, independente do ambiente de execução) |
+| Testes unitários | 113 arquivos de teste <!-- stats:test_files=108 --> / 1008<!-- stats:tests=1008 --> casos de teste / 4599<!-- stats:assertions=4599 --> asserções (contagem estática: número de métodos de teste + pontos de chamada de asserção, independente do ambiente de execução) |
 
 > Os números acima são medidos por `bash scripts/doc-stats.sh`; os itens marcados com `<!-- stats:key=value -->` são validados automaticamente pelo CI
 > (job docs em `.github/workflows/ci.yml`) contra os fatos do código — qualquer divergência fica vermelha.

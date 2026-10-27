@@ -28,7 +28,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟣 **P3** Peningkatan pengalaman | 2-3 minggu | Papan BI + EAM + DMS | ✅ |
 (Multi-tenant B5 sudah dikirim lebih awal pada P2: konteks permintaan TenantScope + `erp_tenant`, seam middleware isolasi belum terdaftar)
 
-**Pengujian**: 1022<!-- stats:tests=1022 --> tests, 4759<!-- stats:assertions=4759 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**Pengujian**: 1008<!-- stats:tests=1008 --> tests, 4599<!-- stats:assertions=4599 --> assertions (23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## Daftar Fitur
 

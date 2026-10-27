@@ -28,7 +28,7 @@ Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 | 🟣 **P3** 경험 강화 | 2-3주 | BI 보드 + EAM + DMS | ✅ |
 (멀티테넌트 B5는 P2보다 앞서 전달됨: TenantScope 요청 컨텍스트 + erp_tenant, 격리 미들웨어 seam 미등록)
 
-**테스트**: 1022<!-- stats:tests=1022 --> tests, 4759<!-- stats:assertions=4759 --> assertions(23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
+**테스트**: 1008<!-- stats:tests=1008 --> tests, 4599<!-- stats:assertions=4599 --> assertions(23 skipped) — ALL PASSING. **Flutter**: 0 errors, 0 warnings.
 
 ## 기능 목록
 

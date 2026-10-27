@@ -14,8 +14,8 @@ The Open ERP System provides three editions to fit the needs of businesses of di
 | Dimension | Lite (简化版) | Standard (标准版) | Full (完整版) |
 |------|:---:|:---:|:---:|
 | Branch | `lite` | `standard` | `full` |
-| Data tables | 62 (planned) | 72 (planned) | 219 <!-- stats:tables=219 --> |
-| Controllers | 48 (planned) | 42 (planned) | 156 <!-- stats:controllers=156 --> |
+| Data tables | 62 (planned) | 72 (planned) | 218 <!-- stats:tables=218 --> |
+| Controllers | 48 (planned) | 42 (planned) | 155 <!-- stats:controllers=155 --> |
 | Business modules | 6 (planned) | 6 (planned) | 21 <!-- stats:modules=21 --> |
 
 > **Measurement note**: the repository currently implements only one codebase — the Full edition; the Lite/Standard columns are product planning values (no corresponding branches exist, see "Branch Strategy" below) and are not subject to doc-stats validation. The Full column numbers are measured by `scripts/doc-stats.sh` (227 tables / 159 controllers / 23 business modules), consistent with the appendix measurement in `docs/FUNCTIONS.md`.
@@ -179,7 +179,7 @@ The Open ERP System provides three editions to fit the needs of businesses of di
 |------|--------------------------|------|
 | Lite (简化版) | 62 tables / 6 business modules (planned) | No approval/notification/HR/manufacturing/reports |
 | Standard (标准版) | 72 tables / 6 business modules (planned) | Leaner data model |
-| Full (完整版) | 227 tables <!-- stats:tables=219 --> / 23 business modules <!-- stats:modules=21 --> | Comprehensive enterprise platform capabilities |
+| Full (完整版) | 227 tables <!-- stats:tables=218 --> / 23 business modules <!-- stats:modules=21 --> | Comprehensive enterprise platform capabilities |
 
 ---
 
