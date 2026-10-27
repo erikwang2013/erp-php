@@ -2,9 +2,9 @@
 
 A full-stack ERP system built with webman v2 + Flutter.
 
-<div align="center"><img src="docs/mascot.svg" alt="open-erp octopus mascot" width="150"></div>
+![open-erp octopus mascot](docs/mascot.svg)
 
-<div align="center">🌐 [中文](README.md) | English</div>
+🌐 [中文](README.md) | English
 
 ## English documentation has moved
 
