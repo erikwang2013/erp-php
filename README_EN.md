@@ -31,6 +31,21 @@ The commercial edition is a strict superset of the open-source edition (same cou
 | Automated tests | 102 files / 933 cases / 4,178 assertions | 113 files / 1,057 cases / 5,070 assertions |
 | License | Personal study/research; commercial use requires written authorization | Commercial license; contact erik@erik.xyz |
 
+### Multi-dimensional comparison
+
+| Dimension | Open source (this repo) | Commercial |
+|---|---|---|
+| Feature coverage | 138 controllers / 208 models / 211 tables / 338 routes; core ERP across purchasing, sales, inventory, finance, manufacturing, CRM, workflow, HR, reporting, OMS/WMS/TMS/QMS/EAM | 147 / 225 / 227 / 370; adds member/retail, BI, DMS, print templates, e-invoice, multi-channel notification, multi-tenancy, React/HarmonyOS clients and a static site |
+| Security | security-php detectors + SecurityFilter + Redis sliding-window rate limits (60/min default; login 10, register 5, password change 5) + JWT/RBAC + operation audit + login lockout (log mode) + IP blacklist (5 hits/60s/900s ban) + encrypted fields on 8 models; core middleware and config files are byte-identical | Same core protections and config; adds TenantScope tenant context (middleware seam not registered); React/HarmonyOS clients enlarge the attack surface and need client-side hardening |
+| Performance & scale | webman resident workers (cpu_count×4); Redis cache/queue (6 queue jobs); Elasticsearch/Scout; 10 compose services | Same process/cache/queue architecture; 224 Searchable models (open: 208); retail/BI/DMS add index-write and admin-query load |
+| Data & search | 211 tables; 208 models indexed via Scout/ES; multi-organization consolidation | 227 tables; 224 Searchable models; adds erp_tenant and retail/BI/DMS tables; same search stack |
+| Tests & quality | 102 test files / 933 cases / 4,178 assertions; one CI pipeline (PHP 8.3/8.4, Docs, E2E, Flutter, Release) | 113 / 1,057 / 5,070; same CI; extra module tests |
+| Deployment & ops | 10 compose services (nginx/app/mysql/redis/ES + volumes); health/metrics, installer and upgrade scripts | Same topology; adds `site/` static showcase; multi-tenancy and extra modules need extra capacity planning |
+| Clients & i18n | Angular 22 + Flutter 3 Web; 13 backend locales; Chinese/English docs only | Adds React 19 + HarmonyOS ArkTS (73 files); same 13 backend locales; 12-language docs |
+| Extensibility | Fine-grained RBAC (640 permission seed rows), approval workflow (3 controllers), custom_fields, versioned `/admin/v1`, `/api/v1`, `/open/v1` | 688 permission seed rows; same extension model; adds tenant seam and reusable retail/BI/DMS/print/invoice/notification modules |
+| License & support | Personal study/research only; written authorization required for commercial use; no commercial SLA | Commercial licensing, delivery and support: **erik@erik.xyz** |
+| Fit | Personal study/research, prototyping, core ERP self-hosting evaluation | SMB/multi-store/multi-tenant production needing full clients, BI/DMS, e-invoice and commercial support |
+
 Commercial-only capabilities:
 
 - **Clients**: React 19 + Vite admin; HarmonyOS ArkTS mobile client (41 registered pages covering login, dashboard, product/inventory/purchasing/sales/OMS/WMS/TMS/manufacturing/HR/approval).
