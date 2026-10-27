@@ -628,20 +628,6 @@ npm run typecheck  # type checking only
 - **Self-checks** (none require a browser; run them directly with `node`): `scripts/check-ng-tree-semantics.mjs`,
   `check-ng-i18n-dict.mjs`, `check-ng-spec-attrs.mjs`
 
-### React Admin (`apps/react/`)
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173 (port: see REACT_DEV_PORT in .env)
-npm run build      # tsc --noEmit + vite build, output in dist/
-```
-
-- Like Angular, it is **config-driven**: `src/config/domains/*.ts` declares menus and resource pages,
-  the rendering engine lives in `src/components/ResourcePage.tsx`, and the style tokens are in `src/styles/tokens.css`
-  (matching the values of `styles/theme.less` on the Angular side)
-- The language switcher lives on the **personal center** page (the Angular side additionally has a globe icon in the top bar)
-
 ### Flutter Admin Console (PC Style, `apps/flutter/`)
 
 ```bash
@@ -659,17 +645,6 @@ flutter analyze          # static analysis (same as CI)
 - **Batch operations**: multi-select batch delete, batch enable/disable
 - **Theme**: Material 3 light/dark dual themes
 - **Internationalization**: Chinese/English bilingual (`lib/l10n/app_zh.arb` is the template, generated with `flutter gen-l10n`)
-
-### HarmonyOS Mobile (`apps/harmonyos/`)
-
-- **Build**: open `apps/harmonyos/` with DevEco Studio; the command-line equivalent is
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  (requires the HarmonyOS SDK + command-line-tools; the artifact is `entry/build/default/outputs/default/*.hap`)
-- **Pages**: 41 pages are registered in `entry/src/main/resources/base/profile/main_pages.json` and every one of them is reachable from the UI — login, dashboard (KPI cards + business grid), user list/detail, role permissions, profile, plus subsystem pages for products/inventory/purchase/sales/OMS/WMS/TMS/manufacturing/HR/approval. The dashboard business grid provides 32 direct entry points; subsystem detail pages are opened from list-row actions.
-- **Authentication**: JWT Bearer + 401 automatic seamless token refresh; on refresh failure, auto-redirect to the login page
-- **Storage**: tokens managed via AppStorage
-- **Internationalization**: Chinese/English bilingual (`resources/base/element/string.json` and `resources/en_US/element/string.json`)
-- **Networking**: `BASE_URL` is defined in `entry/src/main/ets/utils/Config.ets` (a read-only constant, default `http://10.0.2.2:8788`, i.e. the emulator reaching the host machine; change it here for real devices/production)
 
 ## Development Conventions
 

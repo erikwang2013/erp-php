@@ -607,20 +607,6 @@ npm run typecheck  # فحص الأنواع فقط
 - **فحص ذاتي** (كلها بلا متصفح، تُشغَّل مباشرة بـ `node`): `scripts/check-ng-tree-semantics.mjs`
   و`check-ng-i18n-dict.mjs` و`check-ng-spec-attrs.mjs`
 
-### واجهة إدارة React (`apps/react/`)
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173（المنفذ في REACT_DEV_PORT داخل .env）
-npm run build      # tsc --noEmit + vite build، والناتج dist/
-```
-
-- مدفوعة بالإعداد مثل Angular تمامًا: تُعلن `src/config/domains/*.ts` القوائم وصفحات الموارد،
-  ومحرك التصيير في `src/components/ResourcePage.tsx`؛ ورموز الأنماط في `src/styles/tokens.css`
-  (بنفس قيم `styles/theme.less` في واجهة Angular)
-- مدخل تبديل اللغة في صفحة **المركز الشخصي** (وتوجد في واجهة Angular أيضًا أيقونة كرة أرضية في الشريط العلوي)
-
 ### لوحة إدارة Flutter (بأسلوب الكمبيوتر، `apps/flutter/`)
 
 ```bash
@@ -638,17 +624,6 @@ flutter analyze          # التحليل الساكن (نفس ما يعمل ف�
 - **العمليات الجماعية**: حذف جماعي متعدد التحديد، تفعيل/تعطيل جماعي
 - **السمة**: Material 3 بسمتين فاتحة/داكنة
 - **التدويل**: الصينية/الإنجليزية (`lib/l10n/app_zh.arb` كقالب، ويُولَّد عبر `flutter gen-l10n`)
-
-### جوال HarmonyOS (`apps/harmonyos/`)
-
-- **البناء**: افتح `apps/harmonyos/` في DevEco Studio؛ والمكافئ بسطر الأوامر هو
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  (يتطلب HarmonyOS SDK + command-line-tools، والناتج في `entry/build/default/outputs/default/*.hap`)
-- **الصفحات**: يضم السجل `entry/src/main/resources/base/profile/main_pages.json` 41 صفحة مسجَّلة، وكلها يمكن الوصول إليها من الواجهة (تسجيل الدخول، ولوحة المعلومات ببطاقات KPI وشبكة الأعمال، وقائمة المستخدمين، وصلاحيات الأدوار، والملف الشخصي، إضافة إلى صفحات الأنظمة الفرعية للمنتجات/المخزون/المشتريات/المبيعات/OMS/WMS/TMS/التصنيع/الموارد البشرية/الموافقات وغيرها)؛ وتوفّر شبكة الأعمال في لوحة المعلومات 32 مدخلًا مباشرًا، أما صفحات تفاصيل الأنظمة الفرعية فيُدخل إليها عبر إجراءات صفوف القوائم
-- **المصادقة**: JWT Bearer + تحديث تلقائي غير محسوس للرمز عند 401، وإعادة توجيه تلقائية لصفحة تسجيل الدخول عند فشل التحديث
-- **التخزين**: الرمز يُدار عبر AppStorage
-- **التدويل**: الصينية/الإنجليزية (`resources/base/element/string.json` و`resources/en_US/element/string.json`)
-- **الشبكة**: يُعرَّف `BASE_URL` في `entry/src/main/ets/utils/Config.ets` (ثابت للقراءة فقط)، وقيمته الافتراضية `http://10.0.2.2:8788` (عنوان المضيف كما يراه المحاكي)
 
 ## معايير التطوير
 

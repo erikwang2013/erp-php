@@ -601,20 +601,6 @@ npm run typecheck  # 只做类型检查
 - **स्व-जाँच** (सभी बिना ब्राउज़र, सीधे `node` से चलें): `scripts/check-ng-tree-semantics.mjs`、
   `check-ng-i18n-dict.mjs`、`check-ng-spec-attrs.mjs`
 
-### React प्रशासन (`apps/react/`)
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173（端口见 .env 的 REACT_DEV_PORT）
-npm run build      # tsc --noEmit + vite build，产物 dist/
-```
-
-- Angular की तरह ही **config-चालित**: `src/config/domains/*.ts` में मेनू और संसाधन पृष्ठ घोषित होते हैं,
-  रेंडरिंग इंजन `src/components/ResourcePage.tsx` में है; शैली टोकन `src/styles/tokens.css`
-  (Angular पक्ष की `styles/theme.less` के समान मान)
-- भाषा स्विचिंग का प्रवेश बिंदु **व्यक्तिगत केंद्र** पृष्ठ में है (Angular पक्ष में अतिरिक्त रूप से टॉपबार globe आइकन है)
-
 ### Flutter प्रशासन बैकएंड (PC शैली, `apps/flutter/`)
 
 ```bash
@@ -632,17 +618,6 @@ flutter analyze          # स्टैटिक जाँच (CI के सम�
 - **बैच ऑपरेशन**: मल्टी-सिलेक्ट बैच डिलीट, बैच सक्षम/अक्षम
 - **थीम**: Material 3 लाइट/डार्क दोहरी थीम
 - **अंतर्राष्ट्रीयकरण**: चीनी/अंग्रेज़ी द्विभाषी (`lib/l10n/app_zh.arb` टेम्पलेट, `flutter gen-l10n` से जनरेट)
-
-### HarmonyOS मोबाइल एंड (`apps/harmonyos/`)
-
-- **बिल्ड**: DevEco Studio से `apps/harmonyos/` खोलें; कमांड लाइन समतुल्य
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  (HarmonyOS SDK + command-line-tools आवश्यक, आउटपुट `entry/build/default/outputs/default/*.hap`)
-- **पेज**: रजिस्ट्री `entry/src/main/resources/base/profile/main_pages.json` में कुल **41 पंजीकृत पेज, सभी UI से पहुँच योग्य** (लॉगिन, डैशबोर्ड, उपयोगकर्ता सूची/विवरण, भूमिका-अनुमति, व्यक्तिगत केंद्र, साथ ही उत्पाद/इन्वेंटरी/क्रय/विक्रय/OMS/WMS/TMS/उत्पादन/HR/अनुमोदन जैसे सबसिस्टम पेज); डैशबोर्ड का बिज़नेस ग्रिड **32 सीधे प्रवेश द्वार** देता है, सबसिस्टम विवरण पेज सूची पंक्ति की कार्रवाई से खुलते हैं
-- **प्रमाणीकरण**: JWT Bearer + 401 पर स्वतः अनुभूति रहित टोकन रीफ्रेश, रीफ्रेश विफल होने पर स्वतः लॉगिन पेज पर पुनर्निर्देशित
-- **भंडारण**: टोकन AppStorage से प्रबंधित
-- **अंतर्राष्ट्रीयकरण**: चीनी/अंग्रेज़ी द्विभाषी (`resources/base/element/string.json` और `resources/en_US/element/string.json`)
-- **नेटवर्क**: `BASE_URL` `entry/src/main/ets/utils/Config.ets` में परिभाषित रीड-ओनली कॉन्स्टेंट है, डिफ़ॉल्ट मान `http://10.0.2.2:8788` (एमुलेटर से होस्ट मशीन तक); पता बदलने का स्थान यही फ़ाइल है
 
 ## विकास मानदंड
 

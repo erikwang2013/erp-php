@@ -613,20 +613,6 @@ npm run typecheck  # 型チェックのみ
 - **セルフチェック**（いずれもブラウザ不要、`node` で直接実行）: `scripts/check-ng-tree-semantics.mjs`、
   `check-ng-i18n-dict.mjs`、`check-ng-spec-attrs.mjs`
 
-### React 管理画面（`apps/react/`）
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173（ポートは .env の REACT_DEV_PORT）
-npm run build      # tsc --noEmit + vite build、成果物は dist/
-```
-
-- Angular と同様に **config 駆動**: `src/config/domains/*.ts` がメニューとリソースページを宣言し、
-  レンダリングエンジンは `src/components/ResourcePage.tsx`；スタイルトークンは `src/styles/tokens.css`
-  （Angular 側の `styles/theme.less` と同値）
-- 言語切替の入口は**個人センター**ページにあります（Angular 側には別途トップバーの globe アイコンがあります）
-
 ### Flutter 管理画面（PC スタイル、`apps/flutter/`）
 
 ```bash
@@ -644,17 +630,6 @@ flutter analyze          # 静的解析（CI と同一）
 - **一括操作**: 複数選択一括削除、一括有効/無効
 - **テーマ**: Material 3 ライト/ダークのデュアルテーマ
 - **国際化**: 中国語/英語のバイリンガル（`lib/l10n/app_zh.arb` をテンプレートとし、`flutter gen-l10n` で生成）
-
-### HarmonyOS モバイル端末（`apps/harmonyos/`）
-
-- **ビルド**: DevEco Studio で `apps/harmonyos/` を開きます。コマンドラインの同等物は
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  （HarmonyOS SDK + command-line-tools が必要。成果物は `entry/build/default/outputs/default/*.hap`）
-- **ページ**: `entry/src/main/resources/base/profile/main_pages.json` に **41 ページが登録済みで、すべて画面から到達可能**（ログイン、ダッシュボード（KPI カード + 業務グリッド）、ユーザー一覧/詳細、ロール権限、個人センター、および商品/在庫/購買/販売/OMS/WMS/TMS/生産/HR/承認などのサブシステムページ）。ダッシュボードの業務グリッドが **32 の直接入口**を提供し、サブシステムの詳細ページは一覧行の操作から開きます。
-- **認証**: JWT Bearer + 401 時の自動無感覚トークン更新、更新失敗時はログインページへ自動リダイレクト
-- **保存**: トークンは AppStorage で管理
-- **国際化**: 中国語/英語のバイリンガル（`resources/base/element/string.json` と `resources/en_US/element/string.json`）
-- **ネットワーク**: `BASE_URL` は `entry/src/main/ets/utils/Config.ets`（読み取り専用定数）で定義され、既定値は `http://10.0.2.2:8788`（エミュレーターからホストマシンへのアクセス）
 
 ## 開発規約
 

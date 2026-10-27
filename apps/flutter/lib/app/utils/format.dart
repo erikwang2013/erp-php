@@ -1,7 +1,6 @@
 // Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 //
-// 展示层时间格式化（四端同规则：Angular core/format.ts、React lib/format.ts、
-// HarmonyOS utils/Format.ets 同实现）：
+// 展示层时间格式化（Angular core/format.ts 与后端口径一致）：
 // 后端 datetime 列经 Eloquent serializeDate() 下发 ISO-8601 UTC
 // （`2026-09-21T14:18:43.000000Z`），带时区标记的串必须换算到本机时区再显示 ——
 // 直接截前 19 字符会把 UTC 墙钟当本地时间（东八区差 8 小时）。
@@ -33,7 +32,7 @@ String fmtDate(dynamic v) {
   return s.isEmpty ? '' : s.substring(0, 10);
 }
 
-/// 可读名兜底：null/空串落占位短横（与 Angular/React `core/format.ts::text` 同语义）。
+/// 可读名兜底：null/空串落占位短横（与 Angular `core/format.ts::text` 同语义）。
 /// 用于「本该有可读名」的展示位（关联名、下拉选项标签……）——
 /// 回落原始 id 会把 encodeIds 后的雪花码贴上屏，对用户只是噪声。
 String fmtText(dynamic v) {

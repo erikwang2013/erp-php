@@ -4,13 +4,6 @@
 
 /** 生成物 —— 由 `scripts/gen-column-titles.mjs` 从 install.sql 列注释导出（第 2/2 片）。请勿手工编辑。 */
 export const COLUMN_TITLES_PART2: Record<string, string> = {
-  report_data: '完整报表数据JSON', // 裁决：众数
-  report_id: '合并报表ID', // install.sql 列注释
-  report_month: '会计月份', // 裁决：众数
-  report_year: '会计年度', // 裁决：众数
-  reported_by: '报告人', // install.sql 列注释
-  request: '请求报文', // install.sql 列注释
-  require_date: '需求日期', // install.sql 列注释
   required: '是否必填', // install.sql 列注释
   reserved_quantity: '预占数量', // install.sql 列注释
   resolved_at: '解决时间', // install.sql 列注释
@@ -97,7 +90,6 @@ export const COLUMN_TITLES_PART2: Record<string, string> = {
   tax_rate_id: '税率ID', // install.sql 列注释
   taxable_amount: '计税金额', // install.sql 列注释
   tenant_code: '租户编码', // install.sql 列注释
-  threshold_amount: '满 X 可用', // install.sql 列注释
   ticket_id: '工单ID', // install.sql 列注释
   timesheet_id: '来源工时记录ID', // install.sql 列注释
   title_tpl: '标题模板', // install.sql 列注释
@@ -110,7 +102,6 @@ export const COLUMN_TITLES_PART2: Record<string, string> = {
   total_equity: '所有者权益总计', // 裁决：两候选各一，取资产负债表标准口径
   total_liabilities: '负债总计', // 裁决：两候选各一，取资产负债表标准口径
   total_packages: '总件数', // install.sql 列注释
-  total_qty: '发放总量', // install.sql 列注释
   total_score: '总分', // install.sql 列注释
   total_volume_cm3: '总体积', // install.sql 列注释
   total_weight_kg: '总重量', // install.sql 列注释
@@ -121,8 +112,6 @@ export const COLUMN_TITLES_PART2: Record<string, string> = {
   unit_cost: '单位成本', // 裁决：四候选各一，取注释主体
   unit_name: '单位名称', // install.sql 列注释
   untaxed_amount: '不含税金额', // install.sql 列注释
-  used_at: '核销时间', // install.sql 列注释
-  valid_days: '发放后有效天数', // install.sql 列注释
   valid_to: '失效日期', // install.sql 列注释
   valid_until: '有效期至', // 裁决：众数
   verify_at: '验真时间', // install.sql 列注释

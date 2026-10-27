@@ -1897,7 +1897,7 @@ class DetailContractRegressionTest extends TestCase
      * WmsOutboundService::startPick/startPack、WmsInboundService::startPutaway、
      * OpenApiController:153、WebhookController:172；真库探针同向（非 0 值只在 erp_admin_user 命中、
      * 在 erp_hr_employee 命中 0）。本批只补名称兄弟键，裸外键的值形状一律不动（移动端
-     * HarmonyOS 按 `Number(row['assigned_to'])` 回填该键）。
+     * 前端按 `Number(row['assigned_to'])` 回填该键）。
      */
     public function testListRowsCarryActorForeignKeyNames(): void
     {

@@ -29,8 +29,7 @@
  *   多个候选时用页面主表（端点尾段与表名相等 / 结尾 / 含该词，均要求唯一）裁决，
  *   仍裁决不出就计入「未覆盖」而不是硬猜。
  *
- * 局限（如实记录）：只跑 Angular 端的真配置（React 的 `cfg` 是另一份手写档，键集契约由
- * check-fe-enum-text.mjs 的 G2 两端同源比对守住）；DDL 注释本身可能过时 —— **修法固定是改注释
+ * 局限（如实记录）：只跑 Angular 端的真配置；DDL 注释本身可能过时 —— **修法固定是改注释
  * 那侧、不塞白名单**（本批按此修过 `target_type` / `gender` / `hr_perf_plan.created_by` 三处，
  * 以及 `receipt/payment.method` 补 `other`），本脚本只报不一致、不判定哪边该改。
  *
@@ -251,7 +250,7 @@ function dictsOf(cfg) {
   };
   for (const [k, d] of Object.entries(cfg.dicts ?? {})) add(k, d, '逐键字典(cfg.dicts)', false);
   // 筛选项即字典 —— 与运行期 **严格同口径**：`filterList` 归一化后只认 `key==='status'` **且有静态
-  // options** 的那条（Angular columns.ts:267 / React defaults.tsx:369 都是这个表达式），且只收数值 value。
+  // options** 的那条（Angular columns.ts:267），且只收数值 value。
   // 非 status 筛选（集团/年份/月份）只是请求参数、不参与列字典 —— 旧码把它们也当字典来源（来源串却写
   // 「筛选 options(dictFromFilter)」，名不副实）；缩到 status+有 options 后，该来源串才与运行期同口径。
   // 归一化内联而不 import columns.ts：本门禁是 CI docs 作业里 node-only 的一步，columns.ts 会拖进

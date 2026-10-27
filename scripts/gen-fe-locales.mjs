@@ -6,20 +6,18 @@
 /**
  * 前端词典多语生成器 —— 把英文源词典（中文 → 英文）翻成其余 11 语种。
  *
- * 用法（`--app` 默认 angular）：
- *   node scripts/gen-fe-locales.mjs --app react --list       # 看各语种进度
- *   node scripts/gen-fe-locales.mjs --app react --locale ja --limit 20  # 冒烟
- *   node scripts/gen-fe-locales.mjs --app react --all        # 全量（可断点续跑）
+ * 用法：
+ *   node scripts/gen-fe-locales.mjs --list       # 看各语种进度
+ *   node scripts/gen-fe-locales.mjs --locale ja --limit 20  # 冒烟
+ *   node scripts/gen-fe-locales.mjs --all        # 全量（可断点续跑）
  *
- * 两端源与产物：
- *   angular：core/zh-en/part*.ts  → core/zh-<code>.ts
- *   react  ：lib/i18n/zhEn.ts     → lib/i18n/zh<Code>.ts
+ * 源与产物：core/zh-en/part*.ts → core/zh-<code>.ts
  *
  * 设计：
  *  - **译文来源用英文而非中文**：zh-en 已经在手，英文作为中转语对多数语言质量更好；
  *    没有英文值的兜底用中文原文。
  *  - **缓存与 app 无关**：/tmp/fe-locales-cache/<code>.json 是「中文原文 → 译文」映射，
- *    两端共用。故换产物路径/命名规范这类改动零 API 调用即可重出；只有**新增的中文键**
+ *    缓存共用。故换产物路径/命名规范这类改动零 API 调用即可重出；只有**新增的中文键**
  *    才会真正请求网关（`--list` 里 have ≥ keys.length 即待译 0）。
  *  - **断点续跑**：每条译文即时落盘，重跑只补缺口。跑一半断了不用重来（全量约 1.5 万条，必须可续）。
  *  - **凭证只读不打印**：从 ~/.claude/settings.json 的 env 块取网关地址与 token，
@@ -48,15 +46,9 @@ const LANG_NAME = {
 
 const q = (s) => "'" + String(s).replace(/\\/g, '\\\\').replace(/'/g, "\\'") + "'";
 
-/** 英文词典 → { 中文: 英文 }；两端目录与文件命名不同，故分开取 */
-function loadEnDict(app) {
+/** 英文词典 → { 中文: 英文 } */
+function loadEnDict() {
   const out = {};
-  if (app === 'react') {
-    const p = path.join(ROOT, 'apps/react/src/lib/i18n/zhEn.ts');
-    const s = fs.readFileSync(p, 'utf8');
-    Object.assign(out, new Function(`return ${s.slice(s.indexOf('{', s.indexOf('= {')), s.lastIndexOf('};') + 1)}`)());
-    return out;
-  }
   const dir = path.join(CORE, 'zh-en');
   for (const f of fs.readdirSync(dir).filter((x) => /^part\d+\.ts$/.test(x))) {
     const s = fs.readFileSync(path.join(dir, f), 'utf8');
@@ -64,12 +56,6 @@ function loadEnDict(app) {
   }
   return out;
 }
-/** 产物路径/导出名：Angular 是 core/zh-ja.ts + zhJa；React 是 lib/i18n/zhJa.ts + zhJa */
-const outDir = (app) => (app === 'react' ? path.join(ROOT, 'apps/react/src/lib/i18n') : CORE);
-const outFile = (app, code) => (app === 'react' ? `zh${code[0].toUpperCase()}${code.slice(1)}.ts` : `zh-${code}.ts`);
-/** 头部描述差异：生成命令与键集基准文件（两端命名不同） */
-const genBy = (app) => (app === 'react' ? 'scripts/gen-fe-locales.mjs --app react' : 'scripts/gen-fe-locales.mjs');
-const keySrc = (app) => (app === 'react' ? 'zhEn' : 'core/zh-en');
 
 /** 网关凭证（只读，不打印） */
 function creds() {
@@ -114,15 +100,14 @@ const arg = (k, d) => {
   const i = args.indexOf(k);
   return i === -1 ? d : args[i + 1];
 };
-const APP = arg('--app', 'angular'); // angular | react
-const en = loadEnDict(APP);
+const en = loadEnDict();
 const keys = Object.keys(en);
 fs.mkdirSync(CACHE, { recursive: true });
 const cacheFile = (code) => path.join(CACHE, `${code}.json`);
 const loadCache = (code) => (fs.existsSync(cacheFile(code)) ? JSON.parse(fs.readFileSync(cacheFile(code), 'utf8')) : {});
 
 if (args.includes('--list')) {
-  console.log(`源词典 ${keys.length} 条（${keySrc(APP)}）`);
+  console.log(`源词典 ${keys.length} 条（${'core/zh-en'}）`);
   for (const [code, exp] of Object.entries(LOCALES)) {
     const have = Object.keys(loadCache(code)).length;
     console.log(`  ${code} (${LANG_NAME[code]}): ${have}/${keys.length}  ${exp ? '' : '[缺导出名]'}`);
@@ -168,9 +153,9 @@ for (const code of targets) {
   // 写出词典文件（键集与 zh 源一致；缺失的键省略 → 运行时回退中文）
   const entries = keys.filter((k) => typeof cache[k] === 'string').map((k) => `  ${q(k)}: ${q(cache[k])},`);
   const head = `/*\n * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz\n */\n\n` +
-    `/**\n * 中文原文 → ${LANG_NAME[code]} 词典（${code}）。由 ${genBy(APP)} 生成，**请勿手工编辑**。\n` +
-    ` * 缺词条时回退中文原文；键集须与 ${keySrc(APP)} 完全一致。\n */\n`;
-  const out = path.join(outDir(APP), outFile(APP, code));
+    `/**\n * 中文原文 → ${LANG_NAME[code]} 词典（${code}）。由 ${'scripts/gen-fe-locales.mjs'} 生成，**请勿手工编辑**。\n` +
+    ` * 缺词条时回退中文原文；键集须与 ${'core/zh-en'} 完全一致。\n */\n`;
+  const out = path.join(CORE, `zh-${code}.ts`);
   fs.writeFileSync(out, `${head}export const ${LOCALES[code]}: Record<string, string> = {\n${entries.join('\n')}\n};\n`);
   console.log(`[${code}] 已写 ${path.relative(ROOT, out)}（${entries.length} 条，失败/缺 ${failed}）`);
 }

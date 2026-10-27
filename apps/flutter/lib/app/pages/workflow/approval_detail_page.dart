@@ -334,7 +334,7 @@ class _ApprovalDetailPageState extends State<ApprovalDetailPage> {
   int _asInt(dynamic v) => v is int ? v : (int.tryParse('$v') ?? -1);
 
   /// target_type 文案：后端 TARGET_REGISTRY 键 → 本地化文案；表外值直显原文
-  /// （不落「-」——真实数据优先，与 HarmonyOS ApprovalPage/ApprovalDetailPage 同源）。
+  /// （不落「-」——真实数据优先）。
   String _targetTypeLabel(dynamic raw) {
     final l = AppL10n.current;
     return switch ('${raw ?? ''}'.trim()) {

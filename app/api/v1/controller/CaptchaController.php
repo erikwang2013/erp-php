@@ -190,7 +190,7 @@ class CaptchaController
      * 已实测），用户把图摆正时读数 = 360-A ≠ A —— 直接透传等于无论怎么摆正都判失败。
      * 取负后 -(360-A) ≡ A (mod 360)，插件的负角归一化（fmod 后 +360）正好接住。
      *
-     * 四个前端（Angular/React/Flutter/HarmonyOS）读数约定一致：顺时针递增、提交读数。
+     * Angular/Flutter 两端读数约定一致：顺时针递增、提交读数。
      * 容差与一次性消费不变，取负是双射，不会放宽判定。驱动方向随驱动而变，
      * 故 config/poster.php 把 image.driver 钉死 gd（该包硬依赖 ext-gd）。
      */

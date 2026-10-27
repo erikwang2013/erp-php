@@ -623,20 +623,6 @@ npm run typecheck  # শুধু টাইপ চেক
 - **সেলফ-চেক** (ব্রাউজার ছাড়াই, সরাসরি `node` দিয়ে চালানো যায়): `scripts/check-ng-tree-semantics.mjs`、
   `check-ng-i18n-dict.mjs`、`check-ng-spec-attrs.mjs`
 
-### React অ্যাডমিন এন্ড (`apps/react/`)
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173（পোর্ট .env-এর REACT_DEV_PORT দেখুন）
-npm run build      # tsc --noEmit + vite build，আউটপুট dist/
-```
-
-- Angular-এর মতোই **config-চালিত**: `src/config/domains/*.ts` মেনু ও রিসোর্স পেজ ঘোষণা করে,
-  রেন্ডারিং ইঞ্জিন `src/components/ResourcePage.tsx`-এ; স্টাইল টোকেন `src/styles/tokens.css`
-  (Angular এন্ডের `styles/theme.less`-এর সঙ্গে একই মান)
-- ভাষা সুইচের এন্ট্রি **ব্যক্তিগত কেন্দ্র** পেজে (Angular এন্ডে অতিরিক্তভাবে টপবারের globe আইকন)
-
 ### Flutter অ্যাডমিন ব্যাকএন্ড (PC স্টাইল, `apps/flutter/`)
 
 ```bash
@@ -654,17 +640,6 @@ flutter analyze          # স্ট্যাটিক চেক (CI-এর স�
 - **ব্যাচ অপারেশন**: মাল্টি-সিলেক্ট ব্যাচ ডিলিট, ব্যাচ সক্রিয়/নিষ্ক্রিয়
 - **থিম**: Material 3 লাইট/ডার্ক ডুয়াল থিম
 - **ইন্টারন্যাশনালাইজেশন**: চীনা/ইংরেজি দ্বিভাষিক (`lib/l10n/app_zh.arb` টেমপ্লেট, `flutter gen-l10n` দিয়ে তৈরি)
-
-### HarmonyOS মোবাইল (`apps/harmonyos/`)
-
-- **বিল্ড**: DevEco Studio দিয়ে `apps/harmonyos/` খুলুন; কমান্ড লাইন সমতুল্য
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  (HarmonyOS SDK + command-line-tools প্রয়োজন, আউটপুট `entry/build/default/outputs/default/*.hap`)
-- **পেজ**: রেজিস্ট্রি `entry/src/main/resources/base/profile/main_pages.json`-এ মোট **41টি নিবন্ধিত পেজ, সবই UI থেকে পৌঁছানো যায়** (লগইন, ড্যাশবোর্ড, ইউজার লিস্ট/বিস্তারিত, রোল পারমিশন, প্রোফাইল, এবং পণ্য/ইনভেন্টরি/ক্রয়/বিক্রয়/OMS/WMS/TMS/উৎপাদন/HR/অনুমোদন ইত্যাদি সাবসিস্টেম পেজ); ড্যাশবোর্ডের বিজনেস গ্রিড **32টি সরাসরি প্রবেশপথ** দেয়, সাবসিস্টেম বিস্তারিত পেজ লিস্ট সারির অ্যাকশন থেকে খোলে
-- **প্রমাণীকরণ**: JWT Bearer + 401 হলে স্বয়ংক্রিয়ভাবে টোকেন রিফ্রেশ, রিফ্রেশ ব্যর্থ হলে লগইন পেজে রিডাইরেক্ট
-- **স্টোরেজ**: টোকেন AppStorage দিয়ে ম্যানেজ করা হয়
-- **ইন্টারন্যাশনালাইজেশন**: চীনা/ইংরেজি দ্বিভাষিক (`resources/base/element/string.json` ও `resources/en_US/element/string.json`)
-- **নেটওয়ার্ক**: `BASE_URL` `entry/src/main/ets/utils/Config.ets`-এ সংজ্ঞায়িত রিড-অনলি কনস্ট্যান্ট, ডিফল্ট মান `http://10.0.2.2:8788` (এমুলেটর থেকে হোস্ট মেশিনে); ঠিকানা বদলানোর জায়গা এই ফাইলটিই
 
 ## ডেভেলপমেন্ট নিয়মাবলী
 

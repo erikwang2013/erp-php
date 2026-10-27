@@ -602,20 +602,6 @@ npm run typecheck  # solo comprobación de tipos
 - **Autocomprobación** (todas sin navegador, ejecutables directamente con `node`): `scripts/check-ng-tree-semantics.mjs`,
   `check-ng-i18n-dict.mjs`, `check-ng-spec-attrs.mjs`
 
-### Consola de administración React (`apps/react/`)
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173 (puerto en REACT_DEV_PORT de .env)
-npm run build      # tsc --noEmit + vite build, salida en dist/
-```
-
-- Igual que Angular, está **dirigida por configuración**: `src/config/domains/*.ts` declara menús y páginas de recursos,
-  y el motor de renderizado está en `src/components/ResourcePage.tsx`; los tokens de estilo, en `src/styles/tokens.css`
-  (con los mismos valores que `styles/theme.less` en el lado Angular)
-- El punto de entrada para cambiar de idioma está en la página del **centro personal** (el lado Angular tiene además el icono de globo en la barra superior)
-
 ### Panel de administración Flutter (estilo PC, `apps/flutter/`)
 
 ```bash
@@ -633,17 +619,6 @@ flutter analyze          # análisis estático (el mismo que usa la CI)
 - **Operaciones masivas**: eliminación masiva de selección múltiple, activar/desactivar masivo
 - **Tema**: Material 3 con temas claro/oscuro
 - **Internacionalización**: chino/inglés (`lib/l10n/app_zh.arb` como plantilla, generación con `flutter gen-l10n`)
-
-### Móvil HarmonyOS (`apps/harmonyos/`)
-
-- **Compilación**: abra `apps/harmonyos/` con DevEco Studio; el equivalente en línea de comandos es
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  (requiere HarmonyOS SDK + command-line-tools; artefacto `entry/build/default/outputs/default/*.hap`)
-- **Páginas**: `entry/src/main/resources/base/profile/main_pages.json` registra **41 páginas, todas accesibles desde la interfaz** (inicio de sesión, panel de control, lista/detalle de usuarios, roles y permisos, centro personal, además de las páginas de los subsistemas productos/inventario/compras/ventas/OMS/WMS/TMS/producción/RR. HH./aprobación); la cuadrícula de módulos de negocio del panel ofrece **32 accesos directos** y las páginas de detalle de los subsistemas se abren desde las acciones de fila de las listas
-- **Autenticación**: JWT Bearer + renovación automática e imperceptible del token en 401; si falla la renovación, redirección automática a la página de inicio de sesión
-- **Almacenamiento**: el token se gestiona mediante AppStorage
-- **Internacionalización**: chino/inglés (`resources/base/element/string.json` y `resources/en_US/element/string.json`)
-- **Red**: el `BASE_URL` de `apps/harmonyos/entry/src/main/ets/utils/Config.ets` es una constante de solo lectura, por defecto `http://10.0.2.2:8788` (host del emulador); el valor por defecto del proyecto `http://erp.test` aplica al cliente Flutter y a la entrada web del backend
 
 ## Convenciones de desarrollo
 

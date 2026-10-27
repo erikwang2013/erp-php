@@ -2,7 +2,7 @@
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  *
  * 自定义 CSS 层（zorro 覆盖不到的 React 自有结构：验证码画布/登录装饰/页签条等）。
- * 文件内 :root 为 apps/react/src/styles/tokens.css 的值镜像 —— 仅供本层与组件自定义
+ * 文件内 :root 为设计令牌 —— 仅供本层与组件自定义
  * 类消费；zorro 组件颜色由 styles/theme.less 的 less 变量承担，双轨同值（改一边必改另一边）。
  */
 

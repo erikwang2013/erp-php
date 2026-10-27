@@ -15,12 +15,10 @@
  *   2. 扫描前端源码中的请求路径字面量：
  *      - Flutter：apps/flutter/lib 目录下所有 .dart 文件
  *        （ApiService.instance.get/post/put/delete、独立 Dio 调用、本地 api 变量等）
- *      - HarmonyOS：apps/harmonyos/entry/src/main/ets 目录下所有 .ets/.ts 文件
- *        （apiService.*、this.api.*、httpRequest.request( 模板串等）
  *      支持 ${...} / $var 插值与模板串；无法完全还原的路径标注"未解析"。
  *   3. 输出三份清单：
  *      ① 死端点   —— 前端调用但后端不存在（最优先）
- *      ② 覆盖缺口 —— 后端存在但 Flutter/HarmonyOS 均未调用（按模块分组）
+ *      ② 覆盖缺口 —— 后端存在但 Flutter 未调用（按模块分组）
  *      ③ 未解析   —— 无法完全还原的路径（人工复核）
  *
  * 用法：
@@ -46,7 +44,6 @@ declare(strict_types=1);
 $ROOT          = realpath(__DIR__ . '/..') ?: __DIR__;
 $ROUTE_FILE    = $ROOT . '/config/route.php';
 $FLUTTER_DIR   = $ROOT . '/apps/flutter/lib';
-$HARMONY_DIR   = $ROOT . '/apps/harmonyos/entry/src/main/ets';
 $SMOKE_PATH    = '/admin/notification/my/read'; // 已知死端点冒烟用例
 
 $optModule = null;   // --module=xxx
@@ -387,7 +384,7 @@ REGEX;
  */
 function analyzePath(string $raw, string $method, string $note = '', string $source = ''): ?array
 {
-    // 剥离 ${BASE_URL} 模板前缀（HarmonyOS 常量）
+    // 剥离 ${BASE_URL} 模板前缀
     $trimmed = ltrim($raw);
     if (str_starts_with($trimmed, '${BASE_URL}')) {
         $trimmed = ltrim(substr($trimmed, strlen('${BASE_URL}')));
@@ -424,12 +421,6 @@ function analyzePath(string $raw, string $method, string $note = '', string $sou
     $norm = preg_replace('/\$\{[^}]*\}/', '{param}', $trimmed);
     $norm = preg_replace('/\$[A-Za-z_][A-Za-z0-9_]*/', '{param}', $norm);
 
-    // HarmonyOS 的 ApiService.request() 会在发请求前把 /admin、/api 前缀补成 /admin/v1、/api/v1
-    // （apps/harmonyos/entry/src/main/ets/service/ApiService.ets 的 versionedPath 规则，带负向断言防二次注入）。
-    // 此处按同一规则还原，否则 .ets 里写的 /admin/user 与已注册的 /admin/v1/user 对不上，会被误报成"死端点"。
-    if ($source === 'harmonyos') {
-        $norm = (string) preg_replace('#^/(admin|api)/(?!v\d+/)#', '/$1/v1/', $norm);
-    }
     if (str_contains($norm, '${')) {
         $unresolved = true;
         $note       = trim($note . ' 含未闭合 ${ 插值');
@@ -487,8 +478,7 @@ function scanFrontend(string $dir, string $source, array &$warnings): array
 $warnings = [];
 $backendRoutes  = parseBackendRoutes($ROUTE_FILE, $ROOT, $warnings);
 $flutterReq     = scanFrontend($FLUTTER_DIR, 'flutter', $warnings);
-$harmonyReq     = scanFrontend($HARMONY_DIR, 'harmonyos', $warnings);
-$frontendReq    = array_merge($flutterReq, $harmonyReq);
+$frontendReq    = $flutterReq;
 
 // ---- 4.1 死端点：前端调用但后端不存在 ----
 $dead = [];   // key = METHOD path
@@ -638,7 +628,6 @@ $stats = [
     'generated_at'    => date('c'),
     'backend_routes'  => count($backendRoutes),
     'flutter_requests' => count($flutterReq),
-    'harmonyos_requests' => count($harmonyReq),
     'dead_count'      => count($dead),
     'gap_count'       => count($gapList),
     'unresolved_count' => count($unresolved),
@@ -684,7 +673,7 @@ function renderText(array $dead, array $gaps, array $unresolved, array $stats, a
     echo $line . "\n";
     echo " 前端请求 URL × 后端路由 比对结果\n";
     echo " 生成时间: {$stats['generated_at']}\n";
-    echo " 后端路由: {$stats['backend_routes']} 条 | 前端请求: Flutter {$stats['flutter_requests']} / HarmonyOS {$stats['harmonyos_requests']}\n";
+    echo " 后端路由: {$stats['backend_routes']} 条 | 前端请求: Flutter {$stats['flutter_requests']}\n";
     echo $line . "\n\n";
 
     // ① 死端点
@@ -703,7 +692,7 @@ function renderText(array $dead, array $gaps, array $unresolved, array $stats, a
     echo "\n";
 
     // ② 覆盖缺口
-    echo "② 覆盖缺口（后端存在但 Flutter/HarmonyOS 均未调用）—— 共 {$stats['gap_count']} 个\n";
+    echo "② 覆盖缺口（后端存在但 Flutter 未调用）—— 共 {$stats['gap_count']} 个\n";
     if ($gaps) {
         $curModule = null;
         foreach ($gaps as $g) {
@@ -755,7 +744,7 @@ function renderDoc(string $path, array $dead, array $gaps, array $unresolved, ar
         . " ｜ 匹配逻辑自检 " . ($stats['smoke_self_ok'] ? '通过 ✅' : '失败 ❌') . "\n\n";
     $md .= "## 统计\n\n";
     $md .= "- 后端已注册路由（展开后）：{$stats['backend_routes']} 条\n";
-    $md .= "- 前端请求调用：Flutter {$stats['flutter_requests']} 处 / HarmonyOS {$stats['harmonyos_requests']} 处\n";
+    $md .= "- 前端请求调用：Flutter {$stats['flutter_requests']} 处\n";
     $md .= "- 死端点：{$stats['dead_count']} 个　｜　覆盖缺口：{$stats['gap_count']} 个　｜　无法解析：{$stats['unresolved_count']} 个\n\n";
 
     // 一、死端点
@@ -778,7 +767,7 @@ function renderDoc(string $path, array $dead, array $gaps, array $unresolved, ar
     $md .= "\n";
 
     // 二、覆盖缺口（按模块）
-    $md .= "## 二、覆盖缺口清单（后端存在但 Flutter/HarmonyOS 均未调用，按模块分组）\n\n";
+    $md .= "## 二、覆盖缺口清单（后端存在但 Flutter 未调用，按模块分组）\n\n";
     if ($gaps) {
         $byModule = [];
         foreach ($gaps as $g) {
@@ -827,7 +816,7 @@ function renderDoc(string $path, array $dead, array $gaps, array $unresolved, ar
     $md .= "```\n\n";
     $md .= "工作原理：\n\n";
     $md .= "1. **后端**：解析 `config/route.php`，还原 `Route::group` 前缀为完整路径；`Route::resource` 按控制器实际存在的方法展开（index/store/show/update/destroy 等）；`Route::any` 视为任意方法。\n";
-    $md .= '2. **前端**：扫描 `apps/flutter/lib` 目录下所有 `.dart` 与 `apps/harmonyos/entry/src/main/ets` 目录下所有 `.ets` 文件，提取 `ApiService.instance.*`、`api.*`、`_dio.*`、`apiService.*`、`httpRequest.request()` 等调用的路径字面量；支持 `${...}` / `$var` 插值与模板串（含 `${BASE_URL}` 前缀剥离），并按 HarmonyOS `ApiService.request()` 的同一规则把 `.ets` 里的 `/admin`、`/api` 前缀还原为 `/admin/v1`、`/api/v1`（否则会与已注册的版本化路由对不上而误报死端点）。' . "\n";
+    $md .= '2. **前端**：扫描 `apps/flutter/lib` 目录下所有 `.dart` 文件，提取 `ApiService.instance.*`、`api.*`、`_dio.*` 等调用的路径字面量；支持 `${...}` / `$var` 插值与模板串（含 `${BASE_URL}` 前缀剥离）。' . "\n";
     $md .= "3. **匹配**：前端字面量段仅匹配后端字面量段，前端动态段仅匹配后端 `{param}` 段（保证 `/admin/notification/my/read` 不会被误配到 `/admin/notification/{id}/read`）；方法按 HTTP 方法精确匹配，`any` 匹配一切。\n";
     $md .= "4. **清单**：① 死端点（前端调用但后端不存在，最优先）→ ② 覆盖缺口（后端存在但前端均未调用，按模块分组；webhook/健康检查等系统路由已标注）→ ③ 无法解析的路径（变量路径、字符串拼接、未闭合插值等，需人工复核）。\n\n";
 

@@ -4,7 +4,7 @@
  */
 
 /**
- * 列标题表闸门：两端 `config/column-titles-extra/part*.ts` 切片 + 人工档字面量。
+ * 列标题表闸门：Angular `config/column-titles-extra/part*.ts` 切片 + 人工档字面量。
  *
  * 为什么需要它：`keyTitle()` 的兜底是蛇形转驼峰英文，词典又是以中文为 key
  * （查不到原样返回）—— 表里漏一个键，用户就在页面上看见英文表头，且没有任何报错。
@@ -91,7 +91,7 @@ function literalAt(file, marker) {
   const start = m && src.indexOf('{', m.index + m[0].length);
   const end = start < 0 ? -1 : src.indexOf('\n};', start);
   if (end < 0) throw new Error(`找不到字面量 ${marker}：${file}`);
-  // 人工档里可能先铺一层 `...补充档`，切片本体不含它（两端合并顺序由各自文件保证）
+  // 人工档里可能先铺一层 `...补充档`，切片本体不含它（合并顺序由 Angular 侧文件保证）
   return src.slice(start, end + 3).replace(/^\s*\.\.\..*$/gm, '');
 }
 
@@ -121,27 +121,12 @@ function loadSide(label, baseFile, baseMarker, dir) {
 }
 
 const NG = path.join(ROOT, 'apps/angular/src/app/config');
-const RE = path.join(ROOT, 'apps/react/src');
 const ng = loadSide(
   'angular',
   path.join(NG, 'column-titles.ts'),
   /const BASE: Record<string, string> =/,
   path.join(NG, 'column-titles-extra'),
 );
-const re = loadSide(
-  'react',
-  path.join(RE, 'lib/defaults.tsx'),
-  /const TITLES: Record<string, string> =/,
-  path.join(RE, 'config/column-titles-extra'),
-);
-
-// 1) 两端逐键逐值相同（既有契约：漂移了页面就两端不一致）
-const drift = [
-  ...Object.keys(ng).filter((k) => ng[k] !== re[k]),
-  ...Object.keys(re).filter((k) => !(k in ng)),
-];
-if (drift.length) fail(`两端标题表漂移 ${drift.length} 键：${drift.slice(0, 10).join(', ')}`);
-
 // 2) install.sql 的每个展示列 + 非 DB 键，都要在标题表里命中（没命中 = 掉进驼峰兜底）
 const sql = fs.readFileSync(path.join(ROOT, 'database/install.sql'), 'utf8');
 const sqlCols = new Set();
@@ -265,7 +250,7 @@ if (badPin.length) {
   );
 }
 
-console.log(`两端各 ${Object.keys(ng).length} 键（展示面 = install.sql ${sqlCols.size} 列名 + ${EXTRA_KEYS.length} 个非 DB 键，去重后 ${columns.size}）`);
+console.log(`Angular ${Object.keys(ng).length} 键（展示面 = install.sql ${sqlCols.size} 列名 + ${EXTRA_KEYS.length} 个非 DB 键，去重后 ${columns.size}）`);
 const clsOf = (k) => {
   const v = KEY_CLASS.get(k);
   return Array.isArray(v) ? v[0] : v;
@@ -275,4 +260,4 @@ if (bad.length) {
   console.error(`FAIL\n  ${bad.join('\n  ')}`);
   process.exit(1);
 }
-console.log('PASS 两端一致、无漏键（每个展示列都命中标题表）');
+console.log('PASS 无漏键（每个展示列都命中标题表）');

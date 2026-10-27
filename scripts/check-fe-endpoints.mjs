@@ -4,7 +4,7 @@
  */
 
 /**
- * 前端端点契约探测 —— apps/angular 与 apps/react 的配置里声明的每个 API 路径，
+ * 前端端点契约探测 —— apps/angular 的配置里声明的每个 API 路径，
  * 是不是真的"接上了"后端？
  *
  * 为什么用未登录探测：**401/422 = 路由存在（拦在鉴权/校验），404 = 没接上**。
@@ -23,11 +23,10 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = process.env.FE_BASE ?? 'http://127.0.0.1:8788';
 
-/** 从两端 config 目录抽出所有形如 '/admin/...'、'/api/...' 的字面量 */
+/** 从 Angular config 目录抽出所有形如 '/admin/...'、'/api/...' 的字面量 */
 function collectPaths() {
   const dirs = [
     path.join(ROOT, 'apps/angular/src/app/config'),
-    path.join(ROOT, 'apps/react/src/config'),
   ];
   const found = new Set();
   const walk = (dir) => {
@@ -74,7 +73,7 @@ async function probe(p) {
 }
 
 const paths = collectPaths();
-console.log(`探测 ${paths.length} 个端点（端点来源：两端 config 目录）→ ${BASE}\n`);
+console.log(`探测 ${paths.length} 个端点（端点来源：Angular config 目录）→ ${BASE}\n`);
 
 const missing = [];
 const hits = [];

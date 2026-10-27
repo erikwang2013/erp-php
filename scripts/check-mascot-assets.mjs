@@ -2,16 +2,14 @@
 /*
  * Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
  *
- * 品牌吉祥物四端同源校验 — scripts/check-mascot-assets.mjs（第 17 道门禁）
+ * 品牌吉祥物两端同源校验 — scripts/check-mascot-assets.mjs（第 17 道门禁）
  *
- * 背景：v1.19.17 把章鱼吉祥物「小八爪」（docs/mascot.svg）接进四端（Angular / React /
- * Flutter / HarmonyOS）的品牌位，位图统一由 scripts/gen-mascot-assets.sh 产出。该批
+ * 背景：v1.19.17 把章鱼吉祥物「小八爪」（docs/mascot.svg）接进两端（Angular / Flutter）的品牌位，位图统一由 scripts/gen-mascot-assets.sh 产出。该批
  * 建立的核心不变量**此前没有任何门禁看着**（16 道门禁全数 grep 过，无一涉及位图/吉祥物），
  * 全靠人肉维持 —— 而这一批本身就是因为「问一句『都改了吗』没人能答」才做的。
  *
  * 校验五条不变量：
- *   ① 四端同源：4 处 mascot.png md5 全等（HOS 的 app_icon/start_icon 亦须与它同源 ——
- *      该端直接拿吉祥物当应用图标）
+ *   ① 两端同源：2 处 mascot.png md5 全等
  *   ② 品牌位引用未断：每端至少一处真实引用吉祥物资产（列表见 REFS），且 Angular 的
  *      `box` 图标别名不得再指回 Dropbox 商标（v1.19.17 修掉的既有缺陷，防止回退）
  *   ③ 位图必须入库：被 XML/HTML 引用的生成产物与生成器本身都要在 git 索引里 ——
@@ -21,9 +19,9 @@
  *      （`-define png:exclude-chunks=date,time`）。少了它，同一像素两次编码会得到不同
  *      字节（IM 会嵌 date:* 文本块，值取输出文件 mtime），「重跑生成器 ⇒ 位图零变化」
  *      这条判据就失效
- *   ⑤ **应用标识五端一致**（v1.19.19 起）：Android（namespace + applicationId + Kotlin
+ *   ⑤ **应用标识各端一致**（v1.19.19 起）：Android（namespace + applicationId + Kotlin
  *      package 与目录）／iOS 与 macOS 的全部 `PRODUCT_BUNDLE_IDENTIFIER`／Linux
- *      `APPLICATION_ID`／HarmonyOS `bundleName` 必须同为 `xyz.erik.erp`（测试目标允许
+ *      `APPLICATION_ID` 必须同为 `xyz.erik.erp`（测试目标允许
  *      `.RunnerTests` 后缀），且任何地方不得残留旧标识（`com.erik.admin_app` /
  *      `com.erik.adminApp` / `xyz.erik.openadmin`）。标识散在 6 个文件里，漂移同样是静默的
  *
@@ -52,10 +50,9 @@ const BAD = (msg) => { fail.push(msg); console.log(`  ✗ ${msg}`); };
 const read = (rel) => (existsSync(join(ROOT, rel)) ? readFileSync(join(ROOT, rel), 'utf8') : null);
 const md5 = (rel) => createHash('md5').update(readFileSync(join(ROOT, rel))).digest('hex');
 
-// 生成器产出并被四端引用的位图所在目录（③ 逐文件要求入库）
+// 生成器产出并被两端引用的位图所在目录（③ 逐文件要求入库）
 const ASSET_DIRS = [
   'apps/angular/public',
-  'apps/react/public',
   'apps/flutter/web',
   'apps/flutter/web/icons',
   'apps/flutter/windows/runner/resources',
@@ -73,9 +70,6 @@ const ASSET_DIRS = [
   'apps/flutter/android/app/src/main/res/mipmap-xxhdpi',
   'apps/flutter/android/app/src/main/res/mipmap-xxxhdpi',
   'apps/flutter/android/app/src/main/res/mipmap-anydpi-v26',
-  // HOS 直接拿吉祥物当应用图标，这些目录也必须在库（否则「删了/漏提交」两条路都看不见）
-  'apps/harmonyos/entry/src/main/resources/base/media',
-  'apps/harmonyos/AppScope/resources/base/media',
 ];
 // 生成器本身也必须入库：不提交它 ⇒ 位图在本仓不可复现、CI 也看不见产出者
 const TRACKED_REQUIRED = ['scripts/gen-mascot-assets.sh'];
@@ -83,8 +77,6 @@ const TRACKED_REQUIRED = ['scripts/gen-mascot-assets.sh'];
 const SRC = [
   ['apps/flutter/assets/mascot.png', 'Flutter'],
   ['apps/angular/public/mascot.png', 'Angular'],
-  ['apps/react/public/mascot.png', 'React'],
-  ['apps/harmonyos/entry/src/main/resources/base/media/mascot.png', 'HarmonyOS'],
 ];
 
 // ② 品牌位引用：每端至少一处真实引用（路径 + 必须出现的子串）
@@ -97,19 +89,12 @@ const REFS = [
   ['apps/angular/src/index.html', 'favicon.ico', 'Angular favicon'],
   ['apps/angular/src/index.html', 'apple-touch-icon', 'Angular apple-touch-icon'],
   ['apps/angular/src/index.html', 'manifest.webmanifest', 'Angular PWA manifest'],
-  ['apps/react/src/layout/Shell.tsx', '/mascot.png', 'React 侧栏品牌位'],
-  ['apps/react/src/components/ui.tsx', 'empty-mascot', 'React 空态出口'],
-  ['apps/react/index.html', 'favicon.ico', 'React favicon'],
-  ['apps/react/index.html', 'apple-touch-icon', 'React apple-touch-icon'],
-  ['apps/react/index.html', 'manifest.webmanifest', 'React PWA manifest'],
-  ['apps/harmonyos/entry/src/main/ets/pages/SplashPage.ets', "$r('app.media.mascot')", 'HOS 启动页'],
-  ['apps/harmonyos/entry/src/main/ets/pages/LoginPage.ets', "$r('app.media.mascot')", 'HOS 登录页品牌位'],
 ];
 
-console.log('品牌吉祥物四端同源校验（第 17 道门禁）\n');
+console.log('品牌吉祥物两端同源校验（第 17 道门禁）\n');
 
-// ---------- ① 四端同源 ----------
-console.log('① 四端 mascot.png 同源');
+// ---------- ① 两端同源 ----------
+console.log('① 两端 mascot.png 同源');
 {
   const present = SRC.filter(([p]) => existsSync(join(ROOT, p)));
   if (present.length !== SRC.length) {
@@ -120,23 +105,8 @@ console.log('① 四端 mascot.png 同源');
     if (uniq.size === 1) {
       OK(`4 处 md5 全等 ${[...uniq][0]}`);
     } else {
-      for (const [end, h] of hashes) BAD(`${end} mascot.png md5=${h}（四端不齐）`);
+      for (const [end, h] of hashes) BAD(`${end} mascot.png md5=${h}（两端不齐）`);
     }
-  }
-  // HOS 直接拿吉祥物当应用图标，须与源同字节
-  const src = existsSync(join(ROOT, SRC[3][0])) ? md5(SRC[3][0]) : null;
-  for (const p of [
-    'apps/harmonyos/entry/src/main/resources/base/media/app_icon.png',
-    'apps/harmonyos/entry/src/main/resources/base/media/start_icon.png',
-    'apps/harmonyos/AppScope/resources/base/media/app_icon.png',
-  ]) {
-    const label = p.includes('AppScope') ? 'HOS AppScope/app_icon.png' : `HOS entry/${p.split('/').pop()}`;
-    // 注意：这里**不能** `continue` —— 缺文件必须判失败。早先写成 continue 时「文件不存在」
-    // 既不进 OK 也不进 BAD，加上 HOS 目录原先不在 ASSET_DIRS 里 ⇒ 删掉 HOS 应用图标会
-    // 本机与 CI 一起静默通过（正是本条断言想守的那类）。
-    if (!existsSync(join(ROOT, p))) BAD(`缺少 ${p}（HOS 拿它当应用图标）`);
-    else if (src && md5(p) === src) OK(`${label} 与吉祥物同源`);
-    else BAD(`${label} 与吉祥物不同源（该端拿它当应用图标）`);
   }
 }
 
@@ -219,8 +189,8 @@ console.log('④ 生成器幂等（PNG_DEF 覆盖每处 magick 输出）');
   }
 }
 
-// ---------- ⑤ 应用标识五端一致（v1.19.19 起） ----------
-console.log('⑤ 应用标识五端一致');
+// ---------- ⑤ 应用标识一致（v1.19.19 起） ----------
+console.log('⑤ 应用标识一致');
 {
   const APP_ID = 'xyz.erik.erp';
   const LEGACY = [/com\.erik\.admin_app/, /com\.erik\.adminApp/, /xyz\.erik\.openadmin/];
@@ -269,7 +239,7 @@ console.log('⑤ 应用标识五端一致');
       else OK(`${f} 的 ${ids.length} 条标识全为 ${APP_ID} 或其 .RunnerTests`);
     });
   }
-  // macOS xcconfig / Linux APPLICATION_ID / HarmonyOS bundleName
+  // macOS xcconfig / Linux APPLICATION_ID
   checkFile('apps/flutter/macos/Runner/Configs/AppInfo.xcconfig', (t, f) => {
     noLegacy(t, f);
     eq((t.match(/^PRODUCT_BUNDLE_IDENTIFIER\s*=\s*(\S+)\s*$/m) || [])[1], APP_ID, 'macOS xcconfig 标识');
@@ -278,12 +248,8 @@ console.log('⑤ 应用标识五端一致');
     noLegacy(t, f);
     eq((t.match(/set\(APPLICATION_ID\s+"([^"]+)"\)/) || [])[1], APP_ID, 'Linux APPLICATION_ID');
   });
-  checkFile('apps/harmonyos/AppScope/app.json5', (t, f) => {
-    noLegacy(t, f);
-    eq((t.match(/"bundleName"\s*:\s*"([^"]+)"/) || [])[1], APP_ID, 'HarmonyOS bundleName');
-  });
 
-  const MIN_ID_CHECKS = 12; // 防空转下限（实测 14：Android 2 + Kotlin 1 + iOS ≥5 + macOS ≥3 + xcconfig 1 + Linux 1 + HOS 1）
+  const MIN_ID_CHECKS = 12; // 防空转下限（实测 13：Android 2 + Kotlin 1 + iOS ≥5 + macOS ≥3 + xcconfig 1 + Linux 1）
   if (checked < MIN_ID_CHECKS) {
     BAD(`只核到 ${checked} 条应用标识（下限 ${MIN_ID_CHECKS}）—— 探针可能失效，拒绝空转通过`);
   }
@@ -296,4 +262,4 @@ if (fail.length) {
   for (const f of fail) console.log(`  · ${f}`);
   process.exit(1);
 }
-console.log('四端吉祥物同源 与 五端应用标识一致 两条不变量全部成立。');
+console.log('两端吉祥物同源 与应用标识一致 两条不变量全部成立。');

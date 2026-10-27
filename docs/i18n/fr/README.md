@@ -606,20 +606,6 @@ npm run typecheck  # vérification de types uniquement
 - **Auto-vérifications** (aucun navigateur requis, exécutables directement avec `node`) : `scripts/check-ng-tree-semantics.mjs`,
   `check-ng-i18n-dict.mjs`, `check-ng-spec-attrs.mjs`
 
-### Console d'administration React (`apps/react/`)
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173 (port défini par REACT_DEV_PORT dans .env)
-npm run build      # tsc --noEmit + vite build, artefact dans dist/
-```
-
-- Également **pilotée par configuration** comme Angular : les fichiers `src/config/domains/*.ts` déclarent les menus et les pages de ressources,
-  le moteur de rendu est `src/components/ResourcePage.tsx` ; les jetons de style sont dans `src/styles/tokens.css`
-  (mêmes valeurs que `styles/theme.less` côté Angular)
-- Le point de bascule de langue se trouve dans la page **espace personnel** (côté Angular, il y a en plus l'icône globe de la barre supérieure)
-
 ### Console d'administration Flutter (style PC, `apps/flutter/`)
 
 ```bash
@@ -637,17 +623,6 @@ flutter analyze          # analyse statique (identique à la CI)
 - **Opérations en masse** : suppression en masse multi-sélection, activation/désactivation en masse
 - **Thème** : double thème Material 3 clair / sombre
 - **Internationalisation** : chinois/anglais (`lib/l10n/app_zh.arb` comme modèle, génération via `flutter gen-l10n`)
-
-### Application mobile HarmonyOS (`apps/harmonyos/`)
-
-- **Build** : ouvrir `apps/harmonyos/` avec DevEco Studio ; l'équivalent en ligne de commande est
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  (nécessite le HarmonyOS SDK + command-line-tools, artefact `entry/build/default/outputs/default/*.hap`)
-- **Pages** : `entry/src/main/resources/base/profile/main_pages.json` enregistre **41 pages, toutes accessibles depuis l'interface** (connexion, tableau de bord, liste/détail des utilisateurs, rôles et permissions, espace personnel, ainsi que les pages des sous-systèmes produits/stocks/achats/ventes/OMS/WMS/TMS/production/RH/approbation) ; la grille des modules métier du tableau de bord offre **32 accès directs**, les pages de détail des sous-systèmes s'ouvrant via les actions de ligne des listes
-- **Authentification** : JWT Bearer + rafraîchissement transparent automatique du jeton sur 401, redirection automatique vers la page de connexion en cas d'échec du rafraîchissement
-- **Stockage** : jeton géré via AppStorage
-- **Internationalisation** : chinois/anglais (`resources/base/element/string.json` et `resources/en_US/element/string.json`)
-- **Réseau** : le `BASE_URL` de `apps/harmonyos/entry/src/main/ets/utils/Config.ets` est une constante en lecture seule, par défaut `http://10.0.2.2:8788` (hôte de l'émulateur) ; la valeur par défaut du projet `http://erp.test` vaut pour le client Flutter et pour l'entrée Web du backend
 
 ## Règles de développement
 

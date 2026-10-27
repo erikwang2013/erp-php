@@ -623,20 +623,6 @@ npm run typecheck  # только проверка типов
 - **Самопроверки** (браузер не нужен, запускаются прямо через `node`): `scripts/check-ng-tree-semantics.mjs`,
   `check-ng-i18n-dict.mjs`, `check-ng-spec-attrs.mjs`
 
-### Веб-панель React (`apps/react/`)
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173 (порт см. REACT_DEV_PORT в .env)
-npm run build      # tsc --noEmit + vite build, артефакт в dist/
-```
-
-- Как и Angular, **управляется конфигурацией**: меню и страницы ресурсов объявляются в `src/config/domains/*.ts`,
-  движок рендеринга — в `src/components/ResourcePage.tsx`; токены стилей — `src/styles/tokens.css`
-  (в Angular-версии им соответствуют значения `styles/theme.less`)
-- Переключатель языка находится на странице **личного кабинета** (в Angular-версии дополнительно есть значок глобуса в верхней панели)
-
 ### Flutter-админка (PC-стиль, `apps/flutter/`)
 
 ```bash
@@ -654,17 +640,6 @@ flutter analyze          # Статический анализ (тот же, ч�
 - **Массовые операции**: множественное удаление, массовое включение/отключение
 - **Тема**: Material 3, светлая/тёмная
 - **Интернационализация**: китайский/английский (`lib/l10n/app_zh.arb` как шаблон, генерация `flutter gen-l10n`)
-
-### Мобильный клиент HarmonyOS (`apps/harmonyos/`)
-
-- **Сборка**: откройте `apps/harmonyos/` в DevEco Studio; эквивалент в командной строке —
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  (нужны HarmonyOS SDK + command-line-tools; артефакт в `entry/build/default/outputs/default/*.hap`)
-- **Страницы**: в реестре `entry/src/main/resources/base/profile/main_pages.json` зарегистрирована 41 страница, все достижимы из интерфейса (вход, дашборд с карточками KPI + сеткой бизнес-модулей, список пользователей, роли и права, личный кабинет, а также страницы подсистем товаров/склада/закупок/продаж/OMS/WMS/TMS/производства/HR/согласования и др.); сетка бизнес-модулей дашборда даёт 32 прямых входа, а страницы деталей подсистем открываются действиями в строках списков
-- **Аутентификация**: JWT Bearer + автоматическое бесшовное обновление токена при 401, при неудаче — редирект на страницу входа
-- **Хранение**: токен через AppStorage
-- **Интернационализация**: китайский/английский (`resources/base/element/string.json` и `resources/en_US/element/string.json`)
-- **Сеть**: `BASE_URL` задаётся в `entry/src/main/ets/utils/Config.ets` (константа только для чтения), по умолчанию `http://10.0.2.2:8788` (адрес хоста с точки зрения эмулятора)
 
 ## Стандарты разработки
 

@@ -623,20 +623,6 @@ npm run typecheck  # apenas verificação de tipos
 - **Autoverificação** (todas dispensam navegador e rodam direto com `node`): `scripts/check-ng-tree-semantics.mjs`,
   `check-ng-i18n-dict.mjs`, `check-ng-spec-attrs.mjs`
 
-### Painel administrativo React (`apps/react/`)
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173 (porta em REACT_DEV_PORT no .env)
-npm run build      # tsc --noEmit + vite build, artefato em dist/
-```
-
-- Assim como o Angular, é **dirigido por config**: os `src/config/domains/*.ts` declaram menus e páginas de recurso,
-  e o motor de renderização fica em `src/components/ResourcePage.tsx`; os tokens de estilo estão em `src/styles/tokens.css`
-  (o `styles/theme.less` do lado Angular tem os mesmos valores)
-- O ponto de troca de idioma fica na página do **centro pessoal** (no lado Angular há também o ícone globe na barra superior)
-
 ### Painel administrativo Flutter (estilo PC, `apps/flutter/`)
 
 ```bash
@@ -654,17 +640,6 @@ flutter analyze          # Análise estática (a mesma usada no CI)
 - **Operações em lote**: exclusão em lote com seleção múltipla, ativar/desativar em lote
 - **Tema**: Material 3 com temas claro/escuro
 - **Internacionalização**: chinês/inglês (`lib/l10n/app_zh.arb` como modelo, gerado por `flutter gen-l10n`)
-
-### Mobile HarmonyOS (`apps/harmonyos/`)
-
-- **Build**: abra `apps/harmonyos/` no DevEco Studio; o equivalente na linha de comando é
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  (requer HarmonyOS SDK + command-line-tools; artefato em `entry/build/default/outputs/default/*.hap`)
-- **Páginas**: o registro `entry/src/main/resources/base/profile/main_pages.json` tem 41 páginas registradas, todas alcançáveis pela interface (login, dashboard com cartões de KPI + grade de negócios, lista de usuários, papéis e permissões, centro pessoal, além das páginas dos subsistemas de produtos/estoque/compras/vendas/OMS/WMS/TMS/manufatura/RH/aprovação etc.); a grade de negócios do dashboard oferece 32 entradas diretas, e as páginas de detalhe dos subsistemas são abertas por ações das linhas de lista
-- **Autenticação**: JWT Bearer + refresh automático e transparente do Token em 401; falha no refresh redireciona automaticamente para a página de login
-- **Armazenamento**: Token gerenciado via AppStorage
-- **Internacionalização**: chinês/inglês (`resources/base/element/string.json` e `resources/en_US/element/string.json`)
-- **Rede**: o `BASE_URL` é definido em `entry/src/main/ets/utils/Config.ets` (constante somente leitura) e tem `http://10.0.2.2:8788` como padrão (endereço da máquina hospedeira visto pelo emulador)
 
 ## Convenções de desenvolvimento
 

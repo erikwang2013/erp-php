@@ -626,20 +626,6 @@ npm run typecheck  # nur Typprüfung
 - **Selbstprüfung** (alle ohne Browser direkt mit `node` ausführbar): `scripts/check-ng-tree-semantics.mjs`,
   `check-ng-i18n-dict.mjs`, `check-ng-spec-attrs.mjs`
 
-### React-Verwaltung (`apps/react/`)
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173 (Port siehe REACT_DEV_PORT in .env)
-npm run build      # tsc --noEmit + vite build, Ausgabe dist/
-```
-
-- Wie Angular **config-getrieben**: `src/config/domains/*.ts` deklariert Menüs und Ressourcenseiten,
-  die Rendering-Engine liegt in `src/components/ResourcePage.tsx`; die Stil-Tokens in `src/styles/tokens.css`
-  (identisch mit `styles/theme.less` auf der Angular-Seite)
-- Der Spracheingang liegt auf der Seite **persönlicher Bereich** (auf der Angular-Seite zusätzlich das Globe-Symbol in der oberen Leiste)
-
 ### Flutter-Admin (PC-Stil, `apps/flutter/`)
 
 ```bash
@@ -657,17 +643,6 @@ flutter analyze          # statische Prüfung (wie in der CI)
 - **Batch-Operationen**: Mehrfachauswahl-Löschung, Batch-Aktivieren/Deaktivieren
 - **Theme**: Material 3 mit Hell-/Dunkelmodus
 - **Internationalisierung**: Chinesisch/Englisch (`lib/l10n/app_zh.arb` als Vorlage, Generierung mit `flutter gen-l10n`)
-
-### HarmonyOS-Mobile-Client (`apps/harmonyos/`)
-
-- **Build**: `apps/harmonyos/` in DevEco Studio öffnen; das Kommandozeilen-Äquivalent lautet
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  (erfordert HarmonyOS SDK + command-line-tools, Artefakt `entry/build/default/outputs/default/*.hap`)
-- **Seiten**: `entry/src/main/resources/base/profile/main_pages.json` registriert **41 Seiten, alle von der Oberfläche aus erreichbar** (Login, Dashboard, Benutzerliste/-details, Rollen & Berechtigungen, persönlicher Bereich sowie die Untersystemseiten für Artikel/Bestand/Einkauf/Vertrieb/OMS/WMS/TMS/Produktion/Personal/Genehmigung); das Business-Kachelraster des Dashboards bietet **32 Direkteinstiege**, Detailseiten der Untersysteme werden über die Zeilenaktionen der Listen geöffnet
-- **Authentifizierung**: JWT Bearer + automatisches unsichtbares Token-Refresh bei 401; bei Fehlschlag automatische Weiterleitung zur Login-Seite
-- **Speicher**: Token über AppStorage verwaltet
-- **Internationalisierung**: Chinesisch/Englisch (`resources/base/element/string.json` und `resources/en_US/element/string.json`)
-- **Netzwerk**: `BASE_URL` in `apps/harmonyos/entry/src/main/ets/utils/Config.ets` ist eine schreibgeschützte Konstante, standardmäßig `http://10.0.2.2:8788` (Emulator-Host); die Projektvorgabe `http://erp.test` gilt für den Flutter-Client und den Backend-Web-Eingang
 
 ## Entwicklungsrichtlinien
 

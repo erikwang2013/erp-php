@@ -7,12 +7,11 @@
  * 资源页推断列标题生成器 —— 把 database/install.sql 的列注释变成「字段名 → 中文标题」。
  *
  * 用法：
- *   node scripts/gen-column-titles.mjs          # 重写两端补充档 + /tmp/new_titles.txt
- *   node scripts/gen-column-titles.mjs --check  # 只校验，不落盘（两端一致 / 覆盖 / 无漏键）
+ *   node scripts/gen-column-titles.mjs          # 重写 Angular 补充档 + /tmp/new_titles.txt
+ *   node scripts/gen-column-titles.mjs --check  # 只校验，不落盘（覆盖 / 无漏键）
  *
- * 产出（两端同结构，同一份内容）：
+ * 产出（Angular 结构）：
  *   apps/angular/src/app/config/column-titles-extra/part*.ts + index.ts
- *   apps/react/src/config/column-titles-extra/part*.ts + index.ts
  *   /tmp/new_titles.txt —— 去重后的新中文词条（每行一条），留给词典生成用
  *
  * 为什么标题表要加这一层：`columns.ts` 的 `keyTitle()` 兜底是蛇形转驼峰，
@@ -20,7 +19,7 @@
  * install.sql 的列注释是全库唯一权威的中文名来源，故以此为种子补齐。
  *
  * 只读 install.sql + 本文件内的显式表，**不联网、不调 LLM、不碰词典生成器**。
- * 输出文件整份重写，不要手工编辑（手改会两端漂移）。
+ * 输出文件整份重写，不要手工编辑（手改会漂移）。
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -62,7 +61,7 @@ for (const [, , body] of sql.matchAll(CREATE_TABLE)) {
   }
 }
 
-/* ── 2. 两端既有标题表（冻结的 176 键，只读不改） ─────────────────────────────────── */
+/* ── 2. Angular 既有标题表（冻结的 176 键，只读不改） ─────────────────────────────────── */
 
 /** 从 TS 源码里抠出 `键: '值'` 字面量 —— 只读，故用正则而非 bundler */
 function parseTable(file, openPat, closePat) {
@@ -78,19 +77,8 @@ function parseTable(file, openPat, closePat) {
 }
 
 const NG_TITLES = path.join(ROOT, 'apps/angular/src/app/config/column-titles.ts');
-const RE_TITLES = path.join(ROOT, 'apps/react/src/lib/defaults.tsx');
 const ANGULAR_BASE = parseTable(NG_TITLES, /const BASE: Record<string, string> = \{/, '\n};');
-const REACT_BASE = parseTable(RE_TITLES, /const TITLES: Record<string, string> = \{/, '\n};');
 
-/** 两端既有表逐键逐值相同 —— 既有契约，不满足就停（补档无从谈起） */
-const drift = [
-  ...Object.keys(ANGULAR_BASE).filter((k) => ANGULAR_BASE[k] !== REACT_BASE[k]),
-  ...Object.keys(REACT_BASE).filter((k) => !(k in ANGULAR_BASE)),
-];
-if (drift.length) {
-  console.error(`FAIL 两端既有标题表已漂移（${drift.length} 键）：${drift.slice(0, 10).join(', ')}`);
-  process.exit(1);
-}
 const BASE = ANGULAR_BASE;
 
 /* ── 3. 注释规范化（剥附注 → 分句截断 → trim） ───────────────────────────────────── */
@@ -348,7 +336,7 @@ files.push([
   `${HEADER}\n/** 生成物 —— 由 \`scripts/gen-column-titles.mjs\` 汇总 part*.ts。请勿手工编辑。 */\n${imports}\n\nexport const COLUMN_TITLES_EXTRA: Record<string, string> = {\n${spreads}\n};\n`,
 ]);
 
-const APPS = ['apps/angular/src/app', 'apps/react/src'];
+const APPS = ['apps/angular/src/app'];
 if (CHECK_ONLY) {
   /* `--check` 必须**真读盘**：以前这里只打印计数就 rc=0，于是「改 react 侧切片的值 / 删掉整片 /
    * 给 install.sql 加列」三种漂移全都静默通过，而它打印的「N 条落盘条目」声称了一件没做的事。
@@ -371,7 +359,7 @@ if (CHECK_ONLY) {
     for (const d of drift.slice(0, 20)) console.error(`  ${d}`);
     process.exit(1);
   }
-  console.log(`ok   ${extra.size} 个新键 / ${entries.length} 条落盘条目 / ${chunks.length} 片 —— 两端落盘物逐字节一致`);
+  console.log(`ok   ${extra.size} 个新键 / ${entries.length} 条落盘条目 / ${chunks.length} 片 —— Angular 落盘物逐字节一致`);
 } else {
   for (const app of APPS) {
     const dir = path.join(ROOT, app, 'config/column-titles-extra');
@@ -382,6 +370,6 @@ if (CHECK_ONLY) {
   const words = [...new Set(entries.map(([, [t]]) => t))].sort();
   fs.writeFileSync('/tmp/new_titles.txt', words.join('\n') + '\n');
   console.log(`ok   新键 ${extra.size}（既有 ${Object.keys(BASE).length} → 合计 ${Object.keys(merged).length}）`);
-  console.log(`ok   分片 ${chunks.length} 份，两端各写入 ${path.join(APPS[0], 'config/column-titles-extra')} 等 ${APPS.length} 处`);
+  console.log(`ok   分片 ${chunks.length} 份，Angular 写入 ${path.join(APPS[0], 'config/column-titles-extra')} 等 ${APPS.length} 处`);
   console.log(`ok   新词条 ${words.length} 条 → /tmp/new_titles.txt`);
 }

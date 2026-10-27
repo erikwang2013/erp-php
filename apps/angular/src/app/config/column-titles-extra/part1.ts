@@ -67,7 +67,6 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   beginning_cash: '期初现金余额', // install.sql 列注释
   bin: '货位', // install.sql 列注释
   birthday: '出生日期', // install.sql 列注释
-  biz_id: '外部单据ID', // install.sql 列注释
   biz_type: '业务类型', // 裁决：众数
   book_quantity: '账面数量', // install.sql 列注释
   budget_amount: '预算金额', // 裁决：众数
@@ -127,7 +126,6 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   cost_type: '成本类型', // install.sql 列注释
   counterparty: '对方户名', // install.sql 列注释
   country: '国家ISO代码', // install.sql 列注释
-  coupon_type: '券类型', // install.sql 列注释
   course_id: '课程ID', // install.sql 列注释
   created_by: '创建人ID', // 裁决：众数
   created_name: '创建人', // 非 DB 列：openapi/app、openapi/webhook 的 created_by 名称兄弟键
@@ -165,7 +163,6 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   direction: '方向', // 裁决：众数
   discount_amount: '优惠金额', // install.sql 列注释
   discount_fee: '贴现息', // install.sql 列注释
-  discount_value: '满减=减免额', // install.sql 列注释
   discounted_at: '贴现时间', // install.sql 列注释
   disposition: '处置方式', // install.sql 列注释
   district: '区/县', // install.sql 列注释
@@ -259,7 +256,6 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   issue_status: '数电出口状态', // install.sql 列注释
   issued_amount: '已发料金额累计', // install.sql 列注释
   issued_at: '出表时间', // install.sql 列注释
-  issued_qty: '已发放数量', // install.sql 列注释
   item_name: '点检项名称', // install.sql 列注释
   items: '明细', // 非 DB 列：payslip/比价等回包的明细数组
   joined_at: '加入时间', // project_member 无注释
@@ -287,7 +283,6 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   max_claims: '每人最大领取数', // install.sql 列注释
   max_volume_cm3: '最大容积', // install.sql 列注释
   max_weight_kg: '最大承重', // install.sql 列注释
-  member_id: '会员ID', // install.sql 列注释
   message_id: '渠道返回消息ID', // install.sql 列注释
   min_stock: '最小库存', // eam_spare_part 无注释，与 min_quantity=最小库存阈值 区分
   model: '型号', // eam_equipment 无注释
@@ -318,7 +313,6 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   opportunity_id: '关联商机ID', // 裁决：众数
   options: '选项', // install.sql 列注释
   order_item_id: '订单明细ID', // install.sql 列注释
-  order_source: '核销来源', // install.sql 列注释
   ordered_at: '下单时间', // install.sql 列注释
   ordered_quantity: '应拣数量', // install.sql 列注释
   orientation: '页面方向', // install.sql 列注释
@@ -363,7 +357,6 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   planned_start: '计划开始日期', // install.sql 列注释
   platform: '平台适配器标识)', // install.sql 列注释
   points: '积分', // 裁决：两候选各一（可用/变动），取通用者
-  points_after: '流水后积分快照', // install.sql 列注释
   position: '职位', // install.sql 列注释
   position_x: 'X 坐标', // bi_widget 无注释
   position_y: 'Y 坐标', // bi_widget 无注释
@@ -404,4 +397,11 @@ export const COLUMN_TITLES_PART1: Record<string, string> = {
   reference: '摘要/流水号', // install.sql 列注释
   refund_amount: '退款金额', // install.sql 列注释
   rejected_qty: '不合格数量', // install.sql 列注释
+  report_data: '完整报表数据JSON', // 裁决：众数
+  report_id: '合并报表ID', // install.sql 列注释
+  report_month: '会计月份', // 裁决：众数
+  report_year: '会计年度', // 裁决：众数
+  reported_by: '报告人', // install.sql 列注释
+  request: '请求报文', // install.sql 列注释
+  require_date: '需求日期', // install.sql 列注释
 };

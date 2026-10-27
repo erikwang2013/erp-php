@@ -10,7 +10,7 @@
 
 ## 项目简介
 
-open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进销存（采购/销售/库存）、财务核算、生产制造（BOM/MRP/工序报工/产能负荷）、CRM、审批工作流、人力资源、消息通知与自定义报表等完整业务域。后端基于 webman v2 + MySQL 8.0 构建（表前缀 `erp_`，Snowflake 全局唯一主键），管理端提供 Angular 22（`apps/angular/`）、React 19 + Vite（`apps/react/`）与 Flutter 3.x Web（`apps/flutter/`）三套实现，移动端配套 HarmonyOS 原生客户端（`apps/harmonyos/`）。
+open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进销存（采购/销售/库存）、财务核算、生产制造（BOM/MRP/工序报工/产能负荷）、CRM、审批工作流、人力资源、消息通知与自定义报表等完整业务域。后端基于 webman v2 + MySQL 8.0 构建（表前缀 `erp_`，Snowflake 全局唯一主键），管理端提供 Angular 22（`apps/angular/`）与 Flutter 3.x Web（`apps/flutter/`）两套实现。
 
 系统以**单据驱动、自动联动**为核心设计：业务单据审核自动触发库存变动、应收应付生成与成本归集；审批工作流与消息通知贯穿全部关键单据；MRP 依据销售订单与 BOM 计算物料需求并生成采购/生产建议，形成从销售接单到采购收货、从生产排产到财务结账的端到端业务闭环。
 
@@ -21,7 +21,7 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 - **配置化能力**：多节点审批工作流（含可视化流程设计器画布）、单据打印模板引擎（占位符渲染 + dompdf 出 PDF + 二维码标签）、客户信用额度实时拦截、批次/序列号全链路正反向追溯
 - **数据可追溯**：业务流水逐笔留痕，库存批次与序列号贯穿 入库→领用→出库→追溯 全生命周期，成本核算到单据行级
 - **部署友好**：Docker Compose v2 一键启动（MySQL/Redis/Elasticsearch），本地 `composer install` 亦可直接运行
-- **国际化**：13 语种（zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id），后端消息与 Angular/React 双管理端界面全覆盖，前端词典按语种懒加载，README 另提供 12 语言文档
+- **国际化**：13 语种（zh/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id），后端消息与 Angular 管理端界面全覆盖，前端词典按语种懒加载，README 另提供 12 语言文档
 
 ## 功能清单
 
@@ -76,7 +76,7 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 | | 单据打印模板引擎 | 占位符渲染 + dompdf PDF + 二维码标签 |
 | | 表单自定义字段 | 主档表 custom_fields JSON 扩展 + 校验 |
 | | 多租户架构 | erp_tenant 租户 + TenantScope 请求上下文 + 到期计费（中间件 seam 预留未注册）|
-| | 多语言 | 13 语种（后端消息 + Angular/React 双管理端界面），词典按语种懒加载成独立 chunk，切换入口常驻顶栏 globe 与个人中心下拉 |
+| | 多语言 | 13 语种（后端消息 + Angular 管理端界面），词典按语种懒加载成独立 chunk，切换入口常驻顶栏 globe 与个人中心下拉 |
 
 ## ERP 模块
 
@@ -106,9 +106,7 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 | 数据库 | MySQL 8.0+ | 表前缀 `erp_`，BIGINT 非自增主键 |
 | 搜索引擎 | Elasticsearch | 经 `webman-scout` 在写入/删除时自动同步索引（可选组件，见「全文搜索引擎」节） |
 | 管理端前端 A | Angular 22 | config 驱动资源页，`ResourcePage` 渲染引擎（`apps/angular/`） |
-| 管理端前端 B | React 19 + Vite | 与 Angular 同源的 config 驱动 + 样式令牌（`apps/react/`） |
-| 管理端前端 C | Flutter 3.x | Web 端为 PC 管理后台风格（`apps/flutter/`） |
-| 移动端 | HarmonyOS ArkTS | 鸿蒙原生客户端（`apps/harmonyos/`），支持手机/平板/2in1 |
+| 管理端前端 B | Flutter 3.x | Web 端为 PC 管理后台风格（`apps/flutter/`） |
 
 ## 核心依赖
 
@@ -135,11 +133,10 @@ open-erp 是一套面向中小企业的**开源全栈 ERP 系统**，覆盖进�
 |---|---------|------|
 | 后端消息 | `resource/translations/{语种}/` | 13 个语种目录：`zh_CN` 565 条、其余 11 个语种各 544 条、`en` 30 条（口径：`common/modules/validation` 三文件的叶子条目，`validation.php` 的 `attributes` 字段标签计入、其组键不计） |
 | Angular 管理端 | `apps/angular/src/app/core/zh-*.ts`（源词典 `zh-en/`，4 个切片合并） | 源词典 1456 键 × 11 新语种（各语种键数与源词典 1:1） |
-| React 管理端 | `apps/react/src/lib/i18n/zh*.ts` | 源词典 1451 键 × 11 新语种 |
 
 - **后端「英文即 key」**：后端消息键本身为英文文案，`en` 只维护框架规则名等少量映射，无需完整词典
 - **按语种懒加载**：前端 12 份词典各自打包成独立 chunk，切换语言时按需拉取，不压首屏体积
-- **切换入口**：顶栏独立 globe 图标 + 个人中心下拉（Angular/React 两端一致）
+- **切换入口**：顶栏独立 globe 图标 + 个人中心下拉
 - **接口层**：请求头 `Accept-Language` 自动检测（zh-CN → 中文，en → English，其余语种按清单匹配），默认中文
 - **生成器**：`scripts/gen-be-locales.mjs`（后端）、`scripts/gen-fe-locales.mjs --app angular|react`（前端），支持断点续跑
 
@@ -187,9 +184,7 @@ open-erp/
 │   └── process/                # 常驻进程（Http / WebSocket / QueueConsumer / Monitor）
 ├── apps/
 │   ├── angular/                # Angular 22 管理端（config 驱动资源页，ng serve :4200）
-│   ├── react/                  # React 19 + Vite 管理端（Vite :5173）
-│   ├── flutter/                # Flutter 跨平台（Web PC + iOS/Android/macOS/Windows/Linux）
-│   └── harmonyos/              # HarmonyOS 原生客户端
+│   └── flutter/                # Flutter 跨平台（Web PC + iOS/Android/macOS/Windows/Linux）
 ├── config/                     # 配置文件（含中文注释）
 │   ├── plugin/erikwang2013/apidoc/ # API 文档配置（凭据取 .env 的 APIDOC_PASSWORD / APIDOC_SECRET_KEY）
 ├── database/
@@ -234,7 +229,7 @@ open-erp/
 
 ![Request Lifecycle](./docs/diagrams/request-lifecycle-cn.svg)
 
-**从客户端到数据库的完整请求路径**: 客户端(Angular/React/Flutter/鸿蒙) → Nginx SSL终止 → 跨域处理 → 安全过滤器 → 限流 → [管理端: JWT认证 → RBAC权限 → 操作日志] → 控制器 → 服务层 → 模型层 → 缓存/数据库/搜索引擎 → JSON响应。图中包含缓存命中和缓存未命中两条路径。（API 版本已并入 URL 路径，无独立校验步骤；语种由 `app/common/I18n.php` 从 `Accept-Language` 解析。）
+**从客户端到数据库的完整请求路径**: 客户端(Angular/Flutter) → Nginx SSL终止 → 跨域处理 → 安全过滤器 → 限流 → [管理端: JWT认证 → RBAC权限 → 操作日志] → 控制器 → 服务层 → 模型层 → 缓存/数据库/搜索引擎 → JSON响应。图中包含缓存命中和缓存未命中两条路径。（API 版本已并入 URL 路径，无独立校验步骤；语种由 `app/common/I18n.php` 从 `Accept-Language` 解析。）
 
 ### 安全纵深防御架构
 
@@ -250,18 +245,16 @@ open-erp/
 - Composer 2.x
 - MySQL >= 8.0
 - Flutter >= 3.41（仅前端开发需要）
-- Node >= 22.22.3（仅 Angular/React 管理端开发需要；Angular CLI 22 的 `engines` 下限）
+- Node >= 22.22.3（仅 Angular 管理端开发需要；Angular CLI 22 的 `engines` 下限）
 - Elasticsearch >= 7.x 或 OpenSearch >= 2.x（可选，索引同步需要；不装不影响业务读写）
-- DevEco Studio（可选，仅 HarmonyOS 客户端构建需要；命令行亦可 `hvigorw assembleHap`）
 
 ## 默认本地域名
 
-项目默认使用本地域名 **`http://erp.test`**（Flutter 客户端的默认 API 地址、后端 Web 入口约定；HarmonyOS 客户端默认指向模拟器宿主机 `http://10.0.2.2:8788`）。
+项目默认使用本地域名 **`http://erp.test`**（Flutter 客户端的默认 API 地址、后端 Web 入口约定）。
 
 - **本机访问**：在 hosts 中添加一行 `127.0.0.1 erp.test`，并将 Web 服务器/反代指向后端监听端口（默认 `8788`，见 `.env` 的 `APP_HTTP_PORT`，可在安装向导或 `.env` 中修改；WebSocket 默认 `8282` 对应 `APP_WS_PORT`）。
 - **改部署域名**：
   - Flutter 构建注入：`flutter build web --dart-define=API_BASE_URL=https://你的域名`
-  - HarmonyOS：编辑 `apps/harmonyos/entry/src/main/ets/utils/Config.ets` 的 `BASE_URL`（只读常量，默认 `http://10.0.2.2:8788`）
   - 模拟器调试可临时改回 `http://10.0.2.2:8788`（访问宿主机）
 - 所有接口版本已置于路径（`/admin/v1`、`/api/v1`、`/open/v1`），客户端只需配置根地址。
 
@@ -293,7 +286,7 @@ cp .env.example .env
 | `SNOWFLAKE_WORKER_ID` | 工作节点 ID (0-31) | `1` |
 | `SCOUT_HOSTS` | ES 地址 | `http://localhost:9200` |
 | `APP_HTTP_PORT` / `APP_WS_PORT` | 后端 HTTP / WebSocket 监听端口（Nginx 等反代指向它） | `8788` / `8282` |
-| `ANGULAR_DEV_PORT` / `REACT_DEV_PORT` | 前端开发服务器端口（`npm run dev`，仅开发期用） | `4200` / `5173` |
+| `ANGULAR_DEV_PORT` | Angular 开发服务器端口（`npm run dev`，仅开发期用） | `4200` |
 | `NGINX_PORT` / `NGINX_SSL_PORT` / `MYSQL_PORT` / `ES_PORT` | docker-compose 发布到宿主机的端口（容器内端口固定） | `80` / `443` / `3306` / `9200` |
 
 **生产环境务必替换所有密钥为随机字符串**（`JWT_SECRET_KEY` / `ENCRYPTION_KEY` / `HASHIDS_SALT` 等：缺失、为空或仍是 `change-me`/`xxx` 类弱占位值时，启动即被 `env_required` / `env_crypto_key` 拒绝，不会静默降级）：
@@ -338,10 +331,6 @@ cd apps/flutter
 flutter pub get
 flutter run -d chrome    # Web 端（PC 管理后台风格）
 ```
-
-**HarmonyOS 客户端（手机端）:**
-
-使用 DevEco Studio 打开 `apps/harmonyos/` 目录，连接真机或模拟器运行。
 
 ### 6. Docker Compose 一键部署（推荐生产环境）
 
@@ -435,7 +424,7 @@ SCOUT_SOFT_DELETE=true
 
 ### 5. 多语言
 
-通过请求头 `Accept-Language` 自动切换，支持 13 语种（`zh` 默认，另 `en`/`ja`/`ko`/`de`/`fr`/`es`/`pt`/`ru`/`ar`/`hi`/`bn`/`id`）；Angular/React 管理端另有顶栏 globe 图标与个人中心下拉切换。详见[国际化](#国际化)。
+通过请求头 `Accept-Language` 自动切换，支持 13 语种（`zh` 默认，另 `en`/`ja`/`ko`/`de`/`fr`/`es`/`pt`/`ru`/`ar`/`hi`/`bn`/`id`）；Angular 管理端另有顶栏 globe 图标与个人中心下拉切换。详见[国际化](#国际化)。
 
 ## 数据库规范
 
@@ -627,20 +616,6 @@ npm run typecheck  # 只做类型检查
 - **自检**（均无需浏览器，直接 `node` 跑）：`scripts/check-ng-tree-semantics.mjs`、
   `check-ng-i18n-dict.mjs`、`check-ng-spec-attrs.mjs`
 
-### React 管理端（`apps/react/`）
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173（端口见 .env 的 REACT_DEV_PORT）
-npm run build      # tsc --noEmit + vite build，产物 dist/
-```
-
-- 与 Angular 同为 **config 驱动**：`src/config/domains/*.ts` 声明菜单与资源页，
-  渲染引擎在 `src/components/ResourcePage.tsx`；样式令牌 `src/styles/tokens.css`
-  （Angular 端的 `styles/theme.less` 与之同值）
-- 语言切换入口在**个人中心**页（Angular 端另有顶栏 globe 图标）
-
 ### Flutter 管理后台（PC 风格，`apps/flutter/`）
 
 ```bash
@@ -659,16 +634,6 @@ flutter analyze          # 静态检查（CI 同款）
 - **主题**: Material 3 浅色/深色双主题
 - **国际化**: 中/英双语（`lib/l10n/app_zh.arb` 为模板，`flutter gen-l10n` 生成）
 
-### HarmonyOS 移动端（`apps/harmonyos/`）
-
-- **构建**: DevEco Studio 打开 `apps/harmonyos/`；命令行等价物为
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  （需 HarmonyOS SDK + command-line-tools，产物 `entry/build/default/outputs/default/*.hap`）
-- **页面**: 注册表 `entry/src/main/resources/base/profile/main_pages.json` 共 **41 个已注册页面，全部可从界面到达**（登录、仪表盘、用户列表/详情、角色权限、个人中心，以及商品/库存/采购/销售/OMS/WMS/TMS/生产/HR/审批等子系统页面）；仪表盘「业务宫格」提供 **32 个直达入口**，子系统的详情页由列表行操作进入
-- **认证**: JWT Bearer + 401 自动无感刷新 Token，刷新失败自动重定向登录页
-- **存储**: Token 通过 AppStorage 管理
-- **国际化**: 中/英双语（`resources/base/element/string.json` 与 `resources/en_US/element/string.json`）
-- **网络**: `BASE_URL` 定义在 `entry/src/main/ets/utils/Config.ets`（只读常量，默认 `http://10.0.2.2:8788`，即模拟器访问宿主机；真机/生产改这里）
 
 ## 开发规范
 
@@ -714,7 +679,7 @@ GitHub Actions 持续集成流水线：`.github/workflows/ci.yml`，五个作业
 | `e2e` | 起 webman 真实服务 → 健康检查 → HTTP 核心链路冒烟 + 管理端 API 覆盖 |
 | `release` | push 至 `main` 且上述作业通过后按 patch+1 打 tag 并发 Release（见下） |
 
-> 前端静态检查覆盖面：CI 目前只跑 Flutter；Angular/React（`tsc --noEmit`）与 HarmonyOS（`hvigorw assembleHap`）需在本地或后续补充作业中执行。
+> 前端静态检查覆盖面：CI 目前只跑 Flutter；Angular（`tsc --noEmit`）需在本地或后续补充作业中执行。
 
 ### 发布流程（版本增量）
 

@@ -601,20 +601,6 @@ npm run typecheck  # hanya pemeriksaan tipe
 - **Pemeriksaan mandiri** (semuanya tanpa browser, dijalankan langsung dengan `node`): `scripts/check-ng-tree-semantics.mjs`,
   `check-ng-i18n-dict.mjs`, `check-ng-spec-attrs.mjs`
 
-### Panel Admin React (`apps/react/`)
-
-```bash
-cd apps/react
-npm install
-npm run dev        # Vite → http://localhost:5173 (port lihat REACT_DEV_PORT di .env)
-npm run build      # tsc --noEmit + vite build，keluaran dist/
-```
-
-- Sama seperti Angular, **digerakkan konfigurasi**: `src/config/domains/*.ts` mendeklarasikan menu dan halaman resource,
-  mesin render di `src/components/ResourcePage.tsx`; token gaya di `src/styles/tokens.css`
-  (nilainya sama dengan `styles/theme.less` di sisi Angular)
-- Pintu masuk peralihan bahasa ada di halaman **pusat pribadi** (sisi Angular juga memiliki ikon globe di bilah atas)
-
 ### Flutter Admin (gaya PC, `apps/flutter/`)
 
 ```bash
@@ -632,17 +618,6 @@ flutter analyze          # Pemeriksaan statis (sama seperti CI)
 - **Operasi massal**: hapus massal multi-pilih, aktif/nonaktifkan massal
 - **Tema**: Material 3 tema terang/gelap ganda
 - **Internasionalisasi**: bilingual 中文/Inggris (template `lib/l10n/app_zh.arb`, dibuat dengan `flutter gen-l10n`)
-
-### Seluler HarmonyOS (`apps/harmonyos/`)
-
-- **Build**: buka `apps/harmonyos/` dengan DevEco Studio; padanan baris perintah
-  `cd apps/harmonyos && hvigorw --mode module -p product=default assembleHap --no-daemon`
-  (perlu HarmonyOS SDK + command-line-tools, keluaran `entry/build/default/outputs/default/*.hap`)
-- **Halaman**: registri `entry/src/main/resources/base/profile/main_pages.json` memuat **41 halaman terdaftar, semuanya dapat dijangkau dari UI** (login, dasbor, daftar/detail pengguna, izin peran, pusat pribadi, serta halaman subsistem produk/stok/pembelian/penjualan/OMS/WMS/TMS/produksi/HR/persetujuan); grid bisnis dasbor menyediakan **32 pintu masuk langsung**, halaman detail subsistem dibuka dari aksi baris daftar
-- **Autentikasi**: JWT Bearer + 401 refresh Token otomatis tanpa terasa, gagal refresh otomatis redirect ke halaman login
-- **Penyimpanan**: Token dikelola melalui AppStorage
-- **Internasionalisasi**: bilingual 中文/Inggris (`resources/base/element/string.json` dan `resources/en_US/element/string.json`)
-- **Jaringan**: `BASE_URL` adalah konstanta read-only yang didefinisikan di `entry/src/main/ets/utils/Config.ets`, nilai default `http://10.0.2.2:8788` (emulator ke mesin host); tempat mengubah alamat ada di file ini
 
 ## Konvensi Pengembangan
 

@@ -150,7 +150,7 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
   }
 
   /// target_type 文案：后端 TARGET_REGISTRY 键 → 本地化文案；表外值直显原文
-  /// （与 approval_detail_page 同源，同 HarmonyOS ApprovalPage）。
+  /// （与 approval_detail_page 同源）。
   String _targetTypeLabel(dynamic raw) {
     final l = AppL10n.current;
     return switch ('${raw ?? ''}'.trim()) {
@@ -212,7 +212,7 @@ class _MyApprovalPageState extends State<MyApprovalPage> {
     return {
       l10n.fieldDocType: _targetTypeLabel(r['target_type']),
       // 单据 ID 不上屏：myApprovals 把 target_id 编成 hashid 下发，既不可读也无
-      // 可粘贴的去处（与 React/Angular 的「单据」列同样落「-」）
+      // 可粘贴的去处（与 Angular 的「单据」列同样落「-」）
       l10n.fieldDocId: '-',
       l10n.commonStatus: _chip(r['status']),
       l10n.fieldSubmitTime: fmtDateTime(r['submitted_at']),
