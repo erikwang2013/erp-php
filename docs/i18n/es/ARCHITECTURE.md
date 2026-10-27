@@ -1033,53 +1033,6 @@ Tras P3: Cors → SecurityFilter → RateLimit → TracingId → TenantScope →
 
 ---
 
-## 22. Multitenencia (capacidad reservada, no habilitada)
+## 22. Multi-Tenancy (Removed)
 
-> Aviso de copyright igual que el encabezado del archivo: Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-
-### 22.1 Posicionamiento y decisión
-
-La multitenencia se posiciona en este proyecto como **capacidad reservada**; en esta iteración **no se conecta ni se habilita** (degradación documentada). Coherente con la planificación:
-la facturación SaaS, el alta de tenant por autoservicio y demás "soluciones comerciales completas de multitenencia" no están dentro del alcance de este proyecto; en esta iteración solo se conserva el
-esqueleto mínimo de código (middleware + Trait de modelo) con los pasos de habilitación, para su activación posterior bajo demanda.
-Nota: el "aislamiento multitenant" del P3 de la hoja de ruta §21.2 se ajusta por tanto a "capacidad reservada (degradación documentada)", conservando el esqueleto sin conectarlo.
-
-Base de la decisión (revisión 2026-08):
-- Los despliegues existentes son casi todos de un solo tenant; conectarlo introduciría complejidad de aislamiento y riesgo de regresión innecesarios;
-- El esqueleto actual tiene defectos técnicos (ver 22.4), "conectarlo es aislarlo" no se sostiene; primero hay que corregir el diseño;
-- El aislamiento exige añadir columna por columna y habilitar modelo por modelo en las 227 tablas de negocio; el costo supera con creces la "conexión mínima".
-
-### 22.2 Hechos actuales (verificación de código y configuración)
-
-| Ítem | Estado actual |
-|----|------|
-| `app/middleware/TenantScope.php` | Existe, no registrado; lee el código de tenant de la cabecera `X-Tenant-Code` y consulta `erp_tenant` para inyectarlo en el contexto; si la cabecera falta, deja pasar directamente |
-| `app/model/concerns/TenantScope.php` | Existe; lo usan 4 modelos financieros (`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`, familia de empresa con `tenantScopeByCompany()` devolviendo true), filtrando por `company_id`; como el middleware no está registrado, el contexto de la solicitud no se inyecta y el scope global no surte efecto actualmente |
-| `config/middleware.php` | Cadena global: Cors → SecurityFilter → RateLimit → TracingId, sin TenantScope |
-| `config/route.php` grupo /admin/v1 | AdminAuth → AdminPermission → OperationLog, sin TenantScope |
-| Carga JWT | Solo `sub` / `username` / `token_type`, **sin declaración tenant_id** (`app/api/v1/controller/AuthController.php`) |
-| Base de datos | **Ninguna columna tenant_id en toda la base de datos** (tampoco en install.sql) |
-| Modelos | 4 modelos financieros hacen `use` del trait `TenantScope` (familia de empresa, filtra `company_id`) —— aislamiento piloto; sin contexto de tenant inyectado no aplican ningún filtro |
-
-### 22.3 Pasos de habilitación (referencia reservada, no ejecutar en esta iteración)
-
-1. Registrar el middleware: añadir `app\middleware\TenantScope::class` en el `middleware()` del grupo /admin/v1 de `config/route.php` (después de AdminAuth, garantizando autenticación).
-2. El solicitante envía `X-Tenant-Code` (cadena de código de tenant) en la cabecera de la solicitud.
-3. Añadir la columna `tenant_id` (BIGINT + índice) a las tablas de negocio que requieran aislamiento y rellenar los datos existentes;
-   las tablas de diccionario/sistema (como `erp_admin_user`, `erp_role`, `erp_permission`) no se aíslan.
-4. En las clases de modelo que requieran aislamiento, `use app\model\concerns\TenantScope;` para filtrar automáticamente por el tenant actual.
-5. (Opcional) Si se desea obtener el tenant del JWT en lugar de la cabecera: ampliar la carga del login para incluir la declaración `tenant_id`
-   y leerlo desde `$payload['tenant_id']` en el middleware.
-
-### 22.4 Limitaciones técnicas conocidas (deben resolverse antes de habilitar)
-
-- **Frontera de confianza (debe resolverse antes de registrar)**: el contexto de tenant proviene de la cabecera `X-Tenant-Code`, que es una entrada falsificable; habilitar el middleware antes de establecer el vínculo entre `erp_admin_user` y la empresa/tenant (determinación de pertenencia del administrador) dejaría una brecha de escalada de privilegios en el plano de datos (cualquier administrador autenticado podría declarar cualquier tenant y leer sus datos).
-- **La ruptura de la cadena de transmisión estática (medida en PHP 8.3) ha sido sustituida por la versión corregida de P2-4 B5**: el trait `TenantScope` ahora usa inyección por contexto de solicitud (`request()->tenantId` / `companyId`); esa ruta no tiene estado estático, con lo que desaparece la contaminación cruzada entre solicitudes dentro del proceso residente; la fachada estática por nombre de trait queda marcada como `@deprecated`, solo como respaldo para pruebas/CLI.
-- **Brecha en el plano de datos**: no hay columna tenant_id en toda la base de datos; requiere migración tabla por tabla; las tablas de diccionario compartidas entre tenants requieren un mecanismo de exención.
-
-### 22.5 Criterios de aceptación
-
-Aceptación de esta iteración = coherencia entre documentación y código: `config/middleware.php` y `config/route.php` no contienen
-registro de TenantScope; los comentarios del middleware indican "implementado, no registrado por defecto" y dan el punto de registro y la frontera de confianza;
-los comentarios del Trait indican la cadena de inyección por contexto de solicitud y la línea de regresión (sin contexto de tenant no participa en el filtrado);
-esta sección se corresponde punto por punto con el estado actual del código.
+Removed in 2026-10: the reserved middleware, model trait, `erp_tenant` table, and tenant admin pages are gone; the system is single-tenant.

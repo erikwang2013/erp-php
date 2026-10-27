@@ -1019,45 +1019,6 @@ P3 後:  Cors → SecurityFilter → RateLimit → TracingId → TenantScope →
 
 ---
 
-## 22. マルチテナント（予約機能、未有効化）
+## 22. Multi-Tenancy (Removed)
 
-> 著作権表示はファイルヘッダーと同じ：Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
-
-### 22.1 位置づけと判断
-
-マルチテナントは本プロジェクトでは**予約機能**として位置づけられ、今回の期間では**接続せず、有効化しない**（ドキュメント化されたデグレード）方針です。計画と一致し、SaaS 課金、テナントのセルフプロビジョニングなどの「マルチテナント完全商業化ソリューション」は本プロジェクトの建設範囲外；今回の期間では最小限のコード骨格（ミドルウェア + モデル Trait）のみ残し、有効化手順を提示して、今後の必要に応じた有効化に備えます。注：§21.2 ロードマップ P3 の「マルチテナント分離」はこれに合わせて「予約機能（ドキュメント化されたデグレード）」に調整され、骨格を残し、接続しません。
-
-判断根拠（2026-08 レビュー）：
-- 既存のデプロイはほぼすべてシングルテナントであり、接続すると不要な分離の複雑さとリグレッションリスクが生じる；
-- 現在の骨格には技術的欠陥がある（22.4 参照）、「接続すれば即分離」は成立せず、先に設計修正を完了する必要がある；
-- 分離には 227 テーブルのうち業務テーブルごとにカラム追加とモデルごとの有効化が必要で、コストが「最小限の接続」をはるかに超える。
-
-### 22.2 現状の事実（コードと設定の確認）
-
-| 項目 | 現状 |
-|----|------|
-| `app/middleware/TenantScope.php` | 存在するが未登録；`X-Tenant-Code` ヘッダーからテナントコードを読み取り、`erp_tenant` を照会してコンテキストに注入、ヘッダー欠落時はそのまま通過 |
-| `app/model/concerns/TenantScope.php` | 存在する；4 つの財務モデル（`FinanceLedger` / `FinanceBalanceSheet` / `FinanceCashFlow` / `FinanceProfit`、会社族 `tenantScopeByCompany()` が true を返す）が使用し、`company_id` でフィルタリング；ミドルウェアが未登録でリクエストコンテキストが注入されないため、グローバルスコープは現在有効ではありません |
-| `config/middleware.php` | グローバルチェーン：Cors → SecurityFilter → RateLimit → TracingId、TenantScope なし |
-| `config/route.php` /admin/v1 グループ | AdminAuth → AdminPermission → OperationLog、TenantScope なし |
-| JWT ペイロード | `sub` / `username` / `token_type` のみ、**tenant_id クレームなし**（`app/api/v1/controller/AuthController.php`） |
-| データベース | **全テーブルに tenant_id カラムなし**（install.sql にもなし） |
-| モデル | 4 つの財務モデルが `TenantScope` trait を使用（会社族、`company_id` でフィルタリング）——試験的な分離；テナントコンテキストが注入されない場合はいかなるフィルタリングも行いません |
-
-### 22.3 有効化手順（予約用の参考、今回の期間では実行しない）
-
-1. ミドルウェアを登録：`config/route.php` の /admin/v1 グループの `middleware()` に `app\middleware\TenantScope::class` を追加（AdminAuth の後に配置し、認証済みであることを保証）。
-2. リクエスト側はリクエストヘッダーに `X-Tenant-Code`（テナントコード文字列）を付与。
-3. 分離が必要な業務テーブルに `tenant_id` カラム（BIGINT + インデックス）を追加し、既存データをバックフィル；辞書/システムテーブル（例：`erp_admin_user`、`erp_role`、`erp_permission`）は分離しない。
-4. 分離が必要なモデルクラスで `use app\model\concerns\TenantScope;` を記述し、現在のテナントで自動フィルタリング。
-5. （任意）リクエストヘッダーではなく JWT からテナントを取得する場合：ログイン発行ペイロードを拡張して `tenant_id` クレームを追加し、ミドルウェアで `$payload['tenant_id']` から読み取る。
-
-### 22.4 既知の技術的制限（有効化前に必ず解決）
-
-- **信頼境界（登録前に必ず解決）**：テナントコンテキストの供給源は `X-Tenant-Code` リクエストヘッダーで、偽造可能な入力です；`erp_admin_user` と会社/テナントの紐付け（管理者の帰属判定）を確立する前に本ミドルウェアを有効化すると、権限外データへのアクセス缺口が生じます（任意の認証済み管理者が任意のテナントを宣言し、そのテナントが有効化されていればそのデータを読み取れてしまいます）。
-- **静的な受け渡しチェーンの断裂（PHP 8.3 実測）は P2-4 B5 修正版に置き換えられました**：`TenantScope` trait は現在リクエストコンテキスト注入（`request()->tenantId` / `companyId`）を通り、この経路に静的状態はなく、常駐プロセス内のリクエスト間クロストークも解消されています；trait 名の静的ファサードには `@deprecated` が付与され、テスト/CLI のフォールバック専用です。
-- **データプレーンのギャップ**：全テーブルに tenant_id カラムがないため、テーブルごとのマイグレーションが必要；テナント間で共有される辞書テーブルには免除メカニズムの設計が必要。
-
-### 22.5 受入基準
-
-今回の受入基準 = ドキュメントとコードの一致：`config/middleware.php` と `config/route.php` に TenantScope の登録が含まれない；ミドルウェアのコメントに「実装済み・既定では未登録」と明記され、登録点と信頼境界が示されている；Trait のコメントにリクエストコンテキスト注入の経路と回帰ライン（テナントコンテキストがない場合はフィルタリングに参加しない）が示されている；本節の記述がコードの現状と 1 件ずつ対応している。
+Removed in 2026-10: the reserved middleware, model trait, `erp_tenant` table, and tenant admin pages are gone; the system is single-tenant.
