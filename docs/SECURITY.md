@@ -486,7 +486,7 @@ OperationLog 中间件对 POST / PUT / DELETE 请求自动记录操作日志。G
 - **真实客户端 IP**：限流、操作日志、登录地点统一使用 `SecurityFilter::clientIp()`，只采信内网代理追加的 `X-Forwarded-For` 最右一跳；不再信任客户端可伪造的最左值。
 - **操作日志 PII**：`OperationLog::redactPayload()` 递归脱敏凭据与电话/邮箱/身份证/银行账号/地址/联系人等字段，`operation_log.input` 不再落明文 PII。
 - **报表权限边界**：报表构建器拒绝管理员/系统配置/开放平台等敏感表及密码/密钥/令牌/PII 列；无字段不再 `SELECT *`；`result()` 对历史数据集按落库 `query_sql` 复核，敏感旧数据集返回 422。
-- **Webhook SSRF**：仅允许公网 http(s) 与配置的端口白名单（默认 80/443），拒绝 localhost/私网/链路本地/CGNAT/文档网段；投递前重新校验，curl 不跟随重定向。
+- **Webhook SSRF**：仅允许公网 http(s) 与配置的端口白名单（默认 80/443），拒绝 localhost/私网/链路本地/CGNAT/文档网段；投递前重新校验，并用 `CURLOPT_RESOLVE` 固定已校验 IP（域名同时解析 A/AAAA）；curl 不跟随重定向。
 - **银行账号**：`account_number` 写入自动加密（兼容历史明文读取），列表/详情只返回后 4 位掩码；关键字检索不再匹配账号列。
 
 ---

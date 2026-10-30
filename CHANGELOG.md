@@ -10,7 +10,7 @@
 - **报表构建器**：敏感表/敏感列/PII 列拒绝（`password/secret/token/id_card/phone/email/address_line1/contact_person` 等）；无字段不再回退 `SELECT *`；`result()` 按历史数据集 `query_sql` 复核，敏感旧数据集返回 422。
 - **IP 身份**：限流、操作日志、登录地点统一使用 `SecurityFilter::clientIp()`，不再信任可伪造的 `X-Forwarded-For` 最左值。
 - **操作日志**：递归脱敏 PII（phone/email/id_card/bank_account/address_line1/2/contact_name/contact_person/phone_number 等）。
-- **Webhook SSRF**：拒绝 localhost/私网/链路本地/CGNAT/文档网段；端口白名单配置化（`config/openapi.php` 的 `webhook.allowed_ports`，默认 80/443）。
+- **Webhook SSRF**：拒绝 localhost/私网/链路本地/CGNAT/文档网段；端口白名单配置化（`config/openapi.php` 的 `webhook.allowed_ports`，默认 80/443）；投递时用 `CURLOPT_RESOLVE` 固定已校验 IP，域名同时解析 A/AAAA，curl 不跟随重定向。
 - **银行账号**：新写入自动加密，列表/详情只返回后 4 位掩码；新增历史明文迁移脚本。
 - `symfony/mime` 升级至 7.4.22（CVE-2026-45070），`composer audit` 无漏洞。
 
@@ -48,7 +48,6 @@
 
 ### 已知限制
 - 报表历史 SQL 判定为正则而非 SQL 解析器，未列入清单的 PII 列或刻意注释混淆仍可能漏判。
-- Webhook 校验与 curl 实际解析之间仍有 DNS rebinding TOCTOU 窗口；纯 IPv6 域名会被拒绝。
 - 并发正确性主要由锁序断言 + 单连接真库回滚验证覆盖，未做双连接压力测试。
 - 历史已删除的已审核收付款单、旧报表数据集造成的账实差异需单独数据修复。
 - 跨主机 Snowflake 节点唯一性依赖运维设置不同环境基值；runtime 目录需支持 `flock`。
