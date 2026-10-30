@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace app\controller\sales;
 
 use app\admin\controller\BaseController;
+use app\common\OrderStatusMachine;
+use app\common\StockLockOrder;
 use app\model\SalesDelivery;
 use app\model\SalesDeliveryItem;
 use app\model\SalesOrder;
@@ -157,9 +159,10 @@ class DeliveryController extends BaseController
         if (!$order) {
             return $this->fail($this->trans('Sales order not found'), 404);
         }
-
-        // 预取订单明细（按 id 索引），供归属校验与超发校验使用
-        $orderItems = SalesOrderItem::query()->where('order_id', $orderId)->get()->keyBy('id');
+        // 仅已审核/部分发货订单可发货：待审核、已完成、已取消的订单都不允许再出库
+        if (!OrderStatusMachine::canDeliverOrReceive((int) $order->status)) {
+            return $this->fail('订单状态不允许发货：仅已审核或部分发货订单可创建发货单', 422);
+        }
 
         // 信用控制前置拦截（事务外）：冻结/额度/账期超期任一不过即 422 业务拒绝
         // 发货为在途占用→应收 1:1 平移，额度占用已含本次实发，无需额外累加；
@@ -173,6 +176,17 @@ class DeliveryController extends BaseController
 
         DB::beginTransaction();
         try {
+            // 与取消/删除/审核共用订单行锁：锁后复核状态，取消先提交时这里必须看到 4 并拒绝
+            $order = SalesOrder::query()->whereKey($orderId)->lockForUpdate()->first();
+            if (!$order) {
+                throw new \RuntimeException($this->trans('Sales order not found'));
+            }
+            if (!OrderStatusMachine::canDeliverOrReceive((int) $order->status)) {
+                throw new \RuntimeException('订单状态不允许发货：仅已审核或部分发货订单可创建发货单');
+            }
+            // 锁后重取订单明细（按 id 索引）：等锁期间订单明细可能被替换
+            $orderItems = SalesOrderItem::query()->where('order_id', $orderId)->get()->keyBy('id');
+
             // 1. 创建发货单头
             $delivery = new SalesDelivery();
             $delivery->id = $this->generateId();
@@ -196,7 +210,8 @@ class DeliveryController extends BaseController
             $financeService = Container::get(FinanceService::class);
             $totalDeliveryAmount = '0';
 
-            // 2. 创建发货明细 + 执行出库
+            // 2. 解码/校验明细（逐行锁订单明细做超发校验），先收集再统一排序
+            $lines = [];
             foreach ($request->input('items') as $itemData) {
                 // 明细外键同采购收货一套双模解码（hashid 或原生数字）：product_id 缺失/无效必须拒绝
                 // （落 0 会出库到无商品的行），其余三个是可选归属列，无法解析即按「未提供」落 0
@@ -212,7 +227,6 @@ class DeliveryController extends BaseController
                 $amount = bc_round(bcmul($quantity, $price, 6), 2);
                 $batchCode = $itemData['batch_code'] ?? '';
                 $unit = $itemData['unit'] ?? '';
-                $totalDeliveryAmount = bcadd($totalDeliveryAmount, $amount, 6);
 
                 // order_item_id 缺省时按商品反查本单明细行：本单该商品恰好一行才可判定，
                 // 0 行（商品不在本单）或多行（同商品多行，价/批不同）都必须让调用方显式指定
@@ -250,39 +264,56 @@ class DeliveryController extends BaseController
                     );
                 }
 
+                $lines[] = [
+                    'product_id' => $productId,
+                    'sku_id' => $skuId,
+                    'location_id' => $locationId,
+                    'batch_code' => $batchCode,
+                    'order_item_id' => $orderItemId,
+                    'quantity' => $quantity,
+                    'price' => $price,
+                    'amount' => $amount,
+                    'unit' => $unit,
+                ];
+            }
+
+            // 3. 按库存维度全局排序后再出库：两单明细顺序相反时不会对同一库存行互等（1213），
+            // 明细落库顺序与金额累计随排序变化，不影响业务
+            foreach (StockLockOrder::sort($lines) as $line) {
                 // 创建发货明细
                 $deliveryItem = new SalesDeliveryItem();
                 $deliveryItem->id = $this->generateId();
                 $deliveryItem->delivery_id = $delivery->id;
-                $deliveryItem->order_item_id = $orderItemId;
-                $deliveryItem->product_id = $productId;
-                $deliveryItem->sku_id = $skuId;
-                $deliveryItem->location_id = $locationId;
-                $deliveryItem->batch_code = $batchCode;
-                $deliveryItem->quantity = $quantity;
-                $deliveryItem->price = $price;
-                $deliveryItem->amount = $amount;
-                $deliveryItem->unit = $unit;
+                $deliveryItem->order_item_id = $line['order_item_id'];
+                $deliveryItem->product_id = $line['product_id'];
+                $deliveryItem->sku_id = $line['sku_id'];
+                $deliveryItem->location_id = $line['location_id'];
+                $deliveryItem->batch_code = $line['batch_code'];
+                $deliveryItem->quantity = $line['quantity'];
+                $deliveryItem->price = $line['price'];
+                $deliveryItem->amount = $line['amount'];
+                $deliveryItem->unit = $line['unit'];
                 $deliveryItem->save();
 
                 // 调用库存服务 — 出库
                 $inventoryService->stockOut(
-                    $productId,
-                    $skuId,
+                    $line['product_id'],
+                    $line['sku_id'],
                     $delivery->warehouse_id,
-                    $locationId,
-                    $batchCode,
-                    (float) $quantity,
+                    $line['location_id'],
+                    $line['batch_code'],
+                    (float) $line['quantity'],
                     'sales_delivery',
                     $delivery->id
                 );
+                $totalDeliveryAmount = bcadd($totalDeliveryAmount, $line['amount'], 6);
             }
 
-            // 3. 更新发货单状态为已发货
+            // 4. 更新发货单状态为已发货
             $delivery->status = 1;
             $delivery->save();
 
-            // 4. 生成应收记录（跨模块：销售 → 财务）
+            // 5. 生成应收记录（跨模块：销售 → 财务）
             $financeService->createAr(
                 $delivery->customer_id,
                 'sales_delivery',
@@ -291,7 +322,7 @@ class DeliveryController extends BaseController
                 $dueDate
             );
 
-            // 5. 更新销售订单状态
+            // 6. 更新销售订单状态
             $this->updateOrderStatus($order, $delivery->id);
 
             DB::commit();

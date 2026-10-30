@@ -1013,3 +1013,15 @@ After P3: Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgra
 ## 22. Multi-Tenancy (Removed)
 
 Removed in 2026-10: the reserved middleware, model trait, `erp_tenant` table, and tenant admin pages are gone; the system is single-tenant.
+
+---
+
+## 23. Hardening Notes (2026-10-30)
+
+- **Snowflake nodes**: each worker process acquires a unique node through a `runtime/snowflake/node-*.lock` file lock at startup (up to 1024 processes); multi-host deployments must set distinct `SNOWFLAKE_WORKER_ID/DATACENTER_ID` values.
+- **Inventory lock order**: all multi-line inventory actions (delivery, receiving, WMS putaway, manufacturing material issue/subcontract, RMA, OMS reservation/consumption) sort by `product_id, sku_id, warehouse_id, location_id, batch_code` before execution; pessimistic locks on inventory flows are acquired in ascending SKU-row id order.
+- **Inventory ledger**: flows are read-only; inventory rows can only be deleted at zero quantity; quantity/cost/dimensions cannot be edited directly.
+- **Order state**: manual actions are limited to approval/cancellation; delivery/receiving require the parent order to be approved or partially fulfilled; cancellation/deletion/delivery/receiving share the order row lock.
+- **Reports**: sensitive tables/columns/PII are rejected; empty field lists do not run full-table queries; historical datasets are re-checked against their stored SQL.
+- **Receipts/payments**: approval updates the bank balance and cash journal in one transaction; bank-account editing does not write balance.
+- **TMS**: the state graph allows forward transitions, exception recovery, and same-status idempotency.

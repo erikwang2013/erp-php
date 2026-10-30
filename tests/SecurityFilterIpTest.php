@@ -108,4 +108,26 @@ class SecurityFilterIpTest extends TestCase
             SecurityFilter::resolveIp('10.0.0.1', ' 1.2.3.4 ,  203.0.113.9  ')
         );
     }
+
+    /**
+     * 限流、操作日志、登录/刷新 IP 必须走 SecurityFilter::clientIp()；
+     * 代码行（不含注释）里不得再出现可被 XFF 最左值伪造的 getRealIp()。
+     */
+    public function testIpConsumersUseSecurityFilterClientIp(): void
+    {
+        $files = [
+            __DIR__ . '/../app/middleware/RateLimit.php',
+            __DIR__ . '/../app/middleware/OperationLog.php',
+            __DIR__ . '/../app/api/v1/controller/AuthController.php',
+        ];
+        foreach ($files as $file) {
+            $code = implode("\n", array_filter(
+                file($file, FILE_IGNORE_NEW_LINES) ?: [],
+                static fn (string $line): bool => !preg_match('#^\s*(?://|/\*|\*)#', $line)
+            ));
+            $name = basename($file);
+            $this->assertStringNotContainsString('getRealIp()', $code, "{$name} 不应再使用可伪造的 getRealIp()");
+            $this->assertStringContainsString('SecurityFilter::clientIp(', $code, "{$name} 应使用 SecurityFilter::clientIp()");
+        }
+    }
 }

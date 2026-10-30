@@ -91,10 +91,20 @@ class ProjectController extends BaseController
         // 负责人展示名（行级同查询无 N+1）；manager_user_id 一并编码，编辑弹窗回填同源选项
         $managerIds = array_values(array_unique(array_map(fn ($r) => (int) ($r['manager_user_id'] ?? 0), $rows)));
         $managerNames = AdminUser::whereIn('id', $managerIds)->pluck('real_name', 'id');
-        $list = array_map(function ($row) use ($managerNames) {
+
+        // 进度一次 GROUP BY 聚合，避免逐项目查任务（limit=500 时 500 次查询）
+        $projectIds = array_map(static fn ($r) => (int) $r['id'], $rows);
+        $avgProgress = $projectIds
+            ? ProjectTask::query()->whereIn('project_id', $projectIds)
+                ->selectRaw('project_id, AVG(progress) as avg_progress')
+                ->groupBy('project_id')
+                ->pluck('avg_progress', 'project_id')
+                ->toArray()
+            : [];
+
+        $list = array_map(function ($row) use ($managerNames, $avgProgress) {
             $row['manager_name'] = (string) ($managerNames[(int) ($row['manager_user_id'] ?? 0)] ?? '');
-            // 计算实际进度
-            $row['progress'] = $this->calcProgress($row['id']);
+            $row['progress'] = self::progressFromAvg($avgProgress[(int) $row['id']] ?? null);
 
             return $this->encodeIds($row, ['id', 'manager_user_id', 'customer_id']);
         }, $rows);
@@ -269,6 +279,15 @@ class ProjectController extends BaseController
         $item->delete();
 
         return $this->success([], $this->trans('Deleted successfully'));
+    }
+
+    /**
+     * 任务进度均值 → 项目进度（纯函数，可单测）：无任务为 0，四舍五入取整。
+     * 与 calcProgress 同口径（bcmath half-up）。
+     */
+    public static function progressFromAvg(mixed $avg): int
+    {
+        return $avg === null ? 0 : (int) bc_round(bc_norm($avg), 0);
     }
 
     /**

@@ -156,6 +156,11 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
       applies = _primed(applies, row, 'apply_id', 'apply_code');
       warehouses = _primed(warehouses, row, 'warehouse_id', 'warehouse_name');
     }
+    // 新建只允许 0=待审核 / 1=已审核：2/3 由收货动作写入，4 不经新建表单产生；
+    // 编辑态保留全部选项以便回填既有 2/3 值（后端 update 会按状态机拒绝非法流转）。
+    final statusOptions = row == null
+        ? const [0, 1]
+        : [for (var i = 0; i < _statusLabels.length; i++) i];
     // 可空外键 length>1 才算「有真选项」（1 是那枚空选项），否则退回文本框
     return [
       // 表无「订单编号」录入项：单号由后端生成，列表/详情可见（见 _buildPayload 注释）
@@ -174,7 +179,7 @@ class _PurchaseOrderListPageState extends State<PurchaseOrderListPage> {
         hint: l10n.purchaseZeroHint),
       FormFieldConfig(name: 'total_amount', label: l10n.purchaseOrderTotalAmount, type: FormFieldType.number, hint: l10n.purchaseOrderTotalHint),
       FormFieldConfig(name: 'status', label: l10n.commonStatus, type: FormFieldType.dropdown,
-        options: [for (var i = 0; i < _statusLabels.length; i++) _statusOption(i)], initialValue: _statusOption(0)),
+        options: [for (final i in statusOptions) _statusOption(i)], initialValue: _statusOption(0)),
       FormFieldConfig(name: 'ordered_at', label: l10n.purchaseOrderTimeLabel, initialValue: defaultOrderedAt,
         hint: l10n.purchaseDateTimeHint),
       FormFieldConfig(name: 'remark', label: l10n.purchaseRemark, type: FormFieldType.multiline),

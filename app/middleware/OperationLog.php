@@ -27,8 +27,8 @@ class OperationLog implements MiddlewareInterface
         $response = $handler($request);
 
         try {
-            // 递归过滤敏感字段
-            $input = $this->filterSensitive($request->all());
+            // 递归脱敏凭据与个人敏感信息
+            $input = self::redactPayload($request->all());
 
             $log = new \app\model\OperationLog();
             $log->id = SnowflakeService::generate();
@@ -36,7 +36,7 @@ class OperationLog implements MiddlewareInterface
             $log->action = $method;
             $log->method = $method;
             $log->path = $request->path();
-            $log->ip = $request->getRealIp();
+            $log->ip = SecurityFilter::clientIp($request);
             $log->source = $this->detectSource($request);
             $log->input = json_encode($input, JSON_UNESCAPED_UNICODE);
             $log->created_at = date('Y-m-d H:i:s');
@@ -51,16 +51,35 @@ class OperationLog implements MiddlewareInterface
     }
 
     /**
-     * 递归过滤敏感字段，防止密码等泄露到日志
+     * 递归脱敏凭据与个人敏感信息，防止明文落入 operation_log.input。
+     *
+     * 键名按「小写 + 去下划线」归一，兼容 snake_case 与 camelCase（phone / Phone / contactPhone）。
+     * 公开静态方法便于单测直接夹逼。
      */
-    private function filterSensitive(array $data): array
+    public static function redactPayload(array $data): array
     {
-        $keys = ['password', 'old_password', 'new_password', 'new_password_confirmation', 'token', 'secret', 'access_token', 'refresh_token'];
+        static $keys = null;
+        if ($keys === null) {
+            $keys = array_flip(array_map(
+                static fn (string $key): string => str_replace('_', '', $key),
+                [
+                    // 凭据
+                    'password', 'password_confirmation', 'old_password', 'new_password', 'new_password_confirmation',
+                    'token', 'access_token', 'refresh_token', 'api_token', 'secret', 'app_secret', 'client_secret',
+                    // 个人/财务敏感信息
+                    'phone', 'mobile', 'email', 'contact_email', 'id_card', 'bank_account', 'account_number',
+                    'tax_number', 'emergency_phone', 'contact_phone', 'address', 'billing_address', 'shipping_address',
+                    'address_line1', 'address_line2', 'contact_name', 'contact_person', 'phone_number',
+                    'emergency_contact', 'birthday',
+                ]
+            ));
+        }
         foreach ($data as $key => $value) {
-            if (in_array($key, $keys, true)) {
+            $normalized = strtolower(str_replace('_', '', (string) $key));
+            if (isset($keys[$normalized])) {
                 $data[$key] = '***';
             } elseif (is_array($value)) {
-                $data[$key] = $this->filterSensitive($value);
+                $data[$key] = self::redactPayload($value);
             }
         }
 

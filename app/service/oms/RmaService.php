@@ -108,7 +108,11 @@ class RmaService
                 throw new \RuntimeException('请等待退货寄回');
             }
 
-            $items = OmsRmaItem::where('rma_id', $rmaId)->get();
+            // 按库存维度排序后逐行入库：锁序与其它模块统一，避免两单明细顺序相反时跨 SKU 死锁
+            $items = OmsRmaItem::where('rma_id', $rmaId)
+                ->orderBy('product_id')
+                ->orderBy('sku_id')
+                ->get();
             foreach ($items as $item) {
                 // 入库成本取原出库成本，避免用销售价污染加权平均成本
                 $cost = $this->getReturnCostBasis($item->product_id, $item->sku_id);

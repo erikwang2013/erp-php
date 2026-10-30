@@ -51,11 +51,9 @@ class BankAccountController extends BaseController
 
         $query = FinanceBankAccount::query();
         if ($keyword) {
-            // 表无 code 列（真实列 id/name/account_number/bank_name/balance/status）：
-            // 原 orWhere('code') 一搜就 1054，改搜真实列账号/开户行
+            // account_number 已加密存储，密文无法 LIKE；关键字只搜账户名/开户行
             $query->where(function ($q) use ($keyword) {
                 $q->where('name', 'like', "%{$keyword}%")
-                  ->orWhere('account_number', 'like', "%{$keyword}%")
                   ->orWhere('bank_name', 'like', "%{$keyword}%");
             });
         }
@@ -66,7 +64,10 @@ class BankAccountController extends BaseController
         $total = $query->count();
         $list = $query->offset(($page - 1) * $limit)
             ->limit($limit)->orderBy('id', 'desc')
-            ->get()->map(fn ($item) => $this->encodeIds($item->toArray()));
+            ->get()->map(function ($item) {
+                /** @var FinanceBankAccount $item */
+                return $this->present($item);
+            });
 
         return $this->successPage($list, $total, $page, $limit);
     }
@@ -96,10 +97,14 @@ class BankAccountController extends BaseController
 
         $item = new FinanceBankAccount();
         $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
+        $data = $request->only($item->getFillable());
+        if (FinanceBankAccount::isMaskedAccountNumber($data['account_number'] ?? null)) {
+            unset($data['account_number']); // 掩码不是真实账号，不能入库
+        }
+        $item->fill($data);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
+        return $this->success($this->present($item), $this->trans('Created successfully'));
     }
 
     /**
@@ -129,7 +134,7 @@ class BankAccountController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        return $this->success($this->encodeIds($item->toArray()));
+        return $this->success($this->present($item));
     }
 
     /**
@@ -162,10 +167,15 @@ class BankAccountController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
-        $this->fillModelFromRequest($item, $request);
+        $data = $request->only($item->getFillable());
+        unset($data['balance']); // 余额只由流水在行锁内变更，整单提交不得用旧值覆盖并发审核结果
+        if (FinanceBankAccount::isMaskedAccountNumber($data['account_number'] ?? null)) {
+            unset($data['account_number']); // 前端回存列表下发的掩码时保留原账号
+        }
+        $item->fill($data);
         $item->save();
 
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
+        return $this->success($this->present($item), $this->trans('Updated successfully'));
     }
 
     /**
@@ -205,5 +215,16 @@ class BankAccountController extends BaseController
         $item->delete();
 
         return $this->success([], $this->trans('Deleted successfully'));
+    }
+
+    /**
+     * 响应呈现：账号只下发脱敏值（保留后 4 位），再统一编码 ID。
+     */
+    private function present(FinanceBankAccount $item): array
+    {
+        $data = $item->toArray();
+        $data['account_number'] = FinanceBankAccount::maskAccountNumber((string) ($data['account_number'] ?? ''));
+
+        return $this->encodeIds($data);
     }
 }

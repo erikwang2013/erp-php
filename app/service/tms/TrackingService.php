@@ -10,6 +10,7 @@ namespace app\service\tms;
 use app\common\SnowflakeService;
 use app\model\TmsShipment;
 use app\model\TmsTrackingEvent;
+use Illuminate\Database\Capsule\Manager as DB;
 
 class TrackingService
 {
@@ -40,19 +41,22 @@ class TrackingService
         $shipmentSvc = new TmsShipmentService();
         $statusMap = ['picked_up' => 1, 'in_transit' => 2, 'out_for_delivery' => 2, 'delivered' => 3, 'exception' => 4, 'returned' => 5];
 
-        foreach ($events as $evt) {
-            $this->recordEvent(
-                $shipment->id,
-                $evt['status_code'] ?? '',
-                $evt['description'] ?? '',
-                $evt['location'] ?? '',
-                $evt['event_time'] ?? null,
-                $evt['raw_data'] ?? null
-            );
-            $newStatus = $statusMap[$evt['status_code'] ?? ''] ?? null;
-            if ($newStatus !== null) {
-                $shipmentSvc->updateStatus($shipment->id, $newStatus);
+        // 整批事件原子处理：任一事件失败则轨迹与运单状态一并回滚，避免半写入
+        DB::connection()->transaction(function () use ($shipment, $events, $statusMap, $shipmentSvc) {
+            foreach ($events as $evt) {
+                $this->recordEvent(
+                    $shipment->id,
+                    $evt['status_code'] ?? '',
+                    $evt['description'] ?? '',
+                    $evt['location'] ?? '',
+                    $evt['event_time'] ?? null,
+                    $evt['raw_data'] ?? null
+                );
+                $newStatus = $statusMap[$evt['status_code'] ?? ''] ?? null;
+                if ($newStatus !== null) {
+                    $shipmentSvc->updateStatus($shipment->id, $newStatus);
+                }
             }
-        }
+        });
     }
 }

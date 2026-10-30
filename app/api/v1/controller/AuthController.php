@@ -171,7 +171,7 @@ class AuthController
 
         // 更新登录信息
         $user->last_login_at = date('Y-m-d H:i:s');
-        $user->last_login_ip = $request->getRealIp();
+        $user->last_login_ip = $clientIp;
         $user->save();
 
         return json([
@@ -331,7 +331,7 @@ class AuthController
                 $user = AdminUser::find($userId);
                 if ($user) {
                     $user->last_login_at = date('Y-m-d H:i:s');
-                    $user->last_login_ip = $request->getRealIp();
+                    $user->last_login_ip = SecurityFilter::clientIp($request);
                     $user->save();
                 }
             }

@@ -2,6 +2,57 @@
 
 > Copyright (c) 2026 erik <erik@erik.xyz> — https://erik.xyz
 
+## v1.19.28 (2026-10-30)
+
+**安全、并发与财务一致性加固批**：修复全仓审计发现的 19 项问题及 reviewer 追加的 12 项问题。范围：后端安全/事务/锁序、报表与库存台账、财务记账、WMS/TMS、性能与前端状态值域；无视觉资产变更。
+
+### 安全
+- **报表构建器**：敏感表/敏感列/PII 列拒绝（`password/secret/token/id_card/phone/email/address_line1/contact_person` 等）；无字段不再回退 `SELECT *`；`result()` 按历史数据集 `query_sql` 复核，敏感旧数据集返回 422。
+- **IP 身份**：限流、操作日志、登录地点统一使用 `SecurityFilter::clientIp()`，不再信任可伪造的 `X-Forwarded-For` 最左值。
+- **操作日志**：递归脱敏 PII（phone/email/id_card/bank_account/address_line1/2/contact_name/contact_person/phone_number 等）。
+- **Webhook SSRF**：拒绝 localhost/私网/链路本地/CGNAT/文档网段；端口白名单配置化（`config/openapi.php` 的 `webhook.allowed_ports`，默认 80/443）。
+- **银行账号**：新写入自动加密，列表/详情只返回后 4 位掩码；新增历史明文迁移脚本。
+- `symfony/mime` 升级至 7.4.22（CVE-2026-45070），`composer audit` 无漏洞。
+
+### 并发与数据一致性
+- **Snowflake**：Worker 进程启动时用 `runtime/snowflake/node-*.lock` 文件锁注册唯一节点；单机 1024 进程上限，跨主机需设置不同 `SNOWFLAKE_WORKER_ID/DATACENTER_ID`。
+- **库存锁序**：发货、收货、WMS 上架、生产领料/委外、RMA 入库、OMS 预占/消耗全部按库存五元组排序后执行，消除跨单据反向明细死锁。
+- **WMS 防重**：收货校验 ASN 商品归属与预收数量；上架锁任务并复核收货单/ASN 状态；上架任务 status 禁止通用 PUT 修改。
+- **库存台账**：库存流水只读（移除 PUT/DELETE）；库存行只允许删除数量为 0 的记录；quantity/cost_price/商品/仓库/库位/批次禁止直接改。
+- **订单状态机**：只允许人工审核/取消（0→1、0→4、1→4/同值）；发货/收货要求父单 1/2；取消/删除/发货/收货共用订单行锁；删除检查软删除发货/收货记录。
+- **收付款**：审核入账事务 + 行锁，余额与现金日记账同步；重复审核 422；已审核单据禁止硬删除；银行账户编辑忽略 balance，防止覆盖并发记账。
+- **薪资**：批量生成 `insertOrIgnore`，单条唯一键冲突转 422；升级 SQL 补 `uk_employee_period`。
+- **TMS**：恢复前向状态跳转、异常恢复与同状态幂等；回调整批事务。
+- **MRP**：按计划期间销售订单汇总需求 × BOM 用量，不再把单件 BOM 用量当毛需求。
+
+### 性能与体验
+- 仪表盘账龄改单条 SQL CASE 聚合；日期条件改半开区间；补订单/收付款/OMS/TMS 索引；Redis 故障 fail-open 回源。
+- 项目列表去掉逐项目 N+1。
+- Excel 导出移除 PHP 8.5 非数字字符串自增，修复导出 500。
+- Flutter 新建订单状态只允许 0/1，编辑保留原值。
+
+### 升级与迁移
+- 存量库执行 `database/upgrade-2026-10-30.sql`（幂等加索引/薪资唯一键；有重复薪资会中止，需先人工去重）。
+- 历史银行账号明文：`php scripts/encrypt-bank-accounts.php`（默认 dry-run，`--apply` 写库）。
+- 历史敏感报表数据集：`php scripts/cleanup-report-datasets.php`（默认 dry-run，`--apply` 删除不安全副本）。
+- 非标准 Webhook 端口需加入 `config/openapi.php` 的 `allowed_ports`。
+- 本机 `.env.example` 的 OpenSearch 默认地址改为 `http://127.0.0.1:9200`（默认安装为明文 HTTP；启用 TLS 时再改 https）。
+
+### 验证
+- `vendor/bin/phpunit --testsuite Unit --no-coverage`：**711 tests / 31,438 assertions 通过**（28 skipped 为缺 `TEST_DB_*` 的集成用例；18 条 deprecation 为既有）。
+- `vendor/bin/phpstan analyse --memory-limit=1G`：**No errors**。
+- `composer audit`：**No security vulnerability advisories**。
+- 全部改动 PHP 文件 `php -l` 通过；Flutter 两个订单页 `dart analyze` 无问题。
+- 多个模块用本地真库回滚事务验证了库存、收付款记账、订单锁等关键路径；完整 Integration 套件仍需 `TEST_DB_*` 环境。
+- 文档统计、文档镜像、吉祥物资产门禁均已本地复核；本次无图片源变更。
+
+### 已知限制
+- 报表历史 SQL 判定为正则而非 SQL 解析器，未列入清单的 PII 列或刻意注释混淆仍可能漏判。
+- Webhook 校验与 curl 实际解析之间仍有 DNS rebinding TOCTOU 窗口；纯 IPv6 域名会被拒绝。
+- 并发正确性主要由锁序断言 + 单连接真库回滚验证覆盖，未做双连接压力测试。
+- 历史已删除的已审核收付款单、旧报表数据集造成的账实差异需单独数据修复。
+- 跨主机 Snowflake 节点唯一性依赖运维设置不同环境基值；runtime 目录需支持 `flock`。
+
 ## v1.19.20 (2026-10-19)
 
 **项目宠物去背景批**：小八爪的视觉资产去掉圆形徽章底色，改为透明背景。范围：**0 代码逻辑改动**（SVG 源 + 生成位图 + 生成器/门禁说明）。

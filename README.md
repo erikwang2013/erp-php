@@ -187,7 +187,7 @@ open-erp/
 │   ├── e2e-seed.sql             # E2E/CI 最小种子
 │   └── backup/                 # 备份/恢复脚本
 ├── docs/                       # 架构、设计、安全、API 文档
-├── tests/                      # PHPUnit 测试（102[](#stats:test_files=102) 个测试文件，933[](#stats:tests=933) 个测试方法，4178[](#stats:assertions=4178) 条断言；口径见 docs/FUNCTIONS.md 附录）
+├── tests/                      # PHPUnit 测试（111[](#stats:test_files=111) 个测试文件，1018[](#stats:tests=1018) 个测试方法，4482[](#stats:assertions=4482) 条断言；口径见 docs/FUNCTIONS.md 附录）
 ├── resource/
 │   └── translations/           # 13 语种后端消息词典 (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
 │       ├── zh_CN/              # 中文翻译 (565 条)
@@ -532,6 +532,7 @@ Cors（跨域预处理 + 响应头）
 - **并发会话限制**：同一用户最多 3 个有效 Token，超出时最旧 Token 自动加入黑名单
 - **security.txt**：`GET /.well-known/security.txt` 提供 RFC 9116 标准安全联系信息
 - **Nginx 安全配置**：参考 `docs/nginx-security.conf` 提供完整的反向代理安全加固示例
+- **2026-10-30 加固**：报表敏感表/列/PII 拒绝、历史数据集回放复核、操作日志 PII 脱敏、限流/审计使用真实客户端 IP、Webhook SSRF 与端口白名单、银行账号加密/掩码；详见 `CHANGELOG.md` v1.19.28
 
 ### 认证
 

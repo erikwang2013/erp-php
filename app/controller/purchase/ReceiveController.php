@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace app\controller\purchase;
 
 use app\admin\controller\BaseController;
+use app\common\OrderStatusMachine;
+use app\common\StockLockOrder;
 use app\model\PurchaseOrder;
 use app\model\PurchaseOrderItem;
 use app\model\PurchaseReceive;
@@ -160,12 +162,24 @@ class ReceiveController extends BaseController
         if (!$order) {
             return $this->fail($this->trans('Purchase order not found'), 404);
         }
-
-        // 预取订单明细（按 id 索引），供归属校验与超收校验使用
-        $orderItems = PurchaseOrderItem::query()->where('order_id', $orderId)->get()->keyBy('id');
+        // 仅已审核/部分收货订单可收货：待审核、已完成、已取消的订单都不允许再入库
+        if (!OrderStatusMachine::canDeliverOrReceive((int) $order->status)) {
+            return $this->fail('订单状态不允许收货：仅已审核或部分收货订单可创建收货单', 422);
+        }
 
         DB::beginTransaction();
         try {
+            // 与取消/删除/审核共用订单行锁：锁后复核状态，取消先提交时这里必须看到 4 并拒绝
+            $order = PurchaseOrder::query()->whereKey($orderId)->lockForUpdate()->first();
+            if (!$order) {
+                throw new \RuntimeException($this->trans('Purchase order not found'));
+            }
+            if (!OrderStatusMachine::canDeliverOrReceive((int) $order->status)) {
+                throw new \RuntimeException('订单状态不允许收货：仅已审核或部分收货订单可创建收货单');
+            }
+            // 锁后重取订单明细（按 id 索引）：等锁期间订单明细可能被替换
+            $orderItems = PurchaseOrderItem::query()->where('order_id', $orderId)->get()->keyBy('id');
+
             // 1. 创建收货单头
             $receive = new PurchaseReceive();
             $receive->id = $this->generateId();
@@ -189,7 +203,8 @@ class ReceiveController extends BaseController
             $financeService = Container::get(FinanceService::class);
             $totalReceiveAmount = '0';
 
-            // 2. 创建收货明细 + 执行入库
+            // 2. 解码/校验明细（逐行锁订单明细做超收校验），先收集再统一排序
+            $lines = [];
             foreach ($request->input('items') as $itemData) {
                 // 明细四个外键同一套双模解码；product_id 缺失/无效必须拒绝（写 0 会入库到
                 // 无商品的行），其余三个是可选归属列，无法解析即按「未提供」落 0
@@ -205,7 +220,6 @@ class ReceiveController extends BaseController
                 $amount = bc_round(bcmul($quantity, $price, 6), 2);
                 $batchCode = $itemData['batch_code'] ?? '';
                 $unit = $itemData['unit'] ?? '';
-                $totalReceiveAmount = bcadd($totalReceiveAmount, $amount, 6);
 
                 // order_item_id 缺省时按商品反查本单明细行：本单该商品恰好一行才可判定，
                 // 0 行（商品不在本单）或多行（同商品多行，价/批不同）都必须让调用方显式指定
@@ -245,40 +259,57 @@ class ReceiveController extends BaseController
                     );
                 }
 
+                $lines[] = [
+                    'product_id' => $productId,
+                    'sku_id' => $skuId,
+                    'location_id' => $locationId,
+                    'batch_code' => $batchCode,
+                    'order_item_id' => $orderItemId,
+                    'quantity' => $quantity,
+                    'price' => $price,
+                    'amount' => $amount,
+                    'unit' => $unit,
+                ];
+            }
+
+            // 3. 按库存维度全局排序后再入库：两单明细顺序相反时不会对同一库存行互等（1213），
+            // 明细落库顺序与金额累计随排序变化，不影响业务
+            foreach (StockLockOrder::sort($lines) as $line) {
                 // 创建收货明细
                 $receiveItem = new PurchaseReceiveItem();
                 $receiveItem->id = $this->generateId();
                 $receiveItem->receive_id = $receive->id;
-                $receiveItem->order_item_id = $orderItemId;
-                $receiveItem->product_id = $productId;
-                $receiveItem->sku_id = $skuId;
-                $receiveItem->location_id = $locationId;
-                $receiveItem->batch_code = $batchCode;
-                $receiveItem->quantity = $quantity;
-                $receiveItem->price = $price;
-                $receiveItem->amount = $amount;
-                $receiveItem->unit = $unit;
+                $receiveItem->order_item_id = $line['order_item_id'];
+                $receiveItem->product_id = $line['product_id'];
+                $receiveItem->sku_id = $line['sku_id'];
+                $receiveItem->location_id = $line['location_id'];
+                $receiveItem->batch_code = $line['batch_code'];
+                $receiveItem->quantity = $line['quantity'];
+                $receiveItem->price = $line['price'];
+                $receiveItem->amount = $line['amount'];
+                $receiveItem->unit = $line['unit'];
                 $receiveItem->save();
 
                 // 调用库存服务 — 入库
                 $inventoryService->stockIn(
-                    $productId,
-                    $skuId,
+                    $line['product_id'],
+                    $line['sku_id'],
                     $receive->warehouse_id,
-                    $locationId,
-                    $batchCode,
-                    (float) $quantity,
-                    (float) $price,
+                    $line['location_id'],
+                    $line['batch_code'],
+                    (float) $line['quantity'],
+                    (float) $line['price'],
                     'purchase_receive',
                     $receive->id
                 );
+                $totalReceiveAmount = bcadd($totalReceiveAmount, $line['amount'], 6);
             }
 
-            // 3. 更新收货单状态为已入库
+            // 4. 更新收货单状态为已入库
             $receive->status = 1;
             $receive->save();
 
-            // 4. 生成应付记录（跨模块：采购 → 财务）
+            // 5. 生成应付记录（跨模块：采购 → 财务）
             $financeService->createAp(
                 $receive->supplier_id,
                 'purchase_receive',
@@ -286,7 +317,7 @@ class ReceiveController extends BaseController
                 (float) $totalReceiveAmount
             );
 
-            // 5. 更新采购订单状态
+            // 6. 更新采购订单状态
             $this->updateOrderStatus($order, $receive->id);
 
             DB::commit();

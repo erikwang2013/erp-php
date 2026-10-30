@@ -38,12 +38,12 @@ class RateLimit implements MiddlewareInterface
         //   session_id() ?: ($_SERVER['REMOTE_ADDR'] ?? 'cli')
         // 而本栈里没有原生 session（未装 webman/session、全仓无 session_start()），workerman 也不填
         // REMOTE_ADDR ⇒ 身份恒为字面量 'cli'，30 次/分钟的预算退化成**全应用共用一桶**：单个 IP
-        // 打满就会让所有人的验证码校验失败，且表现与「答错」无异，没有风控信号。赋值取自与下方
-        // 同源的 getRealIp()，保证这两处限流看到同一个身份。
+        // 打满就会让所有人的验证码校验失败，且表现与「答错」无异，没有风控信号。赋值与下方限流
+        // 同源：SecurityFilter::clientIp()（取 XFF 最右一跳，防客户端伪造）。
         // ponytail: 超级全局在常驻进程里会跨请求残留 —— 请求路径每次都重设故恒新鲜；队列/CLI 路径
         //   可能读到上一个请求的 IP（对验证码限流无影响）。根治应在上游：Webman 适配器目前写死
         //   `new CaptchaManager(driver, storage)` 两个参数，未注入身份解析器。
-        $_SERVER['REMOTE_ADDR'] = $request->getRealIp();
+        $_SERVER['REMOTE_ADDR'] = SecurityFilter::clientIp($request);
 
         // 归一化：/api/v1/auth/login => /api/auth/login（/api/tms/... 等非版本段路径不受影响）。
         // 归一后的 $path 同时用于下面的 Redis 键，键粒度不变（仍是「每 IP 每端点一个桶」），
@@ -57,7 +57,7 @@ class RateLimit implements MiddlewareInterface
         if ($path === '/apidoc' || str_starts_with($path, '/apidoc/')) {
             return $handler($request);
         }
-        $ip = $request->getRealIp();
+        $ip = SecurityFilter::clientIp($request);
 
         $limit = $this->defaultLimit;
         $window = $this->defaultWindow;

@@ -568,11 +568,11 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | 业务服务 | 54 [](#stats:services=54) |
 | API 路由 | 837（动态生成，见 `scripts/check-endpoints.php`，不参与 doc-stats 校验）|
 | 中间件 | 10 [](#stats:middleware=10) |
-| PHP 源文件 | 444 [](#stats:php_files=444) |
+| PHP 源文件 | 447 [](#stats:php_files=447) |
 | 数据库安装脚本 | 单文件 `database/install.sql`（227 张表，已并入全部迁移）|
 | 前端页面 (Flutter) | 119（2026-09-22 实测 `apps/flutter/lib/app/pages/` 下 `.dart` 页面文件数（递归），未纳入 doc-stats 校验）|
 | 前端页面 (| 52（2026-09-22 实测 `apps/harmonyos/entry/src/main/ets/pages/` 下 `.ets` 页面文件数（递归），未纳入 doc-stats 校验）|
-| 单元测试 | 102[](#stats:test_files=102) 个测试文件  / 933[](#stats:tests=933) 个测试用例  / 4178[](#stats:assertions=4178) 条断言 （静态计数：测试方法数 + 断言调用点数，与运行环境无关）|
+| 单元测试 | 111[](#stats:test_files=111) 个测试文件  / 1018[](#stats:tests=1018) 个测试用例  / 4482[](#stats:assertions=4482) 条断言 （静态计数：测试方法数 + 断言调用点数，与运行环境无关）|
 
 > 以上数字由 `bash scripts/doc-stats.sh` 实测生成；标注 `[](#stats:key=value)` 的项由 CI
 > （`.github/workflows/ci.yml` docs 作业）自动校验与代码事实一致，漂移即红。
@@ -677,5 +677,16 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | v1.4.0 — HR/项目 H1-H4/P1 | 新增 | `app/service/hr/`（RecruitService/PerformanceService/TrainingService/SocialSecurityService/PayslipService）+ `app/service/project/ProjectCostService.php` |
 | v1.4.0 — 平台/渠道 B3/B4/B7/E1 | 新增 | `app/controller/workflow/WorkflowDesignerController.php`（canvas_json 持久化）+ `app/service/notification/`（ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver，失败重试）+ `app/controller/notification/NotificationChannelController.php`（`tests/NotificationChannelTest.php` 5 例）+ `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php`（点检扫码） |
 | v1.17.0 — 多语言 (i18n) | 新增 | 后端：`resource/translations/`（13 语种目录 zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id，每语种 common+modules+validation 三文件，11 个语种各 542 条（zh_CN 533、en 30）；en 为英文即 key）+ `app/common/I18n.php`（`getLocale()` 解析 `Accept-Language` 首个标签、主语言子标签映射 zh*→zh_CN；`trans()` 非 en 走 `[请求语种, zh_CN, en]`→key，en 不落中文）+ `config/translation.php` + 生成脚本 `scripts/gen-be-locales.mjs`；前端：`apps/react/src/lib/i18n/`（`index.tsx` + `zhEn` + 11 语种文件）与 `apps/angular/src/app/core/`（`zh-en/`（index + part1..4）+ `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`）（11 新语种词典按语种懒加载，Angular 1453 / React 1447 键）+ `scripts/gen-fe-locales.mjs`；切换入口 = 顶栏地球图标 + 个人中心下拉；Flutter（`apps/flutter/lib/l10n/`）与|
+
+## 20. 2026-10-30 安全与一致性修复
+
+- **库存台账**：库存流水改为只读；库存行只允许删除数量为 0 的记录；quantity、cost_price、商品/仓库/库位/批次禁止直接改；手工修正走盘点/调拨。
+- **WMS 入库**：收货按 ASN 校验商品归属与预收数量，上架前复核收货单/ASN 状态；上架任务状态只能走 start/complete 动作，通用更新接口拒绝 status。
+- **订单状态**：新建只允许 0/1；更新只允许 0→1、0→4、1→4/同值；发货/收货要求父单 1/2；删除前检查软删除的发货/收货记录。
+- **收付款与薪资**：收付款审核在同一事务内更新余额与现金日记账，重复审核 422，已审核单据禁止删除；薪资批量生成按员工+期间唯一键去重。
+- **报表**：拒绝敏感表/敏感列/PII 列，无字段不再全表查询；历史数据集按落库 SQL 复核，敏感旧数据返回 422。
+- **库存锁序**：所有多明细库存动作按 `product_id, sku_id, warehouse_id, location_id, batch_code` 统一排序，降低跨单据死锁。
+- **MRP**：按计划期间销售订单汇总需求 × BOM 用量，不再把单件 BOM 用量直接当毛需求。
+- **TMS**：恢复前向状态跳转、异常恢复与同状态幂等。
 
 > 详细路线图设计规范: `docs/superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`

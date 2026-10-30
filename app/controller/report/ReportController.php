@@ -26,6 +26,26 @@ use support\Response;
 
 class ReportController extends BaseController
 {
+    /** 敏感表：含管理员凭据、系统密钥或开放平台配置，报表构建器一律拒绝访问 */
+    private const SENSITIVE_TABLES = [
+        'erp_admin_user',
+        'erp_admin_role',
+        'erp_admin_permission',
+        'erp_admin_user_role',
+        'erp_admin_role_permission',
+        'erp_system_config',
+        'erp_openapi_app',
+        'erp_webhook_subscription',
+        'erp_webhook_delivery_log',
+        'erp_operation_log',
+        'erp_report_dataset',
+        'erp_hr_candidate',
+        'erp_oms_order_address',
+    ];
+
+    /** 敏感列：密码/密钥/令牌/凭据 + 明文 PII（按列名边界匹配，兼容裸列/反引号/别名前缀） */
+    private const SENSITIVE_COLUMN_PATTERN = '/password|passwd|secret|token|credential|salt|(?:^|_)key(?![A-Za-z0-9_])|(?<![A-Za-z0-9])(?:phone_number|phone|mobile|email|id_card|bank_account|account_number|address_line1|address_line2|address|tax_number|contact_name|contact_person|emergency_contact|birthday)(?![A-Za-z0-9_])/i';
+
     // ============================================================
     // 报表模板 CRUD
     // ============================================================
@@ -112,6 +132,10 @@ class ReportController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
 
+        if (($err = $this->validateQueryConfig($request->input('query_config'))) !== null) {
+            return $this->fail($err, 422);
+        }
+
         $item = new ReportTemplate();
         $item->id = $this->generateId();
         $this->fillModelFromRequest($item, $request);
@@ -189,6 +213,10 @@ class ReportController extends BaseController
         $item = ReportTemplate::find($id);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
+        }
+
+        if (($err = $this->validateQueryConfig($request->input('query_config'))) !== null) {
+            return $this->fail($err, 422);
         }
 
         $this->fillModelFromRequest($item, $request);
@@ -527,42 +555,32 @@ class ReportController extends BaseController
         $select = [];
         $groupBy = $queryConfig['group_by'] ?? null;
 
-        // Whitelist allowed table names (prevent SQL injection via config)
-        preg_match_all('/`(erp_\w+)`/', file_get_contents(base_path('database/install.sql')), $m);
-        $allowedTables = array_unique($m[1]);
-
-        if (!in_array($table, $allowedTables, true)) {
-            return $this->fail($this->trans('Disallowed table name: ') . $table, 422);
+        // 统一校验取数定义：表/字段/筛选/JOIN/where/group_by 均走标识符白名单 + 敏感面拒绝
+        $fields = $template->fields;
+        $filters = $template->filters;
+        if ($fields->isEmpty()) {
+            return $this->fail($this->trans('报表至少选择一个字段'), 422);
+        }
+        $fieldNames = $fields->map(fn ($field) => $field->field)->all();
+        $filterNames = $filters->map(fn ($filter) => $filter->field)->all();
+        if (($err = $this->validateReportDefinition($table, $fieldNames, $filterNames, $queryConfig)) !== null) {
+            return $this->fail($err, 422);
         }
 
-        // 校验字段/聚合函数/筛选字段/group_by/join 标识符（白名单，拒绝任何函数/表达式片段）
-        if ($template->fields->isNotEmpty()) {
-            foreach ($template->fields as $field) {
-                if (($err = $this->validateIdentifier($field->field, '字段名')) !== null) {
-                    return $this->fail($err, 422);
-                }
-                if ($field->aggregator && $field->aggregator !== 'none'
-                    && ($err = $this->validateIdentifier($field->aggregator, '聚合函数')) !== null) {
-                    return $this->fail($err, 422);
-                }
-            }
-        }
-        foreach ($template->filters as $filter) {
-            if (($err = $this->validateIdentifier($filter->field, '筛选字段')) !== null) {
+        // 聚合函数仍是标识符白名单（只允许函数名，拒绝函数/表达式片段）
+        foreach ($fields as $field) {
+            if ($field->aggregator && $field->aggregator !== 'none'
+                && ($err = $this->validateIdentifier($field->aggregator, '聚合函数')) !== null) {
                 return $this->fail($err, 422);
             }
         }
 
-        if ($template->fields->isNotEmpty()) {
-            foreach ($template->fields as $field) {
-                $fieldExpr = $this->quoteColumn($field->field);
-                if ($field->aggregator && $field->aggregator !== 'none') {
-                    $fieldExpr = strtoupper($field->aggregator) . '(' . $fieldExpr . ')';
-                }
-                $select[] = $fieldExpr . ' AS `' . str_replace('`', '``', ($field->name ?? 'value')) . '`';
+        foreach ($fields as $field) {
+            $fieldExpr = $this->quoteColumn($field->field);
+            if ($field->aggregator && $field->aggregator !== 'none') {
+                $fieldExpr = strtoupper($field->aggregator) . '(' . $fieldExpr . ')';
             }
-        } else {
-            $select[] = '*';
+            $select[] = $fieldExpr . ' AS `' . str_replace('`', '``', ($field->name ?? 'value')) . '`';
         }
 
         $sql = 'SELECT ' . implode(', ', $select) . " FROM {$table}";
@@ -576,10 +594,10 @@ class ReportController extends BaseController
                 if (!in_array($joinType, ['LEFT', 'RIGHT', 'INNER'], true)) {
                     return $this->fail($this->trans('Unsupported JOIN type: ') . $joinType, 422);
                 }
-                if (!in_array($joinTable, $allowedTables, true)) {
-                    return $this->fail($this->trans('Disallowed table name: ') . $joinTable, 422);
+                if (($err = $this->tableError($joinTable)) !== null) {
+                    return $this->fail($err, 422);
                 }
-                if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?\s*(=|<=>|<|>|<=|>=|!=)\s*[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?$/', $joinOn)) {
+                if ($this->parseJoinOn($joinOn) === null) {
                     return $this->fail($this->trans('Illegal JOIN ON condition: only "column operator column" is supported'), 422);
                 }
                 $sql .= " {$joinType} JOIN {$joinTable} ON {$joinOn}";
@@ -589,8 +607,8 @@ class ReportController extends BaseController
         // WHERE from request filters
         $whereClauses = [];
         $params = [];
-        if ($template->filters->isNotEmpty()) {
-            foreach ($template->filters as $filter) {
+        if ($filters->isNotEmpty()) {
+            foreach ($filters as $filter) {
                 $value = $request->input($filter->name, $filter->default_value);
                 if ($filter->required && ($value === null || $value === '')) {
                     return $this->fail($this->trans('Filter condition ":name" is required', ['name' => $filter->name]), 422);
@@ -659,8 +677,8 @@ class ReportController extends BaseController
 
         // GROUP BY（仅允许单个/逗号分隔的列名，拒绝函数/表达式；每段可带 alias. 前缀）
         if ($groupBy) {
-            if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?(\s*,\s*[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?)*$/', $groupBy)) {
-                return $this->fail($this->trans('Illegal GROUP BY field'), 422);
+            if (($err = $this->validateGroupBy($groupBy)) !== null) {
+                return $this->fail($err, 422);
             }
             $groupBySql = implode(', ', array_map(fn (string $g) => $this->quoteColumn(trim($g)), explode(',', $groupBy)));
             $sql .= ' GROUP BY ' . $groupBySql;
@@ -717,6 +735,186 @@ class ReportController extends BaseController
     }
 
     /**
+     * 从 install.sql 提取 erp_* 表名（进程内缓存；同一进程内该文件不变）
+     */
+    private function allowedTables(): array
+    {
+        static $tables = null;
+        if ($tables === null) {
+            preg_match_all('/`(erp_\w+)`/', (string) file_get_contents(base_path('database/install.sql')), $m);
+            $tables = array_values(array_unique($m[1]));
+        }
+
+        return $tables;
+    }
+
+    /**
+     * 表名校验：必须在 install.sql 白名单内，且不得是敏感表。合法返回 null。
+     */
+    private function tableError(string $table): ?string
+    {
+        if (!in_array($table, $this->allowedTables(), true)) {
+            return $this->trans('Disallowed table name: ') . $table;
+        }
+        if (in_array($table, self::SENSITIVE_TABLES, true)) {
+            return $this->trans('Sensitive table is not accessible: ') . $table;
+        }
+
+        return null;
+    }
+
+    /**
+     * 列名校验：先过标识符白名单，再拒绝敏感列（password/secret/token/*_key 等）。
+     */
+    private function validateColumn(mixed $value, string $context): ?string
+    {
+        if (($err = $this->validateIdentifier($value, $context)) !== null) {
+            return $err;
+        }
+
+        $column = str_contains($value, '.') ? substr($value, (int) strrpos($value, '.') + 1) : $value;
+        if (preg_match(self::SENSITIVE_COLUMN_PATTERN, $column) === 1) {
+            return "{$context} 禁止访问敏感列: {$value}";
+        }
+
+        return null;
+    }
+
+    /**
+     * 报表取数定义校验：表、字段、筛选字段、JOIN、where、group_by 一次性校验。合法返回 null。
+     *
+     * @param array<int, mixed> $fieldNames
+     * @param array<int, mixed> $filterNames
+     */
+    private function validateReportDefinition(mixed $table, array $fieldNames, array $filterNames, mixed $queryConfig): ?string
+    {
+        if (!is_string($table) || $table === '') {
+            return $this->trans('The report query configuration is incomplete; missing the table definition');
+        }
+        if (($err = $this->tableError($table)) !== null) {
+            return $err;
+        }
+        foreach ($fieldNames as $name) {
+            if (($err = $this->validateColumn($name, '字段名')) !== null) {
+                return $err;
+            }
+        }
+        foreach ($filterNames as $name) {
+            if (($err = $this->validateColumn($name, '筛选字段')) !== null) {
+                return $err;
+            }
+        }
+
+        return $this->validateQueryConfig($queryConfig);
+    }
+
+    /**
+     * query_config 校验（store/update 提前拒绝，execute 复用）：表、JOIN 表/ON 列、where 字段、group_by。
+     * 允许 JSON 字符串入参（表单引擎提交的形态）。合法返回 null。
+     */
+    private function validateQueryConfig(mixed $config): ?string
+    {
+        if ($config === null || $config === '') {
+            return null;
+        }
+        if (is_string($config)) {
+            $decoded = json_decode($config, true);
+            if (!is_array($decoded)) {
+                return $this->trans('query_config must be a JSON object');
+            }
+            $config = $decoded;
+        }
+        if (!is_array($config)) {
+            return $this->trans('query_config must be a JSON object');
+        }
+        if (empty($config['table'])) {
+            return null; // 缺表由 execute 的专用错误提示；store 允许先建空配置
+        }
+        if (!is_string($config['table'])) {
+            return $this->trans('Invalid table name in query_config');
+        }
+        if (($err = $this->tableError($config['table'])) !== null) {
+            return $err;
+        }
+
+        if (!empty($config['joins'])) {
+            if (!is_array($config['joins'])) {
+                return $this->trans('Invalid joins in query_config');
+            }
+            foreach ($config['joins'] as $join) {
+                if (!is_array($join)) {
+                    return $this->trans('Invalid join in query_config');
+                }
+                if (($err = $this->tableError((string) ($join['table'] ?? ''))) !== null) {
+                    return $err;
+                }
+                $columns = $this->parseJoinOn((string) ($join['on'] ?? ''));
+                if ($columns === null) {
+                    return $this->trans('Illegal JOIN ON condition: only "column operator column" is supported');
+                }
+                foreach ($columns as $column) {
+                    if (($err = $this->validateColumn($column, 'JOIN ON 字段')) !== null) {
+                        return $err;
+                    }
+                }
+            }
+        }
+
+        if (!empty($config['where'])) {
+            if (!is_array($config['where'])) {
+                return $this->trans('where conditions must be structured field conditions (field/op/value)');
+            }
+            foreach ($config['where'] as $condition) {
+                if (!is_array($condition)) {
+                    return $this->trans('where conditions must be structured field conditions (field/op/value)');
+                }
+                if (($err = $this->validateColumn((string) ($condition['field'] ?? ''), 'where 字段')) !== null) {
+                    return $err;
+                }
+            }
+        }
+
+        if (isset($config['group_by']) && $config['group_by'] !== '') {
+            return $this->validateGroupBy($config['group_by']);
+        }
+
+        return null;
+    }
+
+    /**
+     * GROUP BY 校验：单个/逗号分隔列名，每段可带 alias. 前缀；拒绝函数/表达式与敏感列。
+     */
+    private function validateGroupBy(mixed $groupBy): ?string
+    {
+        if (!is_string($groupBy)
+            || !preg_match('/^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?(\s*,\s*[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)?)*$/', $groupBy)) {
+            return $this->trans('Illegal GROUP BY field');
+        }
+        foreach (explode(',', $groupBy) as $column) {
+            if (($err = $this->validateColumn(trim($column), 'GROUP BY 字段')) !== null) {
+                return $err;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * 解析 JOIN ON 的 "列 运算符 列"，合法返回 [左列, 右列]，否则 null。
+     *
+     * @return array{0: string, 1: string}|null
+     */
+    private function parseJoinOn(string $on): ?array
+    {
+        $column = '[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)?';
+        if (!preg_match('/^(' . $column . ')\s*(<=>|!=|<=|>=|=|<|>)\s*(' . $column . ')$/', $on, $m)) {
+            return null;
+        }
+
+        return [$m[1], $m[3]];
+    }
+
+    /**
      * 将已通过白名单校验的标识符渲染为安全 SQL 列引用：alias.col → `alias`.`col`。
      * 调用方必须先经 validateIdentifier 校验，此处不再重复校验。
      */
@@ -735,7 +933,7 @@ class ReportController extends BaseController
         $op = (string) ($w['op'] ?? '');
         $value = $w['value'] ?? null;
 
-        if ($this->validateIdentifier($field, 'where 字段') !== null) {
+        if ($this->validateColumn($field, 'where 字段') !== null) {
             return null;
         }
 
@@ -821,6 +1019,11 @@ class ReportController extends BaseController
             return $this->fail($this->trans('No report data; please run the query first'), 404);
         }
 
+        // 历史数据集不信任当前模板配置：按落库 SQL 复核，避免升级前 SELECT * / 敏感表数据继续外泄
+        if (self::isUnsafeDatasetSql((string) $dataset->query_sql)) {
+            return $this->fail($this->trans('数据集含敏感字段，请重新执行报表'), 422);
+        }
+
         $data = $dataset->toArray();
         // 解析JSON数据
         if (is_string($data['data'])) {
@@ -831,5 +1034,38 @@ class ReportController extends BaseController
         }
 
         return $this->success($this->encodeIds($data));
+    }
+
+    /**
+     * 历史数据集 SQL 安全判定：空 SQL、敏感表、SELECT * 或敏感列均不可回放。
+     * 公开静态方法便于单测直接夹逼。
+     */
+    public static function isUnsafeDatasetSql(string $sql): bool
+    {
+        $sql = self::normalizeSql($sql);
+        if ($sql === '') {
+            return true;
+        }
+        foreach (self::SENSITIVE_TABLES as $table) {
+            if (preg_match('/(?<![A-Za-z0-9_])' . preg_quote($table, '/') . '(?![A-Za-z0-9_])/i', $sql) === 1) {
+                return true;
+            }
+        }
+        if (preg_match('/\bselect\s+(?:`?[A-Za-z_][A-Za-z0-9_]*`?\s*\.\s*)?\*/i', $sql) === 1) {
+            return true;
+        }
+
+        return preg_match(self::SENSITIVE_COLUMN_PATTERN, $sql) === 1;
+    }
+
+    /**
+     * 剥离 SQL 注释并折叠连续空白，防止用注释/换行拆分敏感表名、列名或 SELECT * 绕过历史数据集检查。
+     */
+    private static function normalizeSql(string $sql): string
+    {
+        $sql = preg_replace('#/\*.*?\*/#s', ' ', $sql) ?? $sql;
+        $sql = preg_replace('/(?:--|#)[^\r\n]*/', ' ', $sql) ?? $sql;
+
+        return trim(preg_replace('/\s+/', ' ', $sql) ?? $sql);
     }
 }

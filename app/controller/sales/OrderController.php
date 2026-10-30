@@ -8,6 +8,8 @@ declare(strict_types=1);
 namespace app\controller\sales;
 
 use app\admin\controller\BaseController;
+use app\common\OrderStatusMachine;
+use app\model\SalesDelivery;
 use app\model\SalesDeliveryItem;
 use app\model\SalesOrder;
 use app\model\SalesOrderItem;
@@ -101,7 +103,8 @@ class OrderController extends BaseController
             // customer_id 是必填外键（列 NOT NULL 无默认值）：只留 required（`string` = is_string()
             // 会把数字形态的 ID 判 422，`integer` 会把 hashid 判 422），双模判定在下面 decodeFlexibleId 收口
             'customer_id' => 'required',
-            'status' => 'integer',
+            // 创建只允许 0=待审核/1=已审核：2/3 由发货动作写入，直接落库等于跳过审核与出库
+            'status' => 'integer|in:0,1',
             // 明细（录入路径，与 purchase/OrderController、RfqController 同一口径）：product_id 为
             // hashid 串，不能用 integer 规则挡回；解码在 buildItems 里做，垃圾串在那里抛 422
             'items' => 'nullable|array',
@@ -273,7 +276,8 @@ class OrderController extends BaseController
             // customer_id 不卡 string（同 store）：数字形态的客户 ID 会被 is_string() 判 422，
             // 双模判定在下面的 decodeFlexibleId 收口；局部更新不传即不动，故不加 required
             'code' => 'string',
-            'status' => 'integer',
+            // 值域对齐 TINYINT UNSIGNED（0..4）；可流转关系由 OrderStatusMachine 收口
+            'status' => 'integer|between:0,4',
             // 同 store：明细整表替换（提供 items 才动明细，不提供即「不改动」，
             // 与编辑弹框「明细仅新建期填写」的语义一致）
             'items' => 'nullable|array',
@@ -292,8 +296,28 @@ class OrderController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
+        $newStatus = $request->input('status');
+        $newStatus = $newStatus === null ? null : (int) $newStatus;
+
         try {
-            DB::transaction(function () use ($request, $item, $id) {
+            $item = DB::transaction(function () use ($request, $id, $newStatus) {
+                // 与发货/取消/删除共用订单行锁：锁后复核状态与引用，防并发 PUT 基于旧状态绕过状态机
+                $item = SalesOrder::query()->whereKey($id)->lockForUpdate()->first();
+                if (!$item) {
+                    throw new \RuntimeException($this->trans('Record not found'));
+                }
+                // status 只允许人工审核/取消：0→1、0→4、1→4、同值 no-op；
+                // 2/3 由发货动作驱动，禁止从这里跳转（否则可绕过审核/出库直接「已发货」）
+                if ($newStatus !== null) {
+                    $currentStatus = (int) $item->status;
+                    if (!OrderStatusMachine::canUpdate($currentStatus, $newStatus)) {
+                        throw new \RuntimeException("不允许的状态流转: {$currentStatus} → {$newStatus}");
+                    }
+                    if ($currentStatus === OrderStatusMachine::APPROVED && $newStatus === OrderStatusMachine::CANCELLED
+                        && SalesDelivery::withTrashed()->where('order_id', $id)->exists()) {
+                        throw new \RuntimeException('该订单已有发货记录，不可取消');
+                    }
+                }
                 $this->fillModelFromRequest($item, $request);
                 // 同 store：customer_id 非 guarded，fill 会把请求里的 hash 串与空串直填 BIGINT 列
                 // （MySQL 严格模式 1366 → 500）。未传（含显式 null）一律不动（局部更新不得清空既有外键）；
@@ -323,7 +347,7 @@ class OrderController extends BaseController
                 if (!$request->has('items')) {
                     $item->save();
 
-                    return;
+                    return $item;
                 }
                 [$lines, $total] = $this->buildItems((array) $request->input('items'));
                 if ($lines === []) {
@@ -344,6 +368,8 @@ class OrderController extends BaseController
                 $this->saveItems($id, $lines);
                 $item->fill(['total_amount' => $total]);
                 $item->save();
+
+                return $item;
             });
         } catch (\Throwable $e) {
             $this->logError('sales_order.update', $e);
@@ -393,7 +419,27 @@ class OrderController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        try {
+            DB::connection()->transaction(function () use ($id) {
+                // 与发货创建/取消共用订单行锁：锁后复查引用，避免「检查时无发货、删单后发货落库」
+                $item = SalesOrder::query()->whereKey($id)->lockForUpdate()->first();
+                if (!$item) {
+                    throw new \RuntimeException($this->trans('Record not found'));
+                }
+                // 引用守卫：发货记录（含软删除）挂在订单明细行上，删单会留下断链发货单与出库凭证
+                if (SalesDelivery::withTrashed()->where('order_id', $id)->exists()) {
+                    throw new \RuntimeException('该订单已有发货记录，不可删除');
+                }
+                $item->delete();
+            });
+        } catch (\Throwable $e) {
+            $this->logError('sales_order.destroy', $e);
+
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
+        }
 
         return $this->success([], $this->trans('Deleted successfully'));
     }

@@ -43,6 +43,18 @@ class WebhookService
     /** 订阅测试事件名（订阅管理端 "发送测试" 动作使用） */
     public const EVENT_TEST = 'webhook.test';
 
+    /** filter_var 的 NO_RES_RANGE 未覆盖的运营商级 NAT / 基准测试 / 文档 / 保留网段 */
+    private const BLOCKED_CIDRS = [
+        '100.64.0.0/10',
+        '198.18.0.0/15',
+        '192.0.0.0/24',
+        '192.0.2.0/24',
+        '198.51.100.0/24',
+        '203.0.113.0/24',
+        '240.0.0.0/4',
+        '2001:db8::/32',
+    ];
+
     /**
      * 分发事件到所有匹配订阅（先补偿到期重试，再投递新事件）
      */
@@ -258,20 +270,145 @@ class WebhookService
     }
 
     /**
+     * Webhook URL 安全校验：仅允许公网 http(s)，端口由 openapi.webhook.allowed_ports 控制（默认 80/443）。
+     */
+    public static function isSafeUrl(string $url): bool
+    {
+        return self::resolveSafeTarget($url) !== null;
+    }
+
+    /**
+     * 解析并校验 Webhook 目标，返回投递时固定使用的 host/port/公网 IP 列表；不安全返回 null。
+     *
+     * 拒绝 localhost/回环/私网/链路本地（含 169.254.169.254 元数据地址）/IPv6 唯一本地地址；
+     * 域名同时解析 A（gethostbynamel）与 AAAA（dns_get_record），任一记录非公网即拒绝，无记录按不安全处理。
+     * httpPost 用返回的 IP 设置 CURLOPT_RESOLVE，消除校验与连接之间的 DNS rebinding TOCTOU。
+     *
+     * @return array{host: string, port: int, ips: list<string>}|null
+     */
+    public static function resolveSafeTarget(string $url): ?array
+    {
+        $parts = parse_url($url);
+        if (!is_array($parts) || empty($parts['scheme']) || empty($parts['host'])) {
+            return null;
+        }
+        $scheme = strtolower((string) $parts['scheme']);
+        if (!in_array($scheme, ['http', 'https'], true)) {
+            return null;
+        }
+        $port = (int) ($parts['port'] ?? ($scheme === 'https' ? 443 : 80));
+        $allowedPorts = config('openapi.webhook.allowed_ports', [80, 443]);
+        if (!is_array($allowedPorts)) {
+            $allowedPorts = [80, 443];
+        }
+        if (!in_array($port, array_map('intval', $allowedPorts), true)) {
+            return null;
+        }
+
+        $host = strtolower(trim((string) $parts['host'], '[]'));
+        if ($host === '' || $host === 'localhost' || str_ends_with($host, '.localhost')) {
+            return null;
+        }
+
+        if (filter_var($host, FILTER_VALIDATE_IP) !== false) {
+            return self::isPublicIp($host) ? ['host' => $host, 'port' => $port, 'ips' => [$host]] : null;
+        }
+
+        $ips = @gethostbynamel($host) ?: [];
+        foreach (@dns_get_record($host, DNS_AAAA) ?: [] as $record) {
+            if (isset($record['ipv6']) && is_string($record['ipv6'])) {
+                $ips[] = $record['ipv6'];
+            }
+        }
+        $ips = array_values(array_unique($ips));
+        if ($ips === []) {
+            return null;
+        }
+        foreach ($ips as $ip) {
+            if (!self::isPublicIp($ip)) {
+                return null;
+            }
+        }
+
+        return ['host' => $host, 'port' => $port, 'ips' => $ips];
+    }
+
+    /**
+     * 生成 CURLOPT_RESOLVE 条目；IPv6 地址按 curl 语法用方括号包裹。
+     *
+     * @param array{host: string, port: int, ips: list<string>} $target
+     * @return list<string>
+     */
+    public static function resolveEntries(array $target): array
+    {
+        $entries = [];
+        foreach ($target['ips'] as $ip) {
+            $address = str_contains($ip, ':') ? '[' . $ip . ']' : $ip;
+            $entries[] = $target['host'] . ':' . $target['port'] . ':' . $address;
+        }
+
+        return $entries;
+    }
+
+    /**
+     * 公网单播地址判定：私网、保留、回环、链路本地、运营商级 NAT 等均不通过。
+     */
+    public static function isPublicIp(string $ip): bool
+    {
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            return false;
+        }
+        foreach (self::BLOCKED_CIDRS as $cidr) {
+            if (self::ipInCidr($ip, $cidr)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static function ipInCidr(string $ip, string $cidr): bool
+    {
+        [$network, $prefix] = explode('/', $cidr, 2);
+        $packedIp = inet_pton($ip);
+        $packedNetwork = inet_pton($network);
+        if ($packedIp === false || $packedNetwork === false || strlen($packedIp) !== strlen($packedNetwork)) {
+            return false;
+        }
+        $prefix = (int) $prefix;
+        $fullBytes = intdiv($prefix, 8);
+        if (strncmp($packedIp, $packedNetwork, $fullBytes) !== 0) {
+            return false;
+        }
+        $remainingBits = $prefix % 8;
+        if ($remainingBits === 0) {
+            return true;
+        }
+        $mask = (0xFF << (8 - $remainingBits)) & 0xFF;
+
+        return (ord($packedIp[$fullBytes]) & $mask) === (ord($packedNetwork[$fullBytes]) & $mask);
+    }
+
+    /**
      * 同步 POST 投递（curl：字节级可控正文，HMAC 与正文严格同字节；失败返回 code=0 + error）
      *
      * @return array{code: int, body: string, error: string}
      */
     protected function httpPost(string $url, string $body, string $secret, string $event): array
     {
+        // 投递前再校验一次：订阅可能是历史数据，或校验后被改成内网地址
+        $target = self::resolveSafeTarget($url);
+        if ($target === null) {
+            return ['code' => 0, 'body' => '', 'error' => 'blocked: unsafe webhook URL'];
+        }
+
         $headers = [
             'Content-Type: application/json',
             'X-Webhook-Event: ' . $event,
             'X-Webhook-Signature: ' . self::signature($body, $secret),
         ];
 
-        $ch = curl_init($url);
-        curl_setopt_array($ch, [
+        $options = [
             CURLOPT_POST => true,
             CURLOPT_POSTFIELDS => $body,
             CURLOPT_HTTPHEADER => $headers,
@@ -281,7 +418,14 @@ class WebhookService
             CURLOPT_USERAGENT => (string) config('openapi.webhook.user_agent', 'erp-webhook/1.0'),
             CURLOPT_SSL_VERIFYPEER => true,
             CURLOPT_SSL_VERIFYHOST => 2,
-        ]);
+        ];
+        // 域名投递固定已校验 IP；IP 字面量本身无需 RESOLVE
+        if (filter_var($target['host'], FILTER_VALIDATE_IP) === false) {
+            $options[CURLOPT_RESOLVE] = self::resolveEntries($target);
+        }
+
+        $ch = curl_init($url);
+        curl_setopt_array($ch, $options);
 
         $raw = curl_exec($ch);
         if ($raw === false) {

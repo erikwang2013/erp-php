@@ -440,6 +440,7 @@ CREATE TABLE IF NOT EXISTS `erp_purchase_order` (
     KEY `idx_supplier_id` (`supplier_id`),
     KEY `idx_warehouse_id` (`warehouse_id`),
     KEY `idx_status` (`status`),
+    KEY `idx_ordered_at` (`ordered_at`),
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='采购订单';
 
@@ -620,6 +621,7 @@ CREATE TABLE IF NOT EXISTS `erp_sales_order` (
     KEY `idx_customer_id` (`customer_id`),
     KEY `idx_warehouse_id` (`warehouse_id`),
     KEY `idx_status` (`status`),
+    KEY `idx_ordered_at` (`ordered_at`),
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='销售订单';
 
@@ -1081,7 +1083,8 @@ CREATE TABLE IF NOT EXISTS `erp_finance_receipt` (
     UNIQUE KEY `uk_code` (`code`),
     KEY `idx_customer_id` (`customer_id`),
     KEY `idx_bank_account_id` (`bank_account_id`),
-    KEY `idx_status` (`status`)
+    KEY `idx_status` (`status`),
+    KEY `idx_received_at` (`received_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='收款单';
 
 CREATE TABLE IF NOT EXISTS `erp_finance_payment` (
@@ -1100,7 +1103,8 @@ CREATE TABLE IF NOT EXISTS `erp_finance_payment` (
     UNIQUE KEY `uk_code` (`code`),
     KEY `idx_supplier_id` (`supplier_id`),
     KEY `idx_bank_account_id` (`bank_account_id`),
-    KEY `idx_status` (`status`)
+    KEY `idx_status` (`status`),
+    KEY `idx_paid_at` (`paid_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='付款单';
 
 CREATE TABLE IF NOT EXISTS `erp_finance_settlement` (
@@ -2183,6 +2187,7 @@ CREATE TABLE IF NOT EXISTS `erp_hr_salary` (
     `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_employee_period` (`employee_id`, `period_year`, `period_month`),
     KEY `idx_employee_id` (`employee_id`),
     KEY `idx_period` (`period_year`, `period_month`),
     KEY `idx_status` (`status`)
@@ -3199,6 +3204,7 @@ CREATE TABLE IF NOT EXISTS `erp_oms_order` (
     UNIQUE KEY `uk_order_id` (`order_id`),
     KEY `idx_channel` (`channel`),
     KEY `idx_fulfillment_status` (`fulfillment_status`),
+    KEY `idx_status_updated` (`fulfillment_status`, `updated_at`),
     KEY `idx_payment_status` (`payment_status`),
     KEY `idx_priority` (`priority`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='OMS订单扩展';
@@ -3726,6 +3732,7 @@ CREATE TABLE IF NOT EXISTS `erp_tms_shipment` (
     KEY `idx_tracking_no` (`tracking_no`),
     KEY `idx_carrier_service_id` (`carrier_service_id`),
     KEY `idx_status` (`status`),
+    KEY `idx_status_delivery` (`status`, `actual_delivery_at`),
     KEY `idx_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='TMS运单';
 

@@ -481,6 +481,14 @@ Key rotation: the `ENCRYPTION_PREVIOUS_KEYS` environment variable supports a lis
 - Email: `a***@example.com`
 - ID card: fully covered as `********`
 
+### 8.4 Security Hardening (2026-10-30)
+
+- **True client IP**: rate limiting, operation logs, and login locations consistently use `SecurityFilter::clientIp()`, which trusts only the right-most hop appended by the intranet proxy; the client-controlled left-most `X-Forwarded-For` value is no longer trusted.
+- **Operation-log PII**: `OperationLog::redactPayload()` recursively masks credentials and phone/email/ID-card/bank-account/address/contact fields, so `operation_log.input` no longer stores plaintext PII.
+- **Report authorization boundary**: the report builder rejects sensitive admin/system/open-platform tables and password/secret/token/PII columns; empty field lists no longer fall back to `SELECT *`; `result()` re-checks historical datasets against the stored `query_sql` and returns 422 for sensitive legacy data.
+- **Webhook SSRF**: only public http(s) and the configured port allow-list (80/443 by default) are accepted; localhost/private/link-local/CGNAT/documentation ranges are rejected; the URL is re-checked before delivery and curl does not follow redirects.
+- **Bank accounts**: `account_number` is encrypted on write (legacy plaintext is still readable), lists/details return only the last-four mask, and keyword search no longer matches the account column.
+
 ---
 
 ## 9. Key Management

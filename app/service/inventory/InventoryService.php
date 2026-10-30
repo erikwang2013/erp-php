@@ -77,14 +77,25 @@ class InventoryService
             $flow->source_id = $sourceId;
             $flow->save();
 
-            // 2. 更新/创建实时库存（悲观行锁防止并发覆盖）
-            $inv = Inventory::where([
-                'product_id' => $productId,
-                'sku_id' => $skuId,
-                'warehouse_id' => $warehouseId,
-                'location_id' => $locationId,
-                'batch_code' => $batchCode,
-            ])->lockForUpdate()->first();
+            // 2. 更新/创建实时库存：先按 id 升序锁住该 SKU 全部库存行，再做存在性判断、
+            // 创建与累加。锁集合与 recalcMovingAverageCost 的聚合锁一致且顺序固定，避免两个仓
+            // 同时收同一 SKU 时各持目标行、再互等对方行（A→B / B→A）造成死锁
+            $skuRows = Inventory::where('product_id', $productId)
+                ->where('sku_id', $skuId)
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            $inv = null;
+            foreach ($skuRows as $row) {
+                if ((int) $row->warehouse_id === $warehouseId
+                    && (int) $row->location_id === $locationId
+                    && (string) $row->batch_code === $batchCode
+                ) {
+                    $inv = $row;
+                    break;
+                }
+            }
             if (!$inv) {
                 $inv = new Inventory();
                 $inv->id = SnowflakeService::generate();
@@ -95,9 +106,8 @@ class InventoryService
                 $inv->batch_code = $batchCode;
                 $inv->quantity = 0;
                 try {
-                    // 并发首单竞态：两事务首次入库同一 (product_id, sku_id, warehouse_id, location_id, batch_code)
-                    // 时都查不到行，均走创建路径；由唯一索引 uk_product_sku_warehouse_location_batch 兜底，
-                    // 后到事务在此抛 1062 唯一键冲突
+                    // 该 SKU 尚无库存行时并发首单都无行可锁：由唯一索引
+                    // uk_product_sku_warehouse_location_batch 兜底，后到事务在此抛 1062 唯一键冲突
                     $inv->save();
                 } catch (QueryException $e) {
                     if (!$this->isDuplicateKey($e)) {
@@ -266,13 +276,15 @@ class InventoryService
         int $flowId
     ): string {
         // 按SKU聚合全部库存行的数量与成本，避免跨仓加权成本串算
-        // 悲观行锁：锁住该 SKU 全部库存行，串行化聚合读与批量成本更新，防止并发入库丢失更新
+        // 悲观行锁：锁住该 SKU 全部库存行，串行化聚合读与批量成本更新，防止并发入库丢失更新；
+        // id 升序与 stockIn 的预锁定顺序一致，保证多事务加锁顺序相同（防死锁）
         // 首次入库无行可锁的竞态由唯一索引 uk_product_sku_warehouse_location_batch 兜底：
         // 后到事务在 stockIn 创建路径捕获 1062 后重读既有行再重算（见 stockIn）。
         $inQty = bc_norm($quantity);
         $inCost = bc_norm($unitCost);
         $rows = Inventory::where('product_id', $productId)
             ->where('sku_id', $skuId)
+            ->orderBy('id')
             ->lockForUpdate()
             ->get(['quantity', 'cost_price']);
         $totalQty = '0';
@@ -389,11 +401,17 @@ class InventoryService
     public function consumeReservation(string $sourceType, int $sourceId): void
     {
         DB::transaction(function () use ($sourceType, $sourceId) {
+            // 按库存维度排序后逐行出库：锁序与其它模块统一，避免多张预占单明细顺序相反时跨 SKU 死锁
             $reservations = OmsInventoryReservation::where([
                 'source_type' => $sourceType,
                 'source_id' => $sourceId,
                 'status' => 1,
-            ])->get();
+            ])->orderBy('product_id')
+                ->orderBy('sku_id')
+                ->orderBy('warehouse_id')
+                ->orderBy('location_id')
+                ->orderBy('batch_code')
+                ->get();
 
             foreach ($reservations as $r) {
                 $this->stockOut(

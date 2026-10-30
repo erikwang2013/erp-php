@@ -188,7 +188,7 @@ open-erp/
 │   ├── e2e-seed.sql             # Minimal E2E/CI seed
 │   └── backup/                 # Backup/restore scripts
 ├── docs/                       # Architecture, design, security, API docs
-├── tests/                      # PHPUnit tests ([](#stats:test_files=102) test files, [](#stats:tests=933) test methods, [](#stats:assertions=4178) assertions)
+├── tests/                      # PHPUnit tests ([](#stats:test_files=111) test files, [](#stats:tests=1018) test methods, [](#stats:assertions=4482) assertions)
 ├── resource/
 │   └── translations/           # Backend message dictionaries for 13 locales (zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id)
 │       ├── zh_CN/              # Chinese translations (565 entries)
@@ -533,6 +533,7 @@ Security enhancements:
 - **Concurrent session limit**: max 3 valid tokens per user; the oldest token is blacklisted when exceeded
 - **security.txt**: `GET /.well-known/security.txt` provides RFC 9116 standard security contact information
 - **Nginx security config**: see `nginx-security.conf` for a complete reverse-proxy security hardening example
+- **2026-10-30 hardening**: report sensitive-table/column/PII rejection, historical dataset replay checks, operation-log PII redaction, real client IP for rate limiting/audit, Webhook SSRF and port allow-list, bank-account encryption/masking; see `CHANGELOG.md` v1.19.28
 
 ### Authentication
 
@@ -706,6 +707,24 @@ For production deployments, configure reverse-proxy security hardening by follow
 Thanks to the following people for helping improve this project's security (full details in [`SECURITY.md` §13](SECURITY.md#13-安全致谢)):
 
 - **kta1kri** — reported that `assert_env_not_placeholder()` could not stop the public values in `.env.example` from being silently used in production; the guard promised more than it delivered (fixed in v1.19.13).
+
+## Open Source vs Commercial
+
+The open-source edition keeps the full core ERP capability: products, purchasing, sales, inventory, finance, CRM, approval workflow, projects, HR, manufacturing (BOM/MRP/work reports/capacity), custom reports, OMS/WMS/TMS, QMS, EAM, Angular + Flutter admin clients and 13 backend locales.
+
+The commercial edition additionally provides the React 19 and HarmonyOS clients, membership/retail, BI dashboards, DMS document management, document print templates, e-invoices, multi-channel notifications, multi-tenancy and commercial support. See the Chinese README for the detailed comparison.
+
+### Multi-dimensional Comparison
+
+| Dimension | Open Source | Commercial |
+|---|---|---|
+| Clients | Angular 22 + Flutter 3 Web | Adds React 19 + HarmonyOS ArkTS |
+| Membership/retail | Not included | Stored value, points, coupons, tiers/benefits |
+| BI/DMS/print/e-invoice | Not included | Dashboards, document management, print templates, e-invoice adapter |
+| Multi-tenancy | Single tenant | Tenant CRUD, provisioning, renewal, expiry reminders |
+| Support | Community/self-service | Commercial authorization, delivery and support via **erik@erik.xyz** |
+
+**For commercial licensing and delivery terms, contact: erik@erik.xyz**
 
 ## 项目授权 / Project License
 

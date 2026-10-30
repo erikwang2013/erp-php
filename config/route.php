@@ -142,10 +142,9 @@ Route::group('/admin/v1', function () {
     Route::resource('/inventory/check', app\controller\inventory\CheckTaskController::class);
     Route::resource('/inventory/alert', app\controller\inventory\AlertController::class);
     // inventory/{id} 变量路由必须排在所有 /inventory/<静态段> 之后，否则遮蔽静态路由触发 FastRoute 异常；
-    // 集合路径已被上面 any(index) 占用（再注册 POST 同路径会重复注册），故仅补 {id} 维度的单条记录动作
+    // 集合路径已被上面 any(index) 占用（再注册 POST 同路径会重复注册），故仅补 {id} 维度的单条记录动作。
+    // 库存流水只读：流水由入库/出库等业务动作生成，不提供 PUT/DELETE（改写/删除会破坏台账）
     Route::get('/inventory/flow/{id}', [app\controller\inventory\FlowController::class, 'show']);
-    Route::put('/inventory/flow/{id}', [app\controller\inventory\FlowController::class, 'update']);
-    Route::delete('/inventory/flow/{id}', [app\controller\inventory\FlowController::class, 'destroy']);
     Route::get('/inventory/{id}', [app\controller\inventory\InventoryController::class, 'show']);
     Route::put('/inventory/{id}', [app\controller\inventory\InventoryController::class, 'update']);
     Route::delete('/inventory/{id}', [app\controller\inventory\InventoryController::class, 'destroy']);

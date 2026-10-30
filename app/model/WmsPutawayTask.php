@@ -18,7 +18,8 @@ class WmsPutawayTask extends Model
     protected $primaryKey = 'id';
     public $incrementing = false;
     protected $keyType = 'int';
-    protected $fillable = ['code', 'warehouse_id', 'receiving_id', 'status', 'strategy', 'assigned_to', 'completed_at'];
+    // status 只由 start/complete 动作流转，不进 fillable（防止通用 PUT 把已完成任务改回进行中）
+    protected $fillable = ['code', 'warehouse_id', 'receiving_id', 'strategy', 'assigned_to', 'completed_at'];
     protected $casts = [
         'warehouse_id' => 'integer',
         'receiving_id' => 'integer',

@@ -13,7 +13,7 @@
 |------|------|--------------|
 | 后端 | webman (Workerman) PHP 8.3+，**23 个业务模块**、159 控制器、63 服务、224 模型、227 张表、11 中间件（schema 以 database/install.sql 为唯一事实源） | 单体大而全，按业务域分工，防止单 agent 上下文爆炸 |
 | 前端 | Flutter **63 菜单入口 / 117 页面文件**（`lib/app/config/menu_config.dart`），覆盖全部保留模块 | Flutter 单端维护 |
-| 质量基线 | PHPUnit 933[](#stats:tests=933) 测试 / 4178[](#stats:assertions=4178) 断言、PHPStan + baseline、CS-Fixer、CI 多版本矩阵 | 已具备纪律，测试/审查角色直接嵌入流水线 |
+| 质量基线 | PHPUnit 1018[](#stats:tests=1018) 测试 / 4482[](#stats:assertions=4482) 断言、PHPStan + baseline、CS-Fixer、CI 多版本矩阵 | 已具备纪律，测试/审查角色直接嵌入流水线 |
 | 版本矩阵 | 仅 `main` 一条分支（`lite` / `standard` / `full` 已删除，归档提交 `eea90c0` 仍在 `main` 历史中） | 无版本分支可同步，版本差异以 tag 追溯，见 `docs/EDITIONS.md`「分支策略」 |
 | 路线图 | P0~P3 已交付（综合评分 89/100），进入日常迭代与演进期 | 团队规模按任务类型伸缩，非项目制大编制 |
 | 已有设施 | `.claude/agents/`（planner / sparc / testing / swarm / consensus）、`.claude-flow`（hierarchical-mesh，上限 15 agents，consensus 协调）、hooks + 记忆 | 团队直接挂载到现有配置，不另起炉灶 |
@@ -82,7 +82,7 @@
 ### 3.4 质量门禁（提交前必经，由审查员把守）
 
 ```
-phpunit            # 933[](#stats:tests=933) 测试 / 4178[](#stats:assertions=4178) 断言全绿，新增用例随改动提交
+phpunit            # 1018[](#stats:tests=1018) 测试 / 4482[](#stats:assertions=4482) 断言全绿，新增用例随改动提交
 phpstan            # 不允许新增 baseline 之外的问题
 php-cs-fixer       # --dry-run 通过
 composer audit     # 无高危依赖漏洞

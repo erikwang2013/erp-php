@@ -363,7 +363,8 @@ export const tradeMenus: MenuGroup[] = [
     icon: 'layers',
     moduleKey: 'inventory',
     children: [
-      { label: '实时库存', path: '/inventory/stock', cfg: res('实时库存', '/admin/v1/inventory', { deleteNeedsPassword: true }) },
+      // 库存只读：数量只能经入库/出库/盘点流水变动，非零库存行后端拒绝删除
+      { label: '实时库存', path: '/inventory/stock', cfg: res('实时库存', '/admin/v1/inventory', { canDelete: false }) },
       // 方向列/来源类型列推断不出文案：方向裸出 1/2（erp_inventory_flow.direction「方向: 1=入库 2=出库」）；
       // 来源类型出机器串 —— install.sql 该列注释只有「来源单据类型」、没有枚举清单，逐字抄
       // app/service/inventory/TraceService.php:214-227 的 sourceLabel()（default 分支=原样直出，与 mapText 同义）
@@ -371,7 +372,8 @@ export const tradeMenus: MenuGroup[] = [
         label: '库存流水',
         path: '/inventory/flow',
         cfg: res('库存流水', '/admin/v1/inventory/flow', {
-          deleteNeedsPassword: true,
+          // 流水只读（后端已移除 PUT/DELETE 路由），由业务单据动作生成
+          canDelete: false,
           dicts: {
             direction: { 1: '入库', 2: '出库' },
             source_type: {

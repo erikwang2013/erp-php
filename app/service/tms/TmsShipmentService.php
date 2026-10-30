@@ -16,6 +16,36 @@ use Illuminate\Database\Capsule\Manager as DB;
 
 class TmsShipmentService
 {
+    /**
+     * 运单状态流转图：0待发货 1已取件 2运输中 3已送达 4异常 5已退回
+     * 覆盖旧行为的前向跳转（承运商首个回调可直接 delivered/returned）与异常恢复；
+     * 5 为终态。同状态重复上报由 canTransitionStatus 幂等放行。
+     */
+    public const STATUS_FLOW = [
+        0 => [1, 2, 3, 4, 5],
+        1 => [2, 3, 4, 5],
+        2 => [3, 4, 5],
+        3 => [3, 4, 5],
+        4 => [1, 2, 3, 4, 5],
+        5 => [5],
+    ];
+
+    /** 状态流转图（纯逻辑，可单测） */
+    public function statusFlow(): array
+    {
+        return self::STATUS_FLOW;
+    }
+
+    /** 状态是否允许流转（纯逻辑，可单测；同状态重复上报幂等放行） */
+    public function canTransitionStatus(int $from, int $to): bool
+    {
+        if ($from === $to) {
+            return true;
+        }
+
+        return in_array($to, self::STATUS_FLOW[$from] ?? [], true);
+    }
+
     /** 创建运单 */
     public function createShipment(int $carrierServiceId, int $packTaskId, array $options = []): TmsShipment
     {
@@ -80,11 +110,12 @@ class TmsShipmentService
             if (!$shipment) {
                 throw new \RuntimeException('运单不存在');
             }
-            if ($status < $shipment->status) {
-                throw new \RuntimeException("物流状态不可回退: 当前{$shipment->status} → {$status}");
+            if (!$this->canTransitionStatus((int) $shipment->status, $status)) {
+                throw new \RuntimeException("物流状态不允许流转: 当前{$shipment->status} → {$status}");
             }
             $shipment->status = $status;
-            if ($status === 3) {
+            // 幂等重复送达不覆盖首次签收时间
+            if ($status === 3 && $shipment->actual_delivery_at === null) {
                 $shipment->actual_delivery_at = date('Y-m-d H:i:s');
             }
             $shipment->save();

@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace app\service\oms;
 
+use app\common\StockLockOrder;
 use app\service\inventory\InventoryService;
 
 class AllocationService
@@ -26,7 +27,8 @@ class AllocationService
     public function reserve(int $omsOrderId, array $items): array
     {
         $reservationIds = [];
-        foreach ($items as $item) {
+        // 多行预占也会锁实时库存行；按统一库存维度排序，避免与其他库存事务反向加锁
+        foreach (StockLockOrder::sort($items) as $item) {
             $rid = $this->inventory->reserveQuantity(
                 $item['product_id'],
                 $item['sku_id'] ?? 0,

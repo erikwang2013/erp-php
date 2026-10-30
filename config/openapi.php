@@ -32,6 +32,8 @@ return [
     ],
 
     'webhook' => [
+        // 允许投递的端口；默认仅 80/443，存量非标准端口接收方需运维显式加入（如 [80, 443, 8080]）
+        'allowed_ports' => [80, 443],
         'max_attempts' => 5, // 单次事件最大投递尝试次数（含首次）
         'retry_base_seconds' => 60, // 指数退避基数：delay = base * 2^(attempts-1)，封顶 max_backoff_seconds
         'max_backoff_seconds' => 3600,

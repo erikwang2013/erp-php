@@ -160,8 +160,8 @@ class WebhookController extends BaseController
             return $this->fail($this->trans('Subscription events are empty or contain illegal event names (allowed: alphanumerics, ._-, or "*")'), 422);
         }
         $targetUrl = trim((string) $request->input('target_url'));
-        if (!str_starts_with($targetUrl, 'http://') && !str_starts_with($targetUrl, 'https://')) {
-            return $this->fail($this->trans('target_url must start with http:// or https://'), 422);
+        if (!WebhookService::isSafeUrl($targetUrl)) {
+            return $this->fail($this->trans('target_url must be a public http(s) URL on port 80/443'), 422);
         }
 
         $secret = (string) $request->input('secret');
@@ -230,8 +230,8 @@ class WebhookController extends BaseController
         }
         if ($request->input('target_url') !== null) {
             $targetUrl = trim((string) $request->input('target_url'));
-            if (!str_starts_with($targetUrl, 'http://') && !str_starts_with($targetUrl, 'https://')) {
-                return $this->fail($this->trans('target_url must start with http:// or https://'), 422);
+            if (!WebhookService::isSafeUrl($targetUrl)) {
+                return $this->fail($this->trans('target_url must be a public http(s) URL on port 80/443'), 422);
             }
             $sub->target_url = $targetUrl;
         }

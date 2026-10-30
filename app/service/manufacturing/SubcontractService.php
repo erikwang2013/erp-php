@@ -74,9 +74,11 @@ class SubcontractService extends AbstractCrudService
                 throw new InvalidArgumentException('委外订单已核销，禁止发料');
             }
 
+            // 按库存维度排序后逐行出库：锁序与其它模块统一，避免两单明细顺序相反时跨 SKU 死锁
             $items = MfgSubcontractIssueItem::query()
                 ->where('issue_id', $issueId)
-                ->orderBy('id')
+                ->orderBy('product_id')
+                ->orderBy('sku_id')
                 ->get();
             if ($items->isEmpty()) {
                 throw new InvalidArgumentException('发料单明细不能为空，无法审核');

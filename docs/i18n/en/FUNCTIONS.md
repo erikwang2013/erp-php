@@ -568,10 +568,10 @@ MRP 运算 → BOM 展开 → 净需求计算 → 生成采购/生产建议
 | Business services | 54 [](#stats:services=54) |
 | API routes | 837 (dynamically generated, see `scripts/check-endpoints.php`, not subject to doc-stats validation) |
 | Middleware | 10 [](#stats:middleware=10) |
-| PHP source files | 444 [](#stats:php_files=444) |
+| PHP source files | 447 [](#stats:php_files=447) |
 | Database install script | Single file `database/install.sql` (211 tables, all migrations merged in) |
 | Frontend pages (Flutter) | 117 (measured 2026-09-22: `.dart` page files under `apps/flutter/lib/app/pages/`, recursive; not included in doc-stats validation) |
-| Unit tests | 102[](#stats:test_files=102) test files  / 933[](#stats:tests=933) test cases  / 4178[](#stats:assertions=4178) assertions  (static count of test methods + assertion call sites, independent of the runtime environment) |
+| Unit tests | 111[](#stats:test_files=111) test files  / 1018[](#stats:tests=1018) test cases  / 4482[](#stats:assertions=4482) assertions  (static count of test methods + assertion call sites, independent of the runtime environment) |
 
 > The numbers above are measured by `bash scripts/doc-stats.sh`; items marked `[](#stats:key=value)` are automatically
 > validated by CI (the docs job in `.github/workflows/ci.yml`) against code facts; drift turns red.
@@ -677,5 +677,16 @@ The basis for this round's completion corrections (file existence can be corrobo
 | v1.4.0 — finance treasury/tax F6/F5 + F7 | Added | `app/service/finance/FinanceBillService.php` + `BankReconService.php` (statement import/automatic and manual reconciliation) + `app/service/tax/TaxInvoicePoolService.php` + `EInvoiceService.php` (EInvoiceAdapter/MockEInvoiceAdapter; the real tax bureau is a reserved adaptation point) + `app/service/sales/CreditControlService.php` (assertion-based blocking of over-limit orders) |
 | v1.4.0 — platform/channels B3/B4/B7/E1 | Added | `app/controller/workflow/WorkflowDesignerController.php` (canvas_json persistence) + `app/service/notification/` (ChannelDriver/ChannelService/MockChannelDriver/MailMockChannelDriver, with failure retry) + `app/controller/notification/NotificationChannelController.php` (`tests/NotificationChannelTest.php` 5 cases) + `app/controller/platform/CustomFieldController.php` + `app/controller/eam/EamInspectionController.php` (spot-check scanning) |
 | v1.17.0 — multi-language (i18n) | Added | Backend: `resource/translations/` (13 locale directories zh_CN/en/ja/ko/de/fr/es/pt/ru/ar/hi/bn/id, each with common+modules+validation in three files, each of the other 11 locales 542 entries (zh_CN 533, en 30); en is English-as-key) + `app/common/I18n.php` (`getLocale()` resolves the first `Accept-Language` tag and maps the primary subtag zh*→zh_CN; `trans()` for non-en follows `[request locale, zh_CN, en]`→key, and en never falls back to Chinese) + `config/translation.php` + the generator `scripts/gen-be-locales.mjs`; Frontend: `apps/angular/src/app/core/` (`zh-en/` (index + part1..4) + `zh-{ar,bn,de,es,fr,hi,id,ja,ko,pt,ru}.ts`) (the 11 new locale dictionaries are lazily loaded per locale; Angular 1453 keys) + `scripts/gen-fe-locales.mjs`; switch entry points = the top-bar globe icon + the personal-center dropdown; Flutter (`apps/flutter/lib/l10n/`) remains Chinese/English only |
+
+## 20. Security and Consistency Hardening (2026-10-30)
+
+- **Inventory ledger**: inventory flows are read-only; inventory rows can only be deleted at zero quantity; quantity, cost_price, product/warehouse/location/batch cannot be edited directly; corrections go through stocktake/transfer.
+- **WMS inbound**: receiving validates ASN product ownership and expected quantities; putaway re-checks receiving/ASN status; putaway status can only move through start/complete actions, and the generic update endpoint rejects status.
+- **Order state**: creation allows only 0/1; updates allow only 0→1, 0→4, 1→4 or same value; delivery/receiving require parent status 1/2; deletion checks soft-deleted delivery/receiving records.
+- **Receipts, payments and payroll**: receipt/payment approval updates the bank balance and cash journal in one transaction, duplicate approval returns 422, and audited documents cannot be deleted; batch payroll uses the employee+period unique key.
+- **Reports**: sensitive tables/columns/PII are rejected, an empty field list no longer triggers a full-table query, and historical datasets are re-checked against their stored SQL; sensitive legacy data returns 422.
+- **Inventory lock order**: all multi-line inventory actions sort by `product_id, sku_id, warehouse_id, location_id, batch_code` to reduce cross-document deadlocks.
+- **MRP**: gross requirements are the period sales-order demand multiplied by BOM usage, instead of using the per-unit BOM quantity directly.
+- **TMS**: forward status transitions, exception recovery and same-status idempotency are restored.
 
 > Detailed roadmap design spec: `superpowers/specs/2026-08-04-erp-ecosystem-roadmap-design.md`

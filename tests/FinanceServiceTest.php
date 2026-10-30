@@ -7,10 +7,56 @@ declare(strict_types=1);
 
 namespace tests;
 
+use app\service\finance\FinanceService;
+use Illuminate\Database\Capsule\Manager as DB;
 use PHPUnit\Framework\TestCase;
 
 class FinanceServiceTest extends TestCase
 {
+    /**
+     * 合法格式但不存在的 ID 不能把 "No query results for model [...]" 泄露给调用方
+     */
+    public function testMissingRecordsThrowLocalizedMessagesInsteadOfModelNotFound(): void
+    {
+        $src = (string) file_get_contents(__DIR__ . '/../app/service/finance/FinanceService.php');
+        $this->assertStringNotContainsString('firstOrFail(', $src, '禁止 firstOrFail 泄露内部模型名');
+        foreach (['应收记录不存在', '应付记录不存在', '银行账户不存在'] as $message) {
+            $this->assertStringContainsString($message, $src, "缺少本地化提示: {$message}");
+        }
+    }
+
+    public function testSettleReceiptRejectsMissingArAp(): void
+    {
+        $this->requireDatabase();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('应收记录不存在');
+        (new FinanceService())->settleReceipt(1, PHP_INT_MAX, 1.0);
+    }
+
+    public function testSettlePaymentRejectsMissingArAp(): void
+    {
+        $this->requireDatabase();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('应付记录不存在');
+        (new FinanceService())->settlePayment(1, PHP_INT_MAX, 1.0);
+    }
+
+    public function testRecordJournalRejectsMissingBankAccount(): void
+    {
+        $this->requireDatabase();
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('银行账户不存在');
+        (new FinanceService())->recordJournal(PHP_INT_MAX, 1, 1.0, 'test', 1, '测试');
+    }
+
+    private function requireDatabase(): void
+    {
+        try {
+            DB::connection()->getPdo();
+        } catch (\Throwable $e) {
+            self::markTestSkipped('无可用数据库连接，跳过缺失记录提示断言: ' . $e->getMessage());
+        }
+    }
     /**
      * Service class exists
      */

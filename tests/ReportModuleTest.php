@@ -89,6 +89,28 @@ class ReportModuleTest extends TestCase
         return $m->invoke($controller, $frequency);
     }
 
+    /**
+     * @param array<int, mixed> $fields
+     * @param array<int, mixed> $filters
+     */
+    private function invokeValidateReportDefinition(mixed $table, array $fields, array $filters, array $config): ?string
+    {
+        $controller = new ReportController();
+        $m = new \ReflectionMethod($controller, 'validateReportDefinition');
+        $m->setAccessible(true);
+
+        return $m->invoke($controller, $table, $fields, $filters, $config);
+    }
+
+    private function invokeBuildWhereClause(array $condition): ?array
+    {
+        $controller = new ReportController();
+        $m = new \ReflectionMethod($controller, 'buildWhereClause');
+        $m->setAccessible(true);
+
+        return $m->invoke($controller, $condition);
+    }
+
     private function assertRoughly(string $actual, int $expectedTs): void
     {
         $this->assertLessThanOrEqual(5, abs(strtotime($actual) - $expectedTs), "期望约 {$expectedTs}, 实际 {$actual}");
@@ -166,11 +188,13 @@ class ReportModuleTest extends TestCase
         $this->assertSame('`a``b`', $escaped);
     }
 
-    public function testDefaultSelectStarWithOrderAndLimit(): void
+    public function testEmptyFieldsRejectedInsteadOfSelectStar(): void
     {
-        // 无字段配置 → SELECT *；统一 ORDER BY 1 DESC、LIMIT 1000
+        // 执行必须显式列出字段：无字段模板不再回退 SELECT *（否则可绕开列清单整表取 PII）
         $source = file_get_contents(__DIR__ . '/../app/controller/report/ReportController.php');
-        $this->assertStringContainsString("\$select[] = '*';", $source);
+        $this->assertStringNotContainsString("\$select[] = '*';", $source);
+        $this->assertStringContainsString('if ($fields->isEmpty()) {', $source);
+        $this->assertStringContainsString("\$this->fail(\$this->trans('报表至少选择一个字段'), 422);", $source);
         $this->assertStringContainsString('ORDER BY 1 DESC', $source);
         $this->assertStringContainsString('LIMIT 1000', $source);
         $this->assertStringContainsString("trans('Disallowed table name: ') . \$table", $source);
@@ -186,6 +210,142 @@ class ReportModuleTest extends TestCase
         }
         $this->assertNotContains('erp_evil; DROP TABLE x', $allowed, '白名单应拒绝注入式表名');
         $this->assertNotContains('users', $allowed, '白名单不应包含非 erp_ 表');
+    }
+
+    public function testSensitiveTablesRejected(): void
+    {
+        $sensitive = [
+            'erp_admin_user',
+            'erp_admin_role',
+            'erp_admin_permission',
+            'erp_admin_user_role',
+            'erp_system_config',
+            'erp_openapi_app',
+            'erp_webhook_subscription',
+            'erp_webhook_delivery_log',
+            'erp_operation_log',
+            'erp_report_dataset',
+            'erp_hr_candidate',
+            'erp_oms_order_address',
+        ];
+        foreach ($sensitive as $table) {
+            $error = $this->invokeValidateReportDefinition($table, [], [], ['table' => $table]);
+            $this->assertNotNull($error, "敏感表 {$table} 应被报表构建器拒绝");
+        }
+    }
+
+    public function testOrdinaryBusinessTableAllowed(): void
+    {
+        $config = [
+            'table' => 'erp_sales_order',
+            'joins' => [
+                ['type' => 'LEFT', 'table' => 'erp_customer', 'on' => 'erp_sales_order.customer_id = erp_customer.id'],
+            ],
+            'where' => [['field' => 'status', 'op' => 'eq', 'value' => 1]],
+            'group_by' => 'erp_sales_order.customer_id',
+        ];
+        $error = $this->invokeValidateReportDefinition(
+            'erp_sales_order',
+            ['order_no', 'total_amount'],
+            ['created_at'],
+            $config
+        );
+        $this->assertNull($error, (string) $error);
+    }
+
+    public function testSensitiveColumnsRejectedInEveryClause(): void
+    {
+        $cases = [
+            '字段' => $this->invokeValidateReportDefinition('erp_sales_order', ['password'], [], ['table' => 'erp_sales_order']),
+            '聚合前字段' => $this->invokeValidateReportDefinition('erp_sales_order', ['app_secret'], [], ['table' => 'erp_sales_order']),
+            '筛选字段' => $this->invokeValidateReportDefinition('erp_sales_order', [], ['password_hash'], ['table' => 'erp_sales_order']),
+            'JOIN ON 列' => $this->invokeValidateReportDefinition('erp_sales_order', [], [], [
+                'table' => 'erp_sales_order',
+                'joins' => [
+                    ['type' => 'LEFT', 'table' => 'erp_customer', 'on' => 'erp_sales_order.access_token = erp_customer.id'],
+                ],
+            ]),
+            'where 字段' => $this->invokeValidateReportDefinition('erp_sales_order', [], [], [
+                'table' => 'erp_sales_order',
+                'where' => [['field' => 'u.api_key', 'op' => 'eq', 'value' => 'x']],
+            ]),
+            'GROUP BY 字段' => $this->invokeValidateReportDefinition('erp_sales_order', [], [], [
+                'table' => 'erp_sales_order',
+                'group_by' => 'refresh_token',
+            ]),
+        ];
+        foreach ($cases as $context => $error) {
+            $this->assertNotNull($error, "{$context} 中的敏感列应被拒绝");
+        }
+    }
+
+    public function testUnsafeHistoricalDatasetSqlDetected(): void
+    {
+        foreach ([
+            '',
+            "  \n",
+            'SELECT * FROM `erp_sales_order` LIMIT 1000',
+            "select\n  * from `erp_sales_order`",
+            'SELECT `id`, `username` FROM `erp_admin_user`',
+            'SELECT `u`.`password` FROM `erp_sales_order` `u`',
+            'SELECT `contact_phone` FROM `erp_tms_carrier`',
+            'SELECT `id` FROM `erp_report_dataset`',
+            'SELECT `phone`, `email` FROM `erp_hr_employee`',
+            'SELECT c.phone AS p FROM `erp_hr_employee` c',
+            'SELECT o.* FROM `erp_sales_order` o',
+            'SELECT `o` . * FROM `erp_sales_order` `o`',
+            'SELECT /*x*/ * FROM `erp_sales_order`',
+            'SELECT o . * FROM `erp_sales_order` o',
+            "SELECT --c\n phone FROM `erp_hr_employee`",
+            "SELECT #c\n * FROM `erp_sales_order`",
+            'SELECT `id` FROM /*x*/ `erp_admin_user`',
+        ] as $sql) {
+            $this->assertTrue(ReportController::isUnsafeDatasetSql($sql), "历史数据集 SQL 应判为不安全: {$sql}");
+        }
+
+        $this->assertFalse(ReportController::isUnsafeDatasetSql(
+            'SELECT `order_no`, `total_amount` FROM `erp_sales_order` WHERE `created_at` >= ? ORDER BY 1 DESC LIMIT 1000'
+        ));
+        // 外键不是敏感值，不能被 bank_account 规则误伤
+        $this->assertFalse(ReportController::isUnsafeDatasetSql('SELECT `bank_account_id` FROM `erp_sales_order`'));
+        $this->assertFalse(ReportController::isUnsafeDatasetSql('SELECT o.id, o.code FROM `erp_sales_order` o'));
+
+        $source = file_get_contents(__DIR__ . '/../app/controller/report/ReportController.php');
+        $this->assertStringContainsString('self::isUnsafeDatasetSql((string) $dataset->query_sql)', $source);
+    }
+
+    public function testPlaintextPiiColumnsRejected(): void
+    {
+        foreach ([
+            'phone', 'mobile', 'email', 'id_card', 'bank_account', 'account_number',
+            'address', 'tax_number', 'emergency_phone', 'contact_phone',
+            'address_line1', 'address_line2', 'contact_name', 'contact_person', 'phone_number',
+            'emergency_contact', 'birthday',
+        ] as $column) {
+            $error = $this->invokeValidateReportDefinition('erp_hr_employee', [$column], [], ['table' => 'erp_hr_employee']);
+            $this->assertNotNull($error, "PII 字段 {$column} 应被拒绝");
+        }
+        // 普通列不能被 PII 规则误伤
+        $this->assertNull(
+            $this->invokeValidateReportDefinition('erp_sales_order', ['name', 'id'], [], ['table' => 'erp_sales_order'])
+        );
+        // 别名前缀只取末段列名判定
+        $this->assertNotNull(
+            $this->invokeValidateReportDefinition('erp_sales_order', ['u.contact_phone'], [], ['table' => 'erp_sales_order'])
+        );
+        // 外键 *_id 不是敏感值，不能被 bank_account 前缀误伤
+        $this->assertNull(
+            $this->invokeValidateReportDefinition('erp_sales_order', ['bank_account_id'], [], ['table' => 'erp_sales_order'])
+        );
+    }
+
+    public function testBuildWhereClauseRejectsSensitiveColumn(): void
+    {
+        $this->assertNull($this->invokeBuildWhereClause(['field' => 'password', 'op' => 'eq', 'value' => 'x']));
+        $this->assertSame(
+            ['`status` = ?', [1]],
+            $this->invokeBuildWhereClause(['field' => 'status', 'op' => 'eq', 'value' => 1])
+        );
     }
 
     public function testTextFilterBuildsLikeClause(): void

@@ -91,7 +91,10 @@ class FinanceService
     public function settleReceipt(int $receiptId, int $arApId, float $amount): void
     {
         DB::transaction(function () use ($receiptId, $arApId, $amount) {
-            $arAp = FinanceArAp::where('id', $arApId)->lockForUpdate()->firstOrFail();
+            $arAp = FinanceArAp::where('id', $arApId)->lockForUpdate()->first();
+            if (!$arAp) {
+                throw new \RuntimeException('应收记录不存在');
+            }
             if ($arAp->type !== 1) {
                 throw new \RuntimeException('核销对象不是应收记录');
             }
@@ -158,7 +161,10 @@ class FinanceService
     public function settlePayment(int $paymentId, int $arApId, float $amount): void
     {
         DB::transaction(function () use ($paymentId, $arApId, $amount) {
-            $arAp = FinanceArAp::where('id', $arApId)->lockForUpdate()->firstOrFail();
+            $arAp = FinanceArAp::where('id', $arApId)->lockForUpdate()->first();
+            if (!$arAp) {
+                throw new \RuntimeException('应付记录不存在');
+            }
             if ($arAp->type !== 2) {
                 throw new \RuntimeException('核销对象不是应付记录');
             }
@@ -207,7 +213,10 @@ class FinanceService
             $sourceId,
             $summary
         ) {
-            $account = FinanceBankAccount::where('id', $bankAccountId)->lockForUpdate()->firstOrFail();
+            $account = FinanceBankAccount::where('id', $bankAccountId)->lockForUpdate()->first();
+            if (!$account) {
+                throw new \RuntimeException('银行账户不存在');
+            }
 
             if (!in_array($direction, [1, 2], true)) {
                 throw new \InvalidArgumentException('direction 非法: 仅支持 1=收入, 2=支出');

@@ -17,6 +17,7 @@ use app\model\HrSalary;
 use app\service\AbstractCrudService;
 use app\service\manufacturing\PieceWageService;
 use Illuminate\Database\Capsule\Manager as DB;
+use Illuminate\Database\QueryException;
 use InvalidArgumentException;
 use support\Container;
 use Throwable;
@@ -322,9 +323,24 @@ class HrService extends AbstractCrudService
         $salary->id = $this->generateId();
         $salary->fill($this->fillableOnly($salary, $data));
         $salary->net_salary = $this->salaryNetSalary($salary->toArray());
-        $salary->save();
+        try {
+            $salary->save();
+        } catch (QueryException $e) {
+            // 预检与写入之间有并发窗口：唯一键 uk_employee_period 冲突转业务异常（422），
+            // 其余数据库故障（列/量程/连接）原样上抛，不静默吞掉
+            if ($this->isDuplicateKey($e)) {
+                throw new InvalidArgumentException('该员工当月薪资记录已存在');
+            }
+            throw $e;
+        }
 
         return $salary;
+    }
+
+    /** MySQL 唯一键冲突（1062）；其他约束/数据库错误不上报为「已存在」 */
+    private function isDuplicateKey(QueryException $e): bool
+    {
+        return (int) ($e->errorInfo[1] ?? 0) === 1062;
     }
 
     /**
@@ -416,10 +432,12 @@ class HrService extends AbstractCrudService
             ];
         }
         if ($rows) {
-            HrSalary::insert($rows);
+            // insertOrIgnore：并发双击时两个请求都可能通过上面的 existing 预检，
+            // 唯一键 uk_employee_period 拦下后到的行，不抛 500、不重复发薪
+            return DB::table('hr_salary')->insertOrIgnore($rows);
         }
 
-        return count($rows);
+        return 0;
     }
 
     /**

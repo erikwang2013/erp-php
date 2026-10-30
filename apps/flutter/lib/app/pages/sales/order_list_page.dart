@@ -149,6 +149,11 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
       customers = _primed(customers, row, 'customer_id', 'customer_name');
       warehouses = _primed(warehouses, row, 'warehouse_id', 'warehouse_name');
     }
+    // 新建只允许 0=待审核 / 1=已审核：2/3 由发货动作写入，4 不经新建表单产生；
+    // 编辑态保留全部选项以便回填既有 2/3 值（后端 update 会按状态机拒绝非法流转）。
+    final statusOptions = row == null
+        ? const [0, 1]
+        : [for (var i = 0; i < _statusLabels.length; i++) i];
     // 可空外键 length>1 才算「有真选项」（1 是那枚空选项），否则退回文本框
     return [
       FormFieldConfig(name: 'code', label: AppL10n.of(context).salesOrderNo, hint: AppL10n.of(context).salesOrderCodeHint),
@@ -163,7 +168,7 @@ class _SalesOrderListPageState extends State<SalesOrderListPage> {
       FormFieldConfig(name: 'total_amount', label: AppL10n.of(context).salesOrderTotalAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonExampleAmount('100.00')),
       FormFieldConfig(name: 'discount_amount', label: AppL10n.of(context).salesDiscountAmount, type: FormFieldType.number, hint: AppL10n.of(context).commonDefaultZero),
       FormFieldConfig(name: 'status', label: AppL10n.of(context).commonStatus, type: FormFieldType.dropdown,
-        options: [for (var i = 0; i < _statusLabels.length; i++) '$i - ${_statusLabels[i]}'], initialValue: '0 - ${_statusLabels[0]}'),
+        options: [for (final i in statusOptions) '$i - ${_statusLabels[i]}'], initialValue: '0 - ${_statusLabels[0]}'),
       FormFieldConfig(name: 'ordered_at', label: AppL10n.of(context).salesOrderedAt, initialValue: defaultOrderedAt,
         hint: AppL10n.of(context).commonDateTimeFormat),
       FormFieldConfig(name: 'remark', label: AppL10n.of(context).commonRemark, type: FormFieldType.multiline),

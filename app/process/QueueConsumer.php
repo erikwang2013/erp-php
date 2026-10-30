@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace app\process;
 
+use app\common\SnowflakeService;
 use app\queue\RedisQueue;
 use support\Log;
 use support\Redis;
@@ -72,6 +73,8 @@ class QueueConsumer
      */
     public function onWorkerStart(Worker $worker): void
     {
+        SnowflakeService::registerProcessNode();
+
         $this->queue = (string)config('queue.connections.redis.queue', 'default');
         $this->scanTaskClasses();
 

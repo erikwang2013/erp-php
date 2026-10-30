@@ -2055,3 +2055,16 @@ The following endpoints trigger automatic cross-module linkage, marked with 🔗
 |------|---------|
 | 🔗 POST /admin/v1/purchase/receive | Automatically calls InventoryService.stockIn() to update inventory + recalculate moving weighted average cost; calls FinanceService.createAp() to generate AP records |
 | 🔗 POST /admin/v1/sales/delivery | Automatically calls InventoryService.stockOut() to deduct inventory (at moving weighted average cost); calls FinanceService.createAr() to generate AR records |
+
+---
+
+## 17. Behaviour Changes (2026-10-30)
+
+- **Inventory flows are read-only**: the flow update/delete endpoints are removed; inventory rows can only be deleted at zero quantity.
+- **Inventory update**: quantity, cost price, product/warehouse/location/batch fields no longer accept direct changes; an unchanged full-row echo still returns success.
+- **Order state**: creating sales/purchase orders accepts only 0/1; updates allow only 0→1, 0→4, 1→4 or the same value; delivery/receiving require the parent order to be approved or partially fulfilled; orders with delivery/receiving records cannot be deleted.
+- **Receipts/payments**: approval also updates the bank balance and cash journal; duplicate approval returns 422; audited documents cannot be deleted; bank-account updates ignore balance.
+- **Reports**: sensitive tables/columns/PII and empty-field full-table queries are rejected; if a historical dataset's `query_sql` contains sensitive surfaces, the result endpoint returns 422.
+- **Bank accounts**: account numbers are returned masked (last four digits), and keyword search no longer matches the account column.
+- **Webhook**: the target must be a public http(s) URL whose port is in the `openapi.webhook.allowed_ports` allow-list (80/443 by default).
+- **TMS callback**: forward transitions, exception recovery and same-status duplicate reports are accepted; returned is terminal.

@@ -12,6 +12,9 @@ use app\model\FinanceBankAccount;
 use app\model\FinancePayment;
 use app\model\FinanceSettlement;
 use app\model\Supplier;
+use app\service\finance\FinanceService;
+use Illuminate\Database\Capsule\Manager as DB;
+use support\Container;
 use support\Request;
 use support\Response;
 
@@ -200,6 +203,11 @@ class PaymentController extends BaseController
             return $this->fail($validator->errors()->first(), 422);
         }
         $id = $this->decodeId($id);
+        // status 仅可 0→1（审核动作），客户端传其他值一律拒绝
+        $audit = $request->input('status') !== null;
+        if ($audit && (int) $request->input('status') !== 1) {
+            return $this->fail($this->trans('Only audited status (1) is supported'), 422);
+        }
         $item = FinancePayment::find($id);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
@@ -208,45 +216,77 @@ class PaymentController extends BaseController
             return $this->fail($this->trans('Audited records cannot be modified'), 422);
         }
 
-        if ($request->input('code') !== null) {
-            $item->code = $request->input('code');
+        try {
+            $item = DB::connection()->transaction(function () use ($request, $id, $audit) {
+                // 行锁 + 复核 status：并发审核只能有一个请求完成 0→1，
+                // 避免重复审核把余额和日记账记两遍
+                $item = FinancePayment::query()->where('id', $id)->lockForUpdate()->first();
+                if (!$item) {
+                    throw new \RuntimeException($this->trans('Record not found'));
+                }
+                if ((int) $item->status !== 0) {
+                    throw new \RuntimeException($this->trans('Audited records cannot be modified'));
+                }
+
+                if ($request->input('code') !== null) {
+                    $item->code = $request->input('code');
+                }
+                if ($request->input('supplier_id') !== null) {
+                    $supplierId = $this->decodeFlexibleId((string) $request->input('supplier_id'));
+                    if ($supplierId === null) {
+                        throw new \RuntimeException($this->trans('Invalid supplier ID'));
+                    }
+                    $item->supplier_id = $supplierId;
+                }
+                if ($request->input('bank_account_id') !== null && $request->input('bank_account_id') !== '') {
+                    $bankAccountId = $this->optionalId($request->input('bank_account_id'));
+                    if ($bankAccountId === null) {
+                        throw new \RuntimeException($this->trans('Invalid bank account ID'));
+                    }
+                    $item->bank_account_id = $bankAccountId;
+                }
+                if ($request->input('amount') !== null) {
+                    $item->amount = (float) $request->input('amount');
+                }
+                if ($request->input('method') !== null) {
+                    $item->method = $request->input('method');
+                }
+                if ($request->input('remark') !== null) {
+                    $item->remark = $request->input('remark');
+                }
+                if ($audit) {
+                    $item->status = 1;
+                }
+                // 空串视同未填：列 NOT NULL 且非字符串，写入 '' 会走 MySQL 1292 → 500；
+                // 前端「空串一律不送」的约定下 '' 也不该表达"清空时间"（无法清空）
+                if ($request->input('paid_at') !== null && $request->input('paid_at') !== '') {
+                    $item->paid_at = $request->input('paid_at');
+                }
+                $item->save();
+
+                // 审核即入账：bank_account_id=0（未指定账户）只审核不记账；
+                // 记账失败（账户余额不足等）随外层事务回滚，status 不会停在 1
+                if ($audit && (int) $item->bank_account_id > 0) {
+                    Container::get(FinanceService::class)->recordJournal(
+                        (int) $item->bank_account_id,
+                        2,
+                        (float) $item->amount,
+                        'finance_payment',
+                        $id,
+                        '付款审核入账 ' . $item->code
+                    );
+                }
+
+                return $item;
+            });
+        } catch (\Throwable $e) {
+            $this->logError('finance_payment.update', $e);
+            // 业务拒绝（重复审核/账户余额不足/非法外键）→ 422；库故障仍 500
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
         }
-        if ($request->input('supplier_id') !== null) {
-            $supplierId = $this->decodeFlexibleId((string) $request->input('supplier_id'));
-            if ($supplierId === null) {
-                return $this->fail($this->trans('Invalid supplier ID'), 422);
-            }
-            $item->supplier_id = $supplierId;
-        }
-        if ($request->input('bank_account_id') !== null && $request->input('bank_account_id') !== '') {
-            $bankAccountId = $this->optionalId($request->input('bank_account_id'));
-            if ($bankAccountId === null) {
-                return $this->fail($this->trans('Invalid bank account ID'), 422);
-            }
-            $item->bank_account_id = $bankAccountId;
-        }
-        if ($request->input('amount') !== null) {
-            $item->amount = (float) $request->input('amount');
-        }
-        if ($request->input('method') !== null) {
-            $item->method = $request->input('method');
-        }
-        if ($request->input('remark') !== null) {
-            $item->remark = $request->input('remark');
-        }
-        // status 仅可 0→1（审核动作），客户端传其他值一律拒绝
-        if ($request->input('status') !== null) {
-            if ((int) $request->input('status') !== 1) {
-                return $this->fail($this->trans('Only audited status (1) is supported'), 422);
-            }
-            $item->status = 1;
-        }
-        // 空串视同未填：列 NOT NULL 且非字符串，写入 '' 会走 MySQL 1292 → 500；
-        // 前端「空串一律不送」的约定下 '' 也不该表达"清空时间"（无法清空）
-        if ($request->input('paid_at') !== null && $request->input('paid_at') !== '') {
-            $item->paid_at = $request->input('paid_at');
-        }
-        $item->save();
 
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
@@ -277,6 +317,10 @@ class PaymentController extends BaseController
         $item = FinancePayment::find($id);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);
+        }
+        // 已审核即已入账（银行余额+现金日记账），删除会造成账实不符；更正只能走反向记账
+        if ((int) $item->status === 1) {
+            return $this->fail('已审核的付款单不可删除', 422);
         }
         // 引用守卫：已被核销（erp_finance_settlement）的付款单不可删——原实现直接软删，
         // 留下孤儿核销记录（应付台账的已核销额与凭证断链）

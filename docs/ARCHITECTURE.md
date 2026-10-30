@@ -1012,3 +1012,15 @@ P3 后:  Cors → SecurityFilter → RateLimit → TracingId → WebSocketUpgrad
 ## 22. 多租户（已移除）
 
 多租户预留骨架（中间件、模型 Trait、`erp_tenant` 表、租户管理页面）已于 2026-10 移除，当前系统为单租户。原 `TenantScope` 中间件从未注册，财务模型不再启用租户作用域。
+
+---
+
+## 23. 2026-10-30 加固要点
+
+- **Snowflake 节点**：Worker 进程启动时通过 `runtime/snowflake/node-*.lock` 文件锁注册唯一节点（最多 1024 个进程）；跨主机需设置不同的 `SNOWFLAKE_WORKER_ID/DATACENTER_ID`。
+- **库存锁序**：所有多明细库存动作（发货、收货、WMS 上架、生产领料/委外、RMA、OMS 预占/消耗）统一按 `product_id, sku_id, warehouse_id, location_id, batch_code` 排序后执行；库存流水的悲观锁按 SKU 行 id 升序获取。
+- **库存台账**：流水只读；库存行只允许删除数量为 0 的记录；数量/成本/维度禁止直接改。
+- **订单状态**：人工只能审核/取消；发货/收货要求父单已审核或部分执行；取消/删除/发货/收货共用订单行锁。
+- **报表**：敏感表/列/PII 拒绝；无字段不执行全表查询；历史数据集按落库 SQL 复核。
+- **收付款**：审核在同一事务内更新余额与现金日记账；银行账户编辑不写 balance。
+- **TMS**：状态图允许前向跳转、异常恢复与同状态幂等。

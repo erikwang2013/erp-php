@@ -107,6 +107,26 @@ This repository ships no migration tooling: the schema and seed data use `databa
 git diff <old-version>..<new-version> -- database/install.sql    # extract the table-structure and seed differences
 ```
 
+**2026-10-30 schema patch**: existing databases must also run `database/upgrade-2026-10-30.sql` (idempotently adds dashboard date indexes and the `erp_hr_salary` unique key; it aborts if duplicate employee/period salary rows exist, so resolve those first):
+
+```bash
+mysql -u <user> -p <database> < database/upgrade-2026-10-30.sql
+```
+
+**Encrypt historical plaintext bank accounts**: bank account numbers written since this release are encrypted automatically; existing plaintext rows need the migration script (dry-run by default; back up and stop account writes before `--apply`):
+
+```bash
+php scripts/encrypt-bank-accounts.php           # dry-run: count pending rows
+php scripts/encrypt-bank-accounts.php --apply   # write, idempotent
+```
+
+**Clean historical report datasets**: datasets generated before this release may contain `SELECT *` or sensitive-table output; `result()` already refuses to replay them, but you can delete the stored copies (dry-run by default; safe datasets are kept):
+
+```bash
+php scripts/cleanup-report-datasets.php           # count
+php scripts/cleanup-report-datasets.php --apply   # delete unsafe datasets
+```
+
 1. Run the `CREATE TABLE` (they carry `IF NOT EXISTS`, so they can be run as-is) / `ALTER TABLE` / seed `INSERT` statements from the diff against the live database, in order.
 2. **Permission seeds**: the `erp_admin_permission` rows corresponding to new endpoints must be added. The super admin is the exception — it holds a wildcard permission
    (the "all permissions" row in `erp_admin_permission` with `slug = '*'`; `app/middleware/AdminPermission.php:38`

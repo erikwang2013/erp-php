@@ -8,9 +8,11 @@ declare(strict_types=1);
 namespace app\controller\purchase;
 
 use app\admin\controller\BaseController;
+use app\common\OrderStatusMachine;
 use app\model\PurchaseApply;
 use app\model\PurchaseOrder;
 use app\model\PurchaseOrderItem;
+use app\model\PurchaseReceive;
 use app\model\PurchaseReceiveItem;
 use Illuminate\Database\Capsule\Manager as DB;
 use support\Request;
@@ -108,10 +110,10 @@ class OrderController extends BaseController
             'supplier_id' => 'required',
             'remark' => 'nullable|string|max:500',
             'ordered_at' => 'nullable|date',
-            // status 落 TINYINT UNSIGNED（0待审核/1已审核/2部分收货/3已收货/4已取消）：
+            // 创建只允许 0=待审核/1=已审核：2/3 由收货动作写入，直接落库等于跳过审核与入库；
             // integer 放行 -1/999 会以 1264 Out of range → 500；total_amount 落 DECIMAL(12,2)，
             // 非数值/超 10 位整数部分以 1265/1264 → 500（两者都经 fillModelFromRequest 直落列）
-            'status' => 'integer|between:0,4',
+            'status' => 'integer|in:0,1',
             'total_amount' => 'nullable|numeric|min:0|max:9999999999.99',
             // 明细（录入路径，同 RfqController 口径）：product_id 为 hashid 串，不能用 integer 规则
             // 挡回；解码在 buildItems 里做，垃圾串在那里抛 422
@@ -255,7 +257,8 @@ class OrderController extends BaseController
             'code' => 'string|max:50',
             'remark' => 'nullable|string|max:500',
             'ordered_at' => 'nullable|date',
-            // 同 store：status 卡 TINYINT UNSIGNED 语义域，total_amount 卡 DECIMAL(12,2) 量程
+            // 同 store：status 卡 TINYINT UNSIGNED 语义域（可流转关系由 OrderStatusMachine 收口），
+            // total_amount 卡 DECIMAL(12,2) 量程
             'status' => 'integer|between:0,4',
             'total_amount' => 'nullable|numeric|min:0|max:9999999999.99',
             // 同 store：明细整表替换（提供 items 才动明细，不提供即「不改动」，
@@ -276,8 +279,28 @@ class OrderController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
+        $newStatus = $request->input('status');
+        $newStatus = $newStatus === null ? null : (int) $newStatus;
+
         try {
-            DB::transaction(function () use ($request, $item, $id) {
+            $item = DB::transaction(function () use ($request, $id, $newStatus) {
+                // 与收货/取消/删除共用订单行锁：锁后复核状态与引用，防并发 PUT 基于旧状态绕过状态机
+                $item = PurchaseOrder::query()->whereKey($id)->lockForUpdate()->first();
+                if (!$item) {
+                    throw new \RuntimeException($this->trans('Record not found'));
+                }
+                // status 只允许人工审核/取消：0→1、0→4、1→4、同值 no-op；
+                // 2/3 由收货动作驱动，禁止从这里跳转（否则可绕过审核/入库直接「已收货」）
+                if ($newStatus !== null) {
+                    $currentStatus = (int) $item->status;
+                    if (!OrderStatusMachine::canUpdate($currentStatus, $newStatus)) {
+                        throw new \RuntimeException("不允许的状态流转: {$currentStatus} → {$newStatus}");
+                    }
+                    if ($currentStatus === OrderStatusMachine::APPROVED && $newStatus === OrderStatusMachine::CANCELLED
+                        && PurchaseReceive::withTrashed()->where('order_id', $id)->exists()) {
+                        throw new \RuntimeException('该订单已有收货记录，不可取消');
+                    }
+                }
                 $this->fillModelFromRequest($item, $request);
                 // 同 store：三个 FK 都在 $fillable 内，fill 会把请求里的 hash 串与空串直填 BIGINT 列
                 // （MySQL 严格模式 1366 → 500）。未传一律不动（局部更新不得清空既有外键）；
@@ -324,7 +347,7 @@ class OrderController extends BaseController
                 $this->markApplyOrdered($applyId);
 
                 if (!$request->has('items')) {
-                    return;
+                    return $item;
                 }
                 [$lines, $total] = $this->buildItems((array) $request->input('items'));
                 if ($lines === []) {
@@ -345,6 +368,8 @@ class OrderController extends BaseController
                 $this->saveItems($id, $lines);
                 $item->fill(['total_amount' => $total]);
                 $item->save();
+
+                return $item;
             });
         } catch (\Throwable $e) {
             $this->logError('purchase_order.update', $e);
@@ -394,7 +419,27 @@ class OrderController extends BaseController
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        try {
+            DB::connection()->transaction(function () use ($id) {
+                // 与收货创建/取消共用订单行锁：锁后复查引用，避免「检查时无收货、删单后收货落库」
+                $item = PurchaseOrder::query()->whereKey($id)->lockForUpdate()->first();
+                if (!$item) {
+                    throw new \RuntimeException($this->trans('Record not found'));
+                }
+                // 引用守卫：收货记录（含软删除）挂在订单明细行上，删单会留下断链收货单与入库凭证
+                if (PurchaseReceive::withTrashed()->where('order_id', $id)->exists()) {
+                    throw new \RuntimeException('该订单已有收货记录，不可删除');
+                }
+                $item->delete();
+            });
+        } catch (\Throwable $e) {
+            $this->logError('purchase_order.destroy', $e);
+
+            $clientFault = ($e instanceof \InvalidArgumentException || $e instanceof \RuntimeException)
+                && !$e instanceof \PDOException;
+
+            return $clientFault ? $this->fail($e->getMessage(), 422) : $this->failServer();
+        }
 
         return $this->success([], $this->trans('Deleted successfully'));
     }

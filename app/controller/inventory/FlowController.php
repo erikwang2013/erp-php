@@ -66,34 +66,6 @@ class FlowController extends BaseController
     }
 
     /**
-     * 创建库存流水
-     */
-    #[\erikwang2013\apidoc\annotation\Title('创建库存流水')]
-    #[\erikwang2013\apidoc\annotation\Desc('新增一个库存流水记录')]
-    #[\erikwang2013\apidoc\annotation\Url('/admin/v1/inventory/flow')]
-    #[\erikwang2013\apidoc\annotation\Method('POST')]
-    #[\erikwang2013\apidoc\annotation\Author('erik')]
-    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'batch_code', type:'string', default:'', desc:'批次号（表无 name 列，原「流水名称」字段已废弃）')]
-    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
-    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
-    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'库存流水记录')]
-
-    public function store(Request $request): Response
-    {
-        // 表无 name/code/status 列（install.sql：erp_inventory_flow 只有 product_id/sku_id/
-        // warehouse_id/location_id/batch_code/direction/quantity/cost_price/source_type/
-        // source_id/created_at）：原 name 必填规则与 code/status 两条死规则一并删除；
-        // 注意真实列 product_id/warehouse_id/direction 是 NOT NULL 无默认，本端点仍无校验（已报交接）
-        $item = new InventoryFlow();
-        $item->id = $this->generateId();
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
-
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('Created successfully'));
-    }
-
-    /**
      * 库存流水详情
      */
     #[\erikwang2013\apidoc\annotation\Title('库存流水详情')]
@@ -121,78 +93,5 @@ class FlowController extends BaseController
         }
 
         return $this->success($this->encodeIds($item->toArray()));
-    }
-
-    /**
-     * 更新库存流水
-     */
-    #[\erikwang2013\apidoc\annotation\Title('更新库存流水')]
-    #[\erikwang2013\apidoc\annotation\Desc('根据ID更新库存流水信息')]
-    #[\erikwang2013\apidoc\annotation\Method('PUT')]
-    #[\erikwang2013\apidoc\annotation\Author('erik')]
-    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'库存流水hashid')]
-    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
-    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
-    #[\erikwang2013\apidoc\annotation\Returned('data', type:'object', desc:'更新后的库存流水记录')]
-
-    public function update(Request $request, string $id): Response
-    {
-        // name/code/status 三条都是幻列死规则（可选项，此前只被 $fillable 静默吞掉），已删
-        $validator = validator($request->all(), [
-            'id' => 'string',
-        ]);
-        if ($validator->fails()) {
-            return $this->fail($validator->errors()->first(), 422);
-        }
-        $id = $this->decodeId($id);
-        $item = InventoryFlow::find($id);
-        if (!$item) {
-            return $this->fail($this->trans('Record not found'), 404);
-        }
-
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
-
-        return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
-    }
-
-    /**
-     * 删除库存流水（软删除）
-     */
-    #[\erikwang2013\apidoc\annotation\Title('删除库存流水')]
-    #[\erikwang2013\apidoc\annotation\Desc('根据ID软删除库存流水，需管理员密码二次确认')]
-    #[\erikwang2013\apidoc\annotation\Method('DELETE')]
-    #[\erikwang2013\apidoc\annotation\Author('erik')]
-    #[\erikwang2013\apidoc\annotation\Tag('库存管理')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'id', type:'string', default:'', desc:'库存流水hashid')]
-    #[\erikwang2013\apidoc\annotation\Param(name:'password', type:'string', default:'', desc:'管理员密码（二次确认）')]
-    #[\erikwang2013\apidoc\annotation\Returned('code', type:'int', desc:'业务代码,0=成功')]
-    #[\erikwang2013\apidoc\annotation\Returned('message', type:'string', desc:'业务信息')]
-    #[\erikwang2013\apidoc\annotation\Returned('data', type:'array', desc:'空数组')]
-
-    public function destroy(Request $request, string $id): Response
-    {
-        $validator = validator($request->all(), [
-            'id' => 'string',
-        ]);
-        if ($validator->fails()) {
-            return $this->fail($validator->errors()->first(), 422);
-        }
-        $id = $this->decodeId($id);
-        $item = InventoryFlow::find($id);
-        if (!$item) {
-            return $this->fail($this->trans('Record not found'), 404);
-        }
-
-        $adminId = $request->adminId ?? 0;
-        $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
-        if ($error !== null) {
-            return $this->fail($error, 422);
-        }
-
-        $item->delete();
-
-        return $this->success([], $this->trans('Deleted successfully'));
     }
 }

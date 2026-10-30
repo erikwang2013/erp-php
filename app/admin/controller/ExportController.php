@@ -14,6 +14,7 @@ use app\model\AdminUser;
 use app\model\OperationLog;
 use app\model\SystemConfig;
 use Dompdf\Dompdf;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -85,20 +86,21 @@ class ExportController extends BaseController
             'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
         ];
 
-        $colIndex = 'A';
+        $colIndex = 1;
         foreach ($columns as $col) {
+            $colLetter = Coordinate::stringFromColumnIndex($colIndex);
             $label = $exportColumns[$col] ?? $col;
-            $cell = $sheet->getCell($colIndex . '1');
+            $cell = $sheet->getCell($colLetter . '1');
             $cell->setValue($label);
-            $sheet->getStyle($colIndex . '1')->applyFromArray($headerStyle);
-            $sheet->getColumnDimension($colIndex)->setAutoSize(true);
+            $sheet->getStyle($colLetter . '1')->applyFromArray($headerStyle);
+            $sheet->getColumnDimension($colLetter)->setAutoSize(true);
             $colIndex++;
         }
 
         // 填充数据
         $row = 2;
         foreach ($data as $item) {
-            $colIndex = 'A';
+            $colIndex = 1;
             foreach ($columns as $col) {
                 $value = $item[$col] ?? '';
                 if (in_array($col, $sensitiveFields) && !empty($value)) {
@@ -111,7 +113,7 @@ class ExportController extends BaseController
                         $value = str_repeat('*', 8); // id_card等彻底隐藏
                     }
                 }
-                $sheet->getCell($colIndex . $row)->setValue($value);
+                $sheet->getCell(Coordinate::stringFromColumnIndex($colIndex) . $row)->setValue($value);
                 $colIndex++;
             }
             $row++;

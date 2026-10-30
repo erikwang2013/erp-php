@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace app\process;
 
+use app\common\SnowflakeService;
 use app\middleware\AdminAuth;
 use app\service\notification\WebSocketService;
 use support\Log;
@@ -44,6 +45,8 @@ class WebSocket
      */
     public function onWorkerStart(Worker $worker): void
     {
+        SnowflakeService::registerProcessNode();
+
         try {
             Redis::set(self::CONNECTION_COUNT_KEY, 0);
         } catch (Throwable $e) {

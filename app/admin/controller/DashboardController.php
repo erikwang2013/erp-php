@@ -26,6 +26,7 @@ use app\model\SalesOrderItem;
 use app\model\TmsShipment;
 use app\model\WmsPickTask;
 use app\model\WmsReceiving;
+use support\Log;
 use support\Redis;
 use support\Request;
 use support\Response;
@@ -60,8 +61,8 @@ class DashboardController extends BaseController
     {
         // Redis 缓存 5 分钟，避免每次请求跑 5+ 条 SQL
         $cacheKey = 'dashboard:data';
-        $cached = Redis::get($cacheKey);
-        if ($cached) {
+        $cached = $this->cacheGet($cacheKey);
+        if ($cached !== null) {
             return $this->success(json_decode($cached, true));
         }
 
@@ -75,17 +76,55 @@ class DashboardController extends BaseController
             'recent_logs' => $this->getRecentLogs(),
         ];
 
-        Redis::setex($cacheKey, 300, json_encode($data, JSON_UNESCAPED_UNICODE));
+        $this->cacheSet($cacheKey, 300, json_encode($data, JSON_UNESCAPED_UNICODE));
 
         return $this->success($data);
     }
 
+    /**
+     * 日期半开区间 [当天 00:00:00, 次日 00:00:00)。
+     * 直接用列比较可走 B-Tree 索引；whereDate() 会对列套 DATE() 导致索引失效。
+     *
+     * @return array{0:string, 1:string}
+     */
+    public static function dayBounds(string $date): array
+    {
+        $start = date('Y-m-d 00:00:00', strtotime($date));
+
+        return [$start, date('Y-m-d 00:00:00', strtotime($date . ' +1 day'))];
+    }
+
+    /** 缓存读取 fail-open：Redis 故障时返回 null，由调用方回源数据库 */
+    private function cacheGet(string $key): ?string
+    {
+        try {
+            $value = Redis::get($key);
+        } catch (\Throwable $e) {
+            Log::warning('仪表盘缓存读取失败，回源数据库: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+
+            return null;
+        }
+
+        return is_string($value) && $value !== '' ? $value : null;
+    }
+
+    /** 缓存写入 fail-open：写失败只记日志，不影响本次响应 */
+    private function cacheSet(string $key, int $ttl, string $payload): void
+    {
+        try {
+            Redis::setex($key, $ttl, $payload);
+        } catch (\Throwable $e) {
+            Log::warning('仪表盘缓存写入失败: ' . $e->getMessage() . ' | TraceId: ' . trace_id());
+        }
+    }
+
     private function getStats(string $today): array
     {
+        [$todayStart, $tomorrowStart] = self::dayBounds($today);
         $totalUsers = AdminUser::count();
-        $todayNew = AdminUser::whereDate('created_at', $today)->count();
-        $todayActive = AdminUser::whereDate('last_login_at', $today)->count();
-        $todayLogs = OperationLog::whereDate('created_at', $today)->count();
+        $todayNew = AdminUser::query()->where('created_at', '>=', $todayStart)->where('created_at', '<', $tomorrowStart)->count();
+        $todayActive = AdminUser::query()->where('last_login_at', '>=', $todayStart)->where('last_login_at', '<', $tomorrowStart)->count();
+        $todayLogs = OperationLog::query()->where('created_at', '>=', $todayStart)->where('created_at', '<', $tomorrowStart)->count();
 
         return [
             [
@@ -127,21 +166,23 @@ class DashboardController extends BaseController
             $dates[] = date('Y-m-d', strtotime("+{$i} days", strtotime($startOfRange)));
         }
 
+        [$rangeStart] = self::dayBounds($startOfRange);
+
         // 一次查询获取用户每日新增数，PHP 内累加
-        $dailyNewUsers = AdminUser::whereDate('created_at', '>=', $startOfRange)
+        $dailyNewUsers = AdminUser::query()->where('created_at', '>=', $rangeStart)
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
             ->groupBy('date')
             ->pluck('count', 'date')
             ->toArray();
 
-        $cumulative = AdminUser::whereDate('created_at', '<', $startOfRange)->count();
+        $cumulative = AdminUser::query()->where('created_at', '<', $rangeStart)->count();
         foreach ($dates as $date) {
             $cumulative += $dailyNewUsers[$date] ?? 0;
             $userGrowth[] = $cumulative;
         }
 
         // 一次查询获取操作日志每日数量
-        $dailyLogs = OperationLog::whereDate('created_at', '>=', $startOfRange)
+        $dailyLogs = OperationLog::query()->where('created_at', '>=', $rangeStart)
             ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
             ->groupBy('date')
             ->pluck('count', 'date')
@@ -190,8 +231,10 @@ class DashboardController extends BaseController
 
     private function calcTrend(string $modelClass): ?float
     {
-        $today = $modelClass::whereDate('created_at', date('Y-m-d'))->count();
-        $yesterday = $modelClass::whereDate('created_at', date('Y-m-d', strtotime('-1 day')))->count();
+        [$todayStart, $tomorrowStart] = self::dayBounds(date('Y-m-d'));
+        [$yesterdayStart] = self::dayBounds(date('Y-m-d', strtotime('-1 day')));
+        $today = $modelClass::where('created_at', '>=', $todayStart)->where('created_at', '<', $tomorrowStart)->count();
+        $yesterday = $modelClass::where('created_at', '>=', $yesterdayStart)->where('created_at', '<', $todayStart)->count();
 
         if ($yesterday === 0) {
             return $today > 0 ? 100.0 : 0.0;
@@ -229,23 +272,26 @@ class DashboardController extends BaseController
     public function sales(Request $request): Response
     {
         $cacheKey = 'dashboard:sales:' . date('Y-m-d');
-        $cached = Redis::get($cacheKey);
-        if ($cached) {
+        $cached = $this->cacheGet($cacheKey);
+        if ($cached !== null) {
             return $this->success(json_decode($cached, true));
         }
 
         $today = date('Y-m-d');
+        [$todayStart, $tomorrowStart] = self::dayBounds($today);
+        [$monthStart] = self::dayBounds(date('Y-m-01'));
         $startOfRange = date('Y-m-d', strtotime('-29 days'));
         $topCustomers = SalesOrder::selectRaw('customer_id, sum(total_amount) as total')
-            ->whereBetween('ordered_at', [date('Y-m-01'), $today])
+            ->where('ordered_at', '>=', $monthStart)
+            ->where('ordered_at', '<', $tomorrowStart)
             ->where('status', '!=', 4)
             ->groupBy('customer_id')->orderByDesc('total')->limit(10)
             ->get();
         $customerNames = Customer::whereIn('id', $topCustomers->pluck('customer_id'))->pluck('name', 'id');
         // today_sales/month_sales/top_customers/funnel 双端（Flutter/HOS）零消费，保留待 BI 消费（勿删勿改结构）
         $data = [
-            'today_sales' => SalesOrder::whereDate('ordered_at', $today)->where('status', '!=', 4)->sum('total_amount') ?? 0,
-            'month_sales' => SalesOrder::whereBetween('ordered_at', [date('Y-m-01'), $today])->where('status', '!=', 4)->sum('total_amount') ?? 0,
+            'today_sales' => SalesOrder::query()->where('ordered_at', '>=', $todayStart)->where('ordered_at', '<', $tomorrowStart)->where('status', '!=', 4)->sum('total_amount') ?? 0,
+            'month_sales' => SalesOrder::query()->where('ordered_at', '>=', $monthStart)->where('ordered_at', '<', $tomorrowStart)->where('status', '!=', 4)->sum('total_amount') ?? 0,
             'top_customers' => $topCustomers->map(fn ($row) => [
                 'customer_id' => $this->encodeId($row->customer_id),
                 'customer_name' => $customerNames[$row->customer_id] ?? '',
@@ -257,7 +303,7 @@ class DashboardController extends BaseController
             'top_products' => $this->getTopProducts($startOfRange),
             'status_distribution' => $this->getOrderStatusDistribution($startOfRange),
         ];
-        Redis::setex($cacheKey, 300, json_encode($data));
+        $this->cacheSet($cacheKey, 300, json_encode($data));
 
         return $this->success($data);
     }
@@ -265,7 +311,8 @@ class DashboardController extends BaseController
     /** 近30日每日销售额（含0值补全） */
     private function getSalesTrend(string $startOfRange): array
     {
-        $dailySales = SalesOrder::whereDate('ordered_at', '>=', $startOfRange)
+        [$rangeStart] = self::dayBounds($startOfRange);
+        $dailySales = SalesOrder::query()->where('ordered_at', '>=', $rangeStart)
             ->where('status', '!=', 4)
             ->selectRaw('DATE(ordered_at) as date, SUM(total_amount) as total')
             ->groupBy('date')->pluck('total', 'date')->toArray();
@@ -284,10 +331,11 @@ class DashboardController extends BaseController
     /** Top5 热销商品（近30日订购数量） */
     private function getTopProducts(string $startOfRange): array
     {
+        [$rangeStart] = self::dayBounds($startOfRange);
         $top = SalesOrderItem::query()
             ->join('sales_order', 'sales_order.id', '=', 'sales_order_item.order_id')
             ->whereNull('sales_order.deleted_at')
-            ->whereDate('sales_order.ordered_at', '>=', $startOfRange)
+            ->where('sales_order.ordered_at', '>=', $rangeStart)
             ->where('sales_order.status', '!=', 4)
             ->selectRaw(sprintf('%s.product_id, SUM(%s.quantity) as qty', db_prefix().'sales_order_item', db_prefix().'sales_order_item'))
             ->groupBy('sales_order_item.product_id')->orderByDesc('qty')->limit(5)
@@ -305,7 +353,8 @@ class DashboardController extends BaseController
     private function getOrderStatusDistribution(string $startOfRange): array
     {
         $statusNames = [0 => '待审核', 1 => '已审核', 2 => '部分发货', 3 => '已发货', 4 => '已取消'];
-        $counts = SalesOrder::whereDate('ordered_at', '>=', $startOfRange)
+        [$rangeStart] = self::dayBounds($startOfRange);
+        $counts = SalesOrder::query()->where('ordered_at', '>=', $rangeStart)
             ->selectRaw('status, COUNT(*) as count')
             ->groupBy('status')->pluck('count', 'status')->toArray();
 
@@ -336,19 +385,20 @@ class DashboardController extends BaseController
     public function inventory(Request $request): Response
     {
         $cacheKey = 'dashboard:inventory:' . date('Y-m-d');
-        $cached = Redis::get($cacheKey);
-        if ($cached) {
+        $cached = $this->cacheGet($cacheKey);
+        if ($cached !== null) {
             return $this->success(json_decode($cached, true));
         }
 
+        [$monthStart] = self::dayBounds(date('Y-m-01'));
         $data = [
             'total_value' => Inventory::selectRaw('sum(quantity * cost_price) as total')->value('total') ?? 0,
-            'alert_low' => InventoryAlertLog::where('alert_type', 1)->whereDate('created_at', '>=', date('Y-m-01'))->count(),
-            'alert_high' => InventoryAlertLog::where('alert_type', 2)->whereDate('created_at', '>=', date('Y-m-01'))->count(),
+            'alert_low' => InventoryAlertLog::where('alert_type', 1)->where('created_at', '>=', $monthStart)->count(),
+            'alert_high' => InventoryAlertLog::where('alert_type', 2)->where('created_at', '>=', $monthStart)->count(),
             'flow_trend' => InventoryFlow::selectRaw('DATE(created_at) as date, direction, sum(quantity) as total')
-                ->whereDate('created_at', '>=', date('Y-m-01'))->groupBy('date', 'direction')->orderBy('date')->get(),
+                ->where('created_at', '>=', $monthStart)->groupBy('date', 'direction')->orderBy('date')->get(),
         ];
-        Redis::setex($cacheKey, 300, json_encode($data));
+        $this->cacheSet($cacheKey, 300, json_encode($data));
 
         return $this->success($data);
     }
@@ -376,59 +426,69 @@ class DashboardController extends BaseController
     public function finance(Request $request): Response
     {
         $cacheKey = 'dashboard:finance:' . date('Y-m-d');
-        $cached = Redis::get($cacheKey);
-        if ($cached) {
+        $cached = $this->cacheGet($cacheKey);
+        if ($cached !== null) {
             return $this->success(json_decode($cached, true));
         }
 
+        [$monthStart] = self::dayBounds(date('Y-m-01'));
         $data = [
             'total_ar' => FinanceArAp::where('type', 1)->where('status', '!=', 2)->sum('amount') ?? 0,
             'total_ap' => FinanceArAp::where('type', 2)->where('status', '!=', 2)->sum('amount') ?? 0,
-            'month_receipt' => FinanceReceipt::whereDate('received_at', '>=', date('Y-m-01'))->sum('amount') ?? 0,
-            'month_payment' => FinancePayment::whereDate('paid_at', '>=', date('Y-m-01'))->sum('amount') ?? 0,
+            'month_receipt' => FinanceReceipt::query()->where('received_at', '>=', $monthStart)->sum('amount') ?? 0,
+            'month_payment' => FinancePayment::query()->where('paid_at', '>=', $monthStart)->sum('amount') ?? 0,
             'cash_balance' => FinanceBankAccount::sum('balance') ?? 0,
             'ar_aging' => $this->getAging(1),
             'ap_aging' => $this->getAging(2),
         ];
-        Redis::setex($cacheKey, 300, json_encode($data));
+        $this->cacheSet($cacheKey, 300, json_encode($data));
 
         return $this->success($data);
     }
 
-    /** 应收/应付账龄汇总（按未核销余额分桶；无到期日视为未到期） */
+    /**
+     * 应收/应付账龄汇总（按未核销余额分桶；无到期日视为未到期）。
+     * 单条 SQL CASE 聚合，不再把全部未核销记录加载进 PHP 分桶。
+     */
     private function getAging(int $type): array
     {
-        $rows = FinanceArAp::where('type', $type)->where('status', '!=', 2)
-            ->selectRaw('due_date, amount - settled_amount as outstanding')
-            ->get();
+        // 基准日取 PHP 时区（Asia/Shanghai），避免 MySQL 时区不一致导致分桶偏移
+        $today = date('Y-m-d');
+        $sums = FinanceArAp::where('type', $type)
+            ->where('status', '!=', 2)
+            ->whereRaw('amount > settled_amount')
+            ->selectRaw(
+                "CASE
+                    WHEN due_date IS NULL OR due_date >= ? THEN '未到期'
+                    WHEN DATEDIFF(?, due_date) <= 30 THEN '逾期1-30天'
+                    WHEN DATEDIFF(?, due_date) <= 60 THEN '逾期31-60天'
+                    WHEN DATEDIFF(?, due_date) <= 90 THEN '逾期61-90天'
+                    ELSE '逾期90+天'
+                 END AS bucket, SUM(amount - settled_amount) AS total",
+                [$today, $today, $today, $today]
+            )
+            ->groupBy('bucket')
+            ->pluck('total', 'bucket')
+            ->toArray();
 
+        return self::formatAging($sums);
+    }
+
+    /**
+     * 账龄分桶格式化（纯函数，可单测）：固定 5 桶及中文名，缺失桶补 0。
+     *
+     * @param array<string, string|int|float> $sums bucket => 未核销余额合计
+     * @return array<int, array{name:string, value:float}>
+     */
+    public static function formatAging(array $sums): array
+    {
         $buckets = ['未到期' => '0', '逾期1-30天' => '0', '逾期31-60天' => '0', '逾期61-90天' => '0', '逾期90+天' => '0'];
-        $today = strtotime(date('Y-m-d'));
-        foreach ($rows as $row) {
-            $outstanding = bc_norm($row->outstanding);
-            if (bccomp($outstanding, '0', 4) <= 0) {
-                continue;
-            }
-            // due_date 为空视为未到期；模型 cast 为 date，取 Y-m-d 再转时间戳
-            $days = $row->due_date === null ? 0 : (int) floor(($today - strtotime($row->due_date->toDateString())) / 86400);
-            if ($days <= 0) {
-                $buckets['未到期'] = bcadd($buckets['未到期'], $outstanding, 6);
-            } elseif ($days <= 30) {
-                $buckets['逾期1-30天'] = bcadd($buckets['逾期1-30天'], $outstanding, 6);
-            } elseif ($days <= 60) {
-                $buckets['逾期31-60天'] = bcadd($buckets['逾期31-60天'], $outstanding, 6);
-            } elseif ($days <= 90) {
-                $buckets['逾期61-90天'] = bcadd($buckets['逾期61-90天'], $outstanding, 6);
-            } else {
-                $buckets['逾期90+天'] = bcadd($buckets['逾期90+天'], $outstanding, 6);
-            }
+        $result = [];
+        foreach (array_keys($buckets) as $name) {
+            $result[] = ['name' => $name, 'value' => (float) bc_round(bc_norm($sums[$name] ?? '0'), 2)];
         }
 
-        return array_map(
-            fn ($name, $value) => ['name' => $name, 'value' => (float) bc_round($value, 2)],
-            array_keys($buckets),
-            array_values($buckets)
-        );
+        return $result;
     }
 
     /**
@@ -450,10 +510,13 @@ class DashboardController extends BaseController
 
     public function oms(Request $request): Response
     {
+        [$todayStart, $tomorrowStart] = self::dayBounds(date('Y-m-d'));
+
         return $this->success([
             'pending_orders' => OmsOrder::whereIn('fulfillment_status', [0, 1])->count(),
             'picking_orders' => OmsOrder::where('fulfillment_status', 2)->count(),
-            'shipped_today' => OmsOrder::where('fulfillment_status', 4)->whereDate('updated_at', date('Y-m-d'))->count(),
+            'shipped_today' => OmsOrder::where('fulfillment_status', 4)
+                ->where('updated_at', '>=', $todayStart)->where('updated_at', '<', $tomorrowStart)->count(),
             'pending_rma' => \app\model\OmsRma::where('status', 0)->count(),
         ]);
     }
@@ -504,10 +567,13 @@ class DashboardController extends BaseController
 
     public function tms(Request $request): Response
     {
+        [$todayStart, $tomorrowStart] = self::dayBounds(date('Y-m-d'));
+
         return $this->success([
             'pending_shipments' => TmsShipment::where('status', 0)->count(),
             'in_transit' => TmsShipment::whereIn('status', [1, 2])->count(),
-            'delivered_today' => TmsShipment::where('status', 3)->whereDate('actual_delivery_at', date('Y-m-d'))->count(),
+            'delivered_today' => TmsShipment::where('status', 3)
+                ->where('actual_delivery_at', '>=', $todayStart)->where('actual_delivery_at', '<', $tomorrowStart)->count(),
             'exception_shipments' => TmsShipment::where('status', 4)->count(),
         ]);
     }

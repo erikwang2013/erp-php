@@ -15,6 +15,7 @@ use app\model\MfgMrpItem;
 use app\model\MfgMrpPlan;
 use app\model\MfgProductionItem;
 use app\model\MfgProductionOrder;
+use app\model\SalesOrderItem;
 use app\service\AbstractCrudService;
 use Illuminate\Database\Capsule\Manager as DB;
 use InvalidArgumentException;
@@ -240,7 +241,44 @@ class ManufacturingService extends AbstractCrudService
     }
 
     /**
-     * 生成 MRP 计划明细：基于各产品已生效 BOM 与库存可用量计算净需求
+     * 毛需求 = 期间需求数量 × BOM 单位用量（纯逻辑，可单测；bcmath 保留 2 位小数）
+     */
+    public function computeGrossRequirement(int|float|string $demandQty, int|float|string $perUnitQty): string
+    {
+        return bc_round(bcmul(bc_norm($demandQty), bc_norm($perUnitQty), 6), 2);
+    }
+
+    /**
+     * 按计划期间汇总销售需求：status 1/2/3（已审核/部分发货/已发货）且未软删的订单明细。
+     *
+     * 当前实现范围：需求源仅为销售订单，不含预测、采购在途或安全库存；
+     * 无需求的产品在 generateMrpItems 中不生成明细行。
+     *
+     * @return array<int, string> product_id => SUM(quantity)
+     */
+    private function getSalesDemand(int $year, int $month): array
+    {
+        if (!checkdate($month, 1, $year)) {
+            return [];
+        }
+        $start = sprintf('%04d-%02d-01 00:00:00', $year, $month);
+        $end = date('Y-m-d H:i:s', strtotime($start . ' +1 month'));
+        $itemTable = db_prefix() . 'sales_order_item';
+
+        return SalesOrderItem::query()
+            ->join('sales_order', 'sales_order.id', '=', 'sales_order_item.order_id')
+            ->whereNull('sales_order.deleted_at')
+            ->whereIn('sales_order.status', [1, 2, 3])
+            ->where('sales_order.ordered_at', '>=', $start)
+            ->where('sales_order.ordered_at', '<', $end)
+            ->selectRaw("{$itemTable}.product_id, SUM({$itemTable}.quantity) as qty")
+            ->groupBy('sales_order_item.product_id')
+            ->pluck('qty', 'product_id')
+            ->toArray();
+    }
+
+    /**
+     * 生成 MRP 计划明细：本期销售需求 × 已生效 BOM 用量 → 毛需求，再按库存可用量算净需求
      *
      * @return int|null 生成的明细条数；计划不存在返回 null
      * @throws InvalidArgumentException 计划已确认不可重新生成时抛出
@@ -257,6 +295,7 @@ class ManufacturingService extends AbstractCrudService
 
         $mrpEngine = Container::get(MrpEngineService::class);
         $boms = MfgBom::where('status', 1)->with(['items'])->get();
+        $demandByProduct = $this->getSalesDemand((int) $plan->period_year, (int) $plan->period_month);
 
         // 一次取回全部相关库存，按 product_id 索引（同产品多库存行时与原逐行 first() 语义一致：取第一行）
         $componentIds = [];
@@ -280,8 +319,13 @@ class ManufacturingService extends AbstractCrudService
 
             $rows = [];
             foreach ($boms as $bom) {
+                $demandQty = $demandByProduct[(int) $bom->product_id] ?? '0';
+                // 本期无销售需求的产品不生成明细行（需求源范围见 getSalesDemand 注释）
+                if (bccomp(bc_norm($demandQty), '0', 6) <= 0) {
+                    continue;
+                }
                 foreach ($bom->items as $bomItem) {
-                    $grossRequirement = (float) $bomItem->quantity;
+                    $grossRequirement = (float) $this->computeGrossRequirement($demandQty, $bomItem->quantity);
 
                     $inventory = $inventoryByProduct[(int) $bomItem->component_product_id] ?? null;
                     $onHand = $inventory ? (float) $inventory->quantity : 0.00;

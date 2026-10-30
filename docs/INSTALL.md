@@ -109,6 +109,28 @@ curl http://localhost:8788/health
 git diff <旧版本>..<新版本> -- database/install.sql    # 取出表结构与种子的差异
 ```
 
+**2026-10-30 结构补丁**：存量库还需执行 `database/upgrade-2026-10-30.sql`（幂等添加仪表盘日期索引与 `erp_hr_salary` 唯一键；若存在同员工同月重复薪资会中止，需先人工去重）：
+
+```bash
+mysql -u <user> -p <database> < database/upgrade-2026-10-30.sql
+```
+
+**历史明文银行账号加密**：银行账号自本次升级起写入时自动加密，升级前存量明文需用迁移脚本转换（默认 dry-run 只统计，确认后加 `--apply` 写库；先备份数据库并尽量停止账户写入）：
+
+```bash
+php scripts/encrypt-bank-accounts.php           # dry-run：统计待转换数量
+php scripts/encrypt-bank-accounts.php --apply   # 实际写库，可重复执行
+```
+
+脚本分块遍历 `erp_finance_bank_account`，已加密/空值自动跳过；迁移后列表与详情仅返回后 4 位掩码。
+
+**历史报表数据集清理**：修复前生成的 `report_dataset` 可能包含 `SELECT *` 或敏感表结果；`result()` 已拒绝回放，但如需删除落库副本（默认 dry-run，安全数据集保留）：
+
+```bash
+php scripts/cleanup-report-datasets.php           # 统计
+php scripts/cleanup-report-datasets.php --apply   # 删除不安全数据集
+```
+
 1. 差异中的 `CREATE TABLE`（带 `IF NOT EXISTS`，可原样跑）/ `ALTER TABLE` / 种子 `INSERT` 按序在现网库执行。
 2. **权限种子**：新端点对应的 `erp_admin_permission` 行需补录。超级管理员例外——它持有通配权限
    （`erp_admin_permission` 中 `slug = '*'` 的「全部权限」行，`app/middleware/AdminPermission.php:38`

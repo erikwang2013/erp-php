@@ -249,9 +249,16 @@ class ReceivingController extends BaseController
 
     public function complete(Request $request, string $id): Response
     {
+        // 明细逐行校验：实收数量必须是正数（服务端还会对照 ASN 预期数量复核）；
+        // sku_id/to_location_id/batch_code 可选，其中 ID 允许 hashid 串，故只做可空校验
         $validator = validator($request->all(), [
             'id' => 'string',
-            'items' => 'array',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required',
+            'items.*.received_quantity' => 'required|numeric|gt:0',
+            'items.*.sku_id' => 'nullable',
+            'items.*.to_location_id' => 'nullable',
+            'items.*.batch_code' => 'nullable|string',
         ]);
         if ($validator->fails()) {
             return $this->fail($validator->errors()->first(), 422);

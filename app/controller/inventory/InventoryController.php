@@ -198,13 +198,30 @@ class InventoryController extends BaseController
 
         // 禁止直接改数量：会绕开库存流水与移动加权平均成本重算（账实不符的源头）。
         // 需要按实际库存修正请走盘点/入库调整，那会生成盘盈盘亏流水。
-        if ($request->input('quantity') !== null) {
+        $payload = $request->all();
+        if (array_key_exists('quantity', $payload)) {
             return $this->fail($this->trans('Inventory quantity cannot be modified directly (it would bypass the inventory ledger and cost recalculation); please correct it via a stocktake or inventory adjustment'), 422);
         }
+        // 成本价同样只由入库（移动加权）与出库重算写入，直改会污染出库成本、毛利与存货估值
+        if (array_key_exists('cost_price', $payload)) {
+            return $this->fail($this->trans('Inventory cost price cannot be modified directly (it would distort outbound cost, gross profit and valuation); please correct it via a stocktake or inventory adjustment'), 422);
+        }
+        // 库存维度禁止直改：把一行挪到另一商品/仓库会绕开调拨流水，账实无从追溯。
+        // 只拒绝值确实变化的键，前端整行回填（hashid 编码）原样提交仍放行。
+        $dimensionChanged = array_key_exists('batch_code', $payload)
+            && (!is_scalar($payload['batch_code']) || (string) $payload['batch_code'] !== (string) $item->batch_code);
+        foreach (['product_id', 'sku_id', 'warehouse_id', 'location_id'] as $field) {
+            if (array_key_exists($field, $payload)
+                && $this->decodeFlexibleId($payload[$field]) !== (int) $item->getAttribute($field)) {
+                $dimensionChanged = true;
+                break;
+            }
+        }
+        if ($dimensionChanged) {
+            return $this->fail($this->trans('Inventory product/SKU/warehouse/location/batch cannot be changed directly; please use an inventory transfer or stocktake/adjustment'), 422);
+        }
 
-        $this->fillModelFromRequest($item, $request);
-        $item->save();
-
+        // 库存行没有可经通用 PUT 修改的字段：校验通过即为未变更的回填，不落库直接返回
         return $this->success($this->encodeIds($item->toArray()), $this->trans('Updated successfully'));
     }
 
@@ -237,13 +254,23 @@ class InventoryController extends BaseController
             return $this->fail($this->trans('Record not found'), 404);
         }
 
+        // 非零库存行禁止硬删：直接删除会让数量凭空消失且无流水可查。
+        // 需先经盘点/调整把数量调平（会生成盘盈盘亏流水）再删除。
+        $notEmpty = $this->trans('Only zero-quantity inventory records can be deleted; please correct it via a stocktake or inventory adjustment');
+        if (bccomp(bc_norm($item->quantity), '0', 6) !== 0) {
+            return $this->fail($notEmpty, 422);
+        }
+
         $adminId = $request->adminId ?? 0;
         $error = $this->confirmPassword($adminId, $request->input('password', ''), $request);
         if ($error !== null) {
             return $this->fail($error, 422);
         }
 
-        $item->delete();
+        // 条件删除防「校验后被并发入库」：数量已非 0 则删除 0 行，按业务拒绝返回
+        if (!Inventory::query()->where('id', $id)->where('quantity', 0)->delete()) {
+            return $this->fail($notEmpty, 422);
+        }
 
         return $this->success([], $this->trans('Deleted successfully'));
     }

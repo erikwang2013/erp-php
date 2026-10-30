@@ -184,9 +184,15 @@ class WmsOutboundService
         }
 
         $inventory = new InventoryService();
+        // 按库存维度排序后逐行出库：锁序与其它模块统一，避免多张预占单明细顺序相反时跨 SKU 死锁
         $reservations = OmsInventoryReservation::where('source_type', 'oms_order')
             ->where('source_id', $omsOrderId)
             ->where('status', 1)
+            ->orderBy('product_id')
+            ->orderBy('sku_id')
+            ->orderBy('warehouse_id')
+            ->orderBy('location_id')
+            ->orderBy('batch_code')
             ->get();
 
         foreach ($reservations as $r) {

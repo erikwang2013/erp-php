@@ -186,6 +186,16 @@ class PutawayController extends BaseController
         if (!$id) {
             return $this->fail($this->trans('Invalid ID'), 400);
         }
+
+        // 状态只能经 start/complete 动作流转：PUT 直改可把已完成任务改回「上架中」，
+        // 再调 complete 即重复 stockIn。放在查库前，非法请求无需读库即可拒绝
+        if (array_key_exists('status', $request->all())) {
+            return $this->fail(
+                $this->trans('Putaway task status cannot be modified directly; use the start/complete actions'),
+                422
+            );
+        }
+
         $item = WmsPutawayTask::find($id);
         if (!$item) {
             return $this->fail($this->trans('Record not found'), 404);

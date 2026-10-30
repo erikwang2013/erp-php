@@ -70,7 +70,12 @@ class MfgCostService extends AbstractCrudService
                 throw new InvalidArgumentException('只有草稿状态的领料单可以审核');
             }
             $order = $this->lockOrderInProduction((int) $header->order_id, '领料');
-            $items = MfgMaterialIssueItem::query()->where('issue_id', $id)->orderBy('id')->get();
+            // 按库存维度排序后逐行出库：锁序与其它模块统一，避免两单明细顺序相反时跨 SKU 死锁
+            $items = MfgMaterialIssueItem::query()
+                ->where('issue_id', $id)
+                ->orderBy('product_id')
+                ->orderBy('sku_id')
+                ->get();
             if ($items->isEmpty()) {
                 throw new InvalidArgumentException('领料单明细不能为空，无法审核');
             }

@@ -13,7 +13,7 @@
 |------|------|--------------|
 | Backend | webman (Workerman) PHP 8.3+, **23 business modules**, 159 controllers, 63 services, 224 models, 227 tables, 11 middleware (schema uses database/install.sql as its single source of truth) | Large all-in-one monolith; divide work by business domain to prevent single-agent context explosion |
 | Frontend | Flutter **63 menu entries / 117 page files** (`lib/app/config/menu_config.dart`), covering all retained modules | Flutter single-frontend maintenance |
-| Quality baseline | PHPUnit 933[](#stats:tests=933) tests / 4178[](#stats:assertions=4178) assertions, PHPStan + baseline, CS-Fixer, CI multi-version matrix | Discipline already in place; testing/review roles plug directly into the pipeline |
+| Quality baseline | PHPUnit 1018[](#stats:tests=1018) tests / 4482[](#stats:assertions=4482) assertions, PHPStan + baseline, CS-Fixer, CI multi-version matrix | Discipline already in place; testing/review roles plug directly into the pipeline |
 | Version matrix | Only the `main` branch (`lite` / `standard` / `full` have been deleted; the archived commit `eea90c0` is still in `main`'s history) | No edition branch left to sync; edition differences are traced through tags, see "Branch Strategy" in `docs/EDITIONS.md` |
 | Roadmap | P0~P3 delivered (overall score 89/100), entering daily iteration and evolution phase | Team scales by task type, not a large permanent project staff |
 | Existing facilities | `.claude/agents/` (planner / sparc / testing / swarm / consensus), `.claude-flow` (hierarchical-mesh, max 15 agents, consensus coordination), hooks + memory | Team mounts directly onto existing config; no reinvention |
@@ -82,7 +82,7 @@
 ### 3.4 Quality Gate (mandatory before commit, guarded by the reviewer)
 
 ```
-phpunit            # 933[](#stats:tests=933) tests / 4178[](#stats:assertions=4178) assertions all green; new cases submitted with changes
+phpunit            # 1018[](#stats:tests=1018) tests / 4482[](#stats:assertions=4482) assertions all green; new cases submitted with changes
 phpstan            # no issues beyond the baseline allowed
 php-cs-fixer       # --dry-run passes
 composer audit     # no high-severity dependency vulnerabilities
